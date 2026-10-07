@@ -17,3 +17,7 @@ next-env.d.ts
 
 # Vercel CLI가 로컬에 만드는 프로젝트 연결 정보(비밀은 아니지만 기기별 로컬 설정)
 .vercel
+
+# 문장 DB 스크립트 실행 부산물
+db/__pycache__/
+db/import_report.md

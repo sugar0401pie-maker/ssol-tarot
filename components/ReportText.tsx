@@ -6,7 +6,7 @@ import { CardFace } from "./Cards";
 // 텍스트 규칙: "### n. 제목" = 섹션 제목 / "• " = 항목 / 빈 줄 = 문단 구분 / 정해진 소제목 줄 = 소제목.
 // "[카드 이미지 3장: …]" 줄은 텍스트 결과용 표시라 화면에서는 빼고, 맨 위 카드 사진(CardZoom)이 그 역할을 한다.
 
-const FIXED_SUBHEADINGS = new Set(["세 장 한눈에 보기", "어떤 카드인가요", "내 고민에 대어 보면"]);
+const FIXED_SUBHEADINGS = new Set(["세 장 한눈에 보기", "어떤 카드인가요", "조금 더 들여다보기", "내 고민에 대어 보면"]);
 
 export function ReportText({ text, subheadings, card }: { text: string; subheadings: string[]; card?: ResultCard }) {
   const heads = new Set([...FIXED_SUBHEADINGS, ...subheadings]);

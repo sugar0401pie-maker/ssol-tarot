@@ -14,6 +14,7 @@ export function readingSentence(a: any): string;
 export function prescriptionsFor(a: any): any[];
 export function weekPlan(picks: ExpandedPick[], safety: Safety): any;
 export function applyFallback(a: any): string;
+export function storyFallback(a: any): string;
 export function mergeReport(a: any): string;
 export function validateStory(raw: unknown, opts?: { violence?: boolean }): string | null;
 export function validateApply(raw: unknown, opts?: { violence?: boolean }): string | null;

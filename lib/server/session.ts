@@ -2,7 +2,8 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import data from "@/data/tarot_data.json";
 import { createShuffle, pickSlot } from "@/lib/tarot/deck.js";
-import { screenText, mergeSafety } from "@/lib/tarot/safety.js";
+import { mergeSafety } from "@/lib/tarot/safety.js";
+import { screenWorry } from "@/lib/tarot-glue/screenWorry";
 import {
   buildFreeSections,
   buildLockedPreview,
@@ -130,7 +131,7 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
   const text = String(body.text ?? "").trim();
   if (text.length < copy.worry.min_len) throw new TarotError(400, copy.worry.too_short);
   const worry = text.slice(0, copy.worry.max_len);
-  const local = screenText(worry);
+  const local = screenWorry(worry);
   const urgent = local.level === "urgent";
   await update(s.id, {
     worry_text: worry,
@@ -159,7 +160,7 @@ export async function runClassification(sessionId: string) {
     }
   }
   // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety). 분류에 실패해도 키워드 결과는 유지.
-  const merged = mergeSafety(screenText(worry), cls);
+  const merged = mergeSafety(screenWorry(worry), cls);
   const patch: Partial<SessionRow> = {
     classification: cls,
     classification_status: cls ? "done" : "failed",
