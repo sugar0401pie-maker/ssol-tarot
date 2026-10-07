@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+/* 디자인 가이드 2장 색 토큰 — "달밤에서 새벽으로". 시안이 바뀌면 night/gold/moon/card-cream/card-line만 다시 뽑는다. */
+:root {
+  --night: #012f53;
+  --night-deep: #001e38;
+  --gold: #e3c68e;
+  --gold-soft: #f3e2be;
+  --moon: #fcefd4;
+  --card-cream: #fef3de;
+  --card-line: #204870;
+  --dawn-sky: #a8c4de;
+  --dawn-peach: #fae4cd;
+  --navy: #013566;
+  --ink: #1c2b3a;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-night: var(--night);
+  --color-night-deep: var(--night-deep);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-moon: var(--moon);
+  --color-card-cream: var(--card-cream);
+  --color-card-line: var(--card-line);
+  --color-dawn-sky: var(--dawn-sky);
+  --color-dawn-peach: var(--dawn-peach);
+  --color-navy: var(--navy);
+  --color-ink: var(--ink);
+  --font-sans: var(--font-noto-sans-kr), system-ui, sans-serif;
+  --font-serif: var(--font-gowun-batang), serif;
+}
+
+body {
+  background: var(--night);
+  color: var(--moon);
+  font-family: var(--font-noto-sans-kr), system-ui, sans-serif;
+}
+
+/* 밤 화면 배경: 위는 night, 아래로 night-deep */
+.night-bg {
+  background: linear-gradient(180deg, var(--night) 0%, var(--night) 55%, var(--night-deep) 100%);
+}
+.dawn-bg {
+  background: var(--card-cream);
+  color: var(--ink);
+}
+
+/* 이중 금선 프레임(인트로~고민 쓰기) */
+.gold-frame {
+  position: relative;
+}
+.gold-frame::before,
+.gold-frame::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid var(--gold);
+  border-radius: 18px;
+  opacity: 0.55;
+}
+.gold-frame::before {
+  inset: 10px;
+}
+.gold-frame::after {
+  inset: 15px;
+  opacity: 0.3;
+}
+
+/* 별가루 */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.9; }
+}
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--gold-soft);
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+/* 버튼 — 밤: moon 채움 / 보조: 금테 투명. 아침: navy 채움 */
+.btn-night {
+  background: var(--moon);
+  color: var(--night);
+}
+.btn-night-ghost {
+  background: transparent;
+  color: var(--moon);
+  border: 1px solid var(--gold);
+}
+.input-night {
+  background: var(--moon);
+  color: var(--ink);
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+}
+.input-night:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(227, 198, 142, 0.45);
+}
+
+/* 셔플: 카드 더미가 좌우로 갈라졌다 겹치기 */
+@keyframes shuffle-left {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-62px) rotate(-8deg); }
+  50% { transform: translateX(0) rotate(0); }
+  75% { transform: translateX(-40px) rotate(-5deg); }
+}
+@keyframes shuffle-right {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(62px) rotate(8deg); }
+  50% { transform: translateX(0) rotate(0); }
+  75% { transform: translateX(40px) rotate(5deg); }
+}
+@keyframes shuffle-spin {
+  0% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-46px) rotate(180deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+.shuffle-left { animation: shuffle-left 1.5s ease-in-out infinite; }
+.shuffle-right { animation: shuffle-right 1.5s ease-in-out infinite; }
+.shuffle-spin { animation: shuffle-spin 1.5s ease-in-out infinite; }
+
+/* 카드 뒤집기(뒷면 → 앞면) */
+.flip-scene { perspective: 900px; }
+.flip-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.24, 1);
+}
+.flip-card.is-flipped { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-front { transform: rotateY(180deg); }
+
+/* 뒤집는 순간 새벽 광채 */
+@keyframes dawn-glow {
+  0% { opacity: 0; transform: scale(0.6); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+.dawn-glow {
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle, var(--dawn-peach) 0%, rgba(250, 228, 205, 0) 65%);
+  animation: dawn-glow 0.9s ease-out forwards;
+  pointer-events: none;
+}
+
+/* 대기 엠블럼 숨쉬기 */
+@keyframes breathe {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+  50% { transform: scale(1.06) rotate(8deg); opacity: 1; }
+}
+.breathe { animation: breathe 3.2s ease-in-out infinite; }
+
+/* 인트로 바다 친구들 지나가기 (디자인 가이드 5-1) */
+@keyframes swim-ltr {
+  0% { transform: translateX(-60vw); opacity: 0; }
+  12% { opacity: 1; }
+  45%, 55% { transform: translateX(-4vw); }
+  88% { opacity: 1; }
+  100% { transform: translateX(60vw); opacity: 0; }
+}
+@keyframes swim-rtl {
+  0% { transform: translateX(60vw); opacity: 0; }
+  12% { opacity: 1; }
+  45%, 55% { transform: translateX(4vw); }
+  88% { opacity: 1; }
+  100% { transform: translateX(-60vw); opacity: 0; }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(-10px) rotate(-3deg); }
+  50% { transform: translateY(10px) rotate(3deg); }
+}
+@keyframes fade-inout {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 1; }
+}
+.swim-ltr { animation: swim-ltr 4.2s cubic-bezier(0.3, 0.6, 0.7, 0.4) forwards; }
+.swim-rtl { animation: swim-rtl 4.2s cubic-bezier(0.3, 0.6, 0.7, 0.4) forwards; }
+.bob { animation: bob 1.6s ease-in-out infinite; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.fade-up { animation: fade-up 0.5s ease-out both; }
+
+/* 움직임 줄이기: 셔플·회전·헤엄 대신 페이드(셔플 최소 3초는 화면 코드가 유지) */
+@media (prefers-reduced-motion: reduce) {
+  .shuffle-left, .shuffle-right, .shuffle-spin, .bob, .breathe, .star { animation: none; }
+  .swim-ltr, .swim-rtl { animation: fade-inout 4.2s ease-in-out forwards; }
+  .flip-card { transition: opacity 0.3s; }
+  .dawn-glow { animation: none; display: none; }
+}

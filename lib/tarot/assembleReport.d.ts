@@ -1,0 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { TarotData, ExpandedPick, Links, Safety } from "./types";
+type Cls = { domain: string; emotions: string[]; need: string; self_focus?: boolean } | null;
+export function buildFreeSections(a: { name: string; cls: Cls; picks: ExpandedPick[]; data: TarotData; links?: Links | null }): { section1: string; section2: string; section3: string };
+export function buildLockedPreview(data: TarotData, picks?: ExpandedPick[] | null): { no: number; title: string; teaser: string; card?: string }[];
+export function buildSafetyNotice(a: { data: TarotData; safety: Safety }): string | null;
+export function buildSection8(a: { data: TarotData }): string;
+export function buildPaidSections(a: any): { section4: string; section5: string; section6: string; section7: string };
+export function buildLinkUserBlock(a: { name: string; worryText: string | null; cls: Cls; picks: ExpandedPick[]; data: TarotData }): string | null;
+export function buildStoryUserBlock(a: any): string | null;
+export function parseLinks(raw: unknown, opts?: { violence?: boolean }): Links | null;
+export function parseStoryApply(raw: unknown, opts?: { violence?: boolean }): { story: string | null; apply: string | null };
+export function readingSentence(a: any): string;
+export function prescriptionsFor(a: any): any[];
+export function weekPlan(picks: ExpandedPick[], safety: Safety): any;
+export function applyFallback(a: any): string;
+export function mergeReport(a: any): string;
+export function validateStory(raw: unknown, opts?: { violence?: boolean }): string | null;
+export function validateApply(raw: unknown, opts?: { violence?: boolean }): string | null;
+export function theoriesFor(picks: ExpandedPick[]): string[];
+export const coreOf: (p: ExpandedPick) => string;
+export const readingOf: (p: ExpandedPick) => string;
