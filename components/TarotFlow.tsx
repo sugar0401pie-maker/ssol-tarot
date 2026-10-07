@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { initialState, next, type FlowAction, type FlowStateBase } from "@/lib/tarot/flow.js";
 import { api, saveKey, ApiError, type PickResponse } from "@/lib/client/api";
@@ -290,6 +291,9 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
   }, []);
   return (
     <div className="relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-16 text-center">
+      <Link href="/login" className="absolute right-5 top-5 text-[13px] text-moon/80 underline">
+        로그인
+      </Link>
       <div className="fade-up flex flex-col items-center gap-3">
         <p className="text-[13px] tracking-[0.2em] text-gold">SSOL WELLNESS HOUSE</p>
         <h1 className="font-serif text-[30px] font-bold text-gold-soft">쏠 타로 하우스</h1>

@@ -16,7 +16,6 @@ import { WaitNotice } from "./WaitNotice";
 // 결과 페이지(스펙 7.5): 카드 3장 사진 → 무료 1~3번 → (안전 안내 박스) → 잠금 구간(4번 카드명 + 5~8번 제목·고정 한 줄) → 결제 카드.
 // 유료 본문은 서버가 보내지 않으므로 블러는 "가려진 본문"이 아니라 고정 한 줄 위에 씌운 장식이다.
 
-const SOWELLA_URL = "https://app.ssolwellnesshouse.com";
 
 type Ready = Extract<ResultResponse, { status: "ready" }>;
 
@@ -171,8 +170,8 @@ function SaveAndRetry({ id, saved: initiallySaved, copy, nickname }: { id: strin
     setMsg(null);
     try {
       if (!(await getAccessToken())) {
-        // 로그인 화면은 아직 이 앱에 없다(owner가 따로 만들 예정) → 같은 계정을 쓰는 쏘웰라에서 로그인하면 쿠키가 공유된다.
-        setMsg("쏘웰라 계정으로 로그인하면 이 결과가 마이페이지에 저장돼요. 로그인한 뒤 이 화면으로 돌아와 다시 눌러 주세요.");
+        // 로그인 안 돼 있으면 로그인 화면으로 — 로그인 뒤 이 결과로 돌아와 다시 누르면 저장된다.
+        router.push(`/login?next=${encodeURIComponent(`/result/${id}`)}`);
         return;
       }
       await api(`/api/tarot/session/${id}/claim`, { key: loadKey(id), body: {} });
@@ -193,14 +192,7 @@ function SaveAndRetry({ id, saved: initiallySaved, copy, nickname }: { id: strin
           {copy.result.save}
         </button>
       )}
-      {msg && (
-        <p className="text-center text-[13px] leading-relaxed text-ink/70">
-          {msg}{" "}
-          <a href={SOWELLA_URL} target="_blank" rel="noreferrer" className="text-navy underline">
-            쏘웰라에서 로그인하기
-          </a>
-        </p>
-      )}
+      {msg && <p className="text-center text-[13px] leading-relaxed text-ink/70">{msg}</p>}
       <button
         type="button"
         onClick={() => {
