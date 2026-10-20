@@ -16,7 +16,9 @@ import { SafetyScreen } from "./SafetyScreen";
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
 
 export type Copy = (typeof import("@/data/tarot_data.json"))["copy"];
-export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[] };
+// slotLabels: 뽑기 칸 이름 = 데이터 positions의 이름(v4: 지나온 길·지금의 흐름·앞으로의 열쇠).
+// copy.pick.slot_labels는 v4 데이터에서 옛 이름으로 남아 있어 쓰지 않는다(owner 확인 대기).
+export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; slotLabels: string[] };
 
 type FlowState = FlowStateBase;
 type Action = FlowAction;
@@ -24,7 +26,7 @@ type Action = FlowAction;
 const SHUFFLE_MIN_MS = 3000; // 스펙 7.4: 안내문을 읽고 고민을 떠올릴 시간, 움직임 줄이기에서도 유지
 const AGAIN_KEY = "ssol_tarot_again";
 
-export default function TarotFlow({ copy, pickCount, friends }: FlowProps) {
+export default function TarotFlow({ copy, pickCount, friends, slotLabels }: FlowProps) {
   const router = useRouter();
   const flowData = useMemo(() => ({ copy, deck: { pick_count: pickCount } }), [copy, pickCount]);
   const [state, setState] = useState<FlowState>(() => initialState());
@@ -238,6 +240,7 @@ export default function TarotFlow({ copy, pickCount, friends }: FlowProps) {
           session={session}
           shuffleId={shuffleId}
           pickCount={pickCount}
+          slotLabels={slotLabels}
           revealed={screen === "reveal"}
           onPicked={() => go({ type: "PICK" })}
           onSeeResult={seeResult}
@@ -467,6 +470,7 @@ function DrawScreen({
   session,
   shuffleId,
   pickCount,
+  slotLabels,
   revealed,
   onPicked,
   onSeeResult,
@@ -475,6 +479,7 @@ function DrawScreen({
   session: { id: string; key: string };
   shuffleId: string;
   pickCount: number;
+  slotLabels: string[];
   revealed: boolean;
   onPicked: () => void;
   onSeeResult: () => void;
@@ -507,9 +512,9 @@ function DrawScreen({
       <p className="mb-5 max-w-sm text-center font-serif text-[17px] leading-relaxed text-gold-soft">
         {revealed ? copy.reveal.done : copy.pick.guide}
       </p>
-      {/* 슬롯 3개: 지금의 마음 / 나를 붙잡는 것 / 다음 한 걸음 */}
+      {/* 슬롯 3개: 지나온 길 / 지금의 흐름 / 앞으로의 열쇠 */}
       <div className={`grid w-full max-w-sm grid-cols-3 gap-3 transition-all duration-500 ${revealed ? "mt-4 scale-105" : ""}`}>
-        {copy.pick.slot_labels.map((label, i) => {
+        {slotLabels.map((label, i) => {
           const p = picks[i];
           return (
             <div key={label} className="flex flex-col items-center gap-1.5">

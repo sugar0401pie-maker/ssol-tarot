@@ -52,6 +52,23 @@ export type PickResponse = {
 
 export type ResultCard = PickResponse["card"] & { reversed: boolean; position: string; positionName: string };
 
+// 결과 한 쪽(서버 sanitizeUnpaid가 고른 칸만). 결제 전 6~11쪽은 body가 null이고 blur(고정 예시 문장)만 온다.
+export type ResultPage = {
+  page: number;
+  title: string;
+  access: string;
+  question?: string;
+  saysTitle?: string;
+  says?: string[];
+  card?: { position: string; name: string; character: string; reversed: boolean; keywords: string[]; arcana?: string; image: string };
+  body?: string | null;
+  free?: string;
+  teaser?: string;
+  blur?: string | null;
+  next?: string | null;
+  back?: string | null;
+};
+
 export type ResultResponse =
   | { status: "safety" | "drawing" | "preparing" }
   | {
@@ -59,9 +76,8 @@ export type ResultResponse =
       nickname: string;
       createdAt: string;
       cards: ResultCard[];
-      free: string[];
+      pages: ResultPage[];
       notice: string | null;
-      noticeContacts: { name: string; number: string; note: string }[] | null;
-      locked: { no: number; title: string; teaser: string; card?: string }[];
+      paid: boolean;
       saved: boolean;
     };

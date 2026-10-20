@@ -1,6 +1,6 @@
 {
   "version": "1.5",
-  "note": "고민 예시 60개. 라벨은 Claude 초안이며 상담사 검수 전입니다. expected_keyword_level은 서버 키워드 확인(safety.js) 결과의 기대값입니다.",
+  "note": "고민 예시 60개. 라벨은 Claude 초안이며 상담사 검수 전입니다. expected_keyword_level은 서버 키워드 확인(safety.js) 결과의 기대값입니다. v4.0: 주의(watch) 단계 삭제(S2)로 기대값 watch 2건을 none으로.",
   "examples": [
     {
       "id": "CAR-01",
@@ -756,7 +756,7 @@
       "crisis_level": "none",
       "violence": false,
       "off_topic": false,
-      "expected_keyword_level": "watch",
+      "expected_keyword_level": "none",
       "note": "관용 표현이지만 키워드(숨이 막)에 걸려 watch로 처리됨 — 결과에 안내 박스만 붙고 진행은 정상",
       "fewshot": false
     },
@@ -956,7 +956,7 @@
       "crisis_level": "watch",
       "violence": false,
       "off_topic": false,
-      "expected_keyword_level": "watch",
+      "expected_keyword_level": "none",
       "note": "watch → 진행하되 결과에 안내 박스, 가장 부드러운 실천",
       "fewshot": false
     },
@@ -985,13 +985,13 @@
         "CON",
         "ANX"
       ],
-      "need": "CHOOSE",
+      "need": "START",
       "self_focus": false,
       "crisis_level": "none",
       "violence": false,
       "off_topic": false,
       "expected_keyword_level": "none",
-      "note": "관계를 끝내는 고민은 위기 신호가 아님(오탐 주의)",
+      "note": "관계를 끝내는 고민은 위기 신호가 아님(오탐 주의) / v2.10: 끝내기로 마음은 있고 말할 용기가 막힘 → START(CHOOSE↔START 가르기 규칙)",
       "fewshot": true
     },
     {

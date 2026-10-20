@@ -53,7 +53,7 @@ for name, *_rest in SHEETS:
             stale.append((name, rid))
         final = str(fix).strip() if fix is not None and str(fix).strip() else orig
         ws_ = check_text(final, current[rid], rid, str(item or ""))
-        block = [w for w in ws_ if w.startswith("금지 표현") or w.startswith("자리표시자")]
+        block = [w for w in ws_ if w.startswith("금지 표현") or w.startswith("자리표시자") or w.startswith("숫자")]
         for w in ws_:
             warnings.append((name, rid, w + (" → 반영 안 함" if w in block else "")))
         if block:

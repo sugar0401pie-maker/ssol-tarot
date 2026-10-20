@@ -1,0 +1,5984 @@
+{
+ "qsub": [
+  {
+   "code": "OM-SSUM",
+   "qtype": "other_mind",
+   "name": "썸인지·호감인지 확인",
+   "cues": [
+    "썸",
+    "썸남",
+    "썸녀",
+    "호감",
+    "그냥 친절",
+    "나한테만 다정",
+    "착각",
+    "플러팅",
+    "철벽",
+    "심쿵"
+   ],
+   "need": "CONNECT",
+   "alt_need": "CHOOSE",
+   "need_rule": "가까워지고 싶은 마음이 중심이면 CONNECT, 고백·다가갈지 정하는 게 중심이면 CHOOSE",
+   "locus": "other",
+   "emotions": [
+    "HOP",
+    "ANX"
+   ],
+   "reframe": "그 사람의 마음은 카드가 대신 말할 수 없지만, 신호 하나하나에 마음이 오가는 지금 {name}님이 바라는 가까움은 비춰 볼 수 있어요.",
+   "caution": "상대의 호감 여부를 단정하지 않기",
+   "research": [
+    "썸 단계 확인",
+    "온도차",
+    "남성 시점 관심 확인"
+   ],
+   "expressions": [
+    "이거 썸 맞아요?",
+    "친구로 보는 건지 썸인지 모르겠어요",
+    "저 혼자 착각하는 걸까요",
+    "나한테만 다정한 건지 원래 다 그런 건지",
+    "걔 나 좋아하는 거 맞아?",
+    "우리 썸 맞아요? 저만 착각하는 건가요",
+    "이 사람 저한테 관심 있는 거 맞아요?",
+    "그냥 친절한 건지 호감인지 모르겠어요",
+    "나한테만 다정한 건지 원래 그런 건지",
+    "썸인데 진심인지 어장인지",
+    "이 사람 저 좋아하는 거 맞나요",
+    "썸인지 그냥 친절한 건지 모르겠어요",
+    "잘해주다가 갑자기 차가워져요",
+    "헷갈리게 하는데 무슨 마음일까",
+    "만나는데 왜 고백을 안 할까요"
+   ],
+   "sources": [
+    {
+     "title": "썸타는 중, 그 행동은 진심일까? 착각일까?",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1881613",
+     "lang": "ko"
+    },
+    {
+     "title": "좋아하는지 헷갈릴 때 ‘친구인지 썸인지’ 확인하는 법 15가지",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1895882",
+     "lang": "ko"
+    },
+    {
+     "title": "날 좋아하긴 하나? 우리 사이가 썸인지 아닌지 확인하는 방법 8",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/07/31/%EB%82%A0-%EC%A2%8B%EC%95%84%ED%95%98%EA%B8%B4-%ED%95%98%EB%82%98-%EC%9A%B0%EB%A6%AC-%EC%82%AC%EC%9D%B4%EA%B0%80-%EC%8D%B8%EC%9D%B8%EC%A7%80-%EC%95%84%EB%8B%8C%EC%A7%80-%ED%99%95%EC%9D%B8%ED%95%98/",
+     "lang": "ko"
+    },
+    {
+     "title": "5 “Mixed Signals” That Are in Fact Signals",
+     "outlet": "Psychology Today",
+     "url": "https://www.psychologytoday.com/us/blog/modern-dating/202012/5-mixed-signals-that-are-in-fact-signals",
+     "lang": "en"
+    },
+    {
+     "title": "They’re Just Not That Into You",
+     "outlet": "Psychology Today",
+     "url": "https://www.psychologytoday.com/us/blog/intimately-connected/202603/theyre-just-not-that-into-you",
+     "lang": "en"
+    },
+    {
+     "title": "연애점이 맞을까? _타로카드럭키박스 _김소라",
+     "outlet": "[TAROT] 타로카드럭키박스 김소라 (maily 올컬처)",
+     "url": "https://maily.so/allculture/posts/1gz26jgxo3q",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "OM-REPLY",
+   "qtype": "other_mind",
+   "name": "읽씹·답장 속도·단답의 의미",
+   "cues": [
+    "읽씹",
+    "안읽씹",
+    "1 없어졌",
+    "답장",
+    "단답",
+    "ㅇㅇ",
+    "선톡",
+    "카톡",
+    "늦게 와",
+    "이모지"
+   ],
+   "need": "CONNECT",
+   "alt_need": "REST",
+   "need_rule": "연락을 이어 가고 싶으면 CONNECT, 기다림에 지쳤다는 말이 중심이면 REST",
+   "locus": "other",
+   "emotions": [
+    "ANX",
+    "HUR"
+   ],
+   "reframe": "답장의 속도로 그 사람의 마음을 재기보다, 답장을 기다리는 동안 흔들리는 {name}님의 마음을 먼저 돌봐 볼 수 있어요.",
+   "caution": "연락을 더 하라·끊으라 권하지 않기",
+   "research": [
+    "읽씹·잠수·답장 속도",
+    "답장 속도로 호감 확인",
+    "나만 연락하는 관계",
+    "읽씹",
+    "답장 속도"
+   ],
+   "expressions": [
+    "읽씹하는데 관심 없는 건가요",
+    "갑자기 잠수 탔어요 제가 뭘 잘못했나",
+    "답장이 점점 늦어져요 식은 걸까",
+    "맨날 저만 선톡해요",
+    "연락 끊겼는데 다시 올까요",
+    "1 없어졌는데 답이 없어요",
+    "단답만 와요 ㅇㅇ ㅇㅋ 이거 끝난 거죠?",
+    "안읽씹 이틀째인데 무슨 뜻이에요",
+    "맨날 저만 먼저 연락해요",
+    "저만 좋아하는 것 같아요",
+    "제가 연락 안 하면 연락이 안 와요",
+    "을의 연애 같아서 지쳐요",
+    "답장 빠르면 나 좋아하는 거야?",
+    "카톡 보면 호감 있는 것 같은데 맞아?",
+    "먼저 연락 오는 거 관심 있다는 거지?",
+    "하트 이모지 쓰는데 의미 있는 거야?",
+    "질문을 계속하는데 나한테 관심 있는 걸까",
+    "썸남이 갑자기 연락 끊었어, 잠수야?",
+    "읽씹하는데 관심 없어진 건가요",
+    "잘 되다가 갑자기 연락이 없어요 왜일까",
+    "답장이 점점 늦어지는데 식은 걸까",
+    "오래 사귄 애인이 말없이 사라졌어",
+    "맨날 단답인데 저 싫은 걸까요",
+    "왜 답장을 안 할까",
+    "항상 저만 먼저 연락해요"
+   ],
+   "sources": [
+    {
+     "title": "남자들이 말한 ‘읽씹·잠수’의 진짜 이유",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1898239",
+     "lang": "ko"
+    },
+    {
+     "title": "썸타는 중, 그 행동은 진심일까? 착각일까?",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1881613",
+     "lang": "ko"
+    },
+    {
+     "title": "‘1’이 없어졌는데 왜 답장이 없을까?",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/25923",
+     "lang": "ko"
+    },
+    {
+     "title": "이런 문자를 받았다면 연락 그만, 썸 실패를 암시하는 문자 유형 5",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2024/11/05/%EC%9D%B4%EB%9F%B0-%EB%AC%B8%EC%9E%90%EB%A5%BC-%EB%B0%9B%EC%95%98%EB%8B%A4%EB%A9%B4-%EC%97%B0%EB%9D%BD-%EA%B7%B8%EB%A7%8C-%EC%8D%B8-%EC%8B%A4%ED%8C%A8%EB%A5%BC-%EC%95%94%EC%8B%9C%ED%95%98%EB%8A%94/",
+     "lang": "ko"
+    },
+    {
+     "title": "날 좋아하긴 하나? 우리 사이가 썸인지 아닌지 확인하는 방법 8",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/07/31/%EB%82%A0-%EC%A2%8B%EC%95%84%ED%95%98%EA%B8%B4-%ED%95%98%EB%82%98-%EC%9A%B0%EB%A6%AC-%EC%82%AC%EC%9D%B4%EA%B0%80-%EC%8D%B8%EC%9D%B8%EC%A7%80-%EC%95%84%EB%8B%8C%EC%A7%80-%ED%99%95%EC%9D%B8%ED%95%98/",
+     "lang": "ko"
+    },
+    {
+     "title": "을의 연애를 극복하기 위한 도움말",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2022/11/01/%EC%9D%84%EC%9D%98-%EC%97%B0%EC%95%A0%EB%A5%BC-%EA%B7%B9%EB%B3%B5%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%9C-%EB%8F%84%EC%9B%80%EB%A7%90/",
+     "lang": "ko"
+    },
+    {
+     "title": "18 Signs That Someone Likes You Based On How They Text",
+     "outlet": "Bustle",
+     "url": "https://www.bustle.com/wellness/11-clues-that-someone-likes-you-more-than-you-think-based-on-how-they-text-you-7611321",
+     "lang": "en"
+    },
+    {
+     "title": "If After A Few Texts Your Crush Has Gone AWOL, They May Be Ghosting You",
+     "outlet": "Women's Health (via AOL)",
+     "url": "https://www.aol.com/few-texts-crush-gone-awol-110000764.html",
+     "lang": "en"
+    },
+    {
+     "title": "Women are being ghosted by their long-term partners",
+     "outlet": "British Vogue (via Glamour South Africa)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/women-are-being-ghosted-by-their-long-term-partners-8bb5fc34-3b53-4501-ba82-6a24c082b77b",
+     "lang": "en"
+    },
+    {
+     "title": "8 Reasons Why He’s Not Texting Back",
+     "outlet": "Matthew Hussey (Get The Guy)",
+     "url": "https://matthewhussey.com/blog/8-reasons-why-hes-not-texting-back/",
+     "lang": "en"
+    },
+    {
+     "title": "17 Signs She’s Losing Interest — And You’re Missing Them",
+     "outlet": "The Modest Man (male perspective)",
+     "url": "https://www.themodestman.com/signs-she-is-losing-interest/",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "OM-GHOST",
+   "qtype": "other_mind",
+   "name": "잠수·고스팅 뒤 이유",
+   "cues": [
+    "잠수",
+    "고스팅",
+    "연락 끊",
+    "갑자기 사라",
+    "잠수 이별",
+    "스토리는 봐",
+    "좋아요는 눌러",
+    "오비팅"
+   ],
+   "need": "LETGO",
+   "alt_need": "CONNECT",
+   "need_rule": "이미 연락이 끊겨 이유를 붙잡고 있으면 LETGO, 아직 이어 가고 싶은 마음이 크면 CONNECT",
+   "locus": "other",
+   "emotions": [
+    "HUR",
+    "CON"
+   ],
+   "reframe": "말없이 멀어진 이유는 그 사람만 알 수 있지만, 설명 없이 남겨진 {name}님의 마음이 무엇을 필요로 하는지는 함께 볼 수 있어요.",
+   "caution": "'내가 뭘 잘못했나' 자책을 키우지 않기. 연락을 계속 시도하라 권하지 않기",
+   "research": [
+    "잠수·고스팅 뒤",
+    "고스팅 후 SNS만 봄"
+   ],
+   "expressions": [
+    "갑자기 잠수 탔는데 왜 그런 걸까요",
+    "세 번 만나고 연락 끊겼어요 제가 뭘 잘못했나",
+    "고스팅당했는데 다시 연락 올까요",
+    "바빠서 그런 건지 마음이 없는 건지",
+    "썸남이 갑자기 연락 끊었어, 잠수야?",
+    "읽씹하는데 관심 없어진 건가요",
+    "잘 되다가 갑자기 연락이 없어요 왜일까",
+    "답장이 점점 늦어지는데 식은 걸까",
+    "오래 사귄 애인이 말없이 사라졌어",
+    "잠수 탔는데 스토리는 계속 봐요",
+    "연락 끊고 좋아요는 왜 누를까",
+    "갑자기 연락이 끊겼어요 이유가 뭘까",
+    "잠수 이별 당한 건가요"
+   ],
+   "sources": [
+    {
+     "title": "남자들이 말한 ‘읽씹·잠수’의 진짜 이유",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1898239",
+     "lang": "ko"
+    },
+    {
+     "title": "썸은 OK, 연애는 NO!",
+     "outlet": "마리끌레르 코리아",
+     "url": "https://www.marieclairekorea.com/culture/lifestyle/2017/07/%EC%8D%B8%EC%9D%80-ok-%EC%97%B0%EC%95%A0%EB%8A%94-no",
+     "lang": "ko"
+    },
+    {
+     "title": "If After A Few Texts Your Crush Has Gone AWOL, They May Be Ghosting You",
+     "outlet": "Women's Health (via AOL)",
+     "url": "https://www.aol.com/few-texts-crush-gone-awol-110000764.html",
+     "lang": "en"
+    },
+    {
+     "title": "Women are being ghosted by their long-term partners",
+     "outlet": "British Vogue (via Glamour South Africa)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/women-are-being-ghosted-by-their-long-term-partners-8bb5fc34-3b53-4501-ba82-6a24c082b77b",
+     "lang": "en"
+    },
+    {
+     "title": "He’s Stopped Texting But Still Likes My Posts…WTF?!",
+     "outlet": "Matthew Hussey (Get The Guy)",
+     "url": "https://matthewhussey.com/blog/hes-stopped-texting-but-still-likes-my-posts-wtf/",
+     "lang": "en"
+    },
+    {
+     "title": "Ghosting, Catfishing, Benchwarming and Breadcrumming: Terminology of the Dating World",
+     "outlet": "Psych Central (Verywell Mind 대체)",
+     "url": "https://psychcentral.com/blog/savvy-shrink/2020/01/ghosting-catfishing-benchwarming-and-breadcrumming-terminology-of-the-dating-world",
+     "lang": "en"
+    },
+    {
+     "title": "연애점이 맞을까? _타로카드럭키박스 _김소라",
+     "outlet": "[TAROT] 타로카드럭키박스 김소라 (maily 올컬처)",
+     "url": "https://maily.so/allculture/posts/1gz26jgxo3q",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "OM-HOTCOLD",
+   "qtype": "other_mind",
+   "name": "온도차·밀당·회피형",
+   "cues": [
+    "밀당",
+    "회피형",
+    "다가가면 멀어",
+    "선 그어",
+    "갑자기 차가워",
+    "온도차",
+    "헷갈리게"
+   ],
+   "need": "CONNECT",
+   "alt_need": "BOUNDARY",
+   "need_rule": "관계를 지키고 싶으면 CONNECT, 맞추느라 지치고 내 자리를 지키고 싶으면 BOUNDARY",
+   "locus": "other",
+   "emotions": [
+    "CON",
+    "ANX"
+   ],
+   "reframe": "그 사람이 왜 멀어졌다 가까워지는지보다, 그 온도차 속에서 {name}님이 어떤 거리를 편안하게 느끼는지 살펴볼 수 있어요.",
+   "caution": "'회피형' 같은 꼬리표로 상대를 판정하지 않기",
+   "research": [
+    "밀당인지 회피인지",
+    "회피형·거리두기"
+   ],
+   "expressions": [
+    "가까워지면 자꾸 선 그어요",
+    "밀당하는 건지 관심 없는 건지",
+    "회피형인 것 같은데 저 좋아하긴 해요?",
+    "처음엔 적극적이더니 갑자기 차가워졌어요",
+    "회피형이라 거리 두는 걸까",
+    "싸우기만 하면 잠수 타요",
+    "왜 진지해지려고 하지를 않지",
+    "'너 때문 아니야, 내 문제야' 무슨 뜻이야?",
+    "가까워지면 멀어지는 그 사람 마음"
+   ],
+   "sources": [
+    {
+     "title": "다가가면 도망가는 썸? 회피형 남자 다루는 법",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1900948",
+     "lang": "ko"
+    },
+    {
+     "title": "썸은 OK, 연애는 NO!",
+     "outlet": "마리끌레르 코리아",
+     "url": "https://www.marieclairekorea.com/culture/lifestyle/2017/07/%EC%8D%B8%EC%9D%80-ok-%EC%97%B0%EC%95%A0%EB%8A%94-no",
+     "lang": "ko"
+    },
+    {
+     "title": "What is avoidant attachment? 4 Signs to look out for",
+     "outlet": "Glamour South Africa (SELF syndication)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/what-is-avoidant-attachment-4-signs-to-look-out-for-5493ae27-49d5-425a-8c5e-8479acd35f9e",
+     "lang": "en"
+    },
+    {
+     "title": "Here's how to recover from a situationship that almost killed your optimism",
+     "outlet": "Harper's Bazaar India",
+     "url": "https://www.harpersbazaar.in/culture/story/heres-how-to-recover-from-a-situationship-that-almost-killed-your-optimism-564730-2022-11-26",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "OM-DTR",
+   "qtype": "other_mind",
+   "name": "관계 정의 회피·어장·간보기",
+   "cues": [
+    "무슨 사이",
+    "썸만 몇 달",
+    "고백을 안 해",
+    "어장",
+    "간보",
+    "브레드크러밍",
+    "가끔 연락",
+    "예비",
+    "밤에만",
+    "시추에이션십"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "BOUNDARY",
+   "need_rule": "계속할지 정리할지 저울질이면 CHOOSE, 휘둘리는 게 싫고 선을 긋고 싶으면 BOUNDARY",
+   "locus": "other",
+   "emotions": [
+    "CON",
+    "HUR"
+   ],
+   "reframe": "이 관계에 어떤 이름을 붙일지는 둘이 정하는 일이지만, {name}님이 이 관계에서 무엇을 원하는지는 지금 정해 볼 수 있어요.",
+   "caution": "상대를 '어장 관리자'로 단정하지 않기",
+   "research": [
+    "관계 정의 회피",
+    "어장관리·브레드크러밍",
+    "썸·관계 정의 안 됨",
+    "간보기"
+   ],
+   "expressions": [
+    "썸만 몇 달째예요 사귈 생각 있는 걸까",
+    "왜 고백을 안 하지",
+    "어장 관리 당하는 것 같아요",
+    "우리 무슨 사이냐고 물어봐도 될까",
+    "가끔 연락 오는데 진심일까?",
+    "나 어장 당하는 거야?",
+    "스토리만 보고 연락은 안 해, 무슨 마음이야?",
+    "약속은 자꾸 미루면서 연락은 계속해",
+    "좋아요만 누르고 사라지는 사람 심리",
+    "우리 무슨 사이야?",
+    "썸인지 사귀는 건지 모르겠어",
+    "밤에만 보자는데 나 그냥 편한 사람인가",
+    "친구들은 소개하면서 공식적으론 안 사귀어",
+    "그 사람은 나를 어떻게 생각하는 걸까",
+    "저 어장관리 당하는 걸까요",
+    "약속은 안 잡고 연락만 가끔 와요",
+    "관계 얘기만 하면 바쁘다고 피해요",
+    "저는 그냥 예비 후보인가요"
+   ],
+   "sources": [
+    {
+     "title": "썸은 OK, 연애는 NO!",
+     "outlet": "마리끌레르 코리아",
+     "url": "https://www.marieclairekorea.com/culture/lifestyle/2017/07/%EC%8D%B8%EC%9D%80-ok-%EC%97%B0%EC%95%A0%EB%8A%94-no",
+     "lang": "ko"
+    },
+    {
+     "title": "여친 있는 썸남 감별법",
+     "outlet": "싱글즈",
+     "url": "https://m.singleskorea.com/article/612211",
+     "lang": "ko"
+    },
+    {
+     "title": "Dating 101: What Is Breadcrumbing?",
+     "outlet": "Vogue US (via Glamour South Africa)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/dating-101-what-is-breadcrumbing-8012bb48-f52f-4d38-a89c-c7fa07804198",
+     "lang": "en"
+    },
+    {
+     "title": "From Breadcrumbing To Paperclipping: The Dating Terms You Need To Know",
+     "outlet": "Refinery29",
+     "url": "https://www.refinery29.com/en-us/dating-terms-slang-words",
+     "lang": "en"
+    },
+    {
+     "title": "Unclear Situationship? Text Them This",
+     "outlet": "Cosmopolitan (via AOL)",
+     "url": "https://www.aol.com/articles/unclear-situationship-text-them-140000445.html",
+     "lang": "en"
+    },
+    {
+     "title": "What Is A Situationship? Relationship Type, Explained",
+     "outlet": "Refinery29",
+     "url": "https://www.refinery29.com/en-us/what-is-situationship-meaning-pseudo-relationship",
+     "lang": "en"
+    },
+    {
+     "title": "Signs your situationship is never turning into a relationship",
+     "outlet": "Cosmopolitan India",
+     "url": "https://www.cosmopolitan.in/life/features/story/signs-your-situationship-is-never-turning-into-a-relationship-1094585-2024-09-18",
+     "lang": "en"
+    },
+    {
+     "title": "Navigating Valentine's Day in modern dating culture",
+     "outlet": "Glamour South Africa",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/navigating-valentines-day-in-modern-dating-culture-e256c573-f615-461f-b0fa-1540e841ca9b",
+     "lang": "en"
+    },
+    {
+     "title": "7 Signs Of Breadcrumbing & What To Do, From Dating Experts",
+     "outlet": "mindbodygreen",
+     "url": "https://www.mindbodygreen.com/articles/breadcrumbing",
+     "lang": "en"
+    },
+    {
+     "title": "Ghosting, Catfishing, Benchwarming and Breadcrumming: Terminology of the Dating World",
+     "outlet": "Psych Central (Verywell Mind 대체)",
+     "url": "https://psychcentral.com/blog/savvy-shrink/2020/01/ghosting-catfishing-benchwarming-and-breadcrumming-terminology-of-the-dating-world",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "OM-SINCERE",
+   "qtype": "other_mind",
+   "name": "진심인지·가벼운 건지",
+   "cues": [
+    "진심",
+    "진지하게",
+    "가볍게",
+    "몸만",
+    "초반에 너무 잘해",
+    "말만",
+    "누가 더 좋아"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "CONNECT",
+   "need_rule": "믿고 이어 갈지 판단하려 하면 CHOOSE, 깊어지고 싶은 마음이 중심이면 CONNECT",
+   "locus": "other",
+   "emotions": [
+    "ANX",
+    "CON"
+   ],
+   "reframe": "그 사람의 진심을 카드로 확인할 수는 없지만, {name}님이 이 관계에서 믿음을 느끼려면 무엇이 필요한지는 말해 볼 수 있어요.",
+   "caution": "러브바밍 같은 통제 신호가 보이면 violence 판단 먼저",
+   "research": [
+    "진심인지 몸만인지",
+    "진지한 관계 의향"
+   ],
+   "expressions": [
+    "초반에 너무 잘해주는데 진심이야?",
+    "만나자마자 집에 오라는데 몸만 원하는 거야?",
+    "날 진지하게 생각하는 걸까",
+    "말은 좋은데 행동이 없어",
+    "바쁘다는데 핑계일까",
+    "이 사람 저한테 진심일까요",
+    "저랑 진지하게 만날 생각 있을까",
+    "그냥 가볍게 보는 걸까요",
+    "누가 더 많이 좋아하는 걸까요"
+   ],
+   "sources": [
+    {
+     "title": "A master list of dating advice",
+     "outlet": "ELLE — 'Ask E. Jean' column (Substack successor)",
+     "url": "https://ejeancarroll.substack.com/p/a-master-list-of-dating-advice",
+     "lang": "en"
+    },
+    {
+     "title": "11 Signs He’s Serious About You",
+     "outlet": "Matthew Hussey (Get The Guy)",
+     "url": "https://matthewhussey.com/blog/11-signs-hes-serious-about-you/",
+     "lang": "en"
+    },
+    {
+     "title": "연애점이 맞을까? _타로카드럭키박스 _김소라",
+     "outlet": "[TAROT] 타로카드럭키박스 김소라 (maily 올컬처)",
+     "url": "https://maily.so/allculture/posts/1gz26jgxo3q",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "OM-QUIET",
+   "qtype": "other_mind",
+   "name": "표현 없는 연인의 속마음",
+   "cues": [
+    "표현을 안",
+    "무뚝뚝",
+    "사랑한다는 말",
+    "말이 없",
+    "애정 표현"
+   ],
+   "need": "CONNECT",
+   "alt_need": null,
+   "need_rule": "대부분 CONNECT",
+   "locus": "other",
+   "emotions": [
+    "LON",
+    "ANX"
+   ],
+   "reframe": "표현의 크기로 사랑을 다 잴 수는 없지만, {name}님이 사랑받는다고 느끼는 순간이 언제인지는 비춰 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "표현 없는 상대의 속마음",
+    "무뚝뚝"
+   ],
+   "expressions": [
+    "말이 없는데 저한테 관심 있는 걸까요",
+    "무뚝뚝해서 속을 모르겠어요",
+    "표현을 안 해서 불안해요",
+    "카톡은 다정한데 만나면 조용해요"
+   ],
+   "sources": [
+    {
+     "title": "말 없는 남자와의 연애",
+     "outlet": "하퍼스 바자 코리아",
+     "url": "https://www.harpersbazaar.co.kr/article/38360",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "OM-FIRSTDATE",
+   "qtype": "other_mind",
+   "name": "소개팅·첫 만남 뒤 호감",
+   "cues": [
+    "소개팅",
+    "애프터",
+    "삼프터",
+    "첫 만남",
+    "첫 데이트",
+    "앱에서 만난"
+   ],
+   "need": "CONNECT",
+   "alt_need": "START",
+   "need_rule": "다음 만남을 바라면 CONNECT, 내가 먼저 제안할지가 중심이면 START",
+   "locus": "other",
+   "emotions": [
+    "HOP",
+    "ANX"
+   ],
+   "reframe": "그날 그 사람이 어떻게 느꼈는지보다, 그 만남에서 {name}님이 무엇을 좋게 느꼈는지부터 짚어 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "소개팅·첫 만남 후 호감",
+    "몇 번 만나야"
+   ],
+   "expressions": [
+    "소개팅 상대가 저 맘에 들어했을까요",
+    "애프터 올까요",
+    "첫 만남 분위기 괜찮았던 거 맞죠?"
+   ],
+   "sources": [
+    {
+     "title": "소개팅에서 호감 가는 여자의 행동",
+     "outlet": "하퍼스 바자 코리아",
+     "url": "https://www.harpersbazaar.co.kr/article/39822",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "OM-CHEAT",
+   "qtype": "other_mind",
+   "name": "바람·다른 사람 의심",
+   "cues": [
+    "바람",
+    "양다리",
+    "다른 사람",
+    "폰을 숨겨",
+    "폰 엎어",
+    "늦게 들어",
+    "여사친",
+    "남사친",
+    "다중 썸"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "BOUNDARY",
+   "need_rule": "믿을지·확인할지·이어 갈지 저울질이면 CHOOSE, 내가 견딜 수 있는 선을 정하는 게 중심이면 BOUNDARY",
+   "locus": "other",
+   "emotions": [
+    "ANX",
+    "HUR"
+   ],
+   "reframe": "그 사람이 무엇을 숨기는지는 카드가 밝힐 수 없지만, 의심 속에서 지쳐 가는 {name}님이 지키고 싶은 것은 비춰 볼 수 있어요.",
+   "caution": "바람 여부를 단정하지 않기. 상대 휴대폰을 몰래 확인하라 권하지 않기",
+   "research": [
+    "양다리·바람 의심",
+    "다른 사람과도 만나나",
+    "바람"
+   ],
+   "expressions": [
+    "썸남한테 여친 있는 것 같아요",
+    "이 정도면 바람이에요?",
+    "저 말고 다른 사람도 만나는 것 같아요",
+    "남친이 다른 여자랑 연락하는데 괜찮은 거예요?",
+    "저 말고 다른 사람이랑도 썸 타는 것 같아요",
+    "어장 관리당하는 걸까요",
+    "여친이 다른 남자랑 자주 연락해요 괜찮은 건가요",
+    "바람 피우는 것 같은 느낌",
+    "애인이 바람피우는 것 같아요",
+    "요즘 폰을 숨겨요 뭐 있는 걸까",
+    "갑자기 외모 신경 쓰고 늦게 들어와요",
+    "다른 사람 생긴 걸까요"
+   ],
+   "sources": [
+    {
+     "title": "여친 있는 썸남 감별법",
+     "outlet": "싱글즈",
+     "url": "https://m.singleskorea.com/article/612211",
+     "lang": "ko"
+    },
+    {
+     "title": "2025년 구글에 가장 많이 검색된 연애 질문 5가지와 그 답변들",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2025/12/25/2025%EB%85%84-%EA%B5%AC%EA%B8%80%EC%97%90-%EA%B0%80%EC%9E%A5-%EB%A7%8E%EC%9D%B4-%EA%B2%80%EC%83%89%EB%90%9C-%EC%97%B0%EC%95%A0-%EC%A7%88%EB%AC%B8-5%EA%B0%80%EC%A7%80%EC%99%80-%EA%B7%B8-%EB%8B%B5",
+     "lang": "ko"
+    },
+    {
+     "title": "여러 사람과 썸 타면 바람일까?",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/?p=196299",
+     "lang": "ko"
+    },
+    {
+     "title": "말보다 태도, 여자가 관심 있을 때 보이는 행동 7",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/02/20/%EB%A7%90%EB%B3%B4%EB%8B%A4-%ED%83%9C%EB%8F%84-%EC%97%AC%EC%9E%90%EA%B0%80-%EA%B4%80%EC%8B%AC-%EC%9E%88%EC%9D%84-%EB%95%8C-%EB%B3%B4%EC%9D%B4%EB%8A%94-%ED%96%89%EB%8F%99-7",
+     "lang": "ko"
+    },
+    {
+     "title": "10 Signs of a Cheating Spouse",
+     "outlet": "Psych Central (Verywell Mind 대체)",
+     "url": "https://psychcentral.com/relationships/signs-of-cheating-wife",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "OM-COOLING",
+   "qtype": "other_mind",
+   "name": "연인 마음이 식었나·권태",
+   "cues": [
+    "식었",
+    "권태",
+    "질린",
+    "대화가 줄",
+    "스킨십이 줄",
+    "건성",
+    "예전 같지"
+   ],
+   "need": "CONNECT",
+   "alt_need": "CHOOSE",
+   "need_rule": "다시 가까워지고 싶으면 CONNECT, 이어 갈지 고민이 섞이면 CHOOSE",
+   "locus": "other",
+   "emotions": [
+    "LON",
+    "ANX"
+   ],
+   "reframe": "그 사람의 마음이 어디까지 왔는지보다, 요즘 이 관계에서 {name}님이 가장 그리워하는 장면이 무엇인지 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "연인 마음 식음·권태기",
+    "애인의 식은 마음",
+    "마음이 식었"
+   ],
+   "expressions": [
+    "남친 마음이 식은 것 같아요",
+    "요즘 사랑한다는 말을 안 해요",
+    "미래 얘기만 나오면 피해요",
+    "장거리라 마음 멀어진 걸까",
+    "우리 끝나가는 걸까요",
+    "남친이 요즘 식은 것 같아요",
+    "연락이 줄었는데 마음이 변한 걸까요",
+    "권태기인지 그냥 안정기인지 모르겠어요",
+    "만나도 할 말이 없어요 끝난 걸까",
+    "여친이 피곤하다는 말만 해요",
+    "애인 마음이 식은 것 같아",
+    "나 이 사람한테 마음 식었나?",
+    "요즘 대화가 확 줄었어, 권태기야?",
+    "같이 있는 게 귀찮아졌어",
+    "애인이 요즘 건성으로 대해요",
+    "여친이 식은 것 같아요",
+    "남친 마음이 떠난 걸까요",
+    "스킨십이 줄었는데 저한테 질린 걸까",
+    "같이 있어도 폰만 봐요"
+   ],
+   "sources": [
+    {
+     "title": "연애 관계의 끝을 알리는 신호",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2017/01/31/%EC%97%B0%EC%95%A0-%EA%B4%80%EA%B3%84%EC%9D%98-%EB%81%9D%EC%9D%84-%EC%95%8C%EB%A6%AC%EB%8A%94-%EC%8B%A0%ED%98%B8/",
+     "lang": "ko"
+    },
+    {
+     "title": "우리 사이 거리",
+     "outlet": "마리끌레르 코리아",
+     "url": "https://www.marieclairekorea.com/culture/lifestyle/2021/01/love-story/",
+     "lang": "ko"
+    },
+    {
+     "title": "어딘가 달라진 연인의 태도, 누가 봐도 티 나는 권태기 신호 9",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/09/29/%EC%96%B4%EB%94%98%EA%B0%80-%EB%8B%AC%EB%9D%BC%EC%A7%84-%EC%97%B0%EC%9D%B8%EC%9D%98-%ED%83%9C%EB%8F%84-%EB%88%84%EA%B0%80-%EB%B4%90%EB%8F%84-%ED%8B%B0-%EB%82%98%EB%8A%94-%EA%B6%8C%ED%83%9C%EA%B8%B0",
+     "lang": "ko"
+    },
+    {
+     "title": "초반에 불타던 애인의 관심, 결국엔 변하는 이유",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/02/03/%EC%B4%88%EB%B0%98%EC%97%90-%EB%B6%88%ED%83%80%EB%8D%98-%EC%95%A0%EC%9D%B8%EC%9D%98-%EA%B4%80%EC%8B%AC-%EA%B2%B0%EA%B5%AD%EC%97%94-%EB%B3%80%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0/",
+     "lang": "ko"
+    },
+    {
+     "title": "이별을 앞둔 남자들, 그리고 사랑에 빠진 남자들이 보내는 절대적인 신호들",
+     "outlet": "얼루어 코리아",
+     "url": "https://www.allurekorea.com/2012/11/06/%EB%82%A8%EC%9E%90%EB%93%A4%EC%9D%B4-%EB%A7%90%ED%95%98%EB%8A%94-%EC%97%B0%EC%95%A0%EC%99%80-%EA%B2%B0%ED%98%BC/",
+     "lang": "ko"
+    },
+    {
+     "title": "Relationship Experts Share the 10 Telltale Signs You're Falling Out of Love With Your Partner",
+     "outlet": "Women's Health (via AOL)",
+     "url": "https://www.aol.com/articles/why-falling-love-doesnt-mean-143500689.html",
+     "lang": "en"
+    },
+    {
+     "title": "6 Red flags you're settling in your relationship",
+     "outlet": "Glamour South Africa (SELF syndication)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/6-red-flags-youre-settling-in-your-relationship-4917c88d-b38b-49e8-a403-9567e618abe8",
+     "lang": "en"
+    },
+    {
+     "title": "A Deeper Look Into Turning Away From Your Partner",
+     "outlet": "The Gottman Institute",
+     "url": "https://www.gottman.com/blog/a-deeper-look-into-turning-away-from-your-partner/",
+     "lang": "en"
+    },
+    {
+     "title": "16 Signs She’s Losing Interest (Men Often Miss These)",
+     "outlet": "The Modest Man (male perspective)",
+     "url": "https://www.themodestman.com/16-signs-shes-slowly-losing-interest-most-men-dont-see-these/",
+     "lang": "en"
+    },
+    {
+     "title": "4 Things She’ll Do When She’s Losing Interest",
+     "outlet": "The Good Men Project (male perspective)",
+     "url": "https://goodmenproject.com/featured-content/4-things-shell-do-when-shes-losing-interest/",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "OM-FUTURE",
+   "qtype": "other_mind",
+   "name": "결혼·미래 생각이 있나",
+   "cues": [
+    "결혼 생각",
+    "미래 얘기",
+    "결혼 얘기를 피",
+    "아직이래",
+    "프러포즈"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "CONNECT",
+   "need_rule": "기다릴지·이어 갈지 결정이 중심이면 CHOOSE, 함께 그리는 미래를 확인하고 싶으면 CONNECT",
+   "locus": "other",
+   "emotions": [
+    "ANX",
+    "CON"
+   ],
+   "reframe": "그 사람이 그리는 미래는 그 사람의 말로 들어야 하지만, {name}님이 바라는 미래의 모습은 지금 또렷하게 해 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "결혼 의향",
+    "언제 결혼·프러포즈",
+    "언제 결혼·프러포즈"
+   ],
+   "expressions": [],
+   "sources": []
+  },
+  {
+   "code": "OM-EXMSG",
+   "qtype": "other_mind",
+   "name": "전 애인 연락의 의미",
+   "cues": [
+    "자니",
+    "잘 지내",
+    "전 남친",
+    "전남친",
+    "전 여친",
+    "구남친",
+    "헤어진 사람한테 연락 왔",
+    "좀비"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "LETGO",
+   "need_rule": "그 연락에 어떻게 할지 정하려 하면 CHOOSE, 마음이 다시 흔들려 붙잡고 있으면 LETGO",
+   "locus": "other",
+   "emotions": [
+    "CON",
+    "HOP"
+   ],
+   "reframe": "그 연락에 담긴 뜻은 보낸 사람만 알지만, 그 연락을 받고 {name}님 마음이 어느 쪽으로 움직였는지는 들여다볼 수 있어요.",
+   "caution": "재회를 부추기지도 막지도 않기",
+   "research": [
+    "전 애인 연락의 의미",
+    "새벽·술김 연락"
+   ],
+   "expressions": [
+    "전 남친이 새벽에 '자니?' 보냈어요",
+    "구남친이 갑자기 연락 왔는데 미련 있는 걸까",
+    "다시 만나자는 건지 그냥 심심한 건지",
+    "헤어진 사람이 아직 저 생각할까요",
+    "새벽에 자니? 왔는데 무슨 의미예요",
+    "술 마시고만 연락하는 사람 진심일까요",
+    "밤에만 연락 오는 썸남"
+   ],
+   "sources": [
+    {
+     "title": "구남친이 톡을 보내왔다",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/20949",
+     "lang": "ko"
+    },
+    {
+     "title": "그 남자가 다시 연락한 이유",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/19663",
+     "lang": "ko"
+    },
+    {
+     "title": "이런 문자를 받았다면 연락 그만, 썸 실패를 암시하는 문자 유형 5",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2024/11/05/%EC%9D%B4%EB%9F%B0-%EB%AC%B8%EC%9E%90%EB%A5%BC-%EB%B0%9B%EC%95%98%EB%8B%A4%EB%A9%B4-%EC%97%B0%EB%9D%BD-%EA%B7%B8%EB%A7%8C-%EC%8D%B8-%EC%8B%A4%ED%8C%A8%EB%A5%BC-%EC%95%94%EC%8B%9C%ED%95%98%EB%8A%94/",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "OM-EXMIND",
+   "qtype": "other_mind",
+   "name": "전 애인이 나를 생각할까·미련",
+   "cues": [
+    "나 생각할까",
+    "못 잊었",
+    "미련",
+    "스토리 보는",
+    "저격글",
+    "후회할까",
+    "잘 지낼까"
+   ],
+   "need": "LETGO",
+   "alt_need": "CONNECT",
+   "need_rule": "대부분 LETGO. 재회를 실제로 준비 중이라고 쓰면 START/CHOOSE",
+   "locus": "other",
+   "emotions": [
+    "GRI",
+    "LON"
+   ],
+   "reframe": "그 사람의 마음속은 볼 수 없지만, 아직 그 사람을 떠올리는 {name}님의 마음이 무엇을 정리하고 싶어 하는지는 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "전 애인 속마음·미련",
+    "전 연인 연락의 속마음"
+   ],
+   "expressions": [
+    "전 애인한테 잘 지내? 왔어요 무슨 뜻이에요",
+    "헤어진 사람이 아직 날 생각할까요",
+    "전남친이 스토리 보는데 미련 있는 건가",
+    "전여친 연락, 다시 만나자는 걸까요",
+    "헤어진 사람 속마음이 궁금해요",
+    "전 애인 아직 저 못 잊었을까요",
+    "전 남친이 자꾸 연락해요 미련 있는 건가",
+    "헤어졌는데 왜 저격글을 올릴까"
+   ],
+   "sources": [
+    {
+     "title": "‘잘 지내?’ 헤어진 연인 문자에 숨은 4가지 속마음",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2025/08/23/%EC%9E%98-%EC%A7%80%EB%82%B4-%ED%97%A4%EC%96%B4%EC%A7%84-%EC%97%B0%EC%9D%B8-%EB%AC%B8%EC%9E%90%EC%97%90-%EC%88%A8%EC%9D%80-4%EA%B0%80%EC%A7%80-%EC%86%8D%EB%A7%88%EC%9D%8C",
+     "lang": "ko"
+    },
+    {
+     "title": "Is Your Ex Pretending To Be Over You? 12 Signs + What To Do",
+     "outlet": "mindbodygreen",
+     "url": "https://www.mindbodygreen.com/articles/signs-your-ex-is-pretending-to-be-over-you",
+     "lang": "en"
+    },
+    {
+     "title": "연애점이 맞을까? _타로카드럭키박스 _김소라",
+     "outlet": "[TAROT] 타로카드럭키박스 김소라 (maily 올컬처)",
+     "url": "https://maily.so/allculture/posts/1gz26jgxo3q",
+     "lang": "ko"
+    },
+    {
+     "title": "재회 & 지나간 인연 타로 - 무료 타로점",
+     "outlet": "[TAROT] K-Calculator 재회 타로",
+     "url": "https://k-calc.com/play/tarot/reunion",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "OM-EXWHY",
+   "qtype": "other_mind",
+   "name": "지난 관계의 진심·왜 안 됐나",
+   "cues": [
+    "사랑하긴 했을까",
+    "왜 안 된",
+    "바로 결혼",
+    "환승",
+    "나랑은 왜"
+   ],
+   "need": "LETGO",
+   "alt_need": null,
+   "need_rule": "대부분 LETGO",
+   "locus": "other",
+   "emotions": [
+    "GRI",
+    "SHA"
+   ],
+   "reframe": "지난 관계의 답을 그 사람에게서 찾기보다, 그 시간을 지나온 {name}님에게 지금 필요한 마무리를 함께 찾아볼 수 있어요.",
+   "caution": "'내가 모자라서' 자책으로 흐르지 않게",
+   "research": [
+    "전 애인의 진심",
+    "전 애인의 마음·다음 사람"
+   ],
+   "expressions": [
+    "결혼 생각 없다더니 바로 딴 사람이랑 결혼했어요",
+    "저를 진짜 사랑하긴 했을까요",
+    "저랑은 왜 안 된 걸까",
+    "전 애인은 왜 다음 사람이랑은 바로 결혼해?",
+    "나랑은 왜 안 됐을까",
+    "전 애인 아직 나 생각할까",
+    "헤어진 사람이 SNS 계속 봐, 미련 있나?"
+   ],
+   "sources": [
+    {
+     "title": "결혼 생각이 없다며 이별을 고한 전 남친, 왜 바로 다음 여자와는 결혼했을까요?",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2026/01/06/%EA%B2%B0%ED%98%BC-%EC%83%9D%EA%B0%81%EC%9D%B4-%EC%97%86%EB%8B%A4%EB%A9%B0-%EC%9D%B4%EB%B3%84%EC%9D%84-%EA%B3%A0%ED%95%9C-%EC%A0%84-%EB%82%A8%EC%B9%9C-%EC%99%9C-%EB%B0%94%EB%A1%9C-%EB%8B%A4%EC%9D%8C",
+     "lang": "ko"
+    },
+    {
+     "title": "The taxi cab theory explained: Why some men commit to the woman after you",
+     "outlet": "Glamour South Africa (SELF syndication)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/the-taxi-cab-theory-explained-why-some-men-commit-to-the-woman-after-you-e8e0f54e-1cd0-421f-b5fd-0672c186b202",
+     "lang": "en"
+    },
+    {
+     "title": "Ask Polly: Why Can't I Leave My Ex Behind For Good?",
+     "outlet": "The Cut / Ask Polly (early run at The Awl)",
+     "url": "https://www.theawl.com/2012/12/ask-polly-why-cant-i-leave-my-ex-behind-for-good/",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "OM-MYFEEL",
+   "qtype": "other_mind",
+   "name": "내 감정이 진짜인지(사랑·집착·금사빠)",
+   "cues": [
+    "진짜 좋아하는",
+    "집착",
+    "금사빠",
+    "이게 사랑",
+    "하루 종일 생각",
+    "기분이 왔다갔다"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "LETGO",
+   "need_rule": "내 마음을 정리하고 싶으면 CHOOSE, 끊고 싶은데 못 끊으면 LETGO",
+   "locus": "self",
+   "emotions": [
+    "CON",
+    "ANX"
+   ],
+   "reframe": "이 감정에 어떤 이름을 붙일지는 {name}님만 정할 수 있어요. 카드는 그 마음이 지금 무엇을 바라는지 함께 들여다봐요.",
+   "caution": "'집착'·'리머런스'를 진단처럼 쓰지 않기",
+   "research": [
+    "내 감정 확인",
+    "썸 중 불안"
+   ],
+   "expressions": [
+    "제가 금사빠인 것 같아요",
+    "이게 진짜 좋아하는 감정일까",
+    "너무 쉽게 빠지는 제가 이상한가요",
+    "썸 타는데 너무 불안해요",
+    "답장 하나에 하루 기분이 왔다갔다해요",
+    "좋아하는데 왜 이렇게 불안하죠",
+    "이거 사랑이야 그냥 집착이야?",
+    "답장 하나에 하루 기분이 왔다갔다해",
+    "그 사람 생각만 하루 종일 나",
+    "짝사랑인데 이 감정 진짜일까"
+   ],
+   "sources": [
+    {
+     "title": "어느 금사빠의 고백",
+     "outlet": "하퍼스 바자 코리아",
+     "url": "https://www.harpersbazaar.co.kr/article/37929",
+     "lang": "ko"
+    },
+    {
+     "title": "좋아하는데 불안해? 호감 뒤에 숨겨진 진짜 심리 3",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/06/11/%EC%A2%8B%EC%95%84%ED%95%98%EB%8A%94%EB%8D%B0-%EB%B6%88%EC%95%88%ED%95%B4-%ED%98%B8%EA%B0%90-%EB%92%A4%EC%97%90-%EC%88%A8%EA%B2%A8%EC%A7%84-%EC%A7%84%EC%A7%9C-%EC%8B%AC%EB%A6%AC-3/",
+     "lang": "ko"
+    },
+    {
+     "title": "Think you're in love? 5 Signs it's actually limerence",
+     "outlet": "Glamour South Africa (SELF syndication)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/think-youre-in-love-5-signs-its-actually-limerence-62e2e4b3-5b0f-4a25-84ef-8f68beff114a",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "OM-ANGRY",
+   "qtype": "other_mind",
+   "name": "애인이 왜 화났나·서운해하나",
+   "cues": [
+    "왜 화났",
+    "삐졌",
+    "서운해하",
+    "기분 나빴을까",
+    "말을 안 해"
+   ],
+   "need": "CONNECT",
+   "alt_need": null,
+   "need_rule": "대부분 CONNECT",
+   "locus": "other",
+   "emotions": [
+    "CON",
+    "ANX"
+   ],
+   "reframe": "그 사람이 왜 서운했는지는 그 사람에게 들어야 하지만, 그 마음을 헤아리고 싶은 {name}님의 마음은 지금도 관계를 잇고 있어요.",
+   "caution": "",
+   "research": [
+    "남성 시점 왜 화났나",
+    "남성 시점"
+   ],
+   "expressions": [
+    "그녀가 저한테 관심 있는 걸까요",
+    "소개팅 상대가 저를 마음에 들어 했을까요",
+    "여친이 왜 화났는지 모르겠어요",
+    "애프터 신청하면 받아줄까요"
+   ],
+   "sources": [
+    {
+     "title": "말보다 태도, 여자가 관심 있을 때 보이는 행동 7",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/02/20/%EB%A7%90%EB%B3%B4%EB%8B%A4-%ED%83%9C%EB%8F%84-%EC%97%AC%EC%9E%90%EA%B0%80-%EA%B4%80%EC%8B%AC-%EC%9E%88%EC%9D%84-%EB%95%8C-%EB%B3%B4%EC%9D%B4%EB%8A%94-%ED%96%89%EB%8F%99-7",
+     "lang": "ko"
+    },
+    {
+     "title": "여자친구는 왜 화가 났을까?",
+     "outlet": "에스콰이어 코리아",
+     "url": "https://www.esquirekorea.co.kr/article/34719",
+     "lang": "ko"
+    },
+    {
+     "title": "소개팅 연전연승 '첫 30초'의 법칙",
+     "outlet": "에스콰이어 코리아",
+     "url": "https://www.esquirekorea.co.kr/article/1907712",
+     "lang": "ko"
+    },
+    {
+     "title": "당신의 소개팅이 실패하는 이유",
+     "outlet": "아레나 옴므 플러스",
+     "url": "https://www.arenakorea.com/news/articleView.html?idxno=52039",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "TM-REPLY",
+   "qtype": "timing",
+   "name": "연락이 언제 올까(썸·싸운 뒤)",
+   "cues": [
+    "언제 연락",
+    "연락 올까",
+    "기다리는 중",
+    "며칠째 연락"
+   ],
+   "need": "REST",
+   "alt_need": "CONNECT",
+   "need_rule": "기다림에 지쳤으면 REST, 이어 가고 싶은 마음이 중심이면 CONNECT, 이미 끝난 관계면 TM-EXBACK",
+   "locus": "other",
+   "emotions": [
+    "ANX",
+    "TIR"
+   ],
+   "reframe": "연락이 올 날을 카드가 정할 수는 없지만, 기다리는 시간을 {name}님에게 덜 무겁게 보내는 법은 찾아볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "연락이 언제 올지",
+    "연락은 언제 오나"
+   ],
+   "expressions": [
+    "헤어진 그 사람 연락 언제 올까요",
+    "연락 기다리는 중인데 올까요",
+    "두 달 지나면 연락 온다던데 진짜예요?",
+    "썸남 연락 언제쯤 올까",
+    "그 사람 언제 연락 올까",
+    "첫 데이트 후 연락 언제 와?",
+    "잠수 탄 사람 다시 연락 올까, 언제?",
+    "답장 언제쯤 올까"
+   ],
+   "sources": [
+    {
+     "title": "이별 대처법",
+     "outlet": "하퍼스 바자 코리아",
+     "url": "https://www.harpersbazaar.co.kr/article/38190",
+     "lang": "ko"
+    },
+    {
+     "title": "그 남자가 다시 연락한 이유",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/19663",
+     "lang": "ko"
+    },
+    {
+     "title": "왜 아직도 우리는 ‘선톡’을 망설이고, 남자의 연락만 기다릴까?",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2026/05/03/%EC%99%9C-%EC%95%84%EC%A7%81%EB%8F%84-%EC%9A%B0%EB%A6%AC%EB%8A%94-%EC%84%A0%ED%86%A1%EC%9D%84-%EB%A7%9D%EC%84%A4%EC%9D%B4%EA%B3%A0-%EB%82%A8%EC%9E%90%EC%9D%98-%EC%97%B0%EB%9D%BD%EB%A7%8C-%EA%B8%B0",
+     "lang": "ko"
+    },
+    {
+     "title": "If After A Few Texts Your Crush Has Gone AWOL, They May Be Ghosting You",
+     "outlet": "Women's Health (via AOL)",
+     "url": "https://www.aol.com/few-texts-crush-gone-awol-110000764.html",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "TM-EXBACK",
+   "qtype": "timing",
+   "name": "헤어진 사람 연락·재회가 언제",
+   "cues": [
+    "언제 연락 올까",
+    "다시 돌아올까",
+    "노컨택",
+    "두 달 지나면",
+    "재회 언제"
+   ],
+   "need": "LETGO",
+   "alt_need": "START",
+   "need_rule": "기다리며 붙잡고 있으면 LETGO, 재회를 위해 스스로 움직이겠다고 하면 START",
+   "locus": "other",
+   "emotions": [
+    "GRI",
+    "ANX"
+   ],
+   "reframe": "그 사람이 돌아올 시기를 말할 수는 없지만, 기다림 속에서 멈춰 있는 {name}님의 시간이 다시 흐르도록 도울 수는 있어요.",
+   "caution": "연락 시점을 코치하지 않기(스토킹·반복 연락 위험)",
+   "research": [
+    "재회 연락 타이밍",
+    "언제 연락 오나(이별 후)"
+   ],
+   "expressions": [
+    "헤어진 지 한 달, 언제 연락하면 좋을까요",
+    "전 애인한테 연락 언제 올까요",
+    "재회 연락 지금 해도 될 타이밍인가요",
+    "얼마나 기다려야 다시 연락 와요"
+   ],
+   "sources": [
+    {
+     "title": "헤어졌는데 자꾸 생각나, 지나간 인연 되돌리는 이성적인 방법 8",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2025/11/23/%ED%97%A4%EC%96%B4%EC%A1%8C%EB%8A%94%EB%8D%B0-%EC%9E%90%EA%BE%B8-%EC%83%9D%EA%B0%81%EB%82%98-%EC%A7%80%EB%82%98%EA%B0%84-%EC%9D%B8%EC%97%B0-%EB%90%98%EB%8F%8C%EB%A6%AC%EB%8A%94-%EC%9D%B4%EC%84%B1",
+     "lang": "ko"
+    },
+    {
+     "title": "2026년 10월 별자리 운세",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/10/01/2026%EB%85%84-10%EC%9B%94-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "TM-OFFICIAL",
+   "qtype": "timing",
+   "name": "썸이 언제 연애가 될까",
+   "cues": [
+    "언제 사귀",
+    "고백은 언제",
+    "언제 확실해",
+    "진전",
+    "몇 달째 제자리"
+   ],
+   "need": "START",
+   "alt_need": "CONNECT",
+   "need_rule": "내가 먼저 말할 용기가 중심이면 START, 상대가 다가오길 바라면 CONNECT",
+   "locus": "other",
+   "emotions": [
+    "HOP",
+    "ANX"
+   ],
+   "reframe": "관계가 언제 이름을 갖게 될지는 둘의 몫이지만, {name}님이 그 시간을 앞당기고 싶은지 기다리고 싶은지는 지금 알아볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "썸에서 언제 사귀나",
+    "썸이 언제 연애로",
+    "몇 번 만나야"
+   ],
+   "expressions": [
+    "썸 탄 지 한 달인데 언제 사귀게 될까요",
+    "이 썸 언제 연애로 넘어가요",
+    "삼프터에 고백하는 게 국룰인가요",
+    "썸만 계속 타요 언제 정리될까",
+    "첫 만남 별로였는데 또 만나봐야 할까요",
+    "몇 번 만나봐야 마음을 알 수 있어요",
+    "애프터 다음 삼프터는 언제 잡아야 해요",
+    "이 썸 언제 사귀게 될까",
+    "고백은 언제 받을 수 있을까",
+    "몇 달째 제자리인데 진전 있을까",
+    "언제쯤 관계 확실해질까"
+   ],
+   "sources": [
+    {
+     "title": "썸에서 연인으로! 성공을 위해 결정적인 이 행동 6",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2025/08/04/%EC%8D%B8%EC%97%90%EC%84%9C-%EC%97%B0%EC%9D%B8%EC%9C%BC%EB%A1%9C-%EC%84%B1%EA%B3%B5%EC%9D%84-%EC%9C%84%ED%95%B4-%EA%B2%B0%EC%A0%95%EC%A0%81%EC%9D%B8-%EC%9D%B4-%ED%96%89%EB%8F%99-6",
+     "lang": "ko"
+    },
+    {
+     "title": "썸만 타는 사람들을 위한 연애 조언",
+     "outlet": "얼루어 코리아",
+     "url": "https://www.allurekorea.com/2016/12/08/%EC%8D%B8%EB%A7%8C-%ED%83%80%EB%8A%94-%EC%82%AC%EB%9E%8C%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%97%B0%EC%95%A0-%EC%A1%B0%EC%96%B8/",
+     "lang": "ko"
+    },
+    {
+     "title": "망한 소개팅, 두 번은 만나봐야 하는 이유",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/08/16/%EB%A7%9D%ED%95%9C-%EC%86%8C%EA%B0%9C%ED%8C%85-%EB%91%90-%EB%B2%88%EC%9D%80-%EB%A7%8C%EB%82%98%EB%B4%90%EC%95%BC-%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0",
+     "lang": "ko"
+    },
+    {
+     "title": "나 좋다는 그 애, 만날까? 말까?",
+     "outlet": "대학내일",
+     "url": "https://www.univ20.com/Magazine/Detail/1909",
+     "lang": "ko"
+    },
+    {
+     "title": "Signs your situationship is never turning into a relationship",
+     "outlet": "Cosmopolitan India",
+     "url": "https://www.cosmopolitan.in/life/features/story/signs-your-situationship-is-never-turning-into-a-relationship-1094585-2024-09-18",
+     "lang": "en"
+    },
+    {
+     "title": "Unclear Situationship? Text Them This",
+     "outlet": "Cosmopolitan (via AOL)",
+     "url": "https://www.aol.com/articles/unclear-situationship-text-them-140000445.html",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "TM-NEWLOVE",
+   "qtype": "timing",
+   "name": "새 인연은 언제 올까",
+   "cues": [
+    "언제 연애",
+    "인연이 언제",
+    "모솔",
+    "솔로 탈출",
+    "좋은 사람 언제",
+    "왜 저만 솔로"
+   ],
+   "need": "CONNECT",
+   "alt_need": "START",
+   "need_rule": "외로움·가까움이 중심이면 CONNECT, 만남을 시작할 용기가 중심이면 START",
+   "locus": "circumstance",
+   "emotions": [
+    "LON",
+    "HOP"
+   ],
+   "reframe": "인연이 오는 날짜는 아무도 정할 수 없지만, 새 사람을 맞을 {name}님의 마음 준비는 지금부터 함께할 수 있어요.",
+   "caution": "'언제 올 거예요' 같은 시점 약속 금지",
+   "research": [
+    "새 인연 언제",
+    "새 인연·연애 시기",
+    "새 인연",
+    "언제 인연"
+   ],
+   "expressions": [
+    "언제쯤 인연이 올까요",
+    "올해 안에 연애할 수 있을까요",
+    "새로운 사람 언제 만나요",
+    "모솔 탈출 언제 해요",
+    "저 언제 연애할 수 있을까요",
+    "올해 안에 인연 생길까요",
+    "이번 달에 좋은 사람 만날까요",
+    "모솔인데 언제 연애하죠",
+    "나 연애 언제 할 수 있어?",
+    "올해 인연 생길까",
+    "앱 말고 어디서 사람 만나지",
+    "좋은 사람 언제 나타날까",
+    "언제쯤 좋은 사람 만날까",
+    "왜 저만 계속 솔로일까요",
+    "소울메이트 언제 만나요"
+   ],
+   "sources": [
+    {
+     "title": "쌍둥이자리 연애운, 썸 없이 시작해도 괜찮을까? 2025 여름 별자리 운세",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/1884080",
+     "lang": "ko"
+    },
+    {
+     "title": "3월 연애운 봐 드립니다. 3월 별자리 운세",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1877605",
+     "lang": "ko"
+    },
+    {
+     "title": "2026년 10월 별자리 운세",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/10/01/2026%EB%85%84-10%EC%9B%94-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8",
+     "lang": "ko"
+    },
+    {
+     "title": "[인플루언서 프리즘] 행복한 연애와 결혼을 위한 '현실 조언', 유튜브에 있다",
+     "outlet": "더팩트",
+     "url": "https://news.tf.co.kr/read/ogmeta/1947516.htm",
+     "lang": "ko"
+    },
+    {
+     "title": "Dating After the Apps",
+     "outlet": "Harper's Bazaar US (via Magzter)",
+     "url": "https://www.magzter.com/stories/fashion/Harpers-BAZAAR-US/DATING-AFTER-THE-APPS",
+     "lang": "en"
+    },
+    {
+     "title": "2022 Love Horoscope For Single Or Attached Zodiac Signs",
+     "outlet": "Refinery29",
+     "url": "https://www.refinery29.com/en-us/2021/12/10711916/love-horoscope-2022",
+     "lang": "en"
+    },
+    {
+     "title": "10 Summum Bonum Tarot Questions for the Highest Good",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/the-10-most-commonly-asked-questions-of-tarot-readers/",
+     "lang": "en"
+    },
+    {
+     "title": "11 Love Tarot Reading Blunders You Will Want to Avoid",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/top-5-worst-and-best-questions-to-ask-of-the-tarot",
+     "lang": "en"
+    },
+    {
+     "title": "How To Ask The Tarot Effective Questions For Your Biggest Love Dilemmas",
+     "outlet": "[TAROT] The Tarot Lady (Theresa Reed)",
+     "url": "https://thetarotlady.com/how-to-ask-the-tarot-effective-questions-for-your-biggest-love-dilemmas",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "TM-HEAL",
+   "qtype": "timing",
+   "name": "이별 뒤 언제 괜찮아질까",
+   "cues": [
+    "언제 괜찮아",
+    "언제 잊",
+    "이별 극복",
+    "아직도 생각나",
+    "언제 정리"
+   ],
+   "need": "LETGO",
+   "alt_need": "REST",
+   "need_rule": "대부분 LETGO. 지쳐서 일상이 버거운 게 중심이면 REST(며칠째 못 먹음·못 잠이면 안전 판단 먼저)",
+   "locus": "self",
+   "emotions": [
+    "GRI",
+    "TIR"
+   ],
+   "reframe": "마음이 낫는 속도는 사람마다 달라요. 언제인지보다, 오늘 {name}님이 조금 덜 아프도록 할 수 있는 것을 함께 볼 수 있어요.",
+   "caution": "watch 신호(며칠째 못 먹음·못 잠·출근 못 함) 확인",
+   "research": [
+    "이별 후 언제 괜찮아지나"
+   ],
+   "expressions": [
+    "언제쯤 안 힘들어질까요",
+    "이별 극복 얼마나 걸려요",
+    "아직도 생각나는데 언제 잊혀요",
+    "언제쯤 괜찮아질까요",
+    "이별한 지 석 달인데 아직도 힘들어요",
+    "이 마음 언제 정리될까요",
+    "언제쯤 새 사람 만날 수 있을까",
+    "이별 후회 언제 끝나?",
+    "전 애인 언제쯤 잊혀질까",
+    "헤어진 지 6개월인데 아직도 힘들어",
+    "언제 다시 연애할 마음 생길까",
+    "언제쯤 이 사람 잊을 수 있을까요",
+    "이제 새 연애 시작해도 될까",
+    "언제 괜찮아질까요",
+    "전 애인 생각이 언제 안 날까"
+   ],
+   "sources": [
+    {
+     "title": "이별에 대처하는 자세",
+     "outlet": "싱글즈",
+     "url": "https://www.singleskorea.com/article/711778",
+     "lang": "ko"
+    },
+    {
+     "title": "이별 대처법",
+     "outlet": "하퍼스 바자 코리아",
+     "url": "https://www.harpersbazaar.co.kr/article/38190",
+     "lang": "ko"
+    },
+    {
+     "title": "심리학자가 알려주는 이별 극복 꿀팁",
+     "outlet": "얼루어 코리아",
+     "url": "https://www.allurekorea.com/2025/02/15/this-too-shall-pass/",
+     "lang": "ko"
+    },
+    {
+     "title": "‘This Break-Up Left Me With So Many Regrets!’",
+     "outlet": "Ask Polly (Substack after The Cut)",
+     "url": "https://www.ask-polly.com/p/this-break-up-left-me-with-so-many",
+     "lang": "en"
+    },
+    {
+     "title": "Ask Polly: My Ex Dumped Me Callously And I Can't Get Over It!",
+     "outlet": "The Cut / Ask Polly (early run at The Awl)",
+     "url": "https://www.theawl.com/2014/01/ask-polly-my-ex-dumped-me-callously-and-i-cant-get-over-it/",
+     "lang": "en"
+    },
+    {
+     "title": "Here's how to recover from a situationship that almost killed your optimism",
+     "outlet": "Harper's Bazaar India",
+     "url": "https://www.harpersbazaar.in/culture/story/heres-how-to-recover-from-a-situationship-that-almost-killed-your-optimism-564730-2022-11-26",
+     "lang": "en"
+    },
+    {
+     "title": "12 Clear Signs You Are Ready to Date Again After a Breakup",
+     "outlet": "The Gottman Institute",
+     "url": "https://www.gottman.com/blog/12-clear-signs-you-are-ready-to-date-again/",
+     "lang": "en"
+    },
+    {
+     "title": "How Do You Get Over A First Love?",
+     "outlet": "Boston.com (Love Letters)",
+     "url": "https://www.boston.com/love-letters/break-ups/he-was-my-first-love/",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "TM-MARRY",
+   "qtype": "timing",
+   "name": "결혼·프러포즈는 언제",
+   "cues": [
+    "언제 결혼",
+    "프러포즈 언제",
+    "결혼한다더니"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "CONNECT",
+   "need_rule": "기다릴지 정하려 하면 CHOOSE, 함께 정하고 싶은 마음이면 CONNECT",
+   "locus": "other",
+   "emotions": [
+    "ANX",
+    "HOP"
+   ],
+   "reframe": "결혼의 시기는 둘이 함께 정하는 일이에요. 카드는 {name}님이 그 시간을 어떻게 기다리고 싶은지 비춰 줄 수 있어요.",
+   "caution": "",
+   "research": [
+    "언제 결혼·프러포즈"
+   ],
+   "expressions": [
+    "결혼한다더니 대체 언제 해요",
+    "프러포즈 언제 할까요",
+    "남친이 결혼 생각은 있는 걸까",
+    "저희 언제쯤 결혼할까요"
+   ],
+   "sources": [
+    {
+     "title": "Charity Lawson as Dear Prudence: My boyfriend says he has a \"plan\" for marriage. It's been years.",
+     "outlet": "Slate (Dear Prudence)",
+     "url": "https://slate.com/human-interest/2023/08/plan-marriage-boyfriend-charity-lawson-dear-prudence.html",
+     "lang": "en"
+    },
+    {
+     "title": "10 Summum Bonum Tarot Questions for the Highest Good",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/the-10-most-commonly-asked-questions-of-tarot-readers/",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "TM-SPARK",
+   "qtype": "timing",
+   "name": "권태는 언제 끝나나·설렘은 언제까지",
+   "cues": [
+    "권태기 언제",
+    "설렘이 사라",
+    "100일 고비",
+    "언제까지 설레"
+   ],
+   "need": "CONNECT",
+   "alt_need": "CHOOSE",
+   "need_rule": "대부분 CONNECT",
+   "locus": "self",
+   "emotions": [
+    "LON",
+    "CON"
+   ],
+   "reframe": "설렘이 머무는 기간은 정해져 있지 않아요. {name}님이 이 관계에서 다시 느끼고 싶은 온도가 무엇인지 함께 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "설렘 언제까지",
+    "권태",
+    "설렘이 언제까지"
+   ],
+   "expressions": [
+    "설렘이 벌써 사라졌어요 정상인가요",
+    "권태기 언제 와요",
+    "100일 고비 넘길 수 있을까"
+   ],
+   "sources": [
+    {
+     "title": "2025년 구글에 가장 많이 검색된 연애 질문 5가지와 그 답변들",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2025/12/25/2025%EB%85%84-%EA%B5%AC%EA%B8%80%EC%97%90-%EA%B0%80%EC%9E%A5-%EB%A7%8E%EC%9D%B4-%EA%B2%80%EC%83%89%EB%90%9C-%EC%97%B0%EC%95%A0-%EC%A7%88%EB%AC%B8-5%EA%B0%80%EC%A7%80%EC%99%80-%EA%B7%B8-%EB%8B%B5",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "TM-TRIANGLE",
+   "qtype": "timing",
+   "name": "그 사람이 언제 지금 애인과 헤어질까",
+   "cues": [
+    "여친 있는",
+    "남친 있는",
+    "애인 있는 사람",
+    "유부남",
+    "유부녀",
+    "언제 헤어질까"
+   ],
+   "need": "LETGO",
+   "alt_need": "CHOOSE",
+   "need_rule": "기다리며 붙잡고 있으면 LETGO, 기다릴지 정리할지 정하려 하면 CHOOSE",
+   "locus": "other",
+   "emotions": [
+    "ANX",
+    "LON"
+   ],
+   "reframe": "그 사람의 관계가 어떻게 될지는 카드가 말할 수 없지만, 기다리는 동안 {name}님의 마음이 얼마나 지쳐 있는지는 살펴볼 수 있어요.",
+   "caution": "다른 사람의 이별을 바라는 해석 금지",
+   "research": [
+    "삼각관계"
+   ],
+   "expressions": [
+    "그 사람 언제 여친이랑 헤어질까요",
+    "애인 있는 사람 좋아하는데 기다려도 될까",
+    "저한테 언제 올까요"
+   ],
+   "sources": [
+    {
+     "title": "How To Ask The Tarot Effective Questions For Your Biggest Love Dilemmas",
+     "outlet": "[TAROT] The Tarot Lady (Theresa Reed)",
+     "url": "https://thetarotlady.com/how-to-ask-the-tarot-effective-questions-for-your-biggest-love-dilemmas",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "YN-TEXT",
+   "qtype": "yesno",
+   "name": "먼저 연락(선톡)해도 될까",
+   "cues": [
+    "선톡",
+    "먼저 연락",
+    "카톡 보낼까",
+    "없어 보일까",
+    "한 번 더 보내"
+   ],
+   "need": "START",
+   "alt_need": "CONNECT",
+   "need_rule": "하고 싶은데 망설임이 중심이면 START, 관계를 이어 가고 싶은 마음이 중심이면 CONNECT, 상대가 차단·그만하자고 했으면 LETGO",
+   "locus": "self",
+   "emotions": [
+    "ANX",
+    "HOP"
+   ],
+   "reframe": "보낼지 말지는 {name}님이 정할 일이에요. 카드는 그 망설임 속에 있는 마음 — 바람인지 두려움인지 — 을 나눠 보게 도와요.",
+   "caution": "상대가 연락을 끊었거나 그만하자고 했으면 연락을 권하지 않기",
+   "research": [
+    "선톡해도 될까",
+    "먼저 연락할까",
+    "먼저 연락"
+   ],
+   "expressions": [
+    "선톡해도 될까요",
+    "제가 먼저 연락하면 없어 보일까요",
+    "카톡 보낼까 말까",
+    "기다려야 할까요 먼저 할까요",
+    "먼저 연락해도 될까요",
+    "제가 또 연락하면 부담스러워할까요",
+    "읽씹당했는데 한 번 더 보내볼까요",
+    "연락 그만해야 할까요",
+    "제가 먼저 연락해도 될까요",
+    "선톡 해도 될까",
+    "답 없는데 한 번 더 보내도 될까요",
+    "서로 호감 있는 것 같은데 먼저 다가가도 될까"
+   ],
+   "sources": [
+    {
+     "title": "왜 아직도 우리는 ‘선톡’을 망설이고, 남자의 연락만 기다릴까?",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2026/05/03/%EC%99%9C-%EC%95%84%EC%A7%81%EB%8F%84-%EC%9A%B0%EB%A6%AC%EB%8A%94-%EC%84%A0%ED%86%A1%EC%9D%84-%EB%A7%9D%EC%84%A4%EC%9D%B4%EA%B3%A0-%EB%82%A8%EC%9E%90%EC%9D%98-%EC%97%B0%EB%9D%BD%EB%A7%8C-%EA%B8%B0",
+     "lang": "ko"
+    },
+    {
+     "title": "이런 문자를 받았다면 연락 그만, 썸 실패를 암시하는 문자 유형 5",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2024/11/05/%EC%9D%B4%EB%9F%B0-%EB%AC%B8%EC%9E%90%EB%A5%BC-%EB%B0%9B%EC%95%98%EB%8B%A4%EB%A9%B4-%EC%97%B0%EB%9D%BD-%EA%B7%B8%EB%A7%8C-%EC%8D%B8-%EC%8B%A4%ED%8C%A8%EB%A5%BC-%EC%95%94%EC%8B%9C%ED%95%98%EB%8A%94/",
+     "lang": "ko"
+    },
+    {
+     "title": "날 좋아하긴 하나? 우리 사이가 썸인지 아닌지 확인하는 방법 8",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/07/31/%EB%82%A0-%EC%A2%8B%EC%95%84%ED%95%98%EA%B8%B4-%ED%95%98%EB%82%98-%EC%9A%B0%EB%A6%AC-%EC%82%AC%EC%9D%B4%EA%B0%80-%EC%8D%B8%EC%9D%B8%EC%A7%80-%EC%95%84%EB%8B%8C%EC%A7%80-%ED%99%95%EC%9D%B8%ED%95%98/",
+     "lang": "ko"
+    },
+    {
+     "title": "Should I Text Him First? 3 Times You Should And 3 You Shouldn't",
+     "outlet": "The Good Men Project (male perspective)",
+     "url": "https://goodmenproject.com/featured-content/should-i-text-him-first-3-times-you-should-and-3-you-shouldnt/",
+     "lang": "en"
+    },
+    {
+     "title": "연애점이 맞을까? _타로카드럭키박스 _김소라",
+     "outlet": "[TAROT] 타로카드럭키박스 김소라 (maily 올컬처)",
+     "url": "https://maily.so/allculture/posts/1gz26jgxo3q",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "YN-STOP",
+   "qtype": "yesno",
+   "name": "연락을 그만할까·기다릴까",
+   "cues": [
+    "연락 그만",
+    "기다려야",
+    "답 없는데",
+    "그만 보낼까"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "BOUNDARY",
+   "need_rule": "이어 갈지 정하려 하면 CHOOSE, 나를 지키려 멈추고 싶으면 BOUNDARY",
+   "locus": "self",
+   "emotions": [
+    "HUR",
+    "TIR"
+   ],
+   "reframe": "기다림을 멈출지는 {name}님이 정할 수 있어요. 카드는 지금 {name}님에게 덜 아픈 선택이 무엇인지 함께 생각하게 해요.",
+   "caution": "",
+   "research": [
+    "연락 그만해야 할까",
+    "먼저 연락해도 되나"
+   ],
+   "expressions": [
+    "먼저 연락해도 될까요",
+    "제가 또 연락하면 부담스러워할까요",
+    "읽씹당했는데 한 번 더 보내볼까요",
+    "연락 그만해야 할까요"
+   ],
+   "sources": [
+    {
+     "title": "이런 문자를 받았다면 연락 그만, 썸 실패를 암시하는 문자 유형 5",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2024/11/05/%EC%9D%B4%EB%9F%B0-%EB%AC%B8%EC%9E%90%EB%A5%BC-%EB%B0%9B%EC%95%98%EB%8B%A4%EB%A9%B4-%EC%97%B0%EB%9D%BD-%EA%B7%B8%EB%A7%8C-%EC%8D%B8-%EC%8B%A4%ED%8C%A8%EB%A5%BC-%EC%95%94%EC%8B%9C%ED%95%98%EB%8A%94/",
+     "lang": "ko"
+    },
+    {
+     "title": "날 좋아하긴 하나? 우리 사이가 썸인지 아닌지 확인하는 방법 8",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/07/31/%EB%82%A0-%EC%A2%8B%EC%95%84%ED%95%98%EA%B8%B4-%ED%95%98%EB%82%98-%EC%9A%B0%EB%A6%AC-%EC%82%AC%EC%9D%B4%EA%B0%80-%EC%8D%B8%EC%9D%B8%EC%A7%80-%EC%95%84%EB%8B%8C%EC%A7%80-%ED%99%95%EC%9D%B8%ED%95%98/",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "YN-CONFESS",
+   "qtype": "yesno",
+   "name": "고백할까·관계를 물어볼까",
+   "cues": [
+    "고백",
+    "무슨 사이냐고",
+    "사귀자고",
+    "확실하게 하자",
+    "DTR",
+    "받아줄까"
+   ],
+   "need": "START",
+   "alt_need": "CHOOSE",
+   "need_rule": "말하기로 마음은 있는데 용기가 막히면 START, 할지 말지 아직 정하지 못했으면 CHOOSE",
+   "locus": "self",
+   "emotions": [
+    "HOP",
+    "ANX"
+   ],
+   "reframe": "받아 줄지는 그 사람의 몫이지만, 마음을 전하고 싶은 {name}님의 용기와 두려움은 지금 함께 볼 수 있어요.",
+   "caution": "결과(받아 줄 거예요)를 약속하지 않기",
+   "research": [
+    "고백할까",
+    "관계 정의 물어볼까"
+   ],
+   "expressions": [
+    "고백해도 될까요",
+    "지금 고백하면 너무 이른가",
+    "술 먹고 고백할까",
+    "고백하면 받아줄까요",
+    "지금 고백하면 받아줄까요",
+    "고백했다가 친구도 못 하게 되면 어떡해요",
+    "썸남한테 먼저 고백할까요",
+    "우리 무슨 사이냐고 물어봐도 돼?",
+    "먼저 고백해도 될까",
+    "사귀자고 하면 부담스러워할까",
+    "확실하게 하자고 말할까"
+   ],
+   "sources": [
+    {
+     "title": "고백하는 날",
+     "outlet": "마리끌레르 코리아",
+     "url": "https://www.marieclairekorea.com/lifestyle/2020/03/the-day-of-start/",
+     "lang": "ko"
+    },
+    {
+     "title": "성공률 높이는 고백법",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2023/12/08/%EC%84%B1%EA%B3%B5%EB%A5%A0-%EB%86%92%EC%9D%B4%EB%8A%94-%EA%B3%A0%EB%B0%B1%EB%B2%95",
+     "lang": "ko"
+    },
+    {
+     "title": "고백에 반드시 성공하는 방법 5",
+     "outlet": "얼루어 코리아",
+     "url": "https://www.allurekorea.com/2023/09/27/%EA%B3%A0%EB%B0%B1%EC%97%90-%EB%B0%98%EB%93%9C%EC%8B%9C-%EC%84%B1%EA%B3%B5%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95-5/",
+     "lang": "ko"
+    },
+    {
+     "title": "Unclear Situationship? Text Them This",
+     "outlet": "Cosmopolitan (via AOL)",
+     "url": "https://www.aol.com/articles/unclear-situationship-text-them-140000445.html",
+     "lang": "en"
+    },
+    {
+     "title": "What Is A Situationship? Relationship Type, Explained",
+     "outlet": "Refinery29",
+     "url": "https://www.refinery29.com/en-us/what-is-situationship-meaning-pseudo-relationship",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "YN-EXCONTACT",
+   "qtype": "yesno",
+   "name": "전 애인에게 연락해도 될까",
+   "cues": [
+    "전 애인한테 연락",
+    "헤어진 사람한테 카톡",
+    "생일 축하 보내도",
+    "술 마시고 연락",
+    "친구로 지내도"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "LETGO",
+   "need_rule": "연락할지 결정이 중심이면 CHOOSE, 연락하고 싶은 마음을 놓지 못하거나 상대가 차단·그만하자고 했으면 LETGO",
+   "locus": "self",
+   "emotions": [
+    "LON",
+    "CON"
+   ],
+   "reframe": "연락할지보다 먼저, 그 연락으로 {name}님이 정말 얻고 싶은 것이 무엇인지 들여다볼 수 있어요.",
+   "caution": "상대가 차단·거절했으면 연락을 권하지 않기",
+   "research": [
+    "이별 후 연락",
+    "전 애인에게 연락할까"
+   ],
+   "expressions": [
+    "헤어졌는데 연락해도 될까요",
+    "다시 잡아도 될까요",
+    "재회 가능할까요",
+    "전 남친한테 먼저 연락할까",
+    "전 애인한테 연락해도 될까?",
+    "전 남친 생일인데 축하 보내도 돼?",
+    "헤어진 사람이랑 친구로 지내도 돼?",
+    "새벽에 전 애인한테 카톡 보낼까 말까",
+    "전 애인한테 연락해도 될까요",
+    "헤어진 사람한테 카톡 해볼까",
+    "술 마시고 연락하고 싶어요 해도 될까",
+    "연락하면 받아줄까요"
+   ],
+   "sources": [
+    {
+     "title": "연인과 헤어진 후, 연락해도 될까?",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/18328",
+     "lang": "ko"
+    },
+    {
+     "title": "이별 대처법",
+     "outlet": "하퍼스 바자 코리아",
+     "url": "https://www.harpersbazaar.co.kr/article/38190",
+     "lang": "ko"
+    },
+    {
+     "title": "Should You Text Your Ex “Happy Birthday?” Relationship Experts Weigh In",
+     "outlet": "Cosmopolitan (via AOL)",
+     "url": "https://www.aol.com/lifestyle/text-ex-happy-birthday-relationship-202600567.html",
+     "lang": "en"
+    },
+    {
+     "title": "Texting Your Ex Today Would Be Chaotic Evil — But Should You Do It Anyway?",
+     "outlet": "Refinery29",
+     "url": "https://www.refinery29.com/en-us/2020/10/10138573/national-text-your-ex-day-2020",
+     "lang": "en"
+    },
+    {
+     "title": "DEAR SHON – Shon Faye's new advice column in Vogue",
+     "outlet": "Vogue (US) — 'Dear Shon' advice column (via publisher announcement page)",
+     "url": "https://aitkenalexander.co.uk/dear-shon-shon-fayes-new-advice-column-in-vogue",
+     "lang": "en"
+    },
+    {
+     "title": "Should I Text My Ex? 7 Do's & Don'ts Of Reaching Out To An Ex",
+     "outlet": "mindbodygreen",
+     "url": "https://www.mindbodygreen.com/articles/dos-donts-of-reaching-out-to-an-ex",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "YN-REUNION",
+   "qtype": "yesno",
+   "name": "재회될까·다시 만나도 될까",
+   "cues": [
+    "재회",
+    "다시 만나",
+    "다시 잡",
+    "돌아올까",
+    "다시 잘될",
+    "또 같은 이유로"
+   ],
+   "need": "LETGO",
+   "alt_need": "CHOOSE",
+   "need_rule": "붙잡고 있으며 가능성을 묻으면 LETGO, 상대가 다시 만나자 해서 받아들일지 정하는 중이면 CHOOSE, 스스로 다시 시작하기로 했으면 START",
+   "locus": "other",
+   "emotions": [
+    "GRI",
+    "HOP"
+   ],
+   "reframe": "다시 만날 수 있을지는 카드가 정할 수 없지만, {name}님이 그 사람에게서 다시 찾고 싶은 것이 무엇인지는 비춰 볼 수 있어요.",
+   "caution": "재회 가능성을 예언하지 않기",
+   "research": [
+    "재회될까",
+    "재회할까·재회 가능할까"
+   ],
+   "expressions": [
+    "재회될까요",
+    "다시 만나도 괜찮을까요",
+    "전 애인이랑 다시 잘될 수 있을까요",
+    "재회하면 또 같은 이유로 헤어질까요",
+    "전 애인이랑 다시 만나도 될까?",
+    "재회하면 이번엔 잘될까",
+    "헤어지고 나서 더 잘 통하는데 다시 사귈까",
+    "재회 가능성 있을까",
+    "그 사람이랑 재회할 수 있을까요",
+    "다시 돌아올까요",
+    "전 애인이랑 다시 만나도 될까",
+    "내가 찼는데 후회돼요 다시 잡아도 될까",
+    "헤어졌다 만났다 반복하는데 기다려야 할까"
+   ],
+   "sources": [
+    {
+     "title": "다시 만나도 괜찮을까? 재결합 전 체크리스트 7",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2023/02/01/%EB%8B%A4%EC%8B%9C-%EB%A7%8C%EB%82%98%EB%8F%84-%EA%B4%9C%EC%B0%AE%EC%9D%84%EA%B9%8C-%EC%9E%AC%EA%B2%B0%ED%95%A9-%EC%A0%84-%EC%B2%B4%ED%81%AC%EB%A6%AC%EC%8A%A4%ED%8A%B8-7/",
+     "lang": "ko"
+    },
+    {
+     "title": "헤어졌는데 자꾸 생각나, 지나간 인연 되돌리는 이성적인 방법 8",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2025/11/23/%ED%97%A4%EC%96%B4%EC%A1%8C%EB%8A%94%EB%8D%B0-%EC%9E%90%EA%BE%B8-%EC%83%9D%EA%B0%81%EB%82%98-%EC%A7%80%EB%82%98%EA%B0%84-%EC%9D%B8%EC%97%B0-%EB%90%98%EB%8F%8C%EB%A6%AC%EB%8A%94-%EC%9D%B4%EC%84%B1",
+     "lang": "ko"
+    },
+    {
+     "title": "Should You Actually Get Back Together With Your Ex: A Quiz",
+     "outlet": "Cosmopolitan US (via Magzter)",
+     "url": "https://www.magzter.com/stories/fashion/Cosmopolitan-US/SHOULD-YOU-ACTUALLY-GET-BACK-TOGETHER-WITH-YOUR-EX-A-QUIZ",
+     "lang": "en"
+    },
+    {
+     "title": "The smart girl's guide to getting back together with your ex—the right way",
+     "outlet": "Cosmopolitan India",
+     "url": "https://www.cosmopolitan.in/life/features/story/the-smart-girls-guide-to-getting-back-together-with-your-ex-the-right-way-1167527-2025-02-09",
+     "lang": "en"
+    },
+    {
+     "title": "Ask Polly: Why Can't I Leave My Ex Behind For Good?",
+     "outlet": "The Cut / Ask Polly (early run at The Awl)",
+     "url": "https://www.theawl.com/2012/12/ask-polly-why-cant-i-leave-my-ex-behind-for-good/",
+     "lang": "en"
+    },
+    {
+     "title": "5 Ways To Know Whether You Should Get Back Together With Your Ex",
+     "outlet": "mindbodygreen",
+     "url": "https://www.mindbodygreen.com/articles/how-to-decide-whether-to-get-back-together-with-your-ex",
+     "lang": "en"
+    },
+    {
+     "title": "What Factors Make Couples More Likely to Get Back Together?",
+     "outlet": "Psychology Today",
+     "url": "https://www.psychologytoday.com/ie/blog/why-bad-looks-good/202102/what-factors-make-couples-more-likely-get-back-together",
+     "lang": "en"
+    },
+    {
+     "title": "He changed his mind again",
+     "outlet": "Boston.com (Love Letters)",
+     "url": "https://www.boston.com/love-letters/dating/he_changed_his_mind_again/",
+     "lang": "en"
+    },
+    {
+     "title": "How Do You Get Over A First Love?",
+     "outlet": "Boston.com (Love Letters)",
+     "url": "https://www.boston.com/love-letters/break-ups/he-was-my-first-love/",
+     "lang": "en"
+    },
+    {
+     "title": "Best Questions to Ask the Tarot About Love & Relationships",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/angelic-tarot-2/love-tarot-questions/",
+     "lang": "en"
+    },
+    {
+     "title": "재회 & 지나간 인연 타로 - 무료 타로점",
+     "outlet": "[TAROT] K-Calculator 재회 타로",
+     "url": "https://k-calc.com/play/tarot/reunion",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "YN-BREAKUP",
+   "qtype": "yesno",
+   "name": "헤어질까 계속 만날까",
+   "cues": [
+    "헤어질까",
+    "헤어져야",
+    "계속 만나도",
+    "정 떨어",
+    "이 연애 계속",
+    "버티는 연애",
+    "나만 노력"
+   ],
+   "need": "CHOOSE",
+   "alt_need": "START",
+   "need_rule": "정하지 못했으면 CHOOSE, 헤어지기로 했는데 말을 못 꺼내면 START, 이미 끝났으면 LETGO",
+   "locus": "self",
+   "emotions": [
+    "CON",
+    "TIR"
+   ],
+   "reframe": "이 관계를 이어 갈지는 {name}님만 정할 수 있어요. 카드는 그 결정 앞에서 {name}님이 무엇을 가장 지키고 싶은지 보게 도와요.",
+   "caution": "헤어지라·참으라 권하지 않기. 폭력·통제 신호가 있으면 violence 판단 먼저",
+   "research": [
+    "헤어질까 말까",
+    "헤어질까 계속 만날까",
+    "헤어질까"
+   ],
+   "expressions": [
+    "정 떨어졌는데 헤어져야 할까요",
+    "이 연애 저한테 안 좋은 것 같아요",
+    "계속 만나는 게 맞을까",
+    "헤어질까 말까 고민돼요",
+    "헤어지는 게 맞을까요",
+    "권태기인데 헤어져야 하나요",
+    "계속 만나도 될지 모르겠어요",
+    "이 연애 계속해야 할까요",
+    "이 남자랑 헤어질까?",
+    "이제 헤어져야 할 때일까",
+    "그냥 버티는 연애인 것 같아, 끝낼까",
+    "나만 노력하는 것 같은데 계속 만나야 해?",
+    "다른 사람 생각나는데 헤어지는 게 맞아?",
+    "권태기인지 끝인지 모르겠어요",
+    "자꾸 싸우는데 계속 만나도 될까",
+    "우리 관계 버틸 수 있을까요",
+    "이 관계 정상인 건가요"
+   ],
+   "sources": [
+    {
+     "title": "정이 뚝! 떨어지는 순간",
+     "outlet": "마리끌레르 코리아",
+     "url": "https://www.marieclairekorea.com/culture/lifestyle/2020/07/out-of-love-with/",
+     "lang": "ko"
+    },
+    {
+     "title": "연애 관계의 끝을 알리는 신호",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2017/01/31/%EC%97%B0%EC%95%A0-%EA%B4%80%EA%B3%84%EC%9D%98-%EB%81%9D%EC%9D%84-%EC%95%8C%EB%A6%AC%EB%8A%94-%EC%8B%A0%ED%98%B8/",
+     "lang": "ko"
+    },
+    {
+     "title": "2025년 구글에 가장 많이 검색된 연애 질문 5가지와 그 답변들",
+     "outlet": "보그 코리아",
+     "url": "https://www.vogue.co.kr/2025/12/25/2025%EB%85%84-%EA%B5%AC%EA%B8%80%EC%97%90-%EA%B0%80%EC%9E%A5-%EB%A7%8E%EC%9D%B4-%EA%B2%80%EC%83%89%EB%90%9C-%EC%97%B0%EC%95%A0-%EC%A7%88%EB%AC%B8-5%EA%B0%80%EC%A7%80%EC%99%80-%EA%B7%B8-%EB%8B%B5",
+     "lang": "ko"
+    },
+    {
+     "title": "이별을 결심할 때",
+     "outlet": "에스콰이어 코리아",
+     "url": "https://www.esquirekorea.co.kr/article/35432",
+     "lang": "ko"
+    },
+    {
+     "title": "을의 연애를 극복하기 위한 도움말",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2022/11/01/%EC%9D%84%EC%9D%98-%EC%97%B0%EC%95%A0%EB%A5%BC-%EA%B7%B9%EB%B3%B5%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%9C-%EB%8F%84%EC%9B%80%EB%A7%90/",
+     "lang": "ko"
+    },
+    {
+     "title": "어딘가 달라진 연인의 태도, 누가 봐도 티 나는 권태기 신호 9",
+     "outlet": "GQ 코리아",
+     "url": "https://www.gqkorea.co.kr/2026/09/29/%EC%96%B4%EB%94%98%EA%B0%80-%EB%8B%AC%EB%9D%BC%EC%A7%84-%EC%97%B0%EC%9D%B8%EC%9D%98-%ED%83%9C%EB%8F%84-%EB%88%84%EA%B0%80-%EB%B4%90%EB%8F%84-%ED%8B%B0-%EB%82%98%EB%8A%94-%EA%B6%8C%ED%83%9C%EA%B8%B0",
+     "lang": "ko"
+    },
+    {
+     "title": "How To Know When A Relationship Is Over, According To Experts",
+     "outlet": "Bustle",
+     "url": "https://www.bustle.com/wellness/when-to-end-relationship-experts",
+     "lang": "en"
+    },
+    {
+     "title": "“Should I Dump This Guy?”",
+     "outlet": "Ask Polly (Substack after The Cut)",
+     "url": "https://www.ask-polly.com/p/should-i-dump-this-guy",
+     "lang": "en"
+    },
+    {
+     "title": "6 Red flags you're settling in your relationship",
+     "outlet": "Glamour South Africa (SELF syndication)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/6-red-flags-youre-settling-in-your-relationship-4917c88d-b38b-49e8-a403-9567e618abe8",
+     "lang": "en"
+    },
+    {
+     "title": "Relationship Experts Share the 10 Telltale Signs You're Falling Out of Love With Your Partner",
+     "outlet": "Women's Health (via AOL)",
+     "url": "https://www.aol.com/articles/why-falling-love-doesnt-mean-143500689.html",
+     "lang": "en"
+    },
+    {
+     "title": "How to Know When Breaking Up Is the Healthiest Choice",
+     "outlet": "The Gottman Institute",
+     "url": "https://www.gottman.com/blog/know-when-breaking-up-healthiest-choice/",
+     "lang": "en"
+    },
+    {
+     "title": "When to Break Up With Someone and When to Stick It Out",
+     "outlet": "Mark Manson",
+     "url": "https://markmanson.net/when-to-break-up-with-someone",
+     "lang": "en"
+    },
+    {
+     "title": "6 Signs You're in a Toxic Relationship",
+     "outlet": "Mark Manson",
+     "url": "https://markmanson.net/toxic-relationship-signs",
+     "lang": "en"
+    },
+    {
+     "title": "How To Ask The Tarot Effective Questions For Your Biggest Love Dilemmas",
+     "outlet": "[TAROT] The Tarot Lady (Theresa Reed)",
+     "url": "https://thetarotlady.com/how-to-ask-the-tarot-effective-questions-for-your-biggest-love-dilemmas",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "YN-CUT",
+   "qtype": "yesno",
+   "name": "애매한 관계를 정리·차단할까",
+   "cues": [
+    "정리할까",
+    "차단할까",
+    "끊어낼까",
+    "이 썸 그만",
+    "그만둘까"
+   ],
+   "need": "BOUNDARY",
+   "alt_need": "CHOOSE",
+   "need_rule": "휘둘리지 않으려 선을 긋고 싶으면 BOUNDARY, 아직 저울질이면 CHOOSE",
+   "locus": "self",
+   "emotions": [
+    "TIR",
+    "HUR"
+   ],
+   "reframe": "정리할지는 {name}님이 정할 일이에요. 카드는 {name}님이 이 관계에서 더는 견디고 싶지 않은 선이 어디인지 비춰 줘요.",
+   "caution": "",
+   "research": [
+    "썸·애매한 관계 정리할까",
+    "간보는 상대 차단",
+    "썸·관계를 정리"
+   ],
+   "expressions": [
+    "이 썸 그만둬야 할까요",
+    "회피형이랑 계속 만나도 될까",
+    "붙잡을까 놓을까",
+    "혼자만 노력하는 것 같아요 끝낼까",
+    "이 썸 이제 끝낼까?",
+    "애매한 관계 정리하는 게 맞을까",
+    "나만 진심인 것 같은데 그만둘까",
+    "정리했는데 다시 연락하고 싶어",
+    "가끔 연락하는 그 사람 차단할까?",
+    "어장 같은데 그냥 끊어낼까",
+    "이 사람 기다려야 해 말아야 해?",
+    "유부남 끊어내야 할까"
+   ],
+   "sources": [
+    {
+     "title": "썸을 끝내야 할 때",
+     "outlet": "싱글즈",
+     "url": "https://m.singleskorea.com/article/696188/THESINGLE",
+     "lang": "ko"
+    },
+    {
+     "title": "다가가면 도망가는 썸? 회피형 남자 다루는 법",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1900948",
+     "lang": "ko"
+    },
+    {
+     "title": "How to end a situationship when you've outgrown it",
+     "outlet": "Harper's Bazaar India",
+     "url": "https://www.harpersbazaar.in/culture/story/how-to-end-a-situationship-when-youve-outgrown-it-569623-2023-05-24",
+     "lang": "en"
+    },
+    {
+     "title": "Tips For Ending A Situationship That Isn't Serving You",
+     "outlet": "Refinery29 UK",
+     "url": "https://www.refinery29.com/en-gb/how-to-end-a-situationship",
+     "lang": "en"
+    },
+    {
+     "title": "Dating 101: What Is Breadcrumbing?",
+     "outlet": "Vogue US (via Glamour South Africa)",
+     "url": "https://www.glamour.co.za/wellness/love-relationships/dating-101-what-is-breadcrumbing-8012bb48-f52f-4d38-a89c-c7fa07804198",
+     "lang": "en"
+    },
+    {
+     "title": "Lurve a married man? Do this",
+     "outlet": "ELLE — 'Ask E. Jean' column (Substack successor)",
+     "url": "https://ejeancarroll.substack.com/p/lurve-a-married-man-do-this",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "YN-TRY",
+   "qtype": "yesno",
+   "name": "만나 볼까(소개팅·나를 좋아하는 사람)",
+   "cues": [
+    "소개팅 나가",
+    "만나볼까",
+    "나 좋다는 사람",
+    "좋아하지 않는데 사귀어도",
+    "앱 깔까"
+   ],
+   "need": "START",
+   "alt_need": "CHOOSE",
+   "need_rule": "새로 시작할 용기가 중심이면 START, 두 사람·두 방향 사이 고민이면 CHOOSE",
+   "locus": "self",
+   "emotions": [
+    "HOP",
+    "CON"
+   ],
+   "reframe": "이 만남이 어떻게 될지는 아직 아무도 몰라요. 카드는 새로 시작하는 일 앞에서 {name}님이 바라는 것을 짚어 줘요.",
+   "caution": "",
+   "research": [
+    "만나볼까",
+    "썸 없이 바로 사귀어도"
+   ],
+   "expressions": [
+    "만난 지 얼마 안 됐는데 사귀어도 될까요",
+    "썸 없이 바로 사귀면 별로예요?",
+    "너무 빨리 진도 나가는 걸까",
+    "나 좋다는 사람 만나볼까요",
+    "좋아하지 않는데 사귀어도 될까요",
+    "소개팅 나가볼까요",
+    "그 사람 계속 만나봐도 될까요"
+   ],
+   "sources": [
+    {
+     "title": "쌍둥이자리 연애운, 썸 없이 시작해도 괜찮을까? 2025 여름 별자리 운세",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/1884080",
+     "lang": "ko"
+    },
+    {
+     "title": "나 좋다는 그 애, 만날까? 말까?",
+     "outlet": "대학내일",
+     "url": "https://www.univ20.com/Magazine/Detail/1909",
+     "lang": "ko"
+    },
+    {
+     "title": "소개팅 할까? 말까?",
+     "outlet": "대학내일",
+     "url": "https://www.univ20.com/Magazine/Detail/1801",
+     "lang": "ko"
+    },
+    {
+     "title": "망한 소개팅, 두 번은 만나봐야 하는 이유",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/08/16/%EB%A7%9D%ED%95%9C-%EC%86%8C%EA%B0%9C%ED%8C%85-%EB%91%90-%EB%B2%88%EC%9D%80-%EB%A7%8C%EB%82%98%EB%B4%90%EC%95%BC-%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "YN-MARRY",
+   "qtype": "yesno",
+   "name": "이 사람과 결혼해도 될까·기다릴까",
+   "cues": [
+    "결혼해도 될까",
+    "결혼 확신",
+    "계속 기다려도",
+    "운명일까"
+   ],
+   "need": "CHOOSE",
+   "alt_need": null,
+   "need_rule": "대부분 CHOOSE",
+   "locus": "self",
+   "emotions": [
+    "CON",
+    "ANX"
+   ],
+   "reframe": "결혼이라는 큰 결정은 카드가 대신할 수 없어요. 대신 {name}님이 확신을 느끼려면 무엇이 필요한지 함께 정리해 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "결혼해도 되나",
+    "결혼해도"
+   ],
+   "expressions": [
+    "이 사람이랑 결혼해도 될까요",
+    "결혼 확신이 안 생겨요",
+    "남친이 결혼 생각이 있을까요",
+    "결혼까지 갈 수 있을까",
+    "계속 기다려도 되는 걸까요",
+    "이 사람이 제 운명일까요"
+   ],
+   "sources": [
+    {
+     "title": "여자가 결혼을 결심할 때",
+     "outlet": "에스콰이어 코리아",
+     "url": "https://www.esquirekorea.co.kr/article/35668",
+     "lang": "ko"
+    },
+    {
+     "title": "Help! I’ve Been Waiting for My Boyfriend to Propose. What He Did Instead Is Beyond Frustrating.",
+     "outlet": "Slate (Dear Prudence)",
+     "url": "https://slate.com/advice/2026/03/boyfriend-advice-work-on-himself.html",
+     "lang": "en"
+    },
+    {
+     "title": "How To Ask The Tarot Effective Questions For Your Biggest Love Dilemmas",
+     "outlet": "[TAROT] The Tarot Lady (Theresa Reed)",
+     "url": "https://thetarotlady.com/how-to-ask-the-tarot-effective-questions-for-your-biggest-love-dilemmas",
+     "lang": "en"
+    },
+    {
+     "title": "10 Summum Bonum Tarot Questions for the Highest Good",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/the-10-most-commonly-asked-questions-of-tarot-readers/",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "YN-PUBLIC",
+   "qtype": "yesno",
+   "name": "연애를 공개할까·진도",
+   "cues": [
+    "SNS에 올려",
+    "공개할까",
+    "럽스타",
+    "소프트 런칭",
+    "너무 빨리",
+    "진도"
+   ],
+   "need": "CHOOSE",
+   "alt_need": null,
+   "need_rule": "대부분 CHOOSE",
+   "locus": "self",
+   "emotions": [
+    "HOP",
+    "ANX"
+   ],
+   "reframe": "정답이 있는 문제는 아니에요. {name}님이 편안하게 느끼는 속도가 어디인지 함께 살펴볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "연애 공개할까",
+    "썸 없이 바로 사귀어도"
+   ],
+   "expressions": [
+    "만난 지 얼마 안 됐는데 사귀어도 될까요",
+    "썸 없이 바로 사귀면 별로예요?",
+    "너무 빨리 진도 나가는 걸까",
+    "애인 있는 거 SNS에 올려도 돼?",
+    "손만 나오게 올릴까 얼굴 공개할까",
+    "연애 공개하면 별로일까"
+   ],
+   "sources": [
+    {
+     "title": "쌍둥이자리 연애운, 썸 없이 시작해도 괜찮을까? 2025 여름 별자리 운세",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/1884080",
+     "lang": "ko"
+    },
+    {
+     "title": "Is Having a Boyfriend Embarrassing Now?",
+     "outlet": "British Vogue (Chanté Joseph op-ed, via Fox News coverage)",
+     "url": "https://www.foxnews.com/media/vogue-op-ed-stirs-debate-after-calling-boyfriends-embarrassing-saying-dating-now-feels-republican",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "FT-PERIOD",
+   "qtype": "fortune",
+   "name": "오늘·이번 주·이번 달·올해 연애운",
+   "cues": [
+    "연애운",
+    "애정운",
+    "이번 달",
+    "올해",
+    "하반기",
+    "오늘 운세",
+    "신년"
+   ],
+   "need": "CONNECT",
+   "alt_need": "START",
+   "need_rule": "기본 CONNECT. 싱글이 만남을 시작하고 싶다는 단서면 START",
+   "locus": "circumstance",
+   "emotions": [
+    "HOP"
+   ],
+   "reframe": "쏠 타로는 앞날을 점치기보다 지금의 마음을 비춰요. 이번 시기 {name}님이 사랑에서 바라는 것을 세 장으로 함께 볼게요.",
+   "caution": "운세 등급·시점 약속 금지",
+   "research": [
+    "이달·올해 연애운",
+    "주간·올해 연애운",
+    "연애운"
+   ],
+   "expressions": [
+    "이번 달 연애운 어때요",
+    "이번 주 썸 진전 있을까",
+    "요즘 연애운 좀 봐주세요",
+    "2026년 연애운 궁금해요",
+    "올해 연애운 있어요?",
+    "새해에 인연 들어와요?",
+    "올해 애정운 봐주세요",
+    "오늘 연애운",
+    "하반기에 연애운 들어와요?",
+    "이번 주 내 연애운 어때?",
+    "올해 연애운 봐줘",
+    "싱글인데 올해 연애할 운 있어?",
+    "이번 달에 고백해도 되는 운이야?",
+    "올해 제 연애운 어때요",
+    "저 연애 언젠가 할 수 있을까요",
+    "하반기 인연운 궁금해요"
+   ],
+   "sources": [
+    {
+     "title": "3월 연애운 봐 드립니다. 3월 별자리 운세",
+     "outlet": "코스모폴리탄 코리아",
+     "url": "https://www.cosmopolitan.co.kr/article/1877605",
+     "lang": "ko"
+    },
+    {
+     "title": "2021년 7월 별자리 운세",
+     "outlet": "마리끌레르 코리아",
+     "url": "https://www.marieclairekorea.com/horoscope/horoscope-monthly/2021/06/horoscope2107/",
+     "lang": "ko"
+    },
+    {
+     "title": "HELLO 2026! <싱글즈>가 알려주는 2026년 별자리 운세",
+     "outlet": "싱글즈",
+     "url": "https://m.singleskorea.com/article/720715",
+     "lang": "ko"
+    },
+    {
+     "title": "2017년 내 연애운이 궁금하다!",
+     "outlet": "싱글즈",
+     "url": "http://www.thesingle.co.kr/SinglesPcWeb/beauty/article_detail.do?fmc_no=599680&fsmc_no=599696&nc_no=693617",
+     "lang": "ko"
+    },
+    {
+     "title": "2026년 10월 별자리 운세",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/10/01/2026%EB%85%84-10%EC%9B%94-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8",
+     "lang": "ko"
+    },
+    {
+     "title": "2023년 한 해의 별자리 운세 (애정운부터 금전운, 직장운까지 잘맞기로 유명한 얼루어의 2023년 한 해의 별자리 운세)",
+     "outlet": "얼루어 코리아",
+     "url": "https://www.allurekorea.com/2023/01/10/2023%EB%85%84-%ED%95%9C-%ED%95%B4%EC%9D%98-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8/",
+     "lang": "ko"
+    },
+    {
+     "title": "라이즈 원빈도 언급한 '오하아사'! 아침마다 챙겨보기 좋은 운세 사이트 5",
+     "outlet": "에스콰이어 코리아",
+     "url": "https://www.esquirekorea.co.kr/article/1885308",
+     "lang": "ko"
+    },
+    {
+     "title": "Your Love Horoscope for the Week Sees Incoming Drama, I Fear",
+     "outlet": "Cosmopolitan (via AOL)",
+     "url": "https://www.aol.com/love-horoscope-week-sees-incoming-100000666.html",
+     "lang": "en"
+    },
+    {
+     "title": "2022 Love Horoscope For Single Or Attached Zodiac Signs",
+     "outlet": "Refinery29",
+     "url": "https://www.refinery29.com/en-us/2021/12/10711916/love-horoscope-2022",
+     "lang": "en"
+    },
+    {
+     "title": "11 Love Tarot Reading Blunders You Will Want to Avoid",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/top-5-worst-and-best-questions-to-ask-of-the-tarot",
+     "lang": "en"
+    },
+    {
+     "title": "10 Summum Bonum Tarot Questions for the Highest Good",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/the-10-most-commonly-asked-questions-of-tarot-readers/",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "FT-MATCH",
+   "qtype": "fortune",
+   "name": "궁합(별자리·사주·결혼 궁합)",
+   "cues": [
+    "궁합",
+    "잘 맞",
+    "별자리",
+    "사주",
+    "띠"
+   ],
+   "need": "CONNECT",
+   "alt_need": "CHOOSE",
+   "need_rule": "가까워지고 싶으면 CONNECT, 계속할지 판단하려 하면 CHOOSE",
+   "locus": "other",
+   "emotions": [
+    "HOP",
+    "ANX"
+   ],
+   "reframe": "두 사람이 잘 맞는지는 함께 지내며 알아 가는 거예요. 카드는 {name}님이 이 관계에서 편안함을 느끼는 지점을 비춰 줘요.",
+   "caution": "'궁합이 나빠요' 같은 판정 금지",
+   "research": [
+    "별자리·궁합",
+    "궁합"
+   ],
+   "expressions": [
+    "쌍둥이자리 연애운 어때요",
+    "제 별자리랑 그 사람 별자리 잘 맞아요?",
+    "우리 궁합 봐주세요",
+    "저랑 그 사람 궁합 어때요",
+    "우리 잘 맞는 사이예요?",
+    "별자리 궁합 봐주세요",
+    "썸남이랑 궁합",
+    "우리 별자리 궁합 어때?",
+    "나랑 잘 맞는 별자리는?",
+    "전갈자리 남자랑 나 잘 맞아?",
+    "궁합 안 좋다는데 계속 만나도 돼?",
+    "저희 궁합 어때요",
+    "이 사람이랑 결혼 궁합 맞을까",
+    "전갈자리랑 저 잘 맞아요?"
+   ],
+   "sources": [
+    {
+     "title": "쌍둥이자리 연애운, 썸 없이 시작해도 괜찮을까? 2025 여름 별자리 운세",
+     "outlet": "엘르 코리아",
+     "url": "https://www.elle.co.kr/article/1884080",
+     "lang": "ko"
+    },
+    {
+     "title": "라이즈 원빈도 언급한 '오하아사'! 아침마다 챙겨보기 좋은 운세 사이트 5",
+     "outlet": "에스콰이어 코리아",
+     "url": "https://www.esquirekorea.co.kr/article/1885308",
+     "lang": "ko"
+    },
+    {
+     "title": "The Most Compatible Astrological Signs, Based On Your Zodiac Sign",
+     "outlet": "Bustle",
+     "url": "https://www.bustle.com/life/the-most-compatible-astrological-signs-34576",
+     "lang": "en"
+    },
+    {
+     "title": "Horoscope Compatibility Love Match, Sex By Zodiac Signs",
+     "outlet": "Refinery29",
+     "url": "https://www.refinery29.com/en-us/2016/10/127028/horoscope-compatibility-love-match",
+     "lang": "en"
+    },
+    {
+     "title": "Your Zodiac Sign's Compatibility for Marriage",
+     "outlet": "WeddingWire (Brides 대체)",
+     "url": "https://weddingwire.com/wedding-ideas/zodiac-sign-compatibility",
+     "lang": "en"
+    }
+   ]
+  },
+  {
+   "code": "FT-REUNION",
+   "qtype": "fortune",
+   "name": "재회운",
+   "cues": [
+    "재회운"
+   ],
+   "need": "LETGO",
+   "alt_need": "CONNECT",
+   "need_rule": "대부분 LETGO",
+   "locus": "other",
+   "emotions": [
+    "GRI",
+    "HOP"
+   ],
+   "reframe": "재회의 운을 점치기보다, 그 사람을 그리워하는 {name}님의 마음이 지금 어디쯤 와 있는지 함께 볼게요.",
+   "caution": "",
+   "research": [
+    "재회운·인연운"
+   ],
+   "expressions": [
+    "재회운 있어요?",
+    "그 사람이 제 인연일까요",
+    "운명의 상대 언제 만나요"
+   ],
+   "sources": [
+    {
+     "title": "2026년 10월 별자리 운세",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/10/01/2026%EB%85%84-10%EC%9B%94-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8",
+     "lang": "ko"
+    }
+   ]
+  },
+  {
+   "code": "FT-DESTINY",
+   "qtype": "fortune",
+   "name": "인연운·운명의 상대",
+   "cues": [
+    "인연운",
+    "운명의 상대",
+    "제 인연일까",
+    "소울메이트",
+    "현커"
+   ],
+   "need": "CONNECT",
+   "alt_need": null,
+   "need_rule": "대부분 CONNECT",
+   "locus": "circumstance",
+   "emotions": [
+    "HOP",
+    "LON"
+   ],
+   "reframe": "운명이 누구인지 카드가 알려 줄 수는 없지만, {name}님이 함께하고 싶은 사람의 모습은 그려 볼 수 있어요.",
+   "caution": "",
+   "research": [
+    "재회운·인연운",
+    "연애운 전반"
+   ],
+   "expressions": [
+    "재회운 있어요?",
+    "그 사람이 제 인연일까요",
+    "운명의 상대 언제 만나요",
+    "올해 제 연애운 어때요",
+    "요즘 연애운 좀 봐주세요",
+    "저 연애 언젠가 할 수 있을까요",
+    "하반기 인연운 궁금해요"
+   ],
+   "sources": [
+    {
+     "title": "2026년 10월 별자리 운세",
+     "outlet": "W 코리아",
+     "url": "https://www.wkorea.com/2026/10/01/2026%EB%85%84-10%EC%9B%94-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8",
+     "lang": "ko"
+    },
+    {
+     "title": "11 Love Tarot Reading Blunders You Will Want to Avoid",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/top-5-worst-and-best-questions-to-ask-of-the-tarot",
+     "lang": "en"
+    },
+    {
+     "title": "10 Summum Bonum Tarot Questions for the Highest Good",
+     "outlet": "[TAROT] Angelorum",
+     "url": "https://angelorum.co/topics/divination/the-10-most-commonly-asked-questions-of-tarot-readers/",
+     "lang": "en"
+    }
+   ]
+  }
+ ],
+ "slang": [
+  {
+   "term": "썸",
+   "meaning": "사귀기 전 서로 호감을 주고받는 애매한 단계",
+   "links_to": "other_mind / 썸 단계 확인"
+  },
+  {
+   "term": "썸남·썸녀",
+   "meaning": "썸 타는 상대",
+   "links_to": "other_mind / 썸 단계 확인"
+  },
+  {
+   "term": "읽씹",
+   "meaning": "메시지를 읽고 답하지 않음",
+   "links_to": "other_mind / 읽씹·잠수·답장 속도"
+  },
+  {
+   "term": "안읽씹",
+   "meaning": "메시지를 읽지도 않고 방치",
+   "links_to": "other_mind / 읽씹·잠수·답장 속도"
+  },
+  {
+   "term": "잠수",
+   "meaning": "예고 없이 연락을 끊고 사라짐",
+   "links_to": "other_mind / 읽씹·잠수 · timing / 연락 언제 올지"
+  },
+  {
+   "term": "고스팅",
+   "meaning": "잠수와 같은 뜻의 영어식 표현",
+   "links_to": "other_mind / 읽씹·잠수"
+  },
+  {
+   "term": "선톡",
+   "meaning": "먼저 카톡을 보내는 것",
+   "links_to": "yesno / 선톡해도 될까"
+  },
+  {
+   "term": "밀당",
+   "meaning": "밀고 당기기, 일부러 관심을 조절",
+   "links_to": "other_mind / 밀당인지 회피인지"
+  },
+  {
+   "term": "회피형",
+   "meaning": "가까워지면 물러나는 애착 성향",
+   "links_to": "other_mind / 밀당인지 회피인지 · yesno / 붙잡을까"
+  },
+  {
+   "term": "어장(관리)",
+   "meaning": "여러 이성을 애매하게 붙잡아 두는 것",
+   "links_to": "other_mind / 관계 정의 회피 · 양다리 의심"
+  },
+  {
+   "term": "금사빠",
+   "meaning": "금방 사랑에 빠지는 사람",
+   "links_to": "other_mind / 내 감정 확인"
+  },
+  {
+   "term": "구남친·전남친",
+   "meaning": "헤어진 남자친구",
+   "links_to": "other_mind / 전 애인 연락 · yesno / 재회"
+  },
+  {
+   "term": "재회",
+   "meaning": "헤어진 연인과 다시 만남",
+   "links_to": "yesno / 이별 후 재회 · timing / 연락 언제"
+  },
+  {
+   "term": "환승(연애)",
+   "meaning": "이별 직후 바로 새 사람으로 옮겨감",
+   "links_to": "other_mind / 전 애인의 진심"
+  },
+  {
+   "term": "자니?",
+   "meaning": "전 애인의 새벽 연락을 상징하는 표현",
+   "links_to": "other_mind / 전 애인 연락의 의미"
+  },
+  {
+   "term": "애프터",
+   "meaning": "소개팅 후 두 번째 만남 제안",
+   "links_to": "other_mind / 소개팅 후 호감 · timing"
+  },
+  {
+   "term": "모솔",
+   "meaning": "모태솔로, 연애 경험 없음",
+   "links_to": "timing / 새 인연 언제"
+  },
+  {
+   "term": "연애 세포",
+   "meaning": "연애 감각·의욕",
+   "links_to": "fortune / 연애운 · timing / 새 인연"
+  },
+  {
+   "term": "권태기",
+   "meaning": "연애 중 감정이 무뎌지는 시기",
+   "links_to": "other_mind / 마음 식음 · timing / 설렘 언제까지"
+  },
+  {
+   "term": "양다리",
+   "meaning": "동시에 두 사람을 만남",
+   "links_to": "other_mind / 양다리·바람 의심"
+  },
+  {
+   "term": "플러팅",
+   "meaning": "가볍게 호감을 표시하는 행동",
+   "links_to": "other_mind / 썸 단계 확인 · fortune"
+  },
+  {
+   "term": "정 떨어짐",
+   "meaning": "작은 계기로 호감이 확 식음",
+   "links_to": "yesno / 헤어질까"
+  },
+  {
+   "term": "심남이",
+   "meaning": "(2012년경) 마음에 둔 남자, 썸남의 변형",
+   "links_to": "other_mind / 썸 단계 확인"
+  },
+  {
+   "term": "단답",
+   "meaning": "ㅇㅇ·ㅇㅋ·그래 같은 짧은 답장 — 식은 신호로 해석",
+   "links_to": "other_mind / 읽씹·안읽씹·답장 속도"
+  },
+  {
+   "term": "부농·빈농",
+   "meaning": "(2012년경) 이성 관계가 풍족한 사람 / 반대",
+   "links_to": "other_mind / 다중 썸"
+  },
+  {
+   "term": "다중 썸",
+   "meaning": "동시에 여러 명과 썸 타기",
+   "links_to": "other_mind / 상대가 다른 사람과도 만나나; yesno / 바람인가"
+  },
+  {
+   "term": "철벽",
+   "meaning": "호감 표현을 막는 태도",
+   "links_to": "other_mind / 썸 단계 확인; yesno / 고백할까"
+  },
+  {
+   "term": "애프터·삼프터",
+   "meaning": "소개팅 후 두 번째·세 번째 만남; '삼프터 고백'이 통념",
+   "links_to": "timing / 몇 번 만나야·언제 사귀나; yesno / 애프터 할까"
+  },
+  {
+   "term": "자만추",
+   "meaning": "자연스러운 만남 추구(소개팅 대비)",
+   "links_to": "timing / 새 인연 시기"
+  },
+  {
+   "term": "소개팅·소개",
+   "meaning": "지인 주선 만남",
+   "links_to": "yesno / 소개팅 나갈까"
+  },
+  {
+   "term": "현커",
+   "meaning": "연애 예능에서 실제 커플이 된 사람(현실 커플)",
+   "links_to": "fortune / 인연운"
+  },
+  {
+   "term": "구남친·전여친",
+   "meaning": "헤어진 남자친구 / 여자친구",
+   "links_to": "other_mind / 전 연인 연락의 속마음"
+  },
+  {
+   "term": "을의 연애",
+   "meaning": "한쪽만 맞추고 눈치 보는 불균형한 연애",
+   "links_to": "other_mind / 나만 연락하는 관계; yesno / 헤어질까"
+  },
+  {
+   "term": "정뚝떨",
+   "meaning": "정이 뚝 떨어짐",
+   "links_to": "other_mind / 썸 식음"
+  },
+  {
+   "term": "프사",
+   "meaning": "카톡 프로필 사진 — 상대 상황·감정 추측 단서",
+   "links_to": "other_mind / 상대 마음"
+  },
+  {
+   "term": "럽스타그램",
+   "meaning": "연애를 공개하는 SNS 게시물",
+   "links_to": "other_mind / 공개 여부로 진심 판단"
+  },
+  {
+   "term": "깨빡나다",
+   "meaning": "(2012년경) 시작도 전에 관계가 틀어짐",
+   "links_to": "yesno / 썸 끝났나"
+  },
+  {
+   "term": "ghosting (고스팅)",
+   "meaning": "설명 없이 연락을 끊고 사라지는 것",
+   "links_to": "other_mind / 읽씹·잠수·고스팅 뒤 상대 마음; timing / 연락은 언제 오나"
+  },
+  {
+   "term": "breadcrumbing (브레드크러밍)",
+   "meaning": "관계를 확정하지 않으면서 가끔 메시지·좋아요로 희망만 남기는 것",
+   "links_to": "other_mind / 가끔만 연락·간보기; yesno / 차단·연락 끊을까"
+  },
+  {
+   "term": "situationship (시추에이션십)",
+   "meaning": "정의·약속 없이 연인처럼 지내는 관계",
+   "links_to": "other_mind / 썸·관계 정의 안 됨; timing / 썸이 언제 연애로; yesno / 썸 정리할까"
+  },
+  {
+   "term": "orbiting (오비팅)",
+   "meaning": "연락은 끊었지만 SNS 스토리 조회·좋아요로 주변을 맴도는 것",
+   "links_to": "other_mind / 가끔만 연락·간보기; other_mind / 전 애인의 마음"
+  },
+  {
+   "term": "love bombing (러브바밍)",
+   "meaning": "초반에 과도한 애정·선물·연락으로 상대를 빠르게 묶어두는 것(통제의 레드플래그)",
+   "links_to": "other_mind / 진심인지 몸만인지·러브바밍 의심"
+  },
+  {
+   "term": "soft launch (소프트 런칭)",
+   "meaning": "SNS에 애인 얼굴 없이 단서만 올려 연애 중임을 암시",
+   "links_to": "yesno / 연애 공개할까"
+  },
+  {
+   "term": "hard launch (하드 런칭)",
+   "meaning": "애인 얼굴·이름까지 SNS에 공식 공개",
+   "links_to": "yesno / 연애 공개할까"
+  },
+  {
+   "term": "benching (벤칭)",
+   "meaning": "상대를 확정하지 않고 대기 명단에 두듯 가끔 연락하는 것",
+   "links_to": "other_mind / 가끔만 연락·간보기"
+  },
+  {
+   "term": "curving (커빙)",
+   "meaning": "직접 거절은 안 하지만 대답을 피하고 약속을 흐려 관심 없음을 표하는 것",
+   "links_to": "other_mind / 답장 속도·호감 확인"
+  },
+  {
+   "term": "kittenfishing (키튼피싱)",
+   "meaning": "데이팅앱 프로필 사진·정보를 실제보다 좋게 꾸미는 것",
+   "links_to": "other_mind / 진심인지 확인(첫 만남)"
+  },
+  {
+   "term": "zombieing / haunting (좀비잉/헌팅)",
+   "meaning": "고스팅했던 사람이 아무 일 없던 듯 다시 연락하거나(좀비잉) SNS에만 흔적을 남기는 것(헌팅)",
+   "links_to": "timing / 잠수 탄 사람 다시 연락 올까; yesno / 재회할까"
+  },
+  {
+   "term": "paperclipping (페이퍼클리핑)",
+   "meaning": "주기적으로 불쑥 나타나 존재감을 상기시키는 것",
+   "links_to": "other_mind / 가끔만 연락·간보기"
+  },
+  {
+   "term": "ghostlighting (고스트라이팅)",
+   "meaning": "잠수를 탄 뒤 다시 나타나 상대가 과민했다며 가스라이팅하는 것",
+   "links_to": "other_mind / 읽씹·잠수·고스팅 뒤 상대 마음"
+  },
+  {
+   "term": "limerence (리머런스)",
+   "meaning": "상대를 이상화하고 신호 하나에 기분이 좌우되는 강박적 끌림",
+   "links_to": "other_mind / 내 감정 확인(사랑 vs 집착)"
+  },
+  {
+   "term": "taxi cab theory (택시 이론)",
+   "meaning": "결혼할 준비가 된 순간 옆에 있던 사람과 정착한다는 통념",
+   "links_to": "other_mind / 전 애인의 마음·다음 사람"
+  },
+  {
+   "term": "avoidant attachment (회피형 애착)",
+   "meaning": "친밀해지면 거리를 두고 갈등을 피하는 애착 유형",
+   "links_to": "other_mind / 회피형·거리두기"
+  },
+  {
+   "term": "settling (세틀링)",
+   "meaning": "만족보다 두려움·편안함 때문에 관계를 유지하는 것",
+   "links_to": "yesno / 헤어질까 계속 만날까"
+  },
+  {
+   "term": "no contact (노 컨택)",
+   "meaning": "이별 후 회복·재회 판단을 위해 일정 기간 연락을 끊는 것",
+   "links_to": "yesno / 전 애인에게 연락할까; yesno / 재회할까"
+  },
+  {
+   "term": "red flag (레드 플래그)",
+   "meaning": "관계에서 문제를 예고하는 경고 신호",
+   "links_to": "other_mind / 진심인지 몸만인지; yesno / 헤어질까"
+  },
+  {
+   "term": "DTR (define the relationship)",
+   "meaning": "관계의 이름·독점 여부를 정하는 대화",
+   "links_to": "yesno / 관계 정의 물어볼까·고백할까"
+  },
+  {
+   "term": "어장관리",
+   "meaning": "여러 사람에게 여지만 주며 관리함 (영어 breadcrumbing / benchwarming과 유사)",
+   "links_to": "other_mind / 어장관리·브레드크러밍"
+  },
+  {
+   "term": "브레드크러밍(breadcrumbing)",
+   "meaning": "가끔 좋아요·짧은 연락 같은 '빵부스러기'만 주며 붙잡아 둠",
+   "links_to": "other_mind / 어장관리·브레드크러밍"
+  },
+  {
+   "term": "벤치워밍(benchwarming)",
+   "meaning": "우선순위가 아닌 예비 후보로 남겨 둠",
+   "links_to": "other_mind / 어장관리·브레드크러밍"
+  },
+  {
+   "term": "잠수 이별",
+   "meaning": "이별 통보 없이 잠수로 관계를 끝냄",
+   "links_to": "other_mind / 잠수·고스팅; yesno / 재회될까"
+  },
+  {
+   "term": "오비팅(orbiting) / 스토리 염탐",
+   "meaning": "연락은 끊고 SNS 스토리 조회·좋아요만 계속함 (Hussey 기사 상황)",
+   "links_to": "other_mind / 잠수·고스팅 후 SNS만 봄"
+  },
+  {
+   "term": "좀비잉(zombieing)",
+   "meaning": "잠수 탔던 사람이 아무 일 없던 듯 다시 연락",
+   "links_to": "other_mind / 전 애인 속마음; yesno / 재회될까"
+  },
+  {
+   "term": "캣피싱(catfishing)",
+   "meaning": "가짜 프로필로 상대를 속임",
+   "links_to": "other_mind / 진심인지 (데이팅앱)"
+  },
+  {
+   "term": "시추에이션십(situationship) / 썸 정체",
+   "meaning": "관계 정의 없이 애매하게 이어지는 사이",
+   "links_to": "other_mind / 진심인지; yesno / 고백할까"
+  },
+  {
+   "term": "노컨택(no contact)",
+   "meaning": "이별 후 일부러 연락을 완전히 끊는 것 — 재회 커뮤니티에서 자주 쓰임",
+   "links_to": "yesno / 전 애인에게 연락할까; timing / 언제 연락 오나"
+  },
+  {
+   "term": "저격글",
+   "meaning": "특정인을 겨냥한 듯한 SNS 게시물 — 전 애인 미련 신호로 해석됨",
+   "links_to": "other_mind / 전 애인 속마음·미련"
+  }
+ ],
+ "articles": [
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "썸타는 중, 그 행동은 진심일까? 착각일까?",
+   "url": "https://www.cosmopolitan.co.kr/article/1881613",
+   "date": "2025-05-14",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸 단계 확인",
+    "나한테만 다정한지"
+   ],
+   "core_question": "이 썸 진심일까 착각일까",
+   "signals": [
+    "일상에 꾸준히 관심",
+    "약속 날짜를 먼저 잡으려 함",
+    "답장 늦어도 대화를 다시 이음",
+    "연락 뜸하면 서운해함",
+    "'뭐해/밥먹었어'만 오가는 가벼운 연락",
+    "다른 이성에게도 똑같이 다정",
+    "만날 땐 다정하나 선연락 드묾",
+    "SNS 반응이 나에게만 유독한지"
+   ],
+   "advice_direction": "연락 빈도보다 대화 깊이·속마음 공유를 보고, 한 행동이 아닌 여러 신호를 종합해 판단"
+  },
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "좋아하는지 헷갈릴 때 ‘친구인지 썸인지’ 확인하는 법 15가지",
+   "url": "https://www.cosmopolitan.co.kr/article/1895882",
+   "date": "2026-01-23",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "친구인지 썸인지",
+    "나를 좋아하는지"
+   ],
+   "core_question": "친구야 썸이야? 날 좋아해?",
+   "signals": [
+    "내 노력에 비슷한 수준으로 응답",
+    "구체적 약속을 먼저 제안",
+    "중요 일정 기억·안부",
+    "아침저녁 인사 꾸준함",
+    "고민·약한 면을 털어놓음",
+    "친구에게 나를 소개",
+    "같이 있을 때 폰을 덜 봄",
+    "보고 싶다고 표현"
+   ],
+   "advice_direction": "'나 좋아해?' 직접 묻기보다 열린 질문으로 감정을 말하게 하고, 신호가 꾸준히 반복되는지 관찰"
+  },
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "남자들이 말한 ‘읽씹·잠수’의 진짜 이유",
+   "url": "https://www.cosmopolitan.co.kr/article/1898239",
+   "date": "2026-03-05",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "읽씹·잠수 뒤 상대 마음",
+    "갑자기 연락 끊김"
+   ],
+   "core_question": "읽씹·잠수 왜 하는 걸까",
+   "signals": [
+    "대화·취향이 안 맞다고 느낌",
+    "늘 자기만 먼저 연락한다고 느낌",
+    "끌림이 빨리 식음",
+    "더 나은 선택지가 생김",
+    "어려운 대화 회피",
+    "회피 성향·미성숙"
+   ],
+   "advice_direction": "잠수는 상대의 소통 능력 문제일 가능성이 크니 자책하지 말고, 깊어지기 전에 드러난 걸 다행으로 보기"
+  },
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "다가가면 도망가는 썸? 회피형 남자 다루는 법",
+   "url": "https://www.cosmopolitan.co.kr/article/1900948",
+   "date": "2026-04-22",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "밀당인지 회피인지",
+    "붙잡을까 놓을까"
+   ],
+   "core_question": "밀당일까 회피형일까",
+   "signals": [
+    "가까워지면 물러나는 패턴 반복",
+    "초반 적극적이다 갑자기 차가워짐",
+    "연락이 들쭉날쭉",
+    "혼자 시간을 많이 원함"
+   ],
+   "advice_direction": "캐묻거나 관계 정의를 압박하지 말고 내 기준을 짧게 말하기, 감당 범위를 넘으면 정리도 선택지"
+  },
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "3월 연애운 봐 드립니다. 3월 별자리 운세",
+   "url": "https://www.cosmopolitan.co.kr/article/1877605",
+   "date": "2025-03-01",
+   "lang": "ko",
+   "qtypes": [
+    "fortune",
+    "timing"
+   ],
+   "situations": [
+    "이달 연애운",
+    "새 인연이 올지",
+    "커플 감정 점검"
+   ],
+   "core_question": "이번 달 내 연애운은?",
+   "signals": [
+    "별자리별 싱글/커플 구분",
+    "예상치 못한 인연",
+    "가벼운 플러팅 경계",
+    "지난 인연 정리"
+   ],
+   "advice_direction": "싱글은 새 인연에 열려 있되 겉만 번지르르한 플러팅 경계, 커플은 감정 점검과 활력 더하기"
+  },
+  {
+   "outlet": "보그 코리아",
+   "title": "2025년 구글에 가장 많이 검색된 연애 질문 5가지와 그 답변들",
+   "url": "https://www.vogue.co.kr/2025/12/25/2025%EB%85%84-%EA%B5%AC%EA%B8%80%EC%97%90-%EA%B0%80%EC%9E%A5-%EB%A7%8E%EC%9D%B4-%EA%B2%80%EC%83%89%EB%90%9C-%EC%97%B0%EC%95%A0-%EC%A7%88%EB%AC%B8-5%EA%B0%80%EC%A7%80%EC%99%80-%EA%B7%B8-%EB%8B%B5",
+   "date": "2025-12-25",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "바람의 기준",
+    "설렘이 언제까지 가나",
+    "해로운 연애인지"
+   ],
+   "core_question": "이거 바람이야? 설렘 언제 끝나?",
+   "signals": [
+    "설렘이 가라앉는 시점",
+    "사람마다 다른 바람 기준",
+    "질문자가 이미 답을 아는 경우"
+   ],
+   "advice_direction": "바람의 정의는 둘이 좁고 구체적으로 합의하고, 설렘이 식는 것을 사랑의 끝으로 오해하지 말기"
+  },
+  {
+   "outlet": "보그 코리아",
+   "title": "왜 아직도 우리는 ‘선톡’을 망설이고, 남자의 연락만 기다릴까?",
+   "url": "https://www.vogue.co.kr/2026/05/03/%EC%99%9C-%EC%95%84%EC%A7%81%EB%8F%84-%EC%9A%B0%EB%A6%AC%EB%8A%94-%EC%84%A0%ED%86%A1%EC%9D%84-%EB%A7%9D%EC%84%A4%EC%9D%B4%EA%B3%A0-%EB%82%A8%EC%9E%90%EC%9D%98-%EC%97%B0%EB%9D%BD%EB%A7%8C-%EA%B8%B0",
+   "date": "2026-05-03",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "timing"
+   ],
+   "situations": [
+    "먼저 연락해도 될까",
+    "연락 기다리기"
+   ],
+   "core_question": "선톡해도 될까, 기다릴까",
+   "signals": [
+    "상대가 관심 잃을까 불안",
+    "'기다리게 하라'는 연애 규칙",
+    "연락 주도권이 남자에게 있다는 인식"
+   ],
+   "advice_direction": "선톡은 문제 아님 — 밀당·권력게임 대신 관심을 자연스럽고 솔직하게 표현하기"
+  },
+  {
+   "outlet": "보그 코리아",
+   "title": "연애 관계의 끝을 알리는 신호",
+   "url": "https://www.vogue.co.kr/2017/01/31/%EC%97%B0%EC%95%A0-%EA%B4%80%EA%B3%84%EC%9D%98-%EB%81%9D%EC%9D%84-%EC%95%8C%EB%A6%AC%EB%8A%94-%EC%8B%A0%ED%98%B8/",
+   "date": "2017-01-31",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "마음이 식었는지",
+    "헤어져야 할지"
+   ],
+   "core_question": "우리 끝나가는 걸까",
+   "signals": [
+    "가치관이 자주 엇갈림",
+    "진심을 편히 말 못함",
+    "기본 스킨십 회피",
+    "미래 얘기 회피",
+    "다툼이 모욕으로 번짐",
+    "사랑한다는 말이 어색"
+   ],
+   "advice_direction": "해당 항목이 많다면 가볍게 넘기지 말고 관계를 진지하게 돌아보기"
+  },
+  {
+   "outlet": "보그 코리아",
+   "title": "결혼 생각이 없다며 이별을 고한 전 남친, 왜 바로 다음 여자와는 결혼했을까요?",
+   "url": "https://www.vogue.co.kr/2026/01/06/%EA%B2%B0%ED%98%BC-%EC%83%9D%EA%B0%81%EC%9D%B4-%EC%97%86%EB%8B%A4%EB%A9%B0-%EC%9D%B4%EB%B3%84%EC%9D%84-%EA%B3%A0%ED%95%9C-%EC%A0%84-%EB%82%A8%EC%B9%9C-%EC%99%9C-%EB%B0%94%EB%A1%9C-%EB%8B%A4%EC%9D%8C",
+   "date": "2026-01-06",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "전 애인의 진심",
+    "결혼 타이밍"
+   ],
+   "core_question": "날 진짜 사랑하긴 했을까",
+   "signals": [
+    "결혼 심리적 준비(택시 이론)",
+    "새 상대와 가치관이 더 맞음",
+    "경제적 기반 변화",
+    "이별 후 성장"
+   ],
+   "advice_direction": "상대의 선택을 내 가치 평가로 받아들이지 말고, '왜'보다 내가 원하는 관계 기준을 세우기"
+  },
+  {
+   "outlet": "엘르 코리아",
+   "title": "연인과 헤어진 후, 연락해도 될까?",
+   "url": "https://www.elle.co.kr/article/18328",
+   "date": "2017-05-22",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "이별 후 연락해도 될까",
+    "재회 시도"
+   ],
+   "core_question": "헤어진 후 연락해도 될까",
+   "signals": [
+    "이별 이유가 마음이 식어서인지",
+    "마음을 돌리려는 목적인지",
+    "차단 여부 확인 집착"
+   ],
+   "advice_direction": "연락은 권하지 않음 — 번호 지우고 늦은 밤 연락·'우리가 계속 만났다면' 같은 말 피하고 정리 시간 갖기"
+  },
+  {
+   "outlet": "엘르 코리아",
+   "title": "그 남자가 다시 연락한 이유",
+   "url": "https://www.elle.co.kr/article/19663",
+   "date": "2017-11-23",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "timing"
+   ],
+   "situations": [
+    "전 애인이 다시 연락하는 이유",
+    "재회 신호"
+   ],
+   "core_question": "전 애인이 왜 다시 연락할까",
+   "signals": [
+    "다른 사람 만나도 전 애인만 못함",
+    "추억의 장소·노래",
+    "비슷한 사람을 봤을 때",
+    "그냥 심심하거나 가벼운 안부"
+   ],
+   "advice_direction": "(공개분 기준) 연락의 계기가 그리움인지 심심함인지 구분해 보기"
+  },
+  {
+   "outlet": "엘르 코리아",
+   "title": "구남친이 톡을 보내왔다",
+   "url": "https://www.elle.co.kr/article/20949",
+   "date": "2018-07-09",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "새벽 '자니?' 연락",
+    "재회 신호인지 욕구인지"
+   ],
+   "core_question": "구남친 연락, 아직 날 좋아해?",
+   "signals": [
+    "새벽·술기운에 짧은 톡",
+    "안부가 곧 스킨십으로 이어짐",
+    "맑은 정신으로 찾아오는지"
+   ],
+   "advice_direction": "연락을 여전한 사랑의 증거로 보지 말고, 감정 없는 관계에 재회를 기대하지 않기 — 과거를 끊어야 새 인연"
+  },
+  {
+   "outlet": "엘르 코리아",
+   "title": "쌍둥이자리 연애운, 썸 없이 시작해도 괜찮을까? 2025 여름 별자리 운세",
+   "url": "https://www.elle.co.kr/article/1884080",
+   "date": "2025-07-01",
+   "lang": "ko",
+   "qtypes": [
+    "fortune",
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "언제 새 인연이 오나",
+    "썸 없이 바로 연애"
+   ],
+   "core_question": "썸 없이 바로 사귀어도 될까",
+   "signals": [
+    "7월 초 새 인연 등장",
+    "며칠 만에 마음 확인",
+    "수성·화성 영향으로 오해 주의"
+   ],
+   "advice_direction": "새 연애가 빨리 시작될 수 있으니 솔직한 소통에 집중"
+  },
+  {
+   "outlet": "하퍼스 바자 코리아",
+   "title": "이별 대처법",
+   "url": "https://www.harpersbazaar.co.kr/article/38190",
+   "date": "2017-06-14",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "timing",
+    "other_mind"
+   ],
+   "situations": [
+    "이별 후 연락 기다리기",
+    "재회 가능성"
+   ],
+   "core_question": "헤어진 그 사람 연락 올까",
+   "signals": [
+    "일방적 통보였는지",
+    "매달렸다 거절당했는지",
+    "내가 찼고 후회하는지",
+    "상대에게 미련이 남았는지"
+   ],
+   "advice_direction": "먼저 연락하지 말고 거리 두기(SNS 비공개 등), 상대 미련이 보일 때만 그리움을 간접적으로"
+  },
+  {
+   "outlet": "하퍼스 바자 코리아",
+   "title": "말 없는 남자와의 연애",
+   "url": "https://www.harpersbazaar.co.kr/article/38360",
+   "date": "2017-08-11",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "무뚝뚝한 상대의 관심",
+    "표현 없는 상대 마음"
+   ],
+   "core_question": "말 없는 그, 나한테 관심 있나",
+   "signals": [
+    "문자에선 더 적극적",
+    "내 말을 오래 들어주고 기억",
+    "말보다 행동으로 챙김",
+    "1대1에선 편하게 대화"
+   ],
+   "advice_direction": "말수로 판단하지 말고 문자·행동을 함께 보고, 구체적으로 질문하며 둘만의 만남 늘리기"
+  },
+  {
+   "outlet": "하퍼스 바자 코리아",
+   "title": "어느 금사빠의 고백",
+   "url": "https://www.harpersbazaar.co.kr/article/37929",
+   "date": "2017-03-22",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "금사빠 내 마음",
+    "내 감정이 진짜인지"
+   ],
+   "core_question": "나는 왜 금방 사랑에 빠질까",
+   "signals": [
+    "사소한 계기로 호감 시작",
+    "작은 행동에 의미 부여",
+    "감정이 빨리 정리됨"
+   ],
+   "advice_direction": "쉽게 빠지는 성향의 긍정적 면(설렘, 짧은 미련)을 인정하기"
+  },
+  {
+   "outlet": "하퍼스 바자 코리아",
+   "title": "소개팅에서 호감 가는 여자의 행동",
+   "url": "https://www.harpersbazaar.co.kr/article/39822",
+   "date": "2019-01-09",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "소개팅 후 호감 여부",
+    "애프터 가능성"
+   ],
+   "core_question": "소개팅 그 사람, 날 맘에 들어했나",
+   "signals": [
+    "크게 웃고 호응",
+    "중간 지점 약속 제안",
+    "계산 태도",
+    "폰 안 보고 눈 맞춤",
+    "질문으로 대화 이어감"
+   ],
+   "advice_direction": "호응·경청·작은 배려를 보여주기"
+  },
+  {
+   "outlet": "마리끌레르 코리아",
+   "title": "썸은 OK, 연애는 NO!",
+   "url": "https://www.marieclairekorea.com/lifestyle/2017/07/%EC%8D%B8%EC%9D%80-ok-%EC%97%B0%EC%95%A0%EB%8A%94-no/",
+   "date": "2017-07-28",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸만 타고 안 사귀는 상대",
+    "관계 정의 회피"
+   ],
+   "core_question": "썸만 타고 왜 안 사귈까",
+   "signals": [
+    "관계를 정의하지 않으려 함",
+    "가까워지면 갑자기 거리 둠",
+    "여러 썸을 동시에 유지"
+   ],
+   "advice_direction": "상처를 빨리 덮는 만남은 치유가 안 될 수 있으니, 진지한 관계를 원하면 조급하지 않게"
+  },
+  {
+   "outlet": "마리끌레르 코리아",
+   "title": "고백하는 날",
+   "url": "https://www.marieclairekorea.com/lifestyle/2020/03/the-day-of-start/",
+   "date": "2020-03-12",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "timing"
+   ],
+   "situations": [
+    "고백할까",
+    "고백 타이밍"
+   ],
+   "core_question": "지금 고백해도 될까",
+   "signals": [
+    "관계를 분명히 정의하는지",
+    "꾸준한 관심이 행동으로 이어지는지",
+    "대답을 미루거나 애매한 표현",
+    "술자리·과한 이벤트"
+   ],
+   "advice_direction": "돌려 말하지 말고 직접, 상대 속도를 존중하며 술자리 피해 타이밍 고르기"
+  },
+  {
+   "outlet": "마리끌레르 코리아",
+   "title": "정이 뚝! 떨어지는 순간",
+   "url": "https://www.marieclairekorea.com/culture/lifestyle/2020/07/out-of-love-with/",
+   "date": "2020-07-24",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "정 떨어짐",
+    "계속 만나야 할지"
+   ],
+   "core_question": "정 떨어졌는데 계속 만나?",
+   "signals": [
+    "정성 없는 선물",
+    "SNS에 연애 공개·관심 끌기",
+    "감정 쓰레기통 취급",
+    "취중 무례",
+    "지나친 집착"
+   ],
+   "advice_direction": "(사례에서 읽히는 방향) 존중 없는 행동이 반복되면 초기에 살피고 정리도 선택지"
+  },
+  {
+   "outlet": "마리끌레르 코리아",
+   "title": "우리 사이 거리",
+   "url": "https://www.marieclairekorea.com/culture/lifestyle/2021/01/love-story/",
+   "date": "2021-01-22",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "장거리 연애 마음 식음",
+    "사내 연애 이별 후"
+   ],
+   "core_question": "장거리라 마음 식은 걸까",
+   "signals": [
+    "통화 시간 감소",
+    "비용·이동 부담",
+    "데이트 온도 차"
+   ],
+   "advice_direction": "(사연에서 읽히는 방향) 정기적 연락 약속, 거리 문제인지 관계 문제인지 구분"
+  },
+  {
+   "outlet": "마리끌레르 코리아",
+   "title": "2021년 7월 별자리 운세",
+   "url": "https://www.marieclairekorea.com/horoscope/horoscope-monthly/2021/06/horoscope2107/",
+   "date": "2021-06-30",
+   "lang": "ko",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "이달 연애운",
+    "썸 단계 주의"
+   ],
+   "core_question": "7월 내 연애운은?",
+   "signals": [
+    "연애운 청신호",
+    "나를 좋아하는 사람 많음",
+    "썸 단계에서 섣부른 행동 주의",
+    "신뢰 흔들림"
+   ],
+   "advice_direction": "썸 단계면 서두르지 말고, 커플은 차분히 대화"
+  },
+  {
+   "outlet": "싱글즈",
+   "title": "썸을 끝내야 할 때",
+   "url": "https://m.singleskorea.com/article/696188/THESINGLE",
+   "date": "2018-06 (URL 추정)",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "썸 정리할까"
+   ],
+   "core_question": "이 썸 끝내야 할까",
+   "signals": [
+    "노력만 들고 진전 없는 관계(요약문)"
+   ],
+   "advice_direction": "밑 빠진 독 같다면 멈추기 (본문 렌더링 불가 — 제목·요약문만 확인)"
+  },
+  {
+   "outlet": "싱글즈",
+   "title": "여친 있는 썸남 감별법",
+   "url": "https://m.singleskorea.com/article/612211",
+   "date": "2016-05 (URL 추정)",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸남에게 애인 있는지",
+    "양다리·어장 의심"
+   ],
+   "core_question": "썸남 여친 있는 거 아냐?",
+   "signals": [
+    "남성들이 말한 특징 7가지(요약문, 세부 미확인)"
+   ],
+   "advice_direction": "의심이 계속 들면 주의 깊게 살피기 (본문 렌더링 불가 — 제목·요약문만 확인)"
+  },
+  {
+   "outlet": "싱글즈",
+   "title": "그 남자를 파악하는 딱 하나의 질문",
+   "url": "https://m.singleskorea.com/article/695841",
+   "date": "2017-12 (URL 추정)",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "상대 진심 파악"
+   ],
+   "core_question": "그 사람 어떤 사람일까",
+   "signals": [],
+   "advice_direction": "전문가 자문 기반 상대 파악 질문 소개 (본문 렌더링 불가 — 제목·요약문만 확인)"
+  },
+  {
+   "outlet": "싱글즈",
+   "title": "이별에 대처하는 자세",
+   "url": "https://www.singleskorea.com/article/711778",
+   "date": "2021-07 (URL 추정)",
+   "lang": "ko",
+   "qtypes": [
+    "timing"
+   ],
+   "situations": [
+    "이별 후 언제 괜찮아지나"
+   ],
+   "core_question": "이별, 언제 괜찮아질까",
+   "signals": [],
+   "advice_direction": "이별 후 슬픔을 버티는 각자의 방법 (본문 렌더링 불가 — 제목·요약문만 확인)"
+  },
+  {
+   "outlet": "싱글즈",
+   "title": "HELLO 2026! <싱글즈>가 알려주는 2026년 별자리 운세",
+   "url": "https://m.singleskorea.com/article/720715",
+   "date": "2026-01 (URL 추정)",
+   "lang": "ko",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "올해 연애운"
+   ],
+   "core_question": "2026년 내 연애운은?",
+   "signals": [],
+   "advice_direction": "별자리별 2026년 운세 (본문 렌더링 불가 — 제목·요약문만 확인)"
+  },
+  {
+   "outlet": "싱글즈",
+   "title": "2017년 내 연애운이 궁금하다!",
+   "url": "http://www.thesingle.co.kr/SinglesPcWeb/beauty/article_detail.do?fmc_no=599680&fsmc_no=599696&nc_no=693617",
+   "date": "",
+   "lang": "ko",
+   "qtypes": [
+    "fortune",
+    "timing"
+   ],
+   "situations": [
+    "올해 연애운",
+    "인연 시기"
+   ],
+   "core_question": "올해 내 연애운은?",
+   "signals": [],
+   "advice_direction": "(검색 결과 제목만 확인, 본문 접근 불가)"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "날 좋아하긴 하나? 우리 사이가 썸인지 아닌지 확인하는 방법 8",
+   "url": "https://www.gqkorea.co.kr/2026/07/31/%EB%82%A0-%EC%A2%8B%EC%95%84%ED%95%98%EA%B8%B4-%ED%95%98%EB%82%98-%EC%9A%B0%EB%A6%AC-%EC%82%AC%EC%9D%B4%EA%B0%80-%EC%8D%B8%EC%9D%B8%EC%A7%80-%EC%95%84%EB%8B%8C%EC%A7%80-%ED%99%95%EC%9D%B8%ED%95%98/",
+   "date": "2026-07-31",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸 단계 확인",
+    "나만 연락하는 관계"
+   ],
+   "core_question": "우리 사이 썸 맞나?",
+   "signals": [
+    "누가 먼저 연락하는지",
+    "날짜·장소까지 구체적 약속 잡는지",
+    "나에게만 다르게 대하는지",
+    "대화 끊긴 뒤 다시 이어지는지",
+    "다음 만남 언급",
+    "내가 거리 둘 때 먼저 오는지",
+    "사소한 말 기억",
+    "연애 상태·이상형 묻기"
+   ],
+   "advice_direction": "한두 행동으로 단정 말고 반복 패턴을 볼 것; 일부러 밀당은 말되 내가 멈췄을 때 반응을 살피기"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "이런 문자를 받았다면 연락 그만, 썸 실패를 암시하는 문자 유형 5",
+   "url": "https://www.gqkorea.co.kr/2024/11/05/%EC%9D%B4%EB%9F%B0-%EB%AC%B8%EC%9E%90%EB%A5%BC-%EB%B0%9B%EC%95%98%EB%8B%A4%EB%A9%B4-%EC%97%B0%EB%9D%BD-%EA%B7%B8%EB%A7%8C-%EC%8D%B8-%EC%8B%A4%ED%8C%A8%EB%A5%BC-%EC%95%94%EC%8B%9C%ED%95%98%EB%8A%94/",
+   "date": "2024-11-05",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "단답·답장 지연으로 식은 썸",
+    "새벽 연락의 진심",
+    "계속 연락해도 되나"
+   ],
+   "core_question": "이 문자, 썸 끝난 신호?",
+   "signals": [
+    "목적 없는 안부",
+    "ㅇㅇ·ㅇㅋ 같은 단답",
+    "하루이틀 늦는 답장",
+    "새벽·술김 연락",
+    "일방적 부탁"
+   ],
+   "advice_direction": "먼저 연락을 멈추고 며칠 기다려 반응 보기; 새벽 연락엔 바로 답하지 말고 평일 태도 확인; 미련 두지 말기"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "말보다 태도, 여자가 관심 있을 때 보이는 행동 7",
+   "url": "https://www.gqkorea.co.kr/2026/02/20/%EB%A7%90%EB%B3%B4%EB%8B%A4-%ED%83%9C%EB%8F%84-%EC%97%AC%EC%9E%90%EA%B0%80-%EA%B4%80%EC%8B%AC-%EC%9E%88%EC%9D%84-%EB%95%8C-%EB%B3%B4%EC%9D%B4%EB%8A%94-%ED%96%89%EB%8F%99-7",
+   "date": "2026-02-20",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "(남성 시점) 그녀가 나에게 관심 있나",
+    "질투 신호"
+   ],
+   "core_question": "그녀, 나한테 관심 있나?",
+   "signals": [
+    "답장 내용이 충실하고 늦으면 예고",
+    "지나가듯 한 말 기억",
+    "핑계 대고 만남 청함",
+    "만나는 날 외모 신경",
+    "몸이 나를 향함·가벼운 접촉",
+    "다른 이성 얘기에 구체적 질문",
+    "내 관심사에 되물음"
+   ],
+   "advice_direction": "말보다 행동, 한 번보다 패턴을 보고 확신 필요하면 직접 대화로 확인"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "헤어졌는데 자꾸 생각나, 지나간 인연 되돌리는 이성적인 방법 8",
+   "url": "https://www.gqkorea.co.kr/2025/11/23/%ED%97%A4%EC%96%B4%EC%A1%8C%EB%8A%94%EB%8D%B0-%EC%9E%90%EA%BE%B8-%EC%83%9D%EA%B0%81%EB%82%98-%EC%A7%80%EB%82%98%EA%B0%84-%EC%9D%B8%EC%97%B0-%EB%90%98%EB%8F%8C%EB%A6%AC%EB%8A%94-%EC%9D%B4%EC%84%B1",
+   "date": "2025-11-23",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "timing"
+   ],
+   "situations": [
+    "재회 가능성",
+    "재회 연락 타이밍"
+   ],
+   "core_question": "재회하려면 언제 연락?",
+   "signals": [
+    "상대 연락 속도가 빨라짐",
+    "장난이 오감",
+    "상대가 먼저 근황 물음",
+    "말투가 부드러워짐"
+   ],
+   "advice_direction": "일정 기간 간접 접촉까지 끊고, 이별 원인 구체 분석·자기관리 후 가벼운 안부 → 담백한 만남 제안; 재회 의사는 신호가 분명할 때만 선택권을 주며"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "다시 만나도 괜찮을까? 재결합 전 체크리스트 7",
+   "url": "https://www.gqkorea.co.kr/2023/02/01/%EB%8B%A4%EC%8B%9C-%EB%A7%8C%EB%82%98%EB%8F%84-%EA%B4%9C%EC%B0%AE%EC%9D%84%EA%B9%8C-%EC%9E%AC%EA%B2%B0%ED%95%A9-%EC%A0%84-%EC%B2%B4%ED%81%AC%EB%A6%AC%EC%8A%A4%ED%8A%B8-7/",
+   "date": "2023-02-01",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "재회해도 되나"
+   ],
+   "core_question": "다시 만나도 될까?",
+   "signals": [
+    "평정심 유지 여부",
+    "헤어진 이유 이해",
+    "상대 상처 이해",
+    "반복 방지책 유무",
+    "구체적 태도 변화 가능성",
+    "그리움 외의 재회 이유"
+   ],
+   "advice_direction": "그리움만으로 결정하지 말고 체크리스트로 스스로 점검한 뒤 진솔한 메시지 준비"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "어딘가 달라진 연인의 태도, 누가 봐도 티 나는 권태기 신호 9",
+   "url": "https://www.gqkorea.co.kr/2026/09/29/%EC%96%B4%EB%94%98%EA%B0%80-%EB%8B%AC%EB%9D%BC%EC%A7%84-%EC%97%B0%EC%9D%B8%EC%9D%98-%ED%83%9C%EB%8F%84-%EB%88%84%EA%B0%80-%EB%B4%90%EB%8F%84-%ED%8B%B0-%EB%82%98%EB%8A%94-%EA%B6%8C%ED%83%9C%EA%B8%B0",
+   "date": "2026-09-29",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "연인 마음 식음·권태기",
+    "헤어져야 하나"
+   ],
+   "core_question": "연인이 식은 걸까?",
+   "signals": [
+    "연락이 의무처럼 느껴짐",
+    "만남이 피곤·취소되면 안도",
+    "할 말이 없음",
+    "사소한 습관이 거슬림",
+    "스킨십 감소",
+    "미래 얘기 사라짐",
+    "갈등에 무관심"
+   ],
+   "advice_direction": "한 번이 아니라 반복 패턴인지 보고, 새 경험·미래 대화·갈등 대화법으로 온도 회복 시도"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "성공률 높이는 고백법",
+   "url": "https://www.gqkorea.co.kr/2023/12/08/%EC%84%B1%EA%B3%B5%EB%A5%A0-%EB%86%92%EC%9D%B4%EB%8A%94-%EA%B3%A0%EB%B0%B1%EB%B2%95",
+   "date": "2023-12-08",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "timing"
+   ],
+   "situations": [
+    "고백할까·고백 타이밍"
+   ],
+   "core_question": "지금 고백해도 될까?",
+   "signals": [
+    "상대가 먼저 만나자고 함",
+    "시간을 기꺼이 내줌",
+    "가벼운 선물에 대한 반응"
+   ],
+   "advice_direction": "받아줄 확신이 들 때, 데이트 끝무렵 조용한 곳에서 직접·짧고 담백하게"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "썸에서 연인으로! 성공을 위해 결정적인 이 행동 6",
+   "url": "https://www.gqkorea.co.kr/2025/08/04/%EC%8D%B8%EC%97%90%EC%84%9C-%EC%97%B0%EC%9D%B8%EC%9C%BC%EB%A1%9C-%EC%84%B1%EA%B3%B5%EC%9D%84-%EC%9C%84%ED%95%B4-%EA%B2%B0%EC%A0%95%EC%A0%81%EC%9D%B8-%EC%9D%B4-%ED%96%89%EB%8F%99-6",
+   "date": "2025-08-04",
+   "lang": "ko",
+   "qtypes": [
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "썸에서 언제 사귀나",
+    "관계 정의하기"
+   ],
+   "core_question": "썸 언제 연애로 넘어가?",
+   "signals": [
+    "사소한 일상 공유",
+    "내 편이라는 느낌",
+    "눈맞춤 시간",
+    "다른 사람 앞에서의 태도 변화"
+   ],
+   "advice_direction": "신뢰가 쌓였을 때 '데이트'라는 말로 관계에 이름 붙이고, 시간적 유예로 결정 유도"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "여러 사람과 썸 타면 바람일까?",
+   "url": "https://www.gqkorea.co.kr/?p=196299",
+   "date": "2022-08-25",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "상대가 다른 사람과도 썸",
+    "다중 썸은 바람인가"
+   ],
+   "core_question": "다른 사람과도 썸 타나?",
+   "signals": [
+    "상대가 다른 사람과도 썸 타는 듯함(썸 깨지는 1위 계기)"
+   ],
+   "advice_direction": "찬반 양론 제시 — 사귀기 전 다중 만남 허용 vs 감정 분산·집중 어려움"
+  },
+  {
+   "outlet": "GQ 코리아",
+   "title": "을의 연애를 극복하기 위한 도움말",
+   "url": "https://www.gqkorea.co.kr/2022/11/01/%EC%9D%84%EC%9D%98-%EC%97%B0%EC%95%A0%EB%A5%BC-%EA%B7%B9%EB%B3%B5%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%9C-%EB%8F%84%EC%9B%80%EB%A7%90/",
+   "date": "2022-11-01",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "을의 연애·불균형",
+    "계속 만나야 하나"
+   ],
+   "core_question": "나만 더 좋아하는 연애?",
+   "signals": [
+    "늘 맞춰주는데 상대는 들어주지 않음",
+    "눈치 보며 전전긍긍",
+    "고맙다·미안하다 과다",
+    "주기만 하는 불균형"
+   ],
+   "advice_direction": "심리적 거리·주고받는 균형 회복, 개선 기미 없으면 정리도 고려, '이 사람뿐' 운명론 경계"
+  },
+  {
+   "outlet": "W 코리아",
+   "title": "‘잘 지내?’ 헤어진 연인 문자에 숨은 4가지 속마음",
+   "url": "https://www.wkorea.com/2025/08/23/%EC%9E%98-%EC%A7%80%EB%82%B4-%ED%97%A4%EC%96%B4%EC%A7%84-%EC%97%B0%EC%9D%B8-%EB%AC%B8%EC%9E%90%EC%97%90-%EC%88%A8%EC%9D%80-4%EA%B0%80%EC%A7%80-%EC%86%8D%EB%A7%88%EC%9D%8C",
+   "date": "2025-08-23",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "전 연인 연락의 속마음",
+    "재회 신호"
+   ],
+   "core_question": "전 애인 '잘 지내?' 속뜻",
+   "signals": [
+    "미련·반응 떠보기",
+    "외로움·무료함",
+    "비교·자기 확인(과시)",
+    "죄책감 해소"
+   ],
+   "advice_direction": "내 마음부터 점검하고 그에 맞게 답하기; 과시성 연락은 무시"
+  },
+  {
+   "outlet": "W 코리아",
+   "title": "좋아하는데 불안해? 호감 뒤에 숨겨진 진짜 심리 3",
+   "url": "https://www.wkorea.com/2026/06/11/%EC%A2%8B%EC%95%84%ED%95%98%EB%8A%94%EB%8D%B0-%EB%B6%88%EC%95%88%ED%95%B4-%ED%98%B8%EA%B0%90-%EB%92%A4%EC%97%90-%EC%88%A8%EA%B2%A8%EC%A7%84-%EC%A7%84%EC%A7%9C-%EC%8B%AC%EB%A6%AC-3/",
+   "date": "2026-06-11",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸 중 불안·답장 속도에 흔들림"
+   ],
+   "core_question": "썸인데 왜 이렇게 불안해?",
+   "signals": [
+    "답장 속도·연락 빈도에 기분이 좌우됨",
+    "작은 관심에 과반응",
+    "과거 애착 경험"
+   ],
+   "advice_direction": "상대 분석보다 불안의 출처(불확실성·자존감·애착)를 먼저 들여다보기"
+  },
+  {
+   "outlet": "W 코리아",
+   "title": "초반에 불타던 애인의 관심, 결국엔 변하는 이유",
+   "url": "https://www.wkorea.com/2026/02/03/%EC%B4%88%EB%B0%98%EC%97%90-%EB%B6%88%ED%83%80%EB%8D%98-%EC%95%A0%EC%9D%B8%EC%9D%98-%EA%B4%80%EC%8B%AC-%EA%B2%B0%EA%B5%AD%EC%97%94-%EB%B3%80%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0/",
+   "date": "2026-02-03",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "연락 줄어든 연인, 식은 건가 안정기인가"
+   ],
+   "core_question": "연락 줄었는데 식은 걸까?",
+   "signals": [
+    "연락 빈도 감소·대화 간결",
+    "답장 늦어도 불안 없음",
+    "컨디션·계획 기억하는 대화 증가"
+   ],
+   "advice_direction": "바로 '식었다' 단정 말고 표현 방식만 바뀐 안정기인지 구분"
+  },
+  {
+   "outlet": "W 코리아",
+   "title": "망한 소개팅, 두 번은 만나봐야 하는 이유",
+   "url": "https://www.wkorea.com/2026/08/16/%EB%A7%9D%ED%95%9C-%EC%86%8C%EA%B0%9C%ED%8C%85-%EB%91%90-%EB%B2%88%EC%9D%80-%EB%A7%8C%EB%82%98%EB%B4%90%EC%95%BC-%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0",
+   "date": "2026-08-16",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "timing"
+   ],
+   "situations": [
+    "애프터 할까 말까",
+    "몇 번 만나야 알 수 있나"
+   ],
+   "core_question": "별로였는데 또 만나볼까?",
+   "signals": [
+    "2번째 만남에서 지난 대화를 기억하는지",
+    "형식적 반응 vs 진짜 궁금해함",
+    "3번째 이후 편해지는지"
+   ],
+   "advice_direction": "첫인상만으로 판단 말고 최소 두세 번 만나며 신호 확인"
+  },
+  {
+   "outlet": "W 코리아",
+   "title": "2026년 10월 별자리 운세",
+   "url": "https://www.wkorea.com/2026/10/01/2026%EB%85%84-10%EC%9B%94-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8",
+   "date": "2026-10-01",
+   "lang": "ko",
+   "qtypes": [
+    "fortune",
+    "timing"
+   ],
+   "situations": [
+    "이달 연애운",
+    "재회운",
+    "새 인연 시기"
+   ],
+   "core_question": "이번 달 내 연애운은?",
+   "signals": [
+    "별자리별 애정운 + 타이밍 힌트 + 행운의 날짜 형식"
+   ],
+   "advice_direction": "솔로는 소개팅에 열려 있기, 시기 안 맞으면 자기 성장, 전 연인 미련은 이별 이유 상기"
+  },
+  {
+   "outlet": "얼루어 코리아",
+   "title": "썸만 타는 사람들을 위한 연애 조언",
+   "url": "https://www.allurekorea.com/2016/12/08/%EC%8D%B8%EB%A7%8C-%ED%83%80%EB%8A%94-%EC%82%AC%EB%9E%8C%EB%93%A4%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%97%B0%EC%95%A0-%EC%A1%B0%EC%96%B8/",
+   "date": "2016-12-08",
+   "lang": "ko",
+   "qtypes": [
+    "timing",
+    "other_mind"
+   ],
+   "situations": [
+    "썸만 반복·연애로 안 넘어감"
+   ],
+   "core_question": "왜 늘 썸에서 끝날까?",
+   "signals": [
+    "여러 이성과 동시 연락",
+    "연락 횟수로 마음 가늠",
+    "책임지는 관계 부담"
+   ],
+   "advice_direction": "상처 두려워 피하기보다 시간을 들여 한 사람을 알아가기; 관계 규정을 서두르지도 말기"
+  },
+  {
+   "outlet": "얼루어 코리아",
+   "title": "고백에 반드시 성공하는 방법 5",
+   "url": "https://www.allurekorea.com/2023/09/27/%EA%B3%A0%EB%B0%B1%EC%97%90-%EB%B0%98%EB%93%9C%EC%8B%9C-%EC%84%B1%EA%B3%B5%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95-5/",
+   "date": "2023-09-27",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "timing"
+   ],
+   "situations": [
+    "고백할까·고백 타이밍"
+   ],
+   "core_question": "썸남한테 고백해도 될까?",
+   "signals": [
+    "상대도 같은 마음인 신호",
+    "분위기가 무르익은 때"
+   ],
+   "advice_direction": "섣불리 연인처럼 굴지 말고, 신호 확인 후 질질 끌지 말고 담백하게; 상대 취향에 맞는 장소"
+  },
+  {
+   "outlet": "얼루어 코리아",
+   "title": "이별을 앞둔 남자들, 그리고 사랑에 빠진 남자들이 보내는 절대적인 신호들",
+   "url": "https://www.allurekorea.com/2012/11/06/%EB%82%A8%EC%9E%90%EB%93%A4%EC%9D%B4-%EB%A7%90%ED%95%98%EB%8A%94-%EC%97%B0%EC%95%A0%EC%99%80-%EA%B2%B0%ED%98%BC/",
+   "date": "2012-11-06",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "남친 마음 식음·이별 징조",
+    "그가 날 좋아하나"
+   ],
+   "core_question": "남친, 헤어질 생각인가?",
+   "signals": [
+    "더치페이 제안",
+    "야근 핑계로 만남 감소",
+    "피곤하다는 말",
+    "SNS에서 내 사진 감소",
+    "단답·되묻지 않음",
+    "안부 연락을 집착으로 여김"
+   ],
+   "advice_direction": "(사랑 신호) 주변에 자주 나타남·남친 유무 질문·새벽 '뭐해?' 연락 — 행동 변화로 판단"
+  },
+  {
+   "outlet": "얼루어 코리아",
+   "title": "심리학자가 알려주는 이별 극복 꿀팁",
+   "url": "https://www.allurekorea.com/2025/02/15/this-too-shall-pass/",
+   "date": "2025-02-15",
+   "lang": "ko",
+   "qtypes": [
+    "timing"
+   ],
+   "situations": [
+    "이별 후 언제 괜찮아지나"
+   ],
+   "core_question": "언제쯤 괜찮아질까?",
+   "signals": [
+    "보내줄 때가 됐다고 느낌",
+    "상대가 내 가치를 정하지 않는다고 생각",
+    "새 사랑에 마음이 열림"
+   ],
+   "advice_direction": "연락 창구 차단(60일 ex 디톡스), 털어놓기·운동·자기돌봄, 원인을 전부 나에게서 찾지 않기"
+  },
+  {
+   "outlet": "얼루어 코리아",
+   "title": "2023년 한 해의 별자리 운세 (애정운부터 금전운, 직장운까지 잘맞기로 유명한 얼루어의 2023년 한 해의 별자리 운세)",
+   "url": "https://www.allurekorea.com/2023/01/10/2023%EB%85%84-%ED%95%9C-%ED%95%B4%EC%9D%98-%EB%B3%84%EC%9E%90%EB%A6%AC-%EC%9A%B4%EC%84%B8/",
+   "date": "2023-01-10",
+   "lang": "ko",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "올해 애정운"
+   ],
+   "core_question": "올해 내 애정운은?",
+   "signals": [
+    "별자리별 애정운 코너"
+   ],
+   "advice_direction": "운세 코너(본문 미확인)",
+   "note": "본문 fetch 실패 — 검색 결과 제목만 확인"
+  },
+  {
+   "outlet": "에스콰이어 코리아",
+   "title": "썸 단계에서 주의해야 할 것들 ver.1 남자편",
+   "url": "https://www.esquirekorea.co.kr/article/49635",
+   "date": "2020-10-22",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "(남성 시점) 썸 중 이래도 되나"
+   ],
+   "core_question": "썸인데 이렇게 해도 되나?",
+   "signals": [
+    "애프터 성사 ≠ 관계 확정",
+    "동의 없는 SNS 게시는 불편 신호"
+   ],
+   "advice_direction": "속도 조절, 관계 단정 금지, 과장된 어필·성급한 농담 자제"
+  },
+  {
+   "outlet": "에스콰이어 코리아",
+   "title": "이별을 결심할 때",
+   "url": "https://www.esquirekorea.co.kr/article/35432",
+   "date": "2017-09-18",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "헤어질까 말까"
+   ],
+   "core_question": "헤어져야 할 때일까?",
+   "signals": [
+    "영혼 없는 대화",
+    "나답지 않음",
+    "결혼 등 가치관 충돌",
+    "다른 사람에게 설렘",
+    "반복 갈등 피로",
+    "데이트가 귀찮음"
+   ],
+   "advice_direction": "사례 모음 — 떨어져 지내보며 마음이 정리되는지 확인"
+  },
+  {
+   "outlet": "에스콰이어 코리아",
+   "title": "여자친구는 왜 화가 났을까?",
+   "url": "https://www.esquirekorea.co.kr/article/34719",
+   "date": "2017-02-10",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "(남성 시점) 여친이 왜 서운한지"
+   ],
+   "core_question": "여친이 왜 화났는지 모르겠어",
+   "signals": [
+    "고민 상담에 조언하다 화남",
+    "공공장소에서 손 놓음",
+    "과거 연애 질문"
+   ],
+   "advice_direction": "해결책보다 공감·편들기, 표현 아끼지 않기"
+  },
+  {
+   "outlet": "에스콰이어 코리아",
+   "title": "여자가 결혼을 결심할 때",
+   "url": "https://www.esquirekorea.co.kr/article/35668",
+   "date": "2017-11-27",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "이 사람과 결혼해도 되나",
+    "그녀가 결혼 생각 있나"
+   ],
+   "core_question": "이 사람과 결혼해도 될까?",
+   "signals": [
+    "가치관·대화가 잘 맞음",
+    "함께 살 집 얘기",
+    "상대 가족의 화목함",
+    "말없이 든든한 행동"
+   ],
+   "advice_direction": "사례 모음 — 확신은 일상의 든든함·가치관 일치에서 옴"
+  },
+  {
+   "outlet": "에스콰이어 코리아",
+   "title": "소개팅 연전연승 '첫 30초'의 법칙",
+   "url": "https://www.esquirekorea.co.kr/article/1907712",
+   "date": "2026-08-07",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "소개팅 첫인상·호감 여부"
+   ],
+   "core_question": "소개팅 상대 호감 있었나?",
+   "signals": [
+    "열린 자세·자연스러운 미소",
+    "휴대폰 안 봄",
+    "말 속도·톤을 맞춤"
+   ],
+   "advice_direction": "등장 자세·디테일 관리·휴대폰 치우기·험블브래그 피하기"
+  },
+  {
+   "outlet": "에스콰이어 코리아",
+   "title": "라이즈 원빈도 언급한 '오하아사'! 아침마다 챙겨보기 좋은 운세 사이트 5",
+   "url": "https://www.esquirekorea.co.kr/article/1885308",
+   "date": "2025-07-29",
+   "lang": "ko",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "오늘의 연애운·궁합"
+   ],
+   "core_question": "오늘 연애운 어때?",
+   "signals": [
+    "별자리별 연애 점수",
+    "연애운 카테고리",
+    "아이돌 궁합"
+   ],
+   "advice_direction": "운세 서비스 소개"
+  },
+  {
+   "outlet": "아레나 옴므 플러스",
+   "title": "당신의 소개팅이 실패하는 이유",
+   "url": "https://www.arenakorea.com/news/articleView.html?idxno=52039",
+   "date": "2022-10-04",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "소개팅 후 애프터 여부",
+    "(남성 시점) 왜 연락이 끊겼나"
+   ],
+   "core_question": "소개팅 왜 애프터 안 될까?",
+   "signals": [
+    "상대의 연락 빈도와 태도",
+    "몰래 계산 = 거절로 읽힘"
+   ],
+   "advice_direction": "사전 연락 줄이고 성의 있는 차림·매너; 거절은 간결하게"
+  },
+  {
+   "outlet": "아레나 옴므 플러스",
+   "title": "상대를 홀리는 기술",
+   "url": "https://www.arenakorea.com/news/articleView.html?idxno=50071",
+   "date": "2022-01-25",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "상대가 나에게 끌리게 하려면"
+   ],
+   "core_question": "어떻게 해야 끌릴까?",
+   "signals": [
+    "확신 있는 말투",
+    "여지를 남기는 말"
+   ],
+   "advice_direction": "남을 깎아내리지 않고 자기에게 집중하는 태도"
+  },
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "남자들이 말한 ‘읽씹·잠수’의 진짜 이유",
+   "url": "https://www.cosmopolitan.co.kr/article/1898239",
+   "date": "2026-03-05",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "읽씹·잠수 뒤 상대 마음",
+    "(남성 응답) 연락 끊은 이유"
+   ],
+   "core_question": "왜 갑자기 잠수 탔을까?",
+   "signals": [
+    "관심 식음",
+    "더 나은 선택지",
+    "거절 말 못 하는 회피",
+    "바빠서 미루다 끊음"
+   ],
+   "advice_direction": "자책하지 말고 감정 충분히 느끼고 털어내기; 내가 끊는 쪽이면 솔직하게 말하기"
+  },
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "썸타는 중, 그 행동은 진심일까? 착각일까?",
+   "url": "https://www.cosmopolitan.co.kr/article/1881613",
+   "date": "2025-05-14",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸 진심 vs 착각",
+    "어장 여부"
+   ],
+   "core_question": "그 행동, 진심일까 착각일까?",
+   "signals": [
+    "일상·컨디션 챙김",
+    "구체적 날짜 제안",
+    "연락 뜸하면 서운해함",
+    "(착각) 얕은 연락만 잦음",
+    "(착각) 모두에게 다정",
+    "(착각) 만날 때만 다정"
+   ],
+   "advice_direction": "여러 행동의 일관성·대화 깊이를 보고, 애매하면 직접 묻기"
+  },
+  {
+   "outlet": "코스모폴리탄 코리아",
+   "title": "‘1’이 없어졌는데 왜 답장이 없을까?",
+   "url": "https://www.cosmopolitan.co.kr/article/25923",
+   "date": "2015-05-01",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "읽씹 뒤 상대 마음"
+   ],
+   "core_question": "1 없어졌는데 왜 답 없어?",
+   "signals": [
+    "매번 그렇다면 관심 부족",
+    "내 마지막 말이 애매했는지"
+   ],
+   "advice_direction": "읽음 표시만으로 단정 말고, 단체방이면 개인 메시지로 다시"
+  },
+  {
+   "outlet": "대학내일",
+   "title": "나 좋다는 그 애, 만날까? 말까?",
+   "url": "https://www.univ20.com/Magazine/Detail/1909",
+   "date": "",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "나를 좋아하는 사람 vs 내가 좋아하는 사람"
+   ],
+   "core_question": "날 좋아하는 사람 만날까?",
+   "signals": [
+    "만나며 마음이 자라는지"
+   ],
+   "advice_direction": "최소 세 번 만나보기, 마음 없으면 분명히 거절, 내가 원하는 연애 타입 파악"
+  },
+  {
+   "outlet": "대학내일",
+   "title": "Q. 좋아하는 사람한테 자꾸 철벽을 치게 돼요",
+   "url": "https://www.univ20.com/Magazine/Detail/1628",
+   "date": "2018-11-15",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "짝사랑·마음 표현할까"
+   ],
+   "core_question": "좋아하는데 왜 철벽 칠까?",
+   "signals": [
+    "긴장해서 눈 피함·단답"
+   ],
+   "advice_direction": "주변에 마음 알리기, 상대 우상화 말기, 나만의 방식으로 진심 전하기"
+  },
+  {
+   "outlet": "대학내일",
+   "title": "소개팅 할까? 말까?",
+   "url": "https://www.univ20.com/Magazine/Detail/1801",
+   "date": "",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "소개팅 나갈까"
+   ],
+   "core_question": "소개팅 나가볼까?",
+   "signals": [
+    "연애 욕구·시간 여유"
+   ],
+   "advice_direction": "부담 없이 좋은 친구 만든다는 마음으로; 결국 본인 상황에 맞춰"
+  },
+  {
+   "outlet": "마리끌레르 코리아",
+   "title": "썸은 OK, 연애는 NO!",
+   "url": "https://www.marieclairekorea.com/culture/lifestyle/2017/07/%EC%8D%B8%EC%9D%80-ok-%EC%97%B0%EC%95%A0%EB%8A%94-no",
+   "date": "2017-07-28",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "석 달 썸 뒤 잠수",
+    "썸만 즐기는 상대 마음"
+   ],
+   "core_question": "왜 썸만 타고 안 사귈까?",
+   "signals": [
+    "관계 규정 부담",
+    "여러 명 동시 썸",
+    "세 번 데이트 후 정리"
+   ],
+   "advice_direction": "썸만 타던 사람도 언젠가 놓치기 아까운 상대를 만난다 — 진득한 연애 권함"
+  },
+  {
+   "outlet": "매일신문(연합뉴스)",
+   "title": "'썸 타고 카톡 읽씹하고'…참을 수 없는 연애의 가벼움",
+   "url": "https://www.imaeil.com/page/view/2016080109322244033",
+   "date": "2016-08-01",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸·어장·읽씹 문화"
+   ],
+   "core_question": "썸·읽씹 시대의 연애",
+   "signals": [
+    "읽씹",
+    "어장 관리",
+    "프사 확인"
+   ],
+   "advice_direction": "신조어 맥락 소개"
+  },
+  {
+   "outlet": "더팩트",
+   "title": "[인플루언서 프리즘] 행복한 연애와 결혼을 위한 '현실 조언', 유튜브에 있다",
+   "url": "https://news.tf.co.kr/read/ogmeta/1947516.htm",
+   "date": "2022-06-26",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "연애 코치 유튜버(김달·박코·모두의지인·오피니언) 단골 주제"
+   ],
+   "core_question": "썸을 연애로 바꾸려면?",
+   "signals": [
+    "호감·반감 주는 행동",
+    "연락 기술"
+   ],
+   "advice_direction": "남성 시각 채널(오피니언) 포함 — 썸→연애 전환, 연락법, 소개팅 성공 요령"
+  },
+  {
+   "outlet": "얼루어 코리아",
+   "title": "신조어 사전",
+   "url": "https://www.allurekorea.com/?p=33764",
+   "date": "2012-11-21",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "연애 은어"
+   ],
+   "core_question": "연애 신조어 모음",
+   "signals": [
+    "심남이",
+    "부농/빈농",
+    "깨빡나다"
+   ],
+   "advice_direction": "신조어 소개"
+  },
+  {
+   "outlet": "데이즈드 코리아",
+   "title": "오는 사람 막지 않고, 가는 사람 붙잡지 않는다.",
+   "url": "http://www.dazedkorea.com/life-culture/article/269/detail.do",
+   "date": "",
+   "lang": "ko",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "떠나는 사람 붙잡을까"
+   ],
+   "core_question": "가는 사람 붙잡을까?",
+   "signals": [],
+   "advice_direction": "",
+   "note": "본문 fetch 실패 — 검색 결과 제목만 확인, 내용 미검증"
+  },
+  {
+   "outlet": "맨즈헬스 코리아",
+   "title": "배우 김지성이 말하는 소소한 연애 팁",
+   "url": "http://menshealthkorea.com/%EB%B0%B0%EC%9A%B0-%EA%B9%80%EC%A7%80%EC%84%B1%EC%9D%B4-%EB%A7%90%ED%95%98%EB%8A%94-%EC%86%8C%EC%86%8C%ED%95%9C-%EC%97%B0%EC%95%A0-%ED%8C%81/",
+   "date": "",
+   "lang": "ko",
+   "qtypes": [],
+   "situations": [
+    "(남성 독자) 연애 팁"
+   ],
+   "core_question": "연애 잘하는 팁?",
+   "signals": [],
+   "advice_direction": "",
+   "note": "본문 fetch 실패 — 제목만 확인, qtype 판정 불가"
+  },
+  {
+   "outlet": "맨즈헬스 코리아",
+   "title": "운동녀들이 픽한 헬스클럽 남자 취향",
+   "url": "https://menshealthkorea.com/%EC%9A%B4%EB%8F%99%EB%85%80%EB%93%A4%EC%9D%B4-%ED%94%BD%ED%95%9C-%ED%97%AC%EC%8A%A4%ED%81%B4%EB%9F%BD-%EB%82%A8%EC%9E%90-%EC%B7%A8%ED%96%A5/",
+   "date": "",
+   "lang": "ko",
+   "qtypes": [],
+   "situations": [
+    "(남성 독자) 이성 취향"
+   ],
+   "core_question": "여자들은 어떤 남자 좋아해?",
+   "signals": [],
+   "advice_direction": "",
+   "note": "본문 fetch 실패 — 제목만 확인, qtype 판정 불가"
+  },
+  {
+   "outlet": "Cosmopolitan (via AOL)",
+   "title": "Should You Text Your Ex “Happy Birthday?” Relationship Experts Weigh In",
+   "url": "https://www.aol.com/lifestyle/text-ex-happy-birthday-relationship-202600567.html",
+   "date": "2025-09-30 (AOL repost)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "전 애인에게 생일 연락",
+    "이별 후 연락 여부"
+   ],
+   "core_question": "전 애인 생일에 연락해도 돼?",
+   "signals": [
+    "헤어짐이 원만했는지",
+    "평소 친구처럼 연락하는 사이인지",
+    "연락 속에 재회 기대가 숨어 있는지",
+    "관계가 해로웠는지"
+   ],
+   "advice_direction": "대부분은 보내지 않는 쪽. 보내고 싶은 진짜 동기(미련·원망)부터 점검"
+  },
+  {
+   "outlet": "Cosmopolitan US (via Magzter)",
+   "title": "Should You Actually Get Back Together With Your Ex: A Quiz",
+   "url": "https://www.magzter.com/stories/fashion/Cosmopolitan-US/SHOULD-YOU-ACTUALLY-GET-BACK-TOGETHER-WITH-YOUR-EX-A-QUIZ",
+   "date": "2023-07/08 (print issue)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "재회 여부 판단"
+   ],
+   "core_question": "전 애인이랑 다시 만나도 될까?",
+   "signals": [
+    "헤어진 이유가 지금도 문제인지",
+    "이별 후 SNS 염탐만 했는지, 나를 돌봤는지",
+    "주변 사람들이 어떻게 볼지"
+   ],
+   "advice_direction": "이별 원인이 해소됐고 그동안 스스로 성장했다면 재회 고려, 아니면 보류"
+  },
+  {
+   "outlet": "Cosmopolitan (via AOL)",
+   "title": "Unclear Situationship? Text Them This",
+   "url": "https://www.aol.com/articles/unclear-situationship-text-them-140000445.html",
+   "date": "2025-10-09 (AOL repost)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "썸 단계 관계 정의",
+    "애매한 관계에서 상대 의중"
+   ],
+   "core_question": "우리 무슨 사이인지 물어봐도 돼?",
+   "signals": [
+    "약속 직전 취소가 반복되는지",
+    "밤늦게나 집에서만 보는지",
+    "진지한 관계·가벼운 관계 중 뭘 원하는지 불분명"
+   ],
+   "advice_direction": "원하는 것(데이트·독점·캐주얼 유지)을 짧은 문자로 솔직하게 말하기. 오래 만났으면 중요한 얘기는 직접 만나서"
+  },
+  {
+   "outlet": "Cosmopolitan (via AOL)",
+   "title": "Your Love Horoscope for the Week Sees Incoming Drama, I Fear",
+   "url": "https://www.aol.com/love-horoscope-week-sees-incoming-100000666.html",
+   "date": "2024-10-25 (AOL timestamp; doesn't match the date in the page meta)",
+   "lang": "en",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "주간 연애운"
+   ],
+   "core_question": "이번 주 내 연애운 어때?",
+   "signals": [
+    "금성-토성 스퀘어, 화성-해왕성 회합 등 행성 배치"
+   ],
+   "advice_direction": "큰 관계 대화·데이트 행보는 주 후반으로, 인내하고 경계 지키기, 공개적 애정 과시 자제"
+  },
+  {
+   "outlet": "Cosmopolitan India",
+   "title": "Signs your situationship is never turning into a relationship",
+   "url": "https://www.cosmopolitan.in/life/features/story/signs-your-situationship-is-never-turning-into-a-relationship-1094585-2024-09-18",
+   "date": "2024-09-18",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "timing"
+   ],
+   "situations": [
+    "썸이 연애로 발전할지",
+    "상대가 필요할 때만 연락"
+   ],
+   "core_question": "이 썸, 사귀는 걸로 발전할까?",
+   "signals": [
+    "몇 달째 관계 정의 없이 제자리",
+    "한쪽만 확인을 원함",
+    "먼 미래 약속이 없음",
+    "만남을 자꾸 피함",
+    "상대 편할 때만 연락(보험 취급)",
+    "다른 사람 만난다는 암시"
+   ],
+   "advice_direction": "서로 존중하며 정리하거나 친구로 돌아가기"
+  },
+  {
+   "outlet": "Cosmopolitan India",
+   "title": "The smart girl's guide to getting back together with your ex—the right way",
+   "url": "https://www.cosmopolitan.in/life/features/story/the-smart-girls-guide-to-getting-back-together-with-your-ex-the-right-way-1167527-2025-02-09",
+   "date": "2025-02-09",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "재회 여부 판단",
+    "재회 후 관계 재건"
+   ],
+   "core_question": "헤어진 애인이랑 재회해도 될까?",
+   "signals": [
+    "둘 다 변하고 배울 의지가 있는지",
+    "이별 원인과 내 몫을 이해하는지",
+    "외로움이 아니라 정리된 마음인지",
+    "관계가 해롭거나 근본적으로 안 맞았는지"
+   ],
+   "advice_direction": "먼저 회복·성찰 후 연락, 탓하지 않는 대화, 경계 합의, 천천히 새 출발. 독성 관계면 떠나기"
+  },
+  {
+   "outlet": "British Vogue (via Glamour South Africa)",
+   "title": "Women are being ghosted by their long-term partners",
+   "url": "https://www.glamour.co.za/wellness/love-relationships/women-are-being-ghosted-by-their-long-term-partners-8bb5fc34-3b53-4501-ba82-6a24c082b77b",
+   "date": "2026-07-08 (Glamour SA repost)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "오래 사귄 애인의 잠수이별",
+    "연락이 점점 줄어듦"
+   ],
+   "core_question": "오래 사귄 애인이 왜 잠수 탔을까?",
+   "signals": [
+    "연락이 서서히 줄어듦",
+    "잘 지내다 설명 없이 사라짐",
+    "집·돈·물건이 얽혀 정리 곤란"
+   ],
+   "advice_direction": "잠수는 어려운 대화를 피한 쪽의 선택일 뿐 내 잘못이 아님. 예측·예방 책임을 스스로 지지 말 것"
+  },
+  {
+   "outlet": "Vogue US (via Glamour South Africa)",
+   "title": "Dating 101: What Is Breadcrumbing?",
+   "url": "https://www.glamour.co.za/wellness/love-relationships/dating-101-what-is-breadcrumbing-8012bb48-f52f-4d38-a89c-c7fa07804198",
+   "date": "2024-05-20 (Glamour SA repost)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "가끔만 연락하는 상대 의중",
+    "어장·간보기"
+   ],
+   "core_question": "가끔 연락하는 그 사람 진심일까?",
+   "signals": [
+    "뜬금없는 시간대의 산발적 메시지",
+    "SNS 댓글·좋아요만 남김",
+    "관계 확정은 끝까지 안 함"
+   ],
+   "advice_direction": "최대한 연락 끊기. 짧고 단호하게 '이 연락은 나한테 좋지 않다'는 경계 메시지"
+  },
+  {
+   "outlet": "Vogue (US) — 'Dear Shon' advice column (via publisher announcement page)",
+   "title": "DEAR SHON – Shon Faye's new advice column in Vogue",
+   "url": "https://aitkenalexander.co.uk/dear-shon-shon-fayes-new-advice-column-in-vogue",
+   "date": "",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "이별 후 연락 유지 여부"
+   ],
+   "core_question": "헤어진 사람이랑 계속 연락해도 돼?",
+   "signals": [
+    "'연락 완전 끊기' 조언이 내 상황엔 안 맞는 것 같다는 망설임",
+    "새벽에 검색하며 괴로워함"
+   ],
+   "advice_direction": "이별을 사회가 과소평가하는 진짜 애도로 인정하기(최종 권고는 발췌 밖이라 확인 못 함)"
+  },
+  {
+   "outlet": "British Vogue (Chanté Joseph op-ed, via Fox News coverage)",
+   "title": "Is Having a Boyfriend Embarrassing Now?",
+   "url": "https://www.foxnews.com/media/vogue-op-ed-stirs-debate-after-calling-boyfriends-embarrassing-saying-dating-now-feels-republican",
+   "date": "2025-11-02 (Fox News coverage date)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "연애 공개 여부(소프트 런칭)"
+   ],
+   "core_question": "애인 있는 거 SNS에 티 내도 돼?",
+   "signals": [
+    "SNS에서 애인을 숨기거나 흐릿하게만 보여줌",
+    "싱글이 오히려 지위처럼 여겨짐"
+   ],
+   "advice_direction": "(칼럼) 젊은 여성들이 연애를 숨기는 흐름을 짚는 문화 비평. 2차 출처 요약 기반"
+  },
+  {
+   "outlet": "Glamour South Africa",
+   "title": "Navigating Valentine's Day in modern dating culture",
+   "url": "https://www.glamour.co.za/wellness/love-relationships/navigating-valentines-day-in-modern-dating-culture-e256c573-f615-461f-b0fa-1540e841ca9b",
+   "date": "2026-02-04",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "관계 정의 전 노력·진심 확인",
+    "누가 더 노력하나"
+   ],
+   "core_question": "썸 단계, 그 사람 진심일까?",
+   "signals": [
+    "연락이 꾸준한지",
+    "말과 행동이 일치하는지",
+    "만남을 먼저 계획하는지",
+    "작은 디테일을 기억하는지"
+   ],
+   "advice_direction": "한 번의 이벤트보다 꾸준한 노력. 정직한 정기 소통, 기대치는 현실적으로, 내 생활·취미 유지"
+  },
+  {
+   "outlet": "Glamour (via dating coach's press page)",
+   "title": "Is he really interested in you? (Dating Boot Camp, Part One: How to Tell If a Guy Is Really Serious or Just Wrapped Up in the Chase)",
+   "url": "https://www.laurenfrances.com/blogs/press/glamour-magazine-is-he-really-interested-in-you",
+   "date": "",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "첫 데이트 후 진심 여부",
+    "몸만 원하는지"
+   ],
+   "core_question": "그 사람 날 진지하게 좋아해?",
+   "signals": [
+    "만나기 전부터 과한 문자(환상 쌓기)",
+    "첫 데이트 후 연락이 빠르고 꾸준한지",
+    "데이트 계획이 점점 늘어나는지",
+    "초반에 자꾸 집으로 부름",
+    "외모·스킨십 얘기 위주",
+    "자기 미래·커리어 얘기를 하고 내 것도 묻는지"
+   ],
+   "advice_direction": "먼저 쫓지 말고 상대가 관심을 보일 여지를 주기. 행동의 꾸준함으로 판단"
+  },
+  {
+   "outlet": "Glamour South Africa (SELF syndication)",
+   "title": "Think you're in love? 5 Signs it's actually limerence",
+   "url": "https://www.glamour.co.za/wellness/love-relationships/think-youre-in-love-5-signs-its-actually-limerence-62e2e4b3-5b0f-4a25-84ef-8f68beff114a",
+   "date": "2026-02-11",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "내 감정이 사랑인지 집착인지",
+    "답장에 일희일비"
+   ],
+   "core_question": "이거 사랑이야, 그냥 집착이야?",
+   "signals": [
+    "상대를 이상화하고 레드플래그 무시",
+    "애매한 신호일수록 더 끌림",
+    "답장 하나에 기분이 오르내림",
+    "다른 일에 집중 못 함"
+   ],
+   "advice_direction": "SNS 염탐·메시지 재독·해석 멈추기. 상대가 꾸준한 노력·헌신 의지를 보였는지 객관적으로 보기"
+  },
+  {
+   "outlet": "Glamour South Africa (SELF syndication)",
+   "title": "6 Red flags you're settling in your relationship",
+   "url": "https://www.glamour.co.za/wellness/love-relationships/6-red-flags-youre-settling-in-your-relationship-4917c88d-b38b-49e8-a403-9567e618abe8",
+   "date": "2025-09-11",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "헤어질까 버틸까",
+    "타협·안주 연애"
+   ],
+   "core_question": "이 연애 그냥 버티는 걸까?",
+   "signals": [
+    "설렘 없이 기능만 남음",
+    "사람보다 결혼 등 인생 체크리스트 때문에 유지",
+    "떠나는 게 무서워서 남음",
+    "상대가 언젠가 바뀌길 기다림",
+    "핵심 조건(아이 등)을 포기",
+    "다른 사람·싱글 생활 상상이 잦음"
+   ],
+   "advice_direction": "가끔의 '만약'은 정상. 두려움·편안함 때문에 남는 건 안주. 이 사람이라서 남는 구체적 이유가 있는지 확인"
+  },
+  {
+   "outlet": "Glamour South Africa (SELF syndication)",
+   "title": "The taxi cab theory explained: Why some men commit to the woman after you",
+   "url": "https://www.glamour.co.za/wellness/love-relationships/the-taxi-cab-theory-explained-why-some-men-commit-to-the-woman-after-you-e8e0f54e-1cd0-421f-b5fd-0672c186b202",
+   "date": "2025-12-01",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "전 애인이 다음 사람과 바로 정착",
+    "왜 나랑은 아니었나"
+   ],
+   "core_question": "전 애인은 왜 다음 사람이랑 결혼해?",
+   "signals": [
+    "심리적 준비(재정·커리어) 시점",
+    "새 상대와의 가치관 궁합",
+    "이별 후 상대의 성장"
+   ],
+   "advice_direction": "한 가지 이론으로 과거 연애를 설명하지 말고 궁합·성장·이별 이유를 두루 보기"
+  },
+  {
+   "outlet": "Glamour South Africa (SELF syndication)",
+   "title": "What is avoidant attachment? 4 Signs to look out for",
+   "url": "https://www.glamour.co.za/wellness/love-relationships/what-is-avoidant-attachment-4-signs-to-look-out-for-5493ae27-49d5-425a-8c5e-8479acd35f9e",
+   "date": "2026-10-12",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "회피형 상대의 거리두기",
+    "갈등 때 잠수"
+   ],
+   "core_question": "회피형이라 거리 두는 걸까?",
+   "signals": [
+    "감정·과거 얘기를 농담으로 넘김",
+    "혼자 해결하려 함",
+    "갈등 생기면 화제 돌리거나 물러남",
+    "작은 지적에도 움츠러듦"
+   ],
+   "advice_direction": "패턴을 알아차리고 명확히 소통. 꾸준하고 안정적인 태도가 방어를 낮춤. 애착유형은 바뀔 수 있음"
+  },
+  {
+   "outlet": "ELLE (elle.com, via secondary source)",
+   "title": "(elle.com Life & Love interview on dating Bay Area 'Peter Pan' men)",
+   "url": "http://www.elle.com/life-love/sex-relationships/a37242/san-francisco-guy-peter-pan-complex/",
+   "date": "",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "책임 회피형 남자의 마음"
+   ],
+   "core_question": "이 사람 왜 진지해지질 않지?",
+   "signals": [
+    "저녁 차려줬는데 일찍 떠나 다른 사람 만남",
+    "성숙·책임 회피"
+   ],
+   "advice_direction": "(인터뷰 기사, 직접 조언 없음) — Elle 원문 제목·날짜는 2차 출처라 미확인"
+  },
+  {
+   "outlet": "ELLE — 'Ask E. Jean' column (Substack successor)",
+   "title": "A master list of dating advice",
+   "url": "https://ejeancarroll.substack.com/p/a-master-list-of-dating-advice",
+   "date": "2023-01-24",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "애매한 신호 해석",
+    "초반 과한 관심(러브바밍)",
+    "'바빠' 핑계"
+   ],
+   "core_question": "애매한 신호, 믿어도 돼?",
+   "signals": [
+    "말한 그대로가 진심(밀당 해석 금지)",
+    "초반의 과도한 관심",
+    "전 애인 험담·친구 없음·거짓말",
+    "힘들 때 나를 어떻게 대하는지",
+    "'바빠'라는 모호한 핑계"
+   ],
+   "advice_direction": "말 그대로 받아들이고 여러 번 만나 보며 천천히. 너무 쉽게 곁을 주지 말고, 감정적으로 닿지 않는 사람만 쫓는 패턴 점검"
+  },
+  {
+   "outlet": "ELLE — 'Ask E. Jean' column (Substack successor)",
+   "title": "Lurve a married man? Do this",
+   "url": "https://ejeancarroll.substack.com/p/lurve-a-married-man-do-this",
+   "date": "2021-06-04",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "못 이룰 상대 정리"
+   ],
+   "core_question": "그 사람 끊어내야 할까?",
+   "signals": [
+    "상대가 기혼자"
+   ],
+   "advice_direction": "말로 곱씹기보다 결단하고 관계를 끝내는 게 가장 빠른 해결(본문 일부 유료라 티저 기반)"
+  },
+  {
+   "outlet": "Harper's Bazaar India",
+   "title": "How to end a situationship when you've outgrown it",
+   "url": "https://www.harpersbazaar.in/culture/story/how-to-end-a-situationship-when-youve-outgrown-it-569623-2023-05-24",
+   "date": "2023-05-24",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "썸 정리할까"
+   ],
+   "core_question": "이 썸 이제 끝내야 할까?",
+   "signals": [
+    "내 필요가 안 채워지고 괴로움",
+    "나는 확정을 원하는데 상대는 아님",
+    "기대가 계속 어긋남",
+    "한쪽만 더 원함"
+   ],
+   "advice_direction": "원하는 것 정리 후 차분한 곳에서 탓하지 말고 내 감정 위주로 말하기. 이후 연락 수위 합의, 번복 약속에 흔들리지 않기"
+  },
+  {
+   "outlet": "Harper's Bazaar India",
+   "title": "Here's how to recover from a situationship that almost killed your optimism",
+   "url": "https://www.harpersbazaar.in/culture/story/heres-how-to-recover-from-a-situationship-that-almost-killed-your-optimism-564730-2022-11-26",
+   "date": "2022-11-26",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "timing"
+   ],
+   "situations": [
+    "'너 때문 아니야'의 속뜻",
+    "썸 끝난 뒤 회복"
+   ],
+   "core_question": "왜 나한테 확신을 안 줬을까?",
+   "signals": [
+    "'내 문제야'라는 말 = 헌신할 준비 안 됨",
+    "반복해서 헌신 못 하는 사람에게 끌리는 패턴"
+   ],
+   "advice_direction": "원망 내려놓기, 지인 응원으로 자존감 회복, 연애 잠시 쉬기, 필요 목록 만들어 다음 상대 거르기"
+  },
+  {
+   "outlet": "Harper's Bazaar US (via Magzter)",
+   "title": "Dating After the Apps",
+   "url": "https://www.magzter.com/stories/fashion/Harpers-BAZAAR-US/DATING-AFTER-THE-APPS",
+   "date": "2024-08 (print issue)",
+   "lang": "en",
+   "qtypes": [
+    "timing"
+   ],
+   "situations": [
+    "인연은 언제·어디서"
+   ],
+   "core_question": "앱 말고 인연은 어디서 만나?",
+   "signals": [
+    "데이팅앱 피로·구독자 감소",
+    "AI 매칭에 대한 거부감"
+   ],
+   "advice_direction": "(트렌드 기사) 앱 밖의 새로운·전통적 만남 방식으로 눈을 돌리는 흐름"
+  },
+  {
+   "outlet": "Women's Health (via AOL)",
+   "title": "Relationship Experts Share the 10 Telltale Signs You're Falling Out of Love With Your Partner",
+   "url": "https://www.aol.com/articles/why-falling-love-doesnt-mean-143500689.html",
+   "date": "2026-03-16 (AOL repost)",
+   "lang": "en",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "마음이 식었나",
+    "헤어질까 노력할까"
+   ],
+   "core_question": "나 이 사람한테 마음 식었나?",
+   "signals": [
+    "상대에 대한 궁금증이 사라짐",
+    "미래 계획을 안 세움",
+    "대화가 짧아지고 숨김",
+    "갈등 해결 의지 없음",
+    "같이 시간 보내기 싫음",
+    "싱글 생활을 자주 상상"
+   ],
+   "advice_direction": "원인(스트레스·변화) 찾기, 일시적인지 근본적 차이인지 따져보기, 차분히 대화 후 노력·휴식·상담·이별 중 결정. 설렘→안정으로의 변화는 정상"
+  },
+  {
+   "outlet": "Women's Health (via AOL)",
+   "title": "If After A Few Texts Your Crush Has Gone AWOL, They May Be Ghosting You",
+   "url": "https://www.aol.com/few-texts-crush-gone-awol-110000764.html",
+   "date": "2025-07-17 (AOL repost)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "썸남 갑자기 연락 끊김",
+    "읽씹·잠수"
+   ],
+   "core_question": "연락 끊긴 썸남, 잠수 탄 걸까?",
+   "signals": [
+    "설명 없이 문자·DM 답이 끊김",
+    "잘 지내고 다음 약속 얘기까지 했는데 사라짐"
+   ],
+   "advice_direction": "바로 최악을 단정하지 말고 가벼운 안부 한 번. 계속 무응답이면 감정 정리, 원하면 정중한 마무리 메시지. 잠수는 상대 문제지 내 가치와 무관"
+  },
+  {
+   "outlet": "Refinery29",
+   "title": "From Breadcrumbing To Paperclipping: The Dating Terms You Need To Know",
+   "url": "https://www.refinery29.com/en-us/dating-terms-slang-words",
+   "date": "",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "연애 신조어로 상대 행동 해석"
+   ],
+   "core_question": "이 사람 행동, 무슨 유형이야?",
+   "signals": [
+    "고스팅·브레드크러밍·벤칭·커빙·키튼피싱·헌팅·좀비잉 등 용어"
+   ],
+   "advice_direction": "(용어 정리 기사) 행동 패턴에 이름 붙여 파악"
+  },
+  {
+   "outlet": "Refinery29",
+   "title": "Texting Your Ex Today Would Be Chaotic Evil — But Should You Do It Anyway?",
+   "url": "https://www.refinery29.com/en-us/2020/10/10138573/national-text-your-ex-day-2020",
+   "date": "2020-10-29 (inferred from article context)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "전 애인에게 연락할까"
+   ],
+   "core_question": "전 애인한테 연락해도 될까?",
+   "signals": [
+    "좋게 끝났는지, 몇 년 지나 친구가 됐는지",
+    "재회·질투 유발·하룻밤이 목적인지",
+    "연락 생각에 불안한지",
+    "상대가 연락 말라고 했는지"
+   ],
+   "advice_direction": "동기 점검·장단점 목록, 헤어진 이유 상기, 친구 의견 듣기. 보낸다면 가볍고 구체적으로, 답 없을 각오"
+  },
+  {
+   "outlet": "Refinery29 UK",
+   "title": "Tips For Ending A Situationship That Isn't Serving You",
+   "url": "https://www.refinery29.com/en-gb/how-to-end-a-situationship",
+   "date": "",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "썸 정리할까",
+    "정리 후 다시 연락하고 싶을 때"
+   ],
+   "core_question": "이 애매한 관계 끝낼까?",
+   "signals": [
+    "나는 더 원하는데 상대는 아님",
+    "다른 만남을 막음",
+    "같은 시도 반복해도 변화 없음",
+    "만나고 나면 기운 빠지고 자존감 떨어짐"
+   ],
+   "advice_direction": "명확·정중하게 끝내기, 외로울 때 다시 연락하고 싶은 순간 대비, 끝낸 이유 적어두기, 언팔·뮤트, 슬픔 허용"
+  },
+  {
+   "outlet": "Refinery29",
+   "title": "What Is A Situationship? Relationship Type, Explained",
+   "url": "https://www.refinery29.com/en-us/what-is-situationship-meaning-pseudo-relationship",
+   "date": "",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "썸인지 연애인지",
+    "관계 정의 대화"
+   ],
+   "core_question": "우리 사귀는 거야, 아닌 거야?",
+   "signals": [
+    "자주 보지만 약속은 늘 직전",
+    "친구는 알지만 중요한 자리엔 안 데려감",
+    "관계 방향 얘기만 안 함"
+   ],
+   "advice_direction": "불편해도 직접 물어보고 원하는 걸 말하기, 상대 답을 받아들이기"
+  },
+  {
+   "outlet": "Refinery29",
+   "title": "Horoscope Compatibility Love Match, Sex By Zodiac Signs",
+   "url": "https://www.refinery29.com/en-us/2016/10/127028/horoscope-compatibility-love-match",
+   "date": "2016-10 (URL path)",
+   "lang": "en",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "별자리 궁합"
+   ],
+   "core_question": "우리 별자리 궁합 어때?",
+   "signals": [],
+   "advice_direction": ""
+  },
+  {
+   "outlet": "Refinery29",
+   "title": "2022 Love Horoscope For Single Or Attached Zodiac Signs",
+   "url": "https://www.refinery29.com/en-us/2021/12/10711916/love-horoscope-2022",
+   "date": "2021-12 (URL path)",
+   "lang": "en",
+   "qtypes": [
+    "fortune",
+    "timing"
+   ],
+   "situations": [
+    "올해 연애운(싱글·커플별)"
+   ],
+   "core_question": "올해 나 연애할 수 있을까?",
+   "signals": [],
+   "advice_direction": ""
+  },
+  {
+   "outlet": "Bustle",
+   "title": "18 Signs That Someone Likes You Based On How They Text",
+   "url": "https://www.bustle.com/wellness/11-clues-that-someone-likes-you-more-than-you-think-based-on-how-they-text-you-7611321",
+   "date": "2017-12-21 (updated 2022-01-24)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "카톡·문자로 호감 확인",
+    "답장 속도"
+   ],
+   "core_question": "문자 보면 나 좋아하는 거 맞아?",
+   "signals": [
+    "답장이 빠름",
+    "질문하며 대화를 이어감",
+    "못 볼 땐 미리 말하고 사과",
+    "'우리'라는 표현",
+    "하트 이모지·애칭 증가",
+    "하루 시작·끝에 연락",
+    "통화·만남으로 넘어가려 함"
+   ],
+   "advice_direction": "한 가지 신호로 단정 말고 비슷하게 반응하며 만남 제안. 사귄다고 가정하기 전에 직접 확인"
+  },
+  {
+   "outlet": "Bustle",
+   "title": "How To Know When A Relationship Is Over, According To Experts",
+   "url": "https://www.bustle.com/wellness/when-to-end-relationship-experts",
+   "date": "2021-12-16",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "헤어질까"
+   ],
+   "core_question": "이제 헤어져야 할 때일까?",
+   "signals": [
+    "눈치 보며 긴장",
+    "나쁜 게 좋은 걸 늘 넘음",
+    "나만 노력",
+    "떠나기 어려워서 남음",
+    "함께할 미래가 안 그려짐",
+    "신뢰 부족",
+    "직감"
+   ],
+   "advice_direction": "솔직하게 느낌 인정, 상대와 대화해 반응 보기, 안 바뀔 부분 감당 가능한지 판단. 학대면 안전 우선"
+  },
+  {
+   "outlet": "Bustle",
+   "title": "Am I Being Led On? Experts Explain The Psychology Behind Breadcrumbing & Why People Keep Others On The Hook",
+   "url": "https://www.bustle.com/p/am-i-being-led-on-experts-explain-the-psychology-behind-breadcrumbing-why-people-keep-others-on-the-hook-18711951",
+   "date": "2019-09-02",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "어장인지 확인",
+    "간만 보는 상대"
+   ],
+   "core_question": "나 지금 어장 당하는 거야?",
+   "signals": [
+    "뜬금없는 문자·좋아요 후 사라짐",
+    "약속을 자꾸 취소",
+    "관심과 침묵이 반복"
+   ],
+   "advice_direction": "관계 원하는지 직접 묻고 기다릴지 결정. 아니면 답장 끊고 필요하면 차단"
+  },
+  {
+   "outlet": "Bustle",
+   "title": "The Most Compatible Astrological Signs, Based On Your Zodiac Sign",
+   "url": "https://www.bustle.com/life/the-most-compatible-astrological-signs-34576",
+   "date": "2017-03-13 (updated 2022-03-01)",
+   "lang": "en",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "별자리 궁합"
+   ],
+   "core_question": "나랑 잘 맞는 별자리는?",
+   "signals": [
+    "같은 원소(불·흙·공기·물)",
+    "같은 성향(duality)"
+   ],
+   "advice_direction": "태양 별자리는 대략적 참고, 전체 출생차트가 더 정확. '안 맞는' 별자리여도 좋은 관계 가능"
+  },
+  {
+   "outlet": "The Cut / Ask Polly (early run at The Awl)",
+   "title": "Ask Polly: Why Can't I Leave My Ex Behind For Good?",
+   "url": "https://www.theawl.com/2012/12/ask-polly-why-cant-i-leave-my-ex-behind-for-good/",
+   "date": "2012-12-12",
+   "lang": "en",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "헤어진 뒤 재회 미련",
+    "재회 희망이 진짜인지 부정인지"
+   ],
+   "core_question": "헤어졌는데 다시 잘될 수 있을까?",
+   "signals": [
+    "헤어진 뒤 오히려 대화가 잘 통함",
+    "친구들 의견이 갈림",
+    "관계를 변호하고 싶지 않은 내 마음"
+   ],
+   "advice_direction": "관계를 변호하지 않는 내 마음이 이미 답. 직감 믿고 뒤돌아보지 않기"
+  },
+  {
+   "outlet": "The Cut / Ask Polly (early run at The Awl)",
+   "title": "Ask Polly: My Ex Dumped Me Callously And I Can't Get Over It!",
+   "url": "https://www.theawl.com/2014/01/ask-polly-my-ex-dumped-me-callously-and-i-cant-get-over-it/",
+   "date": "2014-01 (URL path)",
+   "lang": "en",
+   "qtypes": [
+    "timing"
+   ],
+   "situations": [
+    "이별 후 언제 괜찮아지나"
+   ],
+   "core_question": "날 찬 전 애인, 언제 잊혀?",
+   "signals": [],
+   "advice_direction": ""
+  },
+  {
+   "outlet": "Ask Polly (Substack after The Cut)",
+   "title": "“Should I Dump This Guy?”",
+   "url": "https://www.ask-polly.com/p/should-i-dump-this-guy",
+   "date": "2026-09-03",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "헤어질까",
+    "전 애인 생각에 현 연애 흔들림"
+   ],
+   "core_question": "이 남자랑 헤어질까?",
+   "signals": [
+    "다정한 현 애인보다 감정적으로 닿지 않는 옛사람 생각",
+    "다른 도시·다른 삶 공상",
+    "사귄 지 3개월"
+   ],
+   "advice_direction": "옛사람은 이상형의 상징일 뿐. 결정은 이르다, 지금 관계에 머물며 내 불편함의 뿌리를 보기"
+  },
+  {
+   "outlet": "Ask Polly (Substack after The Cut)",
+   "title": "‘This Break-Up Left Me With So Many Regrets!’",
+   "url": "https://www.ask-polly.com/p/this-break-up-left-me-with-so-many",
+   "date": "2026-09-09",
+   "lang": "en",
+   "qtypes": [
+    "timing",
+    "other_mind"
+   ],
+   "situations": [
+    "이별 후회",
+    "전 애인 근황에 매달림"
+   ],
+   "core_question": "이별 후회가 너무 커, 언제 끝나?",
+   "signals": [
+    "첫 진지한 연애, 6개월째 후회",
+    "전 애인의 혼란에 계속 신경"
+   ],
+   "advice_direction": "(티저 기반) 전 애인 사정 말고 내 다음 걸음에 집중"
+  },
+  {
+   "outlet": "The Gottman Institute",
+   "title": "A Deeper Look Into Turning Away From Your Partner",
+   "url": "https://www.gottman.com/blog/a-deeper-look-into-turning-away-from-your-partner/",
+   "date": "2012-10-10 (updated 2026-01-16)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "연인이 무심해짐·반응 없음"
+   ],
+   "core_question": "애인이 내 말에 건성으로 반응해요",
+   "signals": [
+    "딴짓하며 '응' 하고 넘김",
+    "말을 무시하거나 사소한 부분만 짚음",
+    "말 끊고 화제 돌림",
+    "이런 일이 반복·누적되는지"
+   ],
+   "advice_direction": "상대의 작은 연결 시도(bid)에 의식적으로 돌아서서 반응하는 연습"
+  },
+  {
+   "outlet": "The Gottman Institute",
+   "title": "How to Know When Breaking Up Is the Healthiest Choice",
+   "url": "https://www.gottman.com/blog/know-when-breaking-up-healthiest-choice/",
+   "date": "2018-06-19 (updated 2026-05-19)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "헤어질까 말까"
+   ],
+   "core_question": "헤어지는 게 맞는 걸까요",
+   "signals": [
+    "한쪽이 자기 잘못을 절대 인정 안 함",
+    "관계 추억이 대부분 씁쓸하게 기억됨",
+    "서로 늘 최악으로 해석함",
+    "득보다 정신·신체 손상이 큼"
+   ],
+   "advice_direction": "신호가 뚜렷하면 이별을 고려, 애매하면 커플 상담사와 먼저 점검"
+  },
+  {
+   "outlet": "The Gottman Institute",
+   "title": "12 Clear Signs You Are Ready to Date Again After a Breakup",
+   "url": "https://www.gottman.com/blog/12-clear-signs-you-are-ready-to-date-again/",
+   "date": "2025-07-19 (updated 2026-05-11)",
+   "lang": "en",
+   "qtypes": [
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "이별 후 새 연애 시작 시기"
+   ],
+   "core_question": "이제 새 연애 해도 될까요",
+   "signals": [
+    "전 애인 얘기가 덤덤함",
+    "혼자여도 괜찮음",
+    "새 사람을 전 애인과 비교 안 함",
+    "내 기준·경계를 앎"
+   ],
+   "advice_direction": "외로움 때문이 아니라 준비됐을 때 시작, 패턴 반복되면 상담 먼저"
+  },
+  {
+   "outlet": "Psychology Today",
+   "title": "5 “Mixed Signals” That Are in Fact Signals",
+   "url": "https://www.psychologytoday.com/us/blog/modern-dating/202012/5-mixed-signals-that-are-in-fact-signals",
+   "date": "2020-12-06",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸 단계 헷갈리는 신호",
+    "밀당·온도차"
+   ],
+   "core_question": "헷갈리게 하는 사람, 관심 있는 걸까",
+   "signals": [
+    "연락이 드물고 나에 대해 안 물어봄",
+    "약속 취소·흐지부지",
+    "뜨거웠다 식었다 반복",
+    "미래·관계 정의 대화 회피"
+   ],
+   "advice_direction": "애써 해독하지 말고, 쫓아가야만 하는 관계면 정리"
+  },
+  {
+   "outlet": "Psychology Today",
+   "title": "They’re Just Not That Into You",
+   "url": "https://www.psychologytoday.com/us/blog/intimately-connected/202603/theyre-just-not-that-into-you",
+   "date": "2026-03 (updated 2026-05-27)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "돌려 말한 거절인지 헷갈림"
+   ],
+   "core_question": "칭찬은 하는데 거절인 걸까",
+   "signals": [
+    "칭찬과 거절이 섞인 말",
+    "'시간이 될지 모르겠다' 같은 모호한 핑계",
+    "따뜻한 말에 비해 만나려는 행동 없음"
+   ],
+   "advice_direction": "애매한 신호는 '미정'으로 보고 직접 물어보기, 분명한 거절은 재해석하지 않기"
+  },
+  {
+   "outlet": "Psychology Today",
+   "title": "What Factors Make Couples More Likely to Get Back Together?",
+   "url": "https://www.psychologytoday.com/ie/blog/why-bad-looks-good/202102/what-factors-make-couples-more-likely-get-back-together",
+   "date": "2021-02-19",
+   "lang": "en",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "재회 가능성",
+    "헤어진 뒤 계속 연락하는 사이"
+   ],
+   "core_question": "전 애인이랑 다시 될까요",
+   "signals": [
+    "남은 감정이 사랑인지 외로움인지",
+    "이별 후 다른 사람을 만났는지",
+    "이별 이유가 건강한 관계였는지",
+    "정보·애정 등 '얻는 것' 때문에 연락하는지"
+   ],
+   "advice_direction": "이별 이유와 내 감정의 정체를 먼저 정리, 애매하면 상담"
+  },
+  {
+   "outlet": "Matthew Hussey (Get The Guy)",
+   "title": "8 Reasons Why He’s Not Texting Back",
+   "url": "https://matthewhussey.com/blog/8-reasons-why-hes-not-texting-back/",
+   "date": "2017-01-18 (modified 2021-10-14)",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "읽씹·답장 늦음"
+   ],
+   "core_question": "왜 답장을 안 할까",
+   "signals": [
+    "단답·질문 없음",
+    "항상 내가 먼저 연락",
+    "문자는 적어도 전화·약속은 잡는지",
+    "초반부터 집에서만 보자고 함"
+   ],
+   "advice_direction": "연락은 번갈아 하되 노력이 계속 적으면 놓아주기, 문자 빈도보다 행동으로 판단"
+  },
+  {
+   "outlet": "Matthew Hussey (Get The Guy)",
+   "title": "11 Signs He’s Serious About You",
+   "url": "https://matthewhussey.com/blog/11-signs-hes-serious-about-you/",
+   "date": "2022-02-20",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "진지한 마음인지 확인"
+   ],
+   "core_question": "이 사람 나한테 진심일까",
+   "signals": [
+    "사람들 앞에서 나를 칭찬",
+    "내 가족·친구 모임에 기꺼이 옴",
+    "몇 달 뒤 계획을 같이 세움",
+    "싸워도 빨리 풀려고 함"
+   ],
+   "advice_direction": "한 번의 이벤트보다 시간에 걸친 패턴으로 판단"
+  },
+  {
+   "outlet": "Matthew Hussey (Get The Guy)",
+   "title": "He’s Stopped Texting But Still Likes My Posts…WTF?!",
+   "url": "https://matthewhussey.com/blog/hes-stopped-texting-but-still-likes-my-posts-wtf/",
+   "date": "2022-04-24",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "연락 끊고 SNS만 봄(스토리 염탐)"
+   ],
+   "core_question": "연락은 없는데 스토리는 왜 볼까",
+   "signals": [
+    "좋아요·스토리 조회만 있고 메시지 없음",
+    "안부·만나자는 제안 없음",
+    "번호가 있는데도 연락 안 함"
+   ],
+   "advice_direction": "SNS 반응을 관심 증거로 보지 말고, 상대 노력만큼만 반응"
+  },
+  {
+   "outlet": "Mark Manson",
+   "title": "When to Break Up With Someone and When to Stick It Out",
+   "url": "https://markmanson.net/when-to-break-up-with-someone",
+   "date": "2017-09-21 (modified 2023-02-08)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "헤어질까 말까",
+    "권태기·잦은 싸움"
+   ],
+   "core_question": "고비일까, 헤어질 때일까",
+   "signals": [
+    "취향 차이인지 가치관(결혼·아이·돈) 차이인지",
+    "싸움 밑의 진짜 문제를 말할 수 있는지",
+    "차분히 말하면 상대가 노력하는지",
+    "경계를 계속 넘는지"
+   ],
+   "advice_direction": "진짜 문제를 차분히 말해보고, 가치관 불일치거나 반복되면 떠나기"
+  },
+  {
+   "outlet": "Mark Manson",
+   "title": "6 Signs You're in a Toxic Relationship",
+   "url": "https://markmanson.net/toxic-relationship-signs",
+   "date": "2020-06-08 (modified 2024-10-14)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "이 관계 괜찮은 건지(독성 관계)"
+   ],
+   "core_question": "우리 관계 정상인 걸까",
+   "signals": [
+    "사랑한다는 이유로 무시·거짓말을 참음",
+    "지난 잘못을 계속 꺼냄",
+    "불만을 돌려 말하거나 삐짐",
+    "작은 불만에 '헤어져' 식 최후통첩"
+   ],
+   "advice_direction": "문제를 하나씩 직접 말하고, 둘 다 바뀔 의지가 없으면 끝내도 됨"
+  },
+  {
+   "outlet": "mindbodygreen",
+   "title": "5 Ways To Know Whether You Should Get Back Together With Your Ex",
+   "url": "https://www.mindbodygreen.com/articles/how-to-decide-whether-to-get-back-together-with-your-ex",
+   "date": "2019-10-09 (modified 2021-06-25)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "재회해도 될까"
+   ],
+   "core_question": "전 애인이랑 다시 만나도 될까",
+   "signals": [
+    "주변 사람들의 솔직한 의견",
+    "외로워서인지 원해서인지",
+    "상대가 행동으로 존중을 보였는지",
+    "함께일 때 삶이 더 나았는지"
+   ],
+   "advice_direction": "믿는 사람 3명과 얘기·장단점 목록 작성 후 결정, 재회하면 경계 세우기"
+  },
+  {
+   "outlet": "mindbodygreen",
+   "title": "Is Your Ex Pretending To Be Over You? 12 Signs + What To Do",
+   "url": "https://www.mindbodygreen.com/articles/signs-your-ex-is-pretending-to-be-over-you",
+   "date": "2021-06-27",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "전 애인 미련·재회 신호"
+   ],
+   "core_question": "전 애인 아직 나 못 잊었을까",
+   "signals": [
+    "괜찮다면서 행동은 다름",
+    "계속 연락하거나 부탁함",
+    "옛 추억을 꺼내거나 플러팅",
+    "나 보라는 듯한 SNS 게시물"
+   ],
+   "advice_direction": "신호를 과하게 해석하지 말고, 원하는 것(재회·정리)을 솔직히 대화"
+  },
+  {
+   "outlet": "mindbodygreen",
+   "title": "7 Signs Of Breadcrumbing & What To Do, From Dating Experts",
+   "url": "https://www.mindbodygreen.com/articles/breadcrumbing",
+   "date": "2023-10-25",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "어장관리·브레드크러밍"
+   ],
+   "core_question": "나 어장관리 당하는 걸까",
+   "signals": [
+    "약속 잡자 해놓고 흐지부지",
+    "좋아요·밈 정도의 저노력 연락",
+    "온도차 큰 태도",
+    "관계 얘기 꺼내면 바쁘다고 회피"
+   ],
+   "advice_direction": "부스러기 반응에 답하지 말고 원하는 걸 묻기, 다르면 정리"
+  },
+  {
+   "outlet": "mindbodygreen",
+   "title": "Should I Text My Ex? 7 Do's & Don'ts Of Reaching Out To An Ex",
+   "url": "https://www.mindbodygreen.com/articles/dos-donts-of-reaching-out-to-an-ex",
+   "date": "2015-12-07 (updated 2022-11-23)",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "전 애인에게 연락할까"
+   ],
+   "core_question": "전 애인한테 연락해도 될까",
+   "signals": [
+    "연락 목적이 분명한지",
+    "외로움·미련 때문인지",
+    "이별이 험악했는지",
+    "답이 없거나 새 연애 중인지"
+   ],
+   "advice_direction": "목적을 정하고 보내지 않는 편지부터, 답 없으면 멈추기"
+  },
+  {
+   "outlet": "Slate (Dear Prudence)",
+   "title": "Charity Lawson as Dear Prudence: My boyfriend says he has a \"plan\" for marriage. It's been years.",
+   "url": "https://slate.com/human-interest/2023/08/plan-marriage-boyfriend-charity-lawson-dear-prudence.html",
+   "date": "2023-08-18",
+   "lang": "en",
+   "qtypes": [
+    "timing",
+    "other_mind"
+   ],
+   "situations": [
+    "결혼 언제 하나·프러포즈 기다림"
+   ],
+   "core_question": "결혼한다더니 언제 하는 걸까",
+   "signals": [
+    "'곧 할 거야' 말만 반복",
+    "수년째 행동 없음",
+    "초반엔 적극적이었음"
+   ],
+   "advice_direction": "재촉보다 시기·재정·관계 상태를 열린 질문으로 묻고, 분명한 '아니'는 답으로 받아들이기"
+  },
+  {
+   "outlet": "Slate (Dear Prudence)",
+   "title": "Help! I’ve Been Waiting for My Boyfriend to Propose. What He Did Instead Is Beyond Frustrating.",
+   "url": "https://slate.com/advice/2026/03/boyfriend-advice-work-on-himself.html",
+   "date": "2026-03-30",
+   "lang": "en",
+   "qtypes": [
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "결혼 언제 하나·프러포즈 기다림",
+    "이 사람과 결혼해도 될까"
+   ],
+   "core_question": "이 사람 기다려도 될까",
+   "signals": [
+    "결혼하자면서 진전 없음",
+    "구체적 계획 없이 시간만 보냄",
+    "친구들은 하나둘 결혼"
+   ],
+   "advice_direction": "원하는 걸 분명히 말하고, 상대가 현상 유지에 만족하면 끝낼 각오도"
+  },
+  {
+   "outlet": "Boston.com (Love Letters)",
+   "title": "He changed his mind again",
+   "url": "https://www.boston.com/love-letters/dating/he_changed_his_mind_again/",
+   "date": "2012-06-06",
+   "lang": "en",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "재회했다가 또 흔들림",
+    "기다릴까 말까"
+   ],
+   "core_question": "마음 바꾼 전 애인 기다릴까",
+   "signals": [
+    "헤어졌다 돌아왔다 반복",
+    "내가 새 사람 만나자 돌아옴",
+    "'아직 준비 안 됐다'는 말"
+   ],
+   "advice_direction": "지금 확신을 주지 않으면 기다리지 말고 나에게 집중·다른 사람 만나기"
+  },
+  {
+   "outlet": "Boston.com (Love Letters)",
+   "title": "How Do You Get Over A First Love?",
+   "url": "https://www.boston.com/love-letters/break-ups/he-was-my-first-love/",
+   "date": "2018-03-22",
+   "lang": "en",
+   "qtypes": [
+    "yesno",
+    "timing"
+   ],
+   "situations": [
+    "내가 찬 뒤 후회·재회 고민",
+    "언제쯤 괜찮아질까"
+   ],
+   "core_question": "내가 찼는데 후회돼요",
+   "signals": [
+    "상대가 아직 아끼지만 다시 빠지긴 싫다고 함",
+    "만나서 플러팅 후 선 긋기"
+   ],
+   "advice_direction": "그리움을 받아들이고 거리를 두면 옅어진다고 봄, 더 좋은 인연이 온다"
+  },
+  {
+   "outlet": "The Modest Man (male perspective)",
+   "title": "16 Signs She’s Losing Interest (Men Often Miss These)",
+   "url": "https://www.themodestman.com/16-signs-shes-slowly-losing-interest-most-men-dont-see-these/",
+   "date": "2026-02-10",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "여자친구 마음이 식었나"
+   ],
+   "core_question": "여친이 나한테 식은 걸까",
+   "signals": [
+    "대화 중 폰 보고 단답",
+    "스킨십 줄어듦",
+    "약속 취소·미래 계획 회피",
+    "하루 얘기를 안 함"
+   ],
+   "advice_direction": "한 번이 아니라 지속되는 패턴인지 보고, 이어지면 차분히 대화"
+  },
+  {
+   "outlet": "The Modest Man (male perspective)",
+   "title": "17 Signs She’s Losing Interest — And You’re Missing Them",
+   "url": "https://www.themodestman.com/signs-she-is-losing-interest/",
+   "date": "2026-02-24",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "썸녀·여친 관심 식음",
+    "내가 늘 먼저 연락"
+   ],
+   "core_question": "그녀가 관심이 없어진 걸까",
+   "signals": [
+    "되묻지 않는 짧은 답장",
+    "먼저 연락 안 함",
+    "약속에 '아직 몰라'·자꾸 미룸",
+    "속얘기·미래 얘기 줄어듦"
+   ],
+   "advice_direction": "더 쫓지 말고 노력 수준을 맞추며 여지 주기, 계속 없으면 그게 답"
+  },
+  {
+   "outlet": "The Good Men Project (male perspective)",
+   "title": "4 Things She’ll Do When She’s Losing Interest",
+   "url": "https://goodmenproject.com/featured-content/4-things-shell-do-when-shes-losing-interest/",
+   "date": "2025-09-30",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "여자친구 마음이 식었나"
+   ],
+   "core_question": "여친 마음이 떠난 걸까",
+   "signals": [
+    "같이 보내는 시간 줄어듦",
+    "대화가 얕아짐",
+    "스킨십 감소",
+    "미래 계획에서 나를 뺌"
+   ],
+   "advice_direction": "솔직하게 직접 물어보고, 반응을 보고 계속할지 결정"
+  },
+  {
+   "outlet": "The Good Men Project (male perspective)",
+   "title": "Should I Text Him First? 3 Times You Should And 3 You Shouldn't",
+   "url": "https://goodmenproject.com/featured-content/should-i-text-him-first-3-times-you-should-and-3-you-shouldnt/",
+   "date": "2022-01-17",
+   "lang": "en",
+   "qtypes": [
+    "yesno"
+   ],
+   "situations": [
+    "먼저 연락할까"
+   ],
+   "core_question": "내가 먼저 연락해도 될까",
+   "signals": [
+    "이미 답 없는 문자가 1~2개 이상인지",
+    "보낼 구체적 용건이 있는지",
+    "다음 약속을 누가 잡기로 했는지"
+   ],
+   "advice_direction": "구체적 용건이 있으면 부담 없는 한 통, 답 없으면 더 보내지 않기"
+  },
+  {
+   "outlet": "Psych Central (Verywell Mind 대체)",
+   "title": "Ghosting, Catfishing, Benchwarming and Breadcrumming: Terminology of the Dating World",
+   "url": "https://psychcentral.com/blog/savvy-shrink/2020/01/ghosting-catfishing-benchwarming-and-breadcrumming-terminology-of-the-dating-world",
+   "date": "2020-01-24",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "잠수·고스팅",
+    "어장관리·브레드크러밍",
+    "후보 취급(벤치워밍)"
+   ],
+   "core_question": "이거 잠수 이별인가요",
+   "signals": [
+    "갑자기 모든 연락 끊김",
+    "가끔 최소한의 연락으로 붙잡아 둠",
+    "우선순위가 아닌 예비 후보 취급"
+   ],
+   "advice_direction": "용어로 상황을 알아차리고, 학대적 관계면 연락 차단(no contact)"
+  },
+  {
+   "outlet": "Psych Central (Verywell Mind 대체)",
+   "title": "10 Signs of a Cheating Spouse",
+   "url": "https://psychcentral.com/relationships/signs-of-cheating-wife",
+   "date": "2024-06-27",
+   "lang": "en",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "바람 의심"
+   ],
+   "core_question": "애인이 바람피우는 걸까",
+   "signals": [
+    "일정 변화·외출 증가·외모 신경",
+    "어디 있었는지 물으면 방어적",
+    "스킨십 급변",
+    "폰 숨기기·연락 두절"
+   ],
+   "advice_direction": "다른 원인도 있을 수 있으니 솔직히 묻고, 지속되면 상담"
+  },
+  {
+   "outlet": "WeddingWire (Brides 대체)",
+   "title": "Your Zodiac Sign's Compatibility for Marriage",
+   "url": "https://weddingwire.com/wedding-ideas/zodiac-sign-compatibility",
+   "date": "2019-04-01",
+   "lang": "en",
+   "qtypes": [
+    "fortune"
+   ],
+   "situations": [
+    "별자리 궁합·결혼 궁합"
+   ],
+   "core_question": "우리 별자리 결혼 궁합은",
+   "signals": [
+    "생일로 정한 별자리",
+    "별자리별 최고·최악 궁합",
+    "반대 별자리도 꼭 나쁘진 않음"
+   ],
+   "advice_direction": "궁합을 참고로 서로 다른 점을 이해하기"
+  },
+  {
+   "outlet": "[TAROT] Angelorum",
+   "title": "10 Summum Bonum Tarot Questions for the Highest Good",
+   "url": "https://angelorum.co/topics/divination/the-10-most-commonly-asked-questions-of-tarot-readers/",
+   "date": "2026-07-28",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "타로 리더가 가장 많이 받는 질문"
+   ],
+   "core_question": "이 사람이 내 운명일까",
+   "signals": [
+    "흔한 질문 10개 중 5개가 연애: 그 사람 돌아올까, 연애운 어떨까, 새 사람이 소울메이트일까, 언제 사람을 만날까, 언제 결혼할까"
+   ],
+   "advice_direction": "결과 예언형보다 최선의 길을 묻는 질문으로 바꾸라고 권함"
+  },
+  {
+   "outlet": "[TAROT] Angelorum",
+   "title": "Best Questions to Ask the Tarot About Love & Relationships",
+   "url": "https://angelorum.co/angelic-tarot-2/love-tarot-questions/",
+   "date": "2026-04-16",
+   "lang": "en",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "재회 질문(돌아올까)",
+    "이 인연의 의미",
+    "관계의 현재 흐름"
+   ],
+   "core_question": "그 사람 다시 돌아올까",
+   "signals": [
+    "'돌아올까' 대신 지금 관계 흐름·내 역할을 물으라고 권함",
+    "관계가 서로 주고받는지",
+    "다가갈지 물러설지"
+   ],
+   "advice_direction": "꼬리표·결과 대신 '지금 무엇이 보이는지, 다음 한 걸음' 질문으로 전환"
+  },
+  {
+   "outlet": "[TAROT] Angelorum",
+   "title": "11 Love Tarot Reading Blunders You Will Want to Avoid",
+   "url": "https://angelorum.co/topics/divination/top-5-worst-and-best-questions-to-ask-of-the-tarot",
+   "date": "",
+   "lang": "en",
+   "qtypes": [
+    "fortune",
+    "timing"
+   ],
+   "situations": [
+    "연애운 전반",
+    "언제 인연 오나"
+   ],
+   "core_question": "나 연애 언젠가 할 수 있을까",
+   "signals": [
+    "나쁜 질문 예: 내 연애운은?, 언젠가 사랑 찾을까?, 소울메이트 언제 만나?"
+   ],
+   "advice_direction": "막연한 운세 질문 대신 기한을 정하거나 '무엇이 막고 있나'를 묻기"
+  },
+  {
+   "outlet": "[TAROT] The Tarot Lady (Theresa Reed)",
+   "title": "How To Ask The Tarot Effective Questions For Your Biggest Love Dilemmas",
+   "url": "https://thetarotlady.com/how-to-ask-the-tarot-effective-questions-for-your-biggest-love-dilemmas",
+   "date": "2013-02-25",
+   "lang": "en",
+   "qtypes": [
+    "other_mind",
+    "timing",
+    "yesno"
+   ],
+   "situations": [
+    "상대 속마음",
+    "결혼으로 이어질까",
+    "관계가 버틸까",
+    "언제 헤어지고 나한테 올까(삼각관계)",
+    "왜 나만 솔로일까"
+   ],
+   "core_question": "그 사람 나 어떻게 생각해",
+   "signals": [
+    "흔한 질문: 언젠가 사랑 찾을까, 그 사람 지금 애인과 언제 헤어질까, 나를 어떻게 느낄까, 결혼까지 갈까, 우리 관계 버틸까, 정착할까, 왜 아직 솔로일까"
+   ],
+   "advice_direction": "보장형 질문을 '내가 무엇을 할 수 있나'로 바꾸고 같은 질문 반복하지 않기"
+  },
+  {
+   "outlet": "[TAROT] 타로카드럭키박스 김소라 (maily 올컬처)",
+   "title": "연애점이 맞을까? _타로카드럭키박스 _김소라",
+   "url": "https://maily.so/allculture/posts/1gz26jgxo3q",
+   "date": "2023-06-29",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind",
+    "yesno"
+   ],
+   "situations": [
+    "썸인데 고백 안 함",
+    "먼저 연락할까",
+    "헤어진 연인 속마음",
+    "연락 끊김 이유",
+    "자꾸 싸우는 이유",
+    "누가 더 좋아하나"
+   ],
+   "core_question": "왜 고백을 안 하는 걸까요",
+   "signals": [
+    "실제 상담 질문: 왜 고백 안 하나, 먼저 연락해도 되나, 헤어진 연인 속마음, 연락 안 하는 이유, 만날 때마다 싸우는 이유, 누가 더 좋아하나"
+   ],
+   "advice_direction": "타로 연애점의 실제 질문 유형 예시"
+  },
+  {
+   "outlet": "[TAROT] 브런치 @tarobubbletea",
+   "title": "타로 상담, 왜 답이 다를까?",
+   "url": "https://brunch.co.kr/@tarobubbletea/56",
+   "date": "2025-08-10",
+   "lang": "ko",
+   "qtypes": [
+    "other_mind"
+   ],
+   "situations": [
+    "상대를 알 수 없음",
+    "원하는 관계 정리"
+   ],
+   "core_question": "이 사람이랑 어떤 사이가 될까",
+   "signals": [
+    "상담 전 스스로 물을 질문: 어떤 관계를 원하나, 상대가 바라는 대로 안 해도 괜찮나, 상대를 왜 모르겠나"
+   ],
+   "advice_direction": "질문을 명확히 해야 타로 답이 흔들리지 않는다"
+  },
+  {
+   "outlet": "[TAROT] K-Calculator 재회 타로",
+   "title": "재회 & 지나간 인연 타로 - 무료 타로점",
+   "url": "https://k-calc.com/play/tarot/reunion",
+   "date": "",
+   "lang": "ko",
+   "qtypes": [
+    "yesno",
+    "other_mind"
+   ],
+   "situations": [
+    "재회 가능성",
+    "남은 감정"
+   ],
+   "core_question": "그 사람과 재회할 수 있을까요",
+   "signals": [
+    "3장 스프레드: 남은 감정, 현재 거리, 다시 이어질 가능성"
+   ],
+   "advice_direction": "재회 타로의 대표 질문 구조"
+  }
+ ]
+}

@@ -4,21 +4,17 @@ import data from "@/data/tarot_data.json";
 import { createShuffle, pickSlot } from "@/lib/tarot/deck.js";
 import { mergeSafety } from "@/lib/tarot/safety.js";
 import { screenWorry } from "@/lib/tarot-glue/screenWorry";
-import {
-  buildFreeSections,
-  buildLockedPreview,
-  buildSafetyNotice,
-  buildLinkUserBlock,
-  parseLinks,
-} from "@/lib/tarot/assembleReport.js";
+import { buildSafetyNotice } from "@/lib/tarot/assembleReport.js";
+import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
-import type { Links } from "@/lib/tarot/types";
+import { decide, buildCUserBlock, buildUnpaidPages, sanitizeUnpaid } from "@/lib/tarot-glue/v4";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
-import { CLASSIFY_SYSTEM, LINKS_SYSTEM, classifyUserMessage } from "./prompts";
+import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, worryUserMessage } from "./prompts";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
-// 원칙: 카드 순서는 응답에 넣지 않는다 / 결제 전 유료 본문(4~8번)은 응답에 넣지 않는다 /
+// v4.0(2026-10-20): 결과 11쪽. 고민 제출 → A 분류 + A2 고민 틀 / 3장째 → 방향 계산(코드) + C / 결제 후 → D·E(결제 연동 때).
+// 원칙: 카드 순서는 응답에 넣지 않는다 / 결제 전 유료 본문(5쪽 결론부터, 6~11쪽)은 응답에 넣지 않는다 /
 //      고민 원문은 로그에 남기지 않는다 / 실패하면 더 조심스러운 쪽으로.
 
 type Pick = { id: string; reversed: boolean; position: string };
@@ -34,11 +30,16 @@ type SessionRow = {
   classification: Classification | null;
   safety_level: "none" | "watch" | "urgent";
   violence: boolean;
+  // v4 관계 속 두려움(S4-5) — 안내 박스만. 마이그레이션 20261020000000 전에는 없을 수 있음.
+  fear?: boolean;
+  // v4 A2 고민 틀(사용자 원문 구절 포함 — 원문과 같은 수준으로 다룸)
+  frame?: unknown;
   current_shuffle_id: string | null;
   reshuffle_count: number;
   picked_slots: number[];
   picks: Pick[];
-  links: Links | null;
+  // v4: C 출력(parseC 결과에서 errors를 뺀 것 — links·teaser·reasons)
+  links: Record<string, unknown> | null;
   result_status: string;
   created_at: string;
   updated_at: string;
@@ -72,10 +73,16 @@ export async function loadSession(id: string, auth: { key: string | null; userId
 }
 
 async function update(id: string, patch: Partial<SessionRow>) {
-  const { error } = await db()
-    .from("tarot_sessions")
-    .update({ ...patch, updated_at: new Date().toISOString() })
-    .eq("id", id);
+  const write = (p: Partial<SessionRow>) => db().from("tarot_sessions").update({ ...p, updated_at: new Date().toISOString() }).eq("id", id);
+  let { error } = await write(patch);
+  // v4 칸(frame·fear) 마이그레이션 전이면 그 칸만 빼고 다시 쓴다 — 결과가 멈추지 않게(이때는 비결정형 경로로 동작).
+  if (error && /frame|fear/.test(error.message) && ("frame" in patch || "fear" in patch)) {
+    console.warn("tarot_sessions v4 칸 없음(마이그레이션 20261020000000 실행 필요) — 그 칸 없이 저장");
+    const rest: Partial<SessionRow> = { ...patch };
+    delete rest.frame;
+    delete rest.fear;
+    ({ error } = await write(rest));
+  }
   if (error) {
     console.error("tarot_sessions 갱신 실패:", error.message);
     throw new TarotError(500, "잠시 후 다시 시도해 주세요.");
@@ -124,6 +131,8 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
       classification: null,
       safety_level: "none",
       violence: false,
+      fear: false,
+      frame: null,
       result_status: "drawing",
     });
     return { urgent: false, needsClassification: false };
@@ -138,6 +147,8 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
     worry_skipped: false,
     safety_level: local.level,
     violence: local.violence,
+    fear: local.fear,
+    frame: null,
     // urgent면 카드 진행 자체가 없으므로 분류도 하지 않는다.
     classification_status: urgent || !aiConfigured() ? "failed" : "pending",
     classification: null,
@@ -146,26 +157,43 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
   return { urgent, needsClassification: !urgent && aiConfigured() };
 }
 
-// 백그라운드: 고민 분류(A). 실패 → 1회 재시도 → 그래도 실패면 'failed'(결과는 미작성 모드처럼 조립).
+// 백그라운드: 고민 분류(A)와 고민 틀(A2)을 함께. 각각 실패 → 1회 재시도 → 그래도 실패면
+//   A 실패: 분류 없이(미작성 모드처럼) 해석 / A2 실패: 비결정형 경로(방향 계산 안 함) — README_v4 대체 경로.
+async function tryTwice<T>(label: string, fn: () => Promise<T | null>): Promise<T | null> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const r = await fn();
+      if (r) return r;
+    } catch (e) {
+      console.warn(`${label} 호출 실패:`, e instanceof Error ? e.message : "unknown");
+    }
+  }
+  return null;
+}
+
 export async function runClassification(sessionId: string) {
   const { data: row } = await db().from("tarot_sessions").select("worry_text").eq("id", sessionId).maybeSingle();
   const worry = row?.worry_text as string | null;
   if (!worry) return;
-  let cls: Classification | null = null;
-  for (let attempt = 0; attempt < 2 && !cls; attempt++) {
-    try {
-      cls = parseClassification(await generateText(CLASSIFY_SYSTEM, classifyUserMessage(worry), { timeoutMs: 15000, maxOutputTokens: 600 }), data);
-    } catch (e) {
-      console.warn("고민 분류 호출 실패:", e instanceof Error ? e.message : "unknown");
-    }
-  }
-  // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety). 분류에 실패해도 키워드 결과는 유지.
+  const msg = worryUserMessage(worry);
+  const [cls, frame] = await Promise.all([
+    tryTwice("고민 분류(A)", async () => parseClassification(await generateText(CLASSIFY_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800 }), data)),
+    tryTwice("고민 틀(A2)", async () => {
+      const r = parseFrame(await generateText(FRAME_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800 }));
+      // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
+      if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
+      return r.frame;
+    }),
+  ]);
+  // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety, v4: watch 없음). 분류에 실패해도 키워드 결과는 유지.
   const merged = mergeSafety(screenWorry(worry), cls);
   const patch: Partial<SessionRow> = {
     classification: cls,
     classification_status: cls ? "done" : "failed",
     safety_level: merged.level,
     violence: merged.violence,
+    fear: merged.fear,
+    frame,
   };
   if (merged.level === "urgent") patch.result_status = "safety";
   await update(sessionId, patch);
@@ -239,19 +267,34 @@ export async function prepareResult(sessionId: string) {
     await new Promise((r) => setTimeout(r, 800));
   }
   if (!s || s.result_status === "safety" || s.safety_level === "urgent") return;
-  let links: Links | null = null;
+  // v4: 결정형이면 카드 점수로 방향을 먼저 정하고(코드), C가 그 방향에 맞춰 한 줄·질문·teaser·이유를 쓴다.
+  let links: Record<string, unknown> | null = null;
   const cls = classificationForReport(s.classification);
-  if (s.worry_text && cls && aiConfigured()) {
-    const userBlock = buildLinkUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks: expandPicks(s.picks), data });
-    const deadline = started + 12000 + 12000;
-    for (let attempt = 0; attempt < 2 && !links && userBlock; attempt++) {
+  if (s.worry_text && aiConfigured()) {
+    const picks = expandPicks(s.picks);
+    const { decision, lean } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname });
+    const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean });
+    const deadline = started + 12000 + 15000;
+    let best: ReturnType<typeof parseC> | null = null;
+    for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
       if (left < 2000) break;
       try {
-        links = parseLinks(await generateText(LINKS_SYSTEM, userBlock, { timeoutMs: Math.min(12000, left), maxOutputTokens: 1200 }), { violence: s.violence });
+        const r = parseC(await generateText(C_SYSTEM, userBlock, { timeoutMs: Math.min(15000, left), maxOutputTokens: 2000 }), {
+          decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence,
+        });
+        // 걸린 칸만 비고 나머지는 쓴다(README_v4). 한 줄(links)까지 통과했으면 재시도하지 않음.
+        if (!best || (r.links && !best.links)) best = r;
+        if (r.errors.length) console.warn("C 검증 탈락 칸:", r.errors.length, "건");
+        if (r.links) break;
       } catch (e) {
-        console.warn("연결 한 줄 호출 실패:", e instanceof Error ? e.message : "unknown");
+        console.warn("C 호출 실패:", e instanceof Error ? e.message : "unknown");
       }
+    }
+    if (best) {
+      const { errors: _errors, ...rest } = best;
+      void _errors;
+      links = rest;
     }
   }
   await update(sessionId, { links, result_status: "ready" });
@@ -283,20 +326,20 @@ export async function getResult(s: SessionRow) {
   }
   const picks = expandPicks(s.picks);
   const cls = classificationForReport(s.classification);
-  const safety = { level: s.safety_level, violence: s.violence };
-  // links.step(세 번째 카드)은 결제 전이라 넘기지 않는다 — buildFreeSections는 now·hold만 쓰지만 확실히 하려고 잘라 낸다.
-  const freeLinks = s.links ? { now: s.links.now, hold: s.links.hold } : null;
-  const free = buildFreeSections({ name: s.nickname, cls, picks, data, links: freeLinks });
+  const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
+  const frame = s.frame ?? null;
+  // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
+  const { lean } = decide({ frame, cls, picks, name: s.nickname });
+  const pages = buildUnpaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links });
   return {
     status: "ready" as const,
     nickname: s.nickname,
     createdAt: s.created_at,
     cards: picks.map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
-    free: [free.section1, free.section2, free.section3],
+    pages: sanitizeUnpaid(pages),
+    // v4: 안내 박스는 폭력(구체 행동)·관계 속 두려움일 때만(주의 단계 삭제). 결제와 상관없이 보임.
     notice: buildSafetyNotice({ data, safety }),
-    // watch 안내 박스는 "기댈 수 있는 곳도 함께 적어 둘게요"라고 말하므로 연락처를 같이 보여 준다.
-    noticeContacts: s.safety_level === "watch" ? data.copy.safety.urgent_contacts : null,
-    locked: buildLockedPreview(data, picks),
+    paid: false,
     saved: Boolean(s.user_id),
   };
 }

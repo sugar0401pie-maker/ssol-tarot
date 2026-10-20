@@ -1,0 +1,1 @@
+{"domain":"LOV","emotions":["ANX","SHA"],"need":"CONNECT","duration":"recent","locus":"other","urgency":"none","qtype":"worry","qsub":"OM-REPLY","self_focus":false,"crisis_level":"none","violence":false,"off_topic":false,"confidence":0.85}

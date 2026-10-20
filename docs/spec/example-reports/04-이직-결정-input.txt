@@ -1,0 +1,75 @@
+# 고민 원문
+다음 달 말까지 이직 제안에 답을 줘야 해요. 지금 회사가 싫은 건지 이 일 자체가 싫은 건지 모르겠어요. 사실 3년째 같은 고민만 하고 있어요.
+
+# AI 분류 결과
+{"domain":"CAR","emotions":["CON","ANX"],"need":"CHOOSE","duration":"chronic","locus":"self","urgency":"deadline","qtype":"worry","qsub":null,"self_focus":false,"crisis_level":"none","violence":false,"off_topic":false,"confidence":0.85}
+
+# 안전 확인
+{"level":"none","violence":false,"fear":false,"matched":[]}
+
+# 뽑은 카드(순서 = 자리)
+지나온 길: 고요한 균형 (역방향) → 지금의 흐름: 고요히 바라보기 → 앞으로의 열쇠: 물과 뭍 사이
+
+# A2 고민 틀(검증 통과)
+{
+ "worry_type": "decision",
+ "options": [
+  "이직 제안 수락 (암시)",
+  "현재 회사에 남기 (암시)"
+ ],
+ "option_axis": {
+  "move": "이직 제안 수락 (암시)",
+  "stay": "현재 회사에 남기 (암시)"
+ },
+ "core_question": "이직 제안을 수락해야 할까요?",
+ "hidden_question": "지금 회사가 싫은 건지 이 일 자체가 싫은 건지 알 수 있을까요?",
+ "deadline": "다음 달 말까지",
+ "duration": "3년째",
+ "money": false,
+ "table": "job",
+ "user_words": [
+  "다음 달 말까지 이직 제안에 답을 줘야 해요",
+  "지금 회사가 싫은 건지 이 일 자체가 싫은 건지 모르겠어요",
+  "3년째 같은 고민만 하고 있어요"
+ ]
+}
+
+# 방향 계산(decision.lean, 점수표 job)
+{
+ "table": "job",
+ "side": "stay",
+ "strength": "strong",
+ "score": -4,
+ "with_condition": true,
+ "option": "현재 회사에 남기",
+ "other": "이직 제안 수락",
+ "cards": [
+  {
+   "position": "지나온 길",
+   "score": -1,
+   "weight": 1,
+   "meaning": "결론을 서두르거나 자신을 몰아세워 판단이 치우친 상태"
+  },
+  {
+   "position": "지금의 흐름",
+   "score": -1,
+   "weight": 1,
+   "meaning": "속마음이 정리될 때까지 조용히 지켜보며 머무는 카드"
+  },
+  {
+   "position": "앞으로의 열쇠",
+   "score": -1,
+   "weight": 2,
+   "meaning": "일과 삶의 균형을 맞추며 지금 자리를 조율하는 카드"
+  }
+ ]
+}
+
+# C 검증
+통과 (teaser·reasons 사용)
+
+# E 검증
+통과
+
+# 말투를 못 바꾼 문장 끝(확인용)
+["더 자연스럽게 읽혀요.","더 자연스럽게 읽혀요.","개월) 안에 드러나요."]

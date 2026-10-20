@@ -1,0 +1,520 @@
+{
+ "map": {
+  "ROOT-01": {
+   "need": "START",
+   "alt_need": "LETGO",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "실패가 두려워 시도를 줄임 → 시작할 용기"
+  },
+  "ROOT-02": {
+   "need": "START",
+   "alt_need": "LETGO",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "완벽해야 시작함 → 시작이 막힘(기준을 내려놓는 쪽이면 LETGO)"
+  },
+  "ROOT-04": {
+   "need": "REST",
+   "alt_need": null,
+   "domain_hint": "CAR",
+   "locus_hint": null,
+   "why": "일·할 일에 소진 → 쉼"
+  },
+  "ROOT-05": {
+   "need": "CHOOSE",
+   "alt_need": "START",
+   "domain_hint": null,
+   "locus_hint": "circumstance",
+   "why": "바라지만 여건이 안 됨 → 여건 안에서 고르기"
+  },
+  "ROOT-06": {
+   "need": "REST",
+   "alt_need": "START",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "즐거움 감소·무기력 → 먼저 채우기(심하면 안전 주의)"
+  },
+  "ROOT-07": {
+   "need": "START",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "일상 정체감 → 새로 해 보기"
+  },
+  "ROOT-08": {
+   "need": "REST",
+   "alt_need": "BOUNDARY",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "쉼에도 '해야 한다' → 진짜 쉼"
+  },
+  "ROOT-09": {
+   "need": "LETGO",
+   "alt_need": "REST",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "생각·감정을 화면으로 덮음 → 느끼고 흘려보내기"
+  },
+  "ROOT-10": {
+   "need": "REST",
+   "alt_need": "BOUNDARY",
+   "domain_hint": "SOC",
+   "locus_hint": null,
+   "why": "사람에게 지쳐 거리 둠 → 쉼(선 긋기 쪽이면 BOUNDARY)"
+  },
+  "ROOT-14": {
+   "need": "CONNECT",
+   "alt_need": null,
+   "domain_hint": "SOC",
+   "locus_hint": null,
+   "why": "함께할 사람 부족 → 연결"
+  },
+  "ROOT-16": {
+   "need": "BOUNDARY",
+   "alt_need": "CHOOSE",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "남에게 맞추다 내 선호가 흐려짐 → 내 자리 지키기"
+  },
+  "ROOT-17": {
+   "need": "LETGO",
+   "alt_need": "CHOOSE",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "남과 견주어 뒤처진 느낌 → 비교 내려놓기"
+  },
+  "ROOT-27": {
+   "need": "CHOOSE",
+   "alt_need": "START",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "전환기 자리·방향 다시 찾기 → 정리와 선택"
+  },
+  "ROOT-28": {
+   "need": "START",
+   "alt_need": "BOUNDARY",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "역할 밖의 나·자기 표현 → 해 보기"
+  },
+  "ROOT-29": {
+   "need": "BOUNDARY",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "자유·통제감 욕구 → 내 영역 지키기"
+  },
+  "ROOT-32": {
+   "need": "LETGO",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "지난 일이 맴도는 반추 → 놓아주기"
+  },
+  "ROOT-36": {
+   "need": "START",
+   "alt_need": null,
+   "domain_hint": "DIR",
+   "locus_hint": null,
+   "why": "목표 위해 실력 쌓기 → 시작·지속"
+  },
+  "ROOT-38": {
+   "need": "CHOOSE",
+   "alt_need": "LETGO",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "앞날 걱정이 맴돎 → 할 수 있는 것 고르기"
+  },
+  "ROOT-39": {
+   "need": "CHOOSE",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "중요한 것들 사이 균형 → 선택"
+  },
+  "ROOT-41": {
+   "need": "CONNECT",
+   "alt_need": "LETGO",
+   "domain_hint": "LOV",
+   "locus_hint": "other",
+   "why": "관계를 잃을까 붙잡음 → 연결(이미 끝난 관계면 LETGO)"
+  },
+  "ROOT-46": {
+   "need": "CHOOSE",
+   "alt_need": "START",
+   "domain_hint": "DIR",
+   "locus_hint": null,
+   "why": "무엇을 위해 사는지 흐려짐 → 방향 정하기"
+  },
+  "ROOT-47": {
+   "need": "LETGO",
+   "alt_need": null,
+   "domain_hint": "DIR",
+   "locus_hint": null,
+   "why": "결과로 나를 깎아내림 → 자책 놓아주기"
+  },
+  "ROOT-48": {
+   "need": "START",
+   "alt_need": "BOUNDARY",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "남 눈에 보일 내 모습 의식 → 해 보는 용기"
+  },
+  "ROOT-49": {
+   "need": "BOUNDARY",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "폐·실망 끼칠까 조심, 상대 결과까지 내 책임 → 내 몫과 남의 몫 나누기"
+  },
+  "ROOT-50": {
+   "need": "LETGO",
+   "alt_need": "START",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "지난 실패가 '이번에도 안 될 것'이 됨 → 지난 일 놓아주기"
+  },
+  "ROOT-51": {
+   "need": "START",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "시작 문턱이 높음 → 시작할 용기"
+  },
+  "ROOT-52": {
+   "need": "START",
+   "alt_need": "REST",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "짧은 자극에 주의가 흩어짐 → 한 가지 시작"
+  },
+  "ROOT-53": {
+   "need": "CONNECT",
+   "alt_need": "BOUNDARY",
+   "domain_hint": "LOV",
+   "locus_hint": null,
+   "why": "가까운 관계에서 같은 다툼 반복 → 다시 이어지기"
+  },
+  "ROOT-55": {
+   "need": "LETGO",
+   "alt_need": "REST",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "감정이 크고 빠르게 올라옴 → 흘려보내기"
+  },
+  "ROOT-56": {
+   "need": "REST",
+   "alt_need": "LETGO",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "한 영역 어려움이 삶 전체로 번짐 → 먼저 채우기"
+  },
+  "ROOT-57": {
+   "need": "BOUNDARY",
+   "alt_need": null,
+   "domain_hint": "CAR",
+   "locus_hint": null,
+   "why": "함께하는 사람과 역할·기대가 엇갈림 → 선 정하기"
+  },
+  "ROOT-58": {
+   "need": "CONNECT",
+   "alt_need": "START",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "거절이 두려워 먼저 다가가지 못함 → 연결"
+  },
+  "ROOT-59": {
+   "need": "REST",
+   "alt_need": "BOUNDARY",
+   "domain_hint": "FAM",
+   "locus_hint": null,
+   "why": "돌봄·집안 역할 소진 → 쉼"
+  },
+  "ROOT-60": {
+   "need": "REST",
+   "alt_need": null,
+   "domain_hint": "LIF",
+   "locus_hint": null,
+   "why": "잠·몸 리듬 무너짐 → 쉼"
+  },
+  "ROOT-61": {
+   "need": "BOUNDARY",
+   "alt_need": "REST",
+   "domain_hint": "CAR",
+   "locus_hint": null,
+   "why": "퇴근 후에도 일이 따라옴 → 일과 나 사이 선"
+  },
+  "ROOT-62": {
+   "need": "CHOOSE",
+   "alt_need": null,
+   "domain_hint": "LIF",
+   "locus_hint": "circumstance",
+   "why": "형편이 빠듯함 → 돈 안 드는 쪽 고르기"
+  },
+  "ROOT-63": {
+   "need": "CHOOSE",
+   "alt_need": "REST",
+   "domain_hint": null,
+   "locus_hint": "circumstance",
+   "why": "몸 상태·부상 제약 → 할 수 있는 것 고르기"
+  },
+  "ROOT-64": {
+   "need": "CHOOSE",
+   "alt_need": "REST",
+   "domain_hint": "FAM",
+   "locus_hint": "circumstance",
+   "why": "돌봄 때문에 자리 비우기 어려움 → 틈 고르기"
+  },
+  "ROOT-65": {
+   "need": "LETGO",
+   "alt_need": "REST",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "버거운 감정을 덮어 둠 → 조금씩 흘려보내기"
+  },
+  "ROOT-66": {
+   "need": "REST",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "불안해서 멈추지 못함 → 멈추는 쉼"
+  },
+  "ROOT-67": {
+   "need": "REST",
+   "alt_need": "BOUNDARY",
+   "domain_hint": "CAR",
+   "locus_hint": null,
+   "why": "쉬는 중에도 일 생각 → 쉼"
+  },
+  "ROOT-68": {
+   "need": "REST",
+   "alt_need": "BOUNDARY",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "나를 챙기는 게 미안함 → 죄책감 없는 쉼"
+  },
+  "ROOT-69": {
+   "need": "LETGO",
+   "alt_need": "CHOOSE",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "나이·시기 시간표 → 남의 시간표 내려놓기"
+  },
+  "ROOT-70": {
+   "need": "CHOOSE",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "최고를 찾느라 못 고름 → 선택"
+  },
+  "ROOT-71": {
+   "need": "LETGO",
+   "alt_need": null,
+   "domain_hint": "DIR",
+   "locus_hint": null,
+   "why": "해내도 성취를 깎아 봄 → 깎아내리기 놓아주기"
+  },
+  "ROOT-72": {
+   "need": "LETGO",
+   "alt_need": "BOUNDARY",
+   "domain_hint": "DIR",
+   "locus_hint": null,
+   "why": "인정받아야 괜찮음 → 조건 내려놓기"
+  },
+  "ROOT-73": {
+   "need": "LETGO",
+   "alt_need": null,
+   "domain_hint": "DIR",
+   "locus_hint": null,
+   "why": "몸매·체중으로 나를 평가 → 평가 내려놓기(섭식 신호와 함께면 안전 우선)"
+  },
+  "ROOT-74": {
+   "need": "LETGO",
+   "alt_need": "CONNECT",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "관계가 틀어지면 내가 모자라서 → 자책 놓아주기"
+  },
+  "ROOT-75": {
+   "need": "CONNECT",
+   "alt_need": "START",
+   "domain_hint": "SOC",
+   "locus_hint": null,
+   "why": "낯선 무리에 끼기 어색함 → 연결"
+  },
+  "ROOT-76": {
+   "need": "CONNECT",
+   "alt_need": "BOUNDARY",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "짐이 될까 기대지 못함 → 기대며 연결"
+  },
+  "ROOT-77": {
+   "need": "BOUNDARY",
+   "alt_need": null,
+   "domain_hint": "SOC",
+   "locus_hint": null,
+   "why": "서운해할까 거절 못 하고 떠안음 → 선"
+  },
+  "ROOT-78": {
+   "need": "CONNECT",
+   "alt_need": null,
+   "domain_hint": "SOC",
+   "locus_hint": null,
+   "why": "마음 나눌 사람이 없음 → 깊은 연결"
+  },
+  "ROOT-79": {
+   "need": "CONNECT",
+   "alt_need": "LETGO",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "이사·이직·이별 뒤 곁의 사람이 줄어듦 → 새 연결"
+  },
+  "ROOT-80": {
+   "need": "CONNECT",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "가까운 사람에게 더 다정하고 싶음 → 연결"
+  },
+  "ROOT-81": {
+   "need": "BOUNDARY",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "말·거절을 못 하고 삼킴 → 선"
+  },
+  "ROOT-82": {
+   "need": "BOUNDARY",
+   "alt_need": "CHOOSE",
+   "domain_hint": "FAM",
+   "locus_hint": null,
+   "why": "남·가족 기준을 내 기준처럼 따름 → 내 기준 지키기"
+  },
+  "ROOT-83": {
+   "need": "BOUNDARY",
+   "alt_need": "REST",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "내가 안 하면 안 돌아간다며 떠맡음 → 선"
+  },
+  "ROOT-84": {
+   "need": "REST",
+   "alt_need": null,
+   "domain_hint": "FAM",
+   "locus_hint": null,
+   "why": "돌봄이 많아 나를 돌볼 틈이 없음 → 쉼"
+  },
+  "ROOT-85": {
+   "need": "BOUNDARY",
+   "alt_need": "CHOOSE",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "역할에 묻혀 내가 흐려짐 → 나를 지키기"
+  },
+  "ROOT-87": {
+   "need": "LETGO",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "지나간 시기·관계 떠나보내는 중 → 놓아주기"
+  },
+  "ROOT-88": {
+   "need": "START",
+   "alt_need": "CHOOSE",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "좋아하는 걸 찾는 중 → 해 보기"
+  },
+  "ROOT-89": {
+   "need": "CHOOSE",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": "circumstance",
+   "why": "실제로 대비할 일이 있는 걱정 → 할 일 정리"
+  },
+  "ROOT-90": {
+   "need": "LETGO",
+   "alt_need": "CHOOSE",
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "확인·계획대로 해야 안심 → 통제 내려놓기"
+  },
+  "ROOT-91": {
+   "need": "CONNECT",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "관계 기술을 기르고 싶음 → 연결"
+  },
+  "ROOT-93": {
+   "need": "LETGO",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "지난 어려움이 지금의 경계심이 됨 → 놓아주기"
+  },
+  "ROOT-94": {
+   "need": "LETGO",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "힘든 감정을 느끼면 안 된다는 규칙 → 감정 허락"
+  },
+  "ROOT-S03": {
+   "need": "CHOOSE",
+   "alt_need": null,
+   "domain_hint": "LIF",
+   "locus_hint": null,
+   "why": "마음속 지출 기준 → 돈 쓰임 정리"
+  },
+  "ROOT-S07": {
+   "need": "CONNECT",
+   "alt_need": null,
+   "domain_hint": null,
+   "locus_hint": null,
+   "why": "특정 관계와 다시 가까워지고 싶음 → 연결"
+  }
+ },
+ "skip": {
+  "ROOT-03": "자원: 충분하면 만족하는 유연함",
+  "ROOT-11": "기질: 혼자일 때 충전",
+  "ROOT-12": "자원: 함께하는 시간이 행복",
+  "ROOT-13": "자원: 좋은 순간 음미",
+  "ROOT-15": "자원: 약한 연결·소속감",
+  "ROOT-18": "자원: 새로움에서 활력",
+  "ROOT-19": "자원: 배우는 즐거움",
+  "ROOT-20": "자원: 호기심",
+  "ROOT-21": "자원: 몰입",
+  "ROOT-22": "자원: 작품 즐김",
+  "ROOT-23": "자원: 자연 회복",
+  "ROOT-24": "자원: 지금을 누림",
+  "ROOT-25": "자원: 익숙한 쉼",
+  "ROOT-26": "자원: 몸으로 정리",
+  "ROOT-30": "자원: 기대할 일정",
+  "ROOT-31": "자원: 기댈 곳 있음",
+  "ROOT-33": "자원: 몸 돌봄",
+  "ROOT-34": "자원: 혼자 정리",
+  "ROOT-35": "자원: 응원하며 힘 얻음",
+  "ROOT-37": "자원: 일의 의미",
+  "ROOT-40": "자원: 관계 본보기",
+  "ROOT-42": "자원: 관계가 의미 중심",
+  "ROOT-43": "자원: 유한함의 감각",
+  "ROOT-44": "자원: 돌봄의 보람",
+  "ROOT-45": "자원: 의미 추구",
+  "ROOT-54": "자원: 자기 자비",
+  "ROOT-86": "자원: 일 밖에서 성취",
+  "ROOT-92": "자원: 창작으로 해소",
+  "ROOT-S01": "취향: 음식 관심 적음",
+  "ROOT-S02": "취향: 음식이 즐거움",
+  "ROOT-S04": "자원: 먹는 것으로 달램",
+  "ROOT-S05": "습관: 기록하느라 덜 누림",
+  "ROOT-S06": "취향: 활동이 있어야 만남이 편함",
+  "ROOT-S08": "취향: 적당한 자극",
+  "ROOT-S09": "자원: 조절하며 도전",
+  "ROOT-S10": "자원: 발견을 나눔",
+  "ROOT-S11": "응답: 의미 없음",
+  "ROOT-S12": "응답: 보기에 답 없음"
+ }
+}

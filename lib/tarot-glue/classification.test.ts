@@ -44,3 +44,12 @@ test("off_topic이면 결과 조립에는 미작성 모드(null)로", () => {
   assert.equal(classificationForReport(c), null);
   assert.ok(classificationForReport(parseClassification(JSON.stringify(ok), data)));
 });
+
+test("v4 선택 칸(qtype·qsub·duration 등)을 버리지 않는다, 모르는 qsub는 null", () => {
+  const c = parseClassification(JSON.stringify({ ...ok, qtype: "other_mind", qsub: "OM-REPLY", duration: "recent", locus: "other", urgency: "none" }), data);
+  assert.equal(c?.qtype, "other_mind");
+  assert.equal(c?.qsub, "OM-REPLY");
+  assert.equal(c?.duration, "recent");
+  assert.equal(parseClassification(JSON.stringify({ ...ok, qsub: "XX-NOPE" }), data)?.qsub, null);
+  assert.equal(parseClassification(JSON.stringify({ ...ok, qtype: "weird" }), data), null);
+});

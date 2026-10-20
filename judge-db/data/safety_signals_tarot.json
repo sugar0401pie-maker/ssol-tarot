@@ -1,0 +1,332 @@
+[
+ {
+  "code": "S1-a",
+  "group": "자해·자살",
+  "signal": "사라지고 싶다는 마음(소극적)",
+  "example": "“그냥 사라지고 싶어요”, “아침에 안 깨어났으면”",
+  "ssol_level": "🟠",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S1-b",
+  "group": "자해·자살",
+  "signal": "죽음을 생각함(적극적)",
+  "example": "“죽을까 생각해요”",
+  "ssol_level": "🔴",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S1-c",
+  "group": "자해·자살",
+  "signal": "방법·시기·준비를 말함",
+  "example": "구체적인 방법이나 날짜 언급",
+  "ssol_level": "🔴",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S1-d",
+  "group": "자해·자살",
+  "signal": "자해를 하고 있거나 최근에 함",
+  "example": "“또 그었어요”",
+  "ssol_level": "🔴",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S1-e",
+  "group": "자해·자살",
+  "signal": "예전 시도 + 지금 많이 힘듦",
+  "example": "“예전에 한 번… 요즘 그때 같아요”",
+  "ssol_level": "🟠",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S2-a",
+  "group": "깊은 절망",
+  "signal": "앞으로도 나아질 게 없다는 확신",
+  "example": "“뭘 해도 안 바뀔 거예요”",
+  "ssol_level": "🟠",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S2-b",
+  "group": "깊은 절망",
+  "signal": "내가 짐이라는 느낌",
+  "example": "“저 없는 게 다들 편할 거예요”",
+  "ssol_level": "🟠 (S1 여부 확인)",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": "짐이라는 느낌은 간접 자살 신호로 자주 쓰여 타로에서는 카드를 멈춤(쏘웰라 🟠)"
+ },
+ {
+  "code": "S2-c",
+  "group": "깊은 절망",
+  "signal": "모든 걸 놓고 싶은 마음이 계속됨",
+  "example": "“다 그만두고 싶어요” 반복",
+  "ssol_level": "🟡",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S3-a",
+  "group": "일상 무너짐",
+  "signal": "며칠째 거의 못 먹음",
+  "example": "“며칠째 밥이 안 넘어가요”",
+  "ssol_level": "🟡 (S3 두 개 이상이면 🟠)",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S3-b",
+  "group": "일상 무너짐",
+  "signal": "며칠째 거의 못 자거나 하루 종일 잠",
+  "example": "“사흘째 못 잤어요”",
+  "ssol_level": "🟡 (S3 두 개 이상이면 🟠)",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S3-c",
+  "group": "일상 무너짐",
+  "signal": "며칠째 출근·등교를 못 함",
+  "example": "“이번 주 내내 회사에 못 갔어요”",
+  "ssol_level": "🟡 (S3 두 개 이상이면 🟠)",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S3-d",
+  "group": "일상 무너짐",
+  "signal": "씻거나 밖에 나가지 못함",
+  "example": "“며칠째 방에만 있어요”",
+  "ssol_level": "🟡 (S3 두 개 이상이면 🟠)",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S3-e",
+  "group": "일상 무너짐",
+  "signal": "돌봐야 할 사람을 돌보지 못함 🔸",
+  "example": "“애들 밥도 못 챙겨요”",
+  "ssol_level": "🟠",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S4-a",
+  "group": "섭식",
+  "signal": "먹은 것을 없애려는 행동(구토·설사약·이뇨제)",
+  "example": "“먹고 나서 토해요”",
+  "ssol_level": "🟠",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": "타로 사용층에서 드묾 — 카드는 진행하고 안내 박스"
+ },
+ {
+  "code": "S4-b",
+  "group": "섭식",
+  "signal": "극단적인 식사 제한",
+  "example": "“하루에 거의 안 먹어요”, 굶기 반복",
+  "ssol_level": "🟠",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": "위와 같음"
+ },
+ {
+  "code": "S4-c",
+  "group": "섭식",
+  "signal": "멈출 수 없는 폭식 + 고통",
+  "example": "“멈출 수가 없었어요, 너무 괴로워요”",
+  "ssol_level": "🟡",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S4-d",
+  "group": "섭식",
+  "signal": "위 행동 + 체중·몸에 대한 극심한 집착",
+  "example": "“살찌는 게 너무 무서워요” + S4-a·b·c",
+  "ssol_level": "🟠",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": "위와 같음"
+ },
+ {
+  "code": "S5-a",
+  "group": "운동",
+  "signal": "다치거나 아파도 멈추지 못함",
+  "example": "“발목 다쳤는데 못 쉬겠어요”",
+  "ssol_level": "🟡",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S5-b",
+  "group": "운동",
+  "signal": "운동 상쇄 + S4-a·b 동반",
+  "example": "상쇄 운동과 함께 굶기·구토",
+  "ssol_level": "🟠",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S6-a",
+  "group": "현실감·지각",
+  "signal": "지금 실제로 없는 목소리·소리가 들림(본인·현재)",
+  "example": "“지금도 아무도 없는데 누가 제 욕을 하는 목소리가 계속 들려요”",
+  "ssol_level": "🔴 SAFE-020",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": "현실 검증이 어려운 상태 — 타로 해석이 확신을 키울 수 있어 카드를 멈추고 전문기관 안내"
+ },
+ {
+  "code": "S6-b",
+  "group": "현실감·지각",
+  "signal": "감시·조종당한다는 확신(본인·현재)",
+  "example": "“누가 휴대폰으로 저를 감시하고 조종하고 있어요”",
+  "ssol_level": "🔴 SAFE-020",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": "위와 같음"
+ },
+ {
+  "code": "S6-c",
+  "group": "현실감·지각",
+  "signal": "생각이 읽힌다·주입된다는 확신",
+  "example": "“윗집 사람들이 제 머릿속 생각을 다 읽고 있어요. 확실해요”",
+  "ssol_level": "🔴 SAFE-020",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": "위와 같음"
+ },
+ {
+  "code": "S6-d",
+  "group": "현실감·지각",
+  "signal": "지금 계속되는 현실감 상실 + 괴로움",
+  "example": "“요 며칠 세상이 다 가짜 같고 저만 다른 데 있는 것 같아서 무서워요”",
+  "ssol_level": "🟠 SAFE-020",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S7-a",
+  "group": "술·약물",
+  "signal": "지금·방금 술이나 약을 많이 먹음(과다복용 의심)",
+  "example": "“약을 한꺼번에 먹었어요”",
+  "ssol_level": "🔴 SAFE-021",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": "과다 복용 의심 — 즉시 119·응급 안내"
+ },
+ {
+  "code": "S7-b",
+  "group": "술·약물",
+  "signal": "술·약 없이는 하루도 못 버팀(본인이 분명히 말함)",
+  "example": "“술 없이는 하루도 못 버텨요”",
+  "ssol_level": "🟠 SAFE-021",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S7-c",
+  "group": "술·약물",
+  "signal": "끊으면 몸이 떨리는 등 금단 증상",
+  "example": "“안 마시면 손이 떨려요”",
+  "ssol_level": "🟠 SAFE-021",
+  "tarot_level": "watch",
+  "violence": false,
+  "why": ""
+ },
+ {
+  "code": "S7-d",
+  "group": "술·약물",
+  "signal": "술 마시고 운전·자해 생각",
+  "example": "“술 마시고 운전해서 그냥…”",
+  "ssol_level": "🔴 SAFE-021 (자해면 S1 함께)",
+  "tarot_level": "urgent",
+  "violence": false,
+  "why": "음주 운전·자해 생각 — 즉시 안내"
+ },
+ {
+  "code": "V1",
+  "group": "폭력·통제(타로 신설)",
+  "signal": "때림·밀침·팔을 세게 잡음·멍·물건을 던짐·벽을 침",
+  "example": "남친이 화나면 벽을 쳐서 무서워요",
+  "ssol_level": "(쏘웰라 없음)",
+  "tarot_level": "none",
+  "violence": true,
+  "why": "violence=true → 다가가기 실천 빼고 1366·112 안내. 위험 신호가 함께 있으면 urgent"
+ },
+ {
+  "code": "V2",
+  "group": "폭력·통제(타로 신설)",
+  "signal": "헤어지면 해치겠다·알리겠다·죽어 버리겠다는 말로 붙잡음, 가만 안 두겠다",
+  "example": "헤어지자고 하면 죽어버리겠대요",
+  "ssol_level": "(쏘웰라 없음)",
+  "tarot_level": "none",
+  "violence": true,
+  "why": "violence=true → 다가가기 실천 빼고 1366·112 안내. 위험 신호가 함께 있으면 urgent"
+ },
+ {
+  "code": "V3",
+  "group": "폭력·통제(타로 신설)",
+  "signal": "휴대폰·카톡·비번 요구, 위치 공유 강요, 옷차림·만남 통제, 하루 종일 확인 전화",
+  "example": "카톡을 다 보여 달래요. 안 보여주면 숨기는 거래요",
+  "ssol_level": "(쏘웰라 없음)",
+  "tarot_level": "none",
+  "violence": true,
+  "why": "violence=true → 다가가기 실천 빼고 1366·112 안내. 위험 신호가 함께 있으면 urgent"
+ },
+ {
+  "code": "V4",
+  "group": "폭력·통제(타로 신설)",
+  "signal": "이별·거절 뒤 집·회사 앞에서 기다림, 번호·계정을 바꿔도 연락, 몰래 집에 들어옴",
+  "example": "헤어지자고 하니까 집 앞에 매일 와요",
+  "ssol_level": "(쏘웰라 없음)",
+  "tarot_level": "none",
+  "violence": true,
+  "why": "violence=true → 다가가기 실천 빼고 1366·112 안내. 위험 신호가 함께 있으면 urgent"
+ },
+ {
+  "code": "V5",
+  "group": "폭력·통제(타로 신설)",
+  "signal": "월급·카드를 가져감, 생활비를 안 주고 영수증 검사, 명의 대출 강요",
+  "example": "월급을 남편이 다 관리하고 만 원 쓸 때도 허락받아요",
+  "ssol_level": "(쏘웰라 없음)",
+  "tarot_level": "none",
+  "violence": true,
+  "why": "violence=true → 다가가기 실천 빼고 1366·112 안내. 위험 신호가 함께 있으면 urgent"
+ },
+ {
+  "code": "V6",
+  "group": "폭력·통제(타로 신설)",
+  "signal": "상대 기분을 살피며 무섭다, 화낼까 봐 늘 눈치 봄",
+  "example": "남친 기분 나쁘게 하면 큰일 나서 항상 눈치 봐요",
+  "ssol_level": "(쏘웰라 없음)",
+  "tarot_level": "none",
+  "violence": true,
+  "why": "violence=true → 다가가기 실천 빼고 1366·112 안내. 위험 신호가 함께 있으면 urgent"
+ }
+]

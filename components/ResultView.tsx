@@ -1,25 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { api, loadKey, ApiError, type ResultResponse } from "@/lib/client/api";
+import { api, loadKey, ApiError, type ResultResponse, type ResultPage, type ResultCard } from "@/lib/client/api";
 import { getAccessToken } from "@/lib/supabase/browser";
-import { clean, fill } from "@/lib/client/text";
+import { clean } from "@/lib/client/text";
+import { parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
-import { CardZoom } from "./CardZoom";
-import { ReportText } from "./ReportText";
 import { SafetyScreen } from "./SafetyScreen";
 import { Stars } from "./Cards";
 import { WaitNotice } from "./WaitNotice";
 
-// 결과 페이지(스펙 7.5): 카드 3장 사진 → 무료 1~3번 → (안전 안내 박스) → 잠금 구간(4번 카드명 + 5~8번 제목·고정 한 줄) → 결제 카드.
-// 유료 본문은 서버가 보내지 않으므로 블러는 "가려진 본문"이 아니라 고정 한 줄 위에 씌운 장식이다.
+// 결과 넘겨 보기 11쪽(v4.0). 화면 모양은 owner 시안 docs/design/result-swipe-preview-v4.html과 똑같이 맞춘다
+// (CSS: app/result/[id]/result-v4.css, 줄 → 블록 규칙: lib/client/pageBlocks.ts).
+// 결제 전 6~11쪽과 5쪽 결론 부분은 서버가 본문을 보내지 않는다 — 블러 아래 글은 데이터의 고정 예시(blur_samples)다.
 
-
+type ViewCopy = Omit<Copy, "cta_chat">;
 type Ready = Extract<ResultResponse, { status: "ready" }>;
 
-export default function ResultView({ id, copy }: { id: string; copy: Omit<Copy, "cta_chat"> }) {
+// 쏘웰라 채팅(같은 계정) — 11쪽 버튼. 결제 연동 전에는 11쪽이 잠겨 있어 아직 보이지 않는다.
+const SOWELLA_URL = "https://app.ssolwellnesshouse.com/chat";
+
+export default function ResultView({ id, copy, opts }: { id: string; copy: ViewCopy; opts: ParseOpts }) {
   const [res, setRes] = useState<ResultResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nickname, setNickname] = useState("");
@@ -87,87 +90,57 @@ export default function ResultView({ id, copy }: { id: string; copy: Omit<Copy, 
       </main>
     );
   }
-  return <ReadyView id={id} r={res as Ready} copy={copy} />;
+  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} />;
 }
 
-function ReadyView({ id, r, copy }: { id: string; r: Ready; copy: Omit<Copy, "cta_chat"> }) {
-  const headings = copy.asks_headings;
-  return (
-    <main className="dawn-bg min-h-dvh pb-40">
-      <div className="mx-auto flex w-full max-w-[560px] flex-col gap-8 px-5 pt-10">
-        <h1 className="text-center font-serif text-[24px] font-bold text-card-line">{fill(copy.result.headline, { nickname: r.nickname })}</h1>
-        <CardZoom cards={r.cards} hint={copy.result_cards.hint} />
+// 쪽이 잠겨 있는지(시안 LOCK.unpaid = 6~11쪽). 5쪽은 일부 무료라 점 표시는 열린 쪽으로 둔다.
+const isLocked = (p: ResultPage, paid: boolean) => !paid && p.page >= 6;
 
-        {r.free.map((text, i) => (
-          <section key={i} className="rounded-3xl bg-white px-5 py-6 shadow-sm">
-            <ReportText text={text} subheadings={headings} card={i === 0 ? undefined : r.cards[i - 1]} />
-          </section>
-        ))}
-
-        {r.notice && (
-          <section className="rounded-3xl border border-card-line/20 bg-dawn-peach px-5 py-5" role="note">
-            {r.notice.split("\n\n").map((p, i) => (
-              <p key={i} className="text-[15px] leading-relaxed">
-                {clean(p)}
-              </p>
-            ))}
-            {r.noticeContacts && (
-              <ul className="mt-3 flex flex-col gap-1.5 text-[14px]">
-                {r.noticeContacts.map((c) => (
-                  <li key={c.name}>
-                    <a className="font-bold text-navy underline" href={`tel:${c.number.split("/")[0].replace(/[^0-9]/g, "")}`}>
-                      {c.name} {c.number}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
-
-        {/* 잠금 구간: 제목 + 고정 한 줄만(본문 데이터 없음) */}
-        <div className="flex flex-col gap-4">
-          {r.locked.map((l) => (
-            <section key={l.no} className="relative overflow-hidden rounded-3xl bg-white px-5 py-6 shadow-sm">
-              <h2 className="font-serif text-[18px] font-bold text-card-line">
-                {l.no}. {l.title}
-              </h2>
-              {l.card && <p className="mt-2 font-serif text-[16px] font-bold text-card-line">{l.card}</p>}
-              <p className="mt-2 select-none text-[15px] leading-relaxed blur-[3px]" aria-hidden>
-                {l.teaser}
-              </p>
-              <span className="sr-only">{l.teaser} — 리포트에서 열려요</span>
-            </section>
-          ))}
-        </div>
-
-        <section className="rounded-3xl bg-night px-5 py-7 text-center text-moon">
-          <h2 className="font-serif text-[20px] font-bold text-gold-soft">{copy.result.paywall_title}</h2>
-          <p className="mt-3 text-[14px] leading-relaxed text-moon/90">{copy.result.paywall_body}</p>
-          <p className="mt-4 font-serif text-[18px] font-bold">{copy.result.paywall_price}</p>
-          {/* TODO: 실제 연동 — 토스 결제(1,900원) + 결제 후 유료 리포트(4~8번, D 프롬프트) 생성. 결제 전 유료 본문은 만들지 않는다. */}
-          <button type="button" disabled className="btn-night mt-4 w-full rounded-full py-3.5 text-[15px] font-bold opacity-60">
-            결제는 준비 중이에요
-          </button>
-        </section>
-
-        <SaveAndRetry id={id} saved={r.saved} copy={copy} nickname={r.nickname} />
-
-        <p className="text-[12px] leading-relaxed text-ink/60">{copy.disclaimer}</p>
-      </div>
-    </main>
-  );
-}
-
-function SaveAndRetry({ id, saved: initiallySaved, copy, nickname }: { id: string; saved: boolean; copy: Omit<Copy, "cta_chat">; nickname: string }) {
-  const [saved, setSaved] = useState(initiallySaved);
+function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts }) {
+  const rail = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+  const [zoom, setZoom] = useState<{ src: string; alt: string; reversed: boolean } | null>(null);
+  const [saved, setSaved] = useState(r.saved);
   const [msg, setMsg] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
   const router = useRouter();
+  const n = r.pages.length;
+
+  const go = useCallback(
+    (k: number) => {
+      const el = rail.current;
+      if (!el) return;
+      el.scrollTo({ left: Math.max(0, Math.min(n - 1, k)) * el.clientWidth });
+    },
+    [n],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") go(idx + 1);
+      if (e.key === "ArrowLeft") go(idx - 1);
+      if (e.key === "Escape") setZoom(null);
+    };
+    const onResize = () => go(idx);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [go, idx]);
+
+  function onScroll() {
+    const el = rail.current;
+    if (!el) return;
+    requestAnimationFrame(() => setIdx(Math.round(el.scrollLeft / el.clientWidth)));
+  }
 
   async function save() {
-    setBusy(true);
     setMsg(null);
+    if (saved) {
+      setMsg("내 계정에 저장된 결과예요. 쏘웰라 마이페이지에서 다시 볼 수 있어요.");
+      return;
+    }
     try {
       if (!(await getAccessToken())) {
         // 로그인 안 돼 있으면 로그인 화면으로 — 로그인 뒤 이 결과로 돌아와 다시 누르면 저장된다.
@@ -176,38 +149,347 @@ function SaveAndRetry({ id, saved: initiallySaved, copy, nickname }: { id: strin
       }
       await api(`/api/tarot/session/${id}/claim`, { key: loadKey(id), body: {} });
       setSaved(true);
+      setMsg("내 계정에 저장했어요. 쏘웰라 마이페이지에서 다시 볼 수 있어요.");
     } catch (e) {
       setMsg(e instanceof ApiError ? e.message : "잠시 후 다시 시도해 주세요.");
-    } finally {
-      setBusy(false);
     }
   }
 
+  function retry() {
+    try {
+      const p = JSON.parse(sessionStorage.getItem("ssol_tarot_profile") ?? "null");
+      sessionStorage.setItem("ssol_tarot_again", JSON.stringify({ nickname: p?.nickname ?? r.nickname, experience: p?.experience ?? "returning" }));
+    } catch {
+      /* 무시 — 처음부터 시작 */
+    }
+    router.push("/");
+  }
+
+  const ctx: Ctx = { r, copy, opts, openZoom: setZoom };
+
   return (
-    <div className="flex flex-col gap-3">
-      {saved ? (
-        <p className="text-center text-[14px] text-card-line">내 계정에 저장된 결과예요. 쏘웰라 마이페이지에서 다시 볼 수 있어요.</p>
-      ) : (
-        <button type="button" disabled={busy} onClick={save} className="w-full rounded-full border border-navy py-3.5 text-[15px] text-navy disabled:opacity-60">
-          {copy.result.save}
-        </button>
-      )}
-      {msg && <p className="text-center text-[13px] leading-relaxed text-ink/70">{msg}</p>}
-      <button
-        type="button"
-        onClick={() => {
-          try {
-            const p = JSON.parse(sessionStorage.getItem("ssol_tarot_profile") ?? "null");
-            sessionStorage.setItem("ssol_tarot_again", JSON.stringify({ nickname: p?.nickname ?? nickname, experience: p?.experience ?? "returning" }));
-          } catch {
-            /* 무시 — 처음부터 시작 */
-          }
-          router.push("/");
-        }}
-        className="w-full rounded-full bg-navy py-3.5 text-[15px] text-white"
-      >
-        {copy.result.retry}
+    <div className="tv4">
+      <div className="phone">
+        <div className="dots" aria-hidden>
+          {r.pages.map((p, k) => (
+            <i key={p.page} className={`${k === idx ? "on" : ""} ${isLocked(p, r.paid) ? "lock" : ""}`} />
+          ))}
+        </div>
+        <div className="rail" ref={rail} onScroll={onScroll}>
+          {r.pages.map((p) => (
+            <section className="page" key={p.page} aria-label={`${p.page} / ${n} ${p.title}`}>
+              <header className="ph">
+                <span className="no">
+                  {p.page} / {n}
+                </span>
+                <h1>{p.title}</h1>
+              </header>
+              <div className="pbody">
+                <PageBody p={p} ctx={ctx} />
+                {p.page >= 4 && (
+                  <>
+                    <div className="sharerow">
+                      {/* TODO: 공유 시트(카드 3장·카드명·위치·방향만 — 고민 원문 금지) */}
+                      <button type="button" className="btn line sm" onClick={() => setMsg("공유하기는 준비 중이에요.")}>
+                        공유하기
+                      </button>
+                      <button type="button" className="btn line sm" onClick={save}>
+                        저장하기
+                      </button>
+                    </div>
+                    {msg && (
+                      <p className="toast" role="status">
+                        {msg}
+                      </p>
+                    )}
+                  </>
+                )}
+                <div className="navrow">
+                  {p.page > 1 && (
+                    <button type="button" className="btn line" onClick={() => go(p.page - 2)}>
+                      {p.back || copy.result.back_button}
+                    </button>
+                  )}
+                  {p.next && (
+                    <button type="button" className="btn fill" onClick={() => go(p.page)}>
+                      {p.next} →
+                    </button>
+                  )}
+                </div>
+                {p.page === n && (
+                  <button type="button" className="btn line" onClick={retry}>
+                    {copy.result.retry}
+                  </button>
+                )}
+                {(p.page === 1 || p.page === n) && <p className="fineprint">{copy.disclaimer}</p>}
+              </div>
+            </section>
+          ))}
+        </div>
+        <div className="nav">
+          <button type="button" aria-label="이전 페이지" disabled={idx === 0} onClick={() => go(idx - 1)}>
+            ‹
+          </button>
+          <span>
+            {idx + 1} / {n}
+          </span>
+          <button type="button" aria-label="다음 페이지" disabled={idx === n - 1} onClick={() => go(idx + 1)}>
+            ›
+          </button>
+        </div>
+      </div>
+      <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label="크게 보기 닫기" tabIndex={zoom ? 0 : -1}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- 시안과 같은 단순 확대(고정 크기 이미지) */}
+        {zoom && <img src={zoom.src} alt={zoom.alt} className={zoom.reversed ? "rev180" : ""} />}
       </button>
     </div>
+  );
+}
+
+type Ctx = { r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void };
+
+function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
+  const { r, opts } = ctx;
+  if (p.card) return <CardPage p={p} ctx={ctx} />;
+  if (p.page === 5 && !r.paid) {
+    // 5쪽: 메인 문구·첫 줄·카드별 한 줄까지 무료, 결론부터는 결제 후. 서버가 결론을 보내지 않으므로 블러 아래는 고정 예시.
+    const sample = ctx.copy.result.blur_samples.pages["6"];
+    return (
+      <>
+        <Blocks blocks={parseBlocks(p.free, opts)} ctx={ctx} />
+        <Lock blur={sample} ctx={ctx} />
+      </>
+    );
+  }
+  if (isLocked(p, r.paid)) {
+    return (
+      <>
+        {p.teaser && <p className="teaser">{p.teaser}</p>}
+        <Lock blur={p.blur ?? null} ctx={ctx} />
+      </>
+    );
+  }
+  return <Blocks blocks={parseBlocks(p.body, opts)} ctx={ctx} />;
+}
+
+function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
+  const c = ctx.copy.result;
+  return (
+    <div className="lockwrap">
+      {/* 고정 예시 문장(이 사용자의 내용 아님) — 화면 읽기 프로그램에는 숨김 */}
+      <div className="blurred" aria-hidden>
+        <Blocks blocks={parseBlocks(blur, ctx.opts)} ctx={ctx} />
+      </div>
+      <div className="pay">
+        <b>{c.paywall_title}</b>
+        <p>{c.paywall_body}</p>
+        <p className="price">{c.paywall_price}</p>
+        {/* TODO: 실제 연동 — 토스 결제(1,900원) 후 유료 리포트(D·E 호출) 생성. 결제 전 유료 본문은 만들지 않는다. */}
+        <button type="button" className="btn fill" disabled>
+          {c.paywall_button}
+        </button>
+        <small>결제는 준비 중이에요</small>
+      </div>
+    </div>
+  );
+}
+
+function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
+  const c = p.card!;
+  const src = `/images/tarot/${c.image}`;
+  const alt = `${c.name} — ${c.character}`;
+  return (
+    <>
+      <button type="button" className="card xl" onClick={() => ctx.openZoom({ src, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} className={c.reversed ? "rev180" : ""} />
+      </button>
+      <div className="cardinfo">
+        <p className="cname">
+          <b>{c.name}</b> <span className="ch">{c.reversed ? `${c.character} · 역방향` : c.character}</span>
+        </p>
+        <p className="kw">
+          {c.keywords.map((k) => (
+            <span key={k}>#{k}</span>
+          ))}
+        </p>
+        {c.arcana && <p className="arc">원래 타로 카드 · {c.arcana}</p>}
+      </div>
+      {p.saysTitle && <h3 className="storyhead">{p.saysTitle}</h3>}
+      {(p.says ?? []).map((s, i) =>
+        c.reversed && i === 0 ? (
+          <p key={i} className="revsay">
+            <span className="revlab">역방향</span>
+            <Inl inline={parseInline(s)} />
+          </p>
+        ) : (
+          <p key={i}>
+            <Inl inline={parseInline(s)} />
+          </p>
+        ),
+      )}
+      {p.question && <h3 className="storyhead">{p.question}</h3>}
+      <Blocks blocks={parseBlocks(p.body, ctx.opts)} ctx={ctx} />
+    </>
+  );
+}
+
+function Inl({ inline }: { inline: Inline }) {
+  return (
+    <>
+      {inline.map((s, i) => (s.bold ? <b key={i}>{s.text}</b> : <Fragment key={i}>{s.text}</Fragment>))}
+    </>
+  );
+}
+
+const ARROW = { up: "↗", flat: "→", down: "↘" } as const;
+
+function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
+  return (
+    <>
+      {blocks.map((b, i) => {
+        switch (b.type) {
+          case "headline":
+            return (
+              <h2 key={i} className="headline">
+                {b.lines.map((l, j) => (
+                  <Fragment key={j}>
+                    {j > 0 && <br />}
+                    {l}
+                  </Fragment>
+                ))}
+              </h2>
+            );
+          case "sub":
+            return <h4 key={i}>{b.text}</h4>;
+          case "sec":
+            return (
+              <h3 key={i} className="sec">
+                {b.text}
+              </h3>
+            );
+          case "sum":
+            return (
+              <p key={i} className="sum">
+                <b>{b.text}</b>
+              </p>
+            );
+          case "list":
+            return (
+              <ul key={i} className="plain">
+                {b.items.map((it, j) => (
+                  <li key={j}>
+                    <Inl inline={it} />
+                  </li>
+                ))}
+              </ul>
+            );
+          case "bridge":
+            return (
+              <p key={i} className="bridge">
+                {b.text}
+              </p>
+            );
+          case "item":
+            // 시안은 <ul><li><b>제목</b></li><p>…</p></ul>(목록 점은 제목에만). 같은 모양을 올바른 HTML로.
+            return (
+              <ul key={i}>
+                <li>
+                  <b>{b.title}</b>
+                </li>
+                {b.body && (
+                  <li style={{ listStyle: "none", marginBottom: 0 }}>
+                    <p>
+                      <Inl inline={b.body} />
+                    </p>
+                  </li>
+                )}
+              </ul>
+            );
+          case "fine":
+            return (
+              <p key={i} className="fineprint">
+                {b.text}
+              </p>
+            );
+          case "map":
+            return (
+              <div key={i} className="rmap">
+                <div className="mrow">
+                  {b.cells.map((c, j) => (
+                    <Fragment key={j}>
+                      {j > 0 && <span className="marr">›</span>}
+                      <div className={`mcell ${c.dir}`}>
+                        <span className="mpos">{c.position}</span>
+                        <b>{c.name}</b>
+                        <span className="mrev">{c.reversed ? "역방향" : "정방향"}</span>
+                        <span className="mforce">
+                          {ARROW[c.dir]} {c.force}
+                        </span>
+                      </div>
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+            );
+          case "button":
+            return (
+              <a key={i} className="btn fill" href={SOWELLA_URL}>
+                {b.text}
+              </a>
+            );
+          case "strip":
+            return <Strip key={i} cards={ctx.r.cards} ctx={ctx} />;
+          case "mini":
+            return (
+              <div key={i} className="mini">
+                <span className="pos">{b.position}</span>
+                <b>{b.name}</b> <small>{b.reversed ? `${b.character} · 역방향` : b.character}</small>
+              </div>
+            );
+          case "kw":
+            return (
+              <p key={i} className="kw">
+                {b.tags.map((t) => (
+                  <span key={t}>#{t}</span>
+                ))}
+              </p>
+            );
+          default:
+            return (
+              <p key={i}>
+                <Inl inline={b.inline} />
+              </p>
+            );
+        }
+      })}
+    </>
+  );
+}
+
+function Strip({ cards, ctx }: { cards: ResultCard[]; ctx: Ctx }) {
+  return (
+    <>
+      <div className="strip">
+        {cards.map((c) => {
+          const alt = `${c.name} — ${c.character}`;
+          return (
+            <button type="button" key={c.id} className="card sm" onClick={() => ctx.openZoom({ src: c.image, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={c.image} alt={alt} className={c.reversed ? "rev180" : ""} />
+              {c.reversed && <span className="revtag" style={{ display: "block" }}>역방향</span>}
+            </button>
+          );
+        })}
+      </div>
+      <p className="hint">{ctx.copy.result_cards.hint}</p>
+      {ctx.r.notice && (
+        <div className="notice" role="note">
+          {ctx.r.notice.split("\n\n").map((t, i) => (
+            <p key={i}>{clean(t)}</p>
+          ))}
+        </div>
+      )}
+    </>
   );
 }

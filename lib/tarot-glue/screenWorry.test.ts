@@ -2,10 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { screenWorry } from "./screenWorry.ts";
 
-test("v2.5에서 데이터로 옮긴 새 위험 단어도 잡는다", () => {
+test("데이터로 옮긴 새 위험 단어도 잡는다(v2.5~v4)", () => {
   assert.equal(screenWorry("요즘은 다 끝내고 싶다는 생각만 들어요").level, "urgent");
   assert.equal(screenWorry("살 이유가 없는 것 같아요").level, "urgent");
-  assert.equal(screenWorry("사는 게 지옥 같아요").level, "watch");
+  // v4.0: '주의(watch)' 단계는 owner 결정으로 삭제(S2) — 예전 주의 단어는 deprecated_watch로 보관만 하고 안내 박스를 띄우지 않는다.
+  assert.equal(screenWorry("사는 게 지옥 같아요").level, "none");
   assert.equal(screenWorry("남자친구가 저를 밀쳤어요").violence, true);
 });
 

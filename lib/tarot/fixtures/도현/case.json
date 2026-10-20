@@ -1,0 +1,38 @@
+{
+ "key": "04-이직-결정",
+ "name": "도현",
+ "worry": "다음 달 말까지 이직 제안에 답을 줘야 해요. 지금 회사가 싫은 건지 이 일 자체가 싫은 건지 모르겠어요. 사실 3년째 같은 고민만 하고 있어요.",
+ "ai": {
+  "domain": "CAR",
+  "emotions": [
+   "CON",
+   "ANX"
+  ],
+  "need": "CHOOSE",
+  "duration": "chronic",
+  "locus": "self",
+  "urgency": "deadline",
+  "qtype": "worry",
+  "qsub": null,
+  "self_focus": false,
+  "crisis_level": "none",
+  "violence": false,
+  "off_topic": false,
+  "confidence": 0.85
+ },
+ "picks": [
+  {
+   "id": "balance",
+   "reversed": true
+  },
+  {
+   "id": "still_watch",
+   "reversed": false
+  },
+  {
+   "id": "between",
+   "reversed": false
+  }
+ ],
+ "note": "원문·분류 = live/v3 cases.json[1]·live2_state.json, A2 = proto/p34/A2_out.txt + v4 칸(money=false, table=job — 최종 A2 프롬프트 형식에 맞춰 추가), C = proto/p36/C_out_v4.json, D = proto/p34/D_out.txt, E = proto/p36/E_out.txt, 기대 결과 = proto/p36/pages_5차.json"
+}

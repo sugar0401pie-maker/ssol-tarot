@@ -1,0 +1,145 @@
+/* 결과 넘겨 보기 11쪽 — owner 시안 docs/design/result-swipe-preview-v4.html의 <style>을 값 그대로 옮겼다.
+   (글자 크기·굵기·색·간격을 바꾸지 말 것. 시안이 바뀌면 이 파일을 다시 옮긴다.)
+   다른 화면에 새지 않게 모든 규칙을 .tv4 아래로 한정했다.
+   시안과 다른 점(앱이라서): 휴대폰 테두리 없이 화면 전체 높이(100dvh), 시안 위쪽 설명·결제 전/후 전환 버튼 없음.
+   Tailwind 기본 초기화가 제목 굵기·목록 점을 지우므로, 브라우저 기본값(시안이 기대한 값)을 명시해 되돌렸다. */
+.tv4 {
+  --night: #012f53;
+  --night-deep: #001e38;
+  --gold: #e3c68e;
+  --gold-soft: #f3e2be;
+  --moon: #fcefd4;
+  --cream: #fef3de;
+  --line: #204870;
+  --ink: #1c2b3a;
+  --muted: #5a6470;
+  --bg: #e9e4da;
+  background: var(--bg);
+  font-family: var(--font-noto-sans-kr), "Noto Sans KR", sans-serif;
+  color: var(--ink);
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+}
+@media (prefers-color-scheme: dark) {
+  .tv4 {
+    --bg: #0b1620;
+  }
+}
+.tv4 * {
+  box-sizing: border-box;
+}
+/* 브라우저 기본값 복원(시안 기준) */
+.tv4 h1,
+.tv4 h2,
+.tv4 h3,
+.tv4 h4 {
+  font-weight: 700;
+}
+.tv4 .pbody ul {
+  list-style: disc;
+}
+.tv4 figure {
+  margin: 0;
+}
+
+.tv4 .phone { width: 100%; max-width: 400px; height: 100dvh; overflow: hidden; background: var(--cream); position: relative; display: flex; flex-direction: column; }
+.tv4 .dots { display: flex; gap: 6px; justify-content: center; padding: 10px 0 6px; background: var(--cream); border-bottom: 1px solid #20487018; }
+.tv4 .dots i { width: 7px; height: 7px; border-radius: 50%; background: #20487033; transition: all 0.25s; }
+.tv4 .dots i.on { width: 20px; border-radius: 4px; background: var(--line); }
+.tv4 .dots i.lock { background: #b8a77a66; }
+.tv4 .dots i.lock.on { background: #b8a77a; }
+.tv4 .rail { flex: 1; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.tv4 .rail::-webkit-scrollbar { display: none; }
+.tv4 .page { flex: 0 0 100%; scroll-snap-align: start; overflow-y: auto; padding: 0 0 90px; }
+.tv4 .ph { position: sticky; top: 0; z-index: 2; background: linear-gradient(var(--cream) 80%, #fef3de00); padding: 14px 18px 10px; display: flex; align-items: center; gap: 8px; }
+.tv4 .ph h1 { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 16px; color: var(--line); flex: 1; line-height: 1.35; word-break: keep-all; }
+.tv4 .ph .no { font-size: 11px; color: var(--muted); min-width: 32px; }
+.tv4 .pbody { padding: 2px 18px 10px; font-size: 14px; line-height: 1.75; }
+.tv4 .pbody p { margin: 0 0 10px; word-break: keep-all; }
+.tv4 .pbody h4 { font-family: var(--font-gowun-batang), "Gowun Batang", serif; color: var(--line); font-size: 14.5px; margin: 18px 0 6px; padding-top: 12px; border-top: 1px dashed #20487033; }
+.tv4 .pbody ul { margin: 0 0 10px 18px; }
+.tv4 .pbody li { margin-bottom: 6px; word-break: keep-all; }
+.tv4 .strip { display: flex; gap: 8px; margin: 4px 0 2px; }
+.tv4 .card { margin: 0; position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 16px #01223f40; background: #fff; cursor: zoom-in; padding: 0; border: 0; display: flex; flex-direction: column; justify-content: flex-start; }
+/* 버튼은 내용을 세로 가운데 정렬하므로(시안은 figure) 위쪽 붙임으로 되돌림 */
+.tv4 .card img { display: block; width: 100%; }
+.tv4 .card img.rev180 { transform: rotate(180deg); }
+.tv4 .card.sm { flex: 1; }
+.tv4 .hint { text-align: center; font-size: 11px; color: var(--muted); margin: 6px 0 14px !important; }
+.tv4 .mini { margin-top: 6px; padding-top: 10px; border-top: 1px dashed #20487033; }
+.tv4 .mini .pos { display: inline-block; font-size: 10.5px; background: var(--night); color: var(--gold-soft); padding: 1px 8px; border-radius: 9px; margin-right: 6px; vertical-align: 2px; }
+.tv4 .mini b { font-family: var(--font-gowun-batang), "Gowun Batang", serif; color: var(--line); font-size: 15.5px; }
+.tv4 .mini small { color: var(--muted); }
+.tv4 .kw { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 6px !important; }
+.tv4 .kw span { font-size: 11.5px; background: #fff; border: 1px solid var(--gold); color: #7a5a12; border-radius: 12px; padding: 1px 9px; }
+.tv4 .card.xl { width: 100%; margin: 2px 0 14px; border-radius: 14px; }
+.tv4 .card .revtag { font-size: 9.5px; color: #9a7b3a; text-align: center; padding: 3px 0 4px; background: var(--cream); }
+.tv4 .cardinfo { border-left: 3px solid var(--gold); padding: 4px 0 4px 12px; margin: 0 0 6px; background: transparent; }
+.tv4 .cardinfo .cname { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 17px; color: var(--line); line-height: 1.5; margin: 0 !important; }
+.tv4 .cardinfo .cname .ch { font-family: var(--font-noto-sans-kr), "Noto Sans KR", sans-serif; font-size: 12px; color: var(--muted); }
+.tv4 .storyhead { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 19px; color: var(--line); margin: 22px 0 4px; padding-top: 14px; border-top: 1px dashed #20487033; }
+.tv4 ul.plain li { font-weight: 400; }
+.tv4 .headline { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 22px; line-height: 1.45; color: var(--line); text-align: center; margin: 18px 2px 14px; word-break: keep-all; }
+.tv4 .btn { display: block; width: 100%; border: 0; border-radius: 24px; padding: 13px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; margin: 10px 0; text-align: center; text-decoration: none; }
+.tv4 .btn.fill { background: var(--night); color: var(--moon); }
+.tv4 .btn.line { background: transparent; color: var(--line); border: 1.5px solid var(--line); }
+.tv4 .btn:disabled { cursor: default; }
+.tv4 .navrow { display: flex; gap: 8px; align-items: center; margin-top: 22px; }
+.tv4 .navrow .btn { margin: 0; }
+.tv4 .navrow .btn.line { flex: 0 0 32%; font-size: 13px; padding: 11px 0; }
+.tv4 .navrow .btn.fill { flex: 1; }
+.tv4 .pbody p b { color: var(--line); }
+.tv4 .sec { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 17px; color: var(--line); margin: 26px 0 6px; padding-top: 16px; border-top: 1px dashed #20487040; }
+.tv4 .bridge { margin: 20px 0 2px !important; font-weight: 700; color: var(--night); font-size: 15px; line-height: 1.5; }
+.tv4 .bridge::before { content: "↳ "; color: var(--gold); }
+.tv4 .rmap { margin: 6px 0 12px; padding: 12px 8px; border: 1px solid #20487022; border-radius: 12px; background: #fff8; }
+.tv4 .rmap .mrow { display: flex; align-items: stretch; gap: 2px; }
+.tv4 .rmap .marr { align-self: center; color: var(--gold); font-size: 18px; }
+.tv4 .rmap .mcell { flex: 1; display: flex; flex-direction: column; gap: 2px; text-align: center; padding: 6px 3px; border-radius: 9px; background: #fef3de; }
+.tv4 .rmap .mcell b { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 13.5px; color: var(--line); line-height: 1.3; }
+.tv4 .rmap .mpos { font-size: 10.5px; color: #9a7b3a; }
+.tv4 .rmap .mrev { font-size: 10.5px; color: var(--muted); }
+.tv4 .rmap .mforce { font-size: 11px; font-weight: 700; margin-top: 3px; }
+.tv4 .rmap .up .mforce { color: #2f7a5a; }
+.tv4 .rmap .flat .mforce { color: #9a7b3a; }
+.tv4 .rmap .down .mforce { color: #5a6a85; }
+.tv4 .revsay { background: #20487010; border-radius: 10px; padding: 10px 12px !important; }
+.tv4 .revlab { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; background: var(--line); border-radius: 8px; padding: 0 7px; margin-right: 6px; }
+.tv4 .sharerow { display: flex; gap: 8px; justify-content: center; margin: 18px 0 0; }
+.tv4 .sharerow .sm { font-size: 13px; padding: 7px 16px; flex: 0 1 auto; }
+.tv4 .cardinfo .arc { font-size: 11.5px; color: var(--muted); margin: 2px 0 0 !important; }
+.tv4 .sum { font-size: 16px; line-height: 1.6; color: var(--line); margin: 4px 0 12px; padding-left: 10px; border-left: 3px solid var(--gold); }
+.tv4 .sum b { font-weight: 700; }
+.tv4 .lockwrap { position: relative; margin-top: 6px; }
+.tv4 .blurred { filter: blur(5px); opacity: 0.75; user-select: none; pointer-events: none; max-height: 340px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 40%, transparent); mask-image: linear-gradient(#000 40%, transparent); }
+.tv4 .pay { position: relative; margin-top: -140px; background: var(--night); color: var(--moon); border-radius: 18px; padding: 18px 16px 12px; text-align: center; box-shadow: 0 10px 30px #01223f55; }
+.tv4 .pay::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--gold); border-radius: 13px; opacity: 0.5; pointer-events: none; }
+.tv4 .pay b { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 16px; color: var(--gold-soft); display: block; margin-bottom: 6px; }
+.tv4 .pay p { font-size: 12.5px; line-height: 1.6; color: var(--moon) !important; }
+.tv4 .pay .price { font-weight: 700; color: var(--gold) !important; margin-top: 4px !important; }
+.tv4 .pay .btn { background: var(--gold); color: var(--night); position: relative; }
+.tv4 .pay .btn:disabled { opacity: 1; }
+.tv4 .fineprint { font-size: 11px; line-height: 1.55; color: var(--muted); margin-top: 14px; padding-top: 8px; border-top: 1px solid rgba(128, 128, 128, 0.25); }
+.tv4 .pay small { display: block; font-size: 10.5px; opacity: 0.7; }
+.tv4 .teaser { font-family: var(--font-gowun-batang), "Gowun Batang", serif; color: var(--line); font-size: 15px; text-align: center; margin: 20px 0 10px !important; }
+.tv4 .nav { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px 14px; padding-bottom: max(14px, env(safe-area-inset-bottom)); background: linear-gradient(#fef3de00, var(--cream) 40%); }
+.tv4 .nav button { border: 1px solid #20487040; background: #fff; color: var(--line); width: 44px; height: 44px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+.tv4 .nav button:disabled { opacity: 0.3; cursor: default; }
+.tv4 .nav span { font-size: 12px; color: var(--muted); }
+.tv4 .zoom { position: fixed; inset: 0; background: #001e38c4; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 9; border: 0; padding: 0; width: 100%; }
+.tv4 .zoom.on { opacity: 1; pointer-events: auto; }
+.tv4 .zoom img { width: min(70vw, 300px); border-radius: 14px; box-shadow: 0 20px 50px #000a; transform: scale(0.6) rotate(-4deg); transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.24, 1); }
+.tv4 .zoom.on img { transform: none; }
+.tv4 .zoom.on img.rev180 { transform: rotate(180deg); }
+.tv4 .zoom img.rev180 { transform: scale(0.6) rotate(176deg); }
+/* 안전 안내 박스(폭력·두려움) — 시안에는 없는 앱 요소. 다리 문장·역방향 상자와 같은 색으로 맞춤 */
+.tv4 .notice { background: #20487010; border-left: 3px solid var(--line); border-radius: 0 10px 10px 0; padding: 10px 12px; margin: 0 0 14px; font-size: 13.5px; line-height: 1.7; }
+.tv4 .notice p { margin: 0 0 6px; }
+.tv4 .notice p:last-child { margin: 0; }
+.tv4 .notice a { color: var(--line); font-weight: 700; text-decoration: underline; }
+.tv4 .toast { font-size: 12px; color: var(--muted); text-align: center; margin: 8px 0 0 !important; }
+@media (prefers-reduced-motion: reduce) {
+  .tv4 .rail { scroll-behavior: auto; }
+  .tv4 .zoom img { transition: none; }
+}
