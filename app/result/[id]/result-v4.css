@@ -140,6 +140,8 @@
 .tv4 .notice p { margin: 0 0 6px; }
 .tv4 .notice p:last-child { margin: 0; }
 .tv4 .notice a { color: var(--line); font-weight: 700; text-decoration: underline; }
+/* 장면 그림(owner 그림 09~12) — 시안에 없는 앱 요소, 2~4쪽 큰 카드와 같은 모서리·그림자 */
+.tv4 .scene { display: block; width: 100%; height: auto; margin: 2px 0 14px; border-radius: 14px; box-shadow: 0 6px 16px #01223f40; }
 /* 공유 창 — 시안에는 공유 창이 없어 아스트로 하우스 공유 시트 모양을 이 화면 색으로 옮김 */
 .tv4 .sheet-dim { position: fixed; inset: 0; z-index: 10; background: #001e38a6; display: flex; align-items: flex-end; justify-content: center; }
 .tv4 .sheet { position: relative; width: 100%; max-width: 400px; background: var(--cream); border-radius: 20px 20px 0 0; padding: 22px 18px calc(18px + env(safe-area-inset-bottom)); text-align: center; }
