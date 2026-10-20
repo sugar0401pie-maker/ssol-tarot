@@ -10,6 +10,7 @@ import { cardImg } from "@/lib/client/cardImage";
 import { parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
 import { SafetyScreen } from "./SafetyScreen";
+import { ShareSheet } from "./ShareSheet";
 import { Stars } from "./Cards";
 import { WaitNotice } from "./WaitNotice";
 
@@ -103,6 +104,8 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
   const [zoom, setZoom] = useState<{ src: string; alt: string; reversed: boolean } | null>(null);
   const [saved, setSaved] = useState(r.saved);
   const [msg, setMsg] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const closeShare = useCallback(() => setSharing(false), []);
   const router = useRouter();
   const n = r.pages.length;
 
@@ -197,8 +200,7 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
                 {p.page >= 4 && (
                   <>
                     <div className="sharerow">
-                      {/* TODO: 공유 시트(카드 3장·카드명·위치·방향만 — 고민 원문 금지) */}
-                      <button type="button" className="btn line sm" onClick={() => setMsg("공유하기는 준비 중이에요.")}>
+                      <button type="button" className="btn line sm" onClick={() => setSharing(true)}>
                         공유하기
                       </button>
                       <button type="button" className="btn line sm" onClick={save}>
@@ -246,6 +248,9 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
           </button>
         </div>
       </div>
+      {r.cards[2] && (
+        <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} />
+      )}
       <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label="크게 보기 닫기" tabIndex={zoom ? 0 : -1}>
         {/* eslint-disable-next-line @next/next/no-img-element -- 시안과 같은 단순 확대(고정 크기 이미지) */}
         {zoom && <img {...cardImg(zoom.src, "min(70vw, 300px)")} alt={zoom.alt} className={zoom.reversed ? "rev180" : ""} />}
@@ -290,8 +295,9 @@ function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
         <Blocks blocks={parseBlocks(blur, ctx.opts)} ctx={ctx} />
       </div>
       <div className="pay">
-        <b>{c.paywall_title}</b>
-        <p>{c.paywall_body}</p>
+        {/* 결정형이면 "세 장이 고른 쪽"이 가장 큰 결제 이유 — 데이터의 _decision 문구 */}
+        <b>{ctx.r.decision ? c.paywall_title_decision : c.paywall_title}</b>
+        <p>{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
         <p className="price">{c.paywall_price}</p>
         {/* TODO: 실제 연동 — 토스 결제(1,900원) 후 유료 리포트(D·E 호출) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         <button type="button" className="btn fill" disabled>

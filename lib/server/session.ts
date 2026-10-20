@@ -329,7 +329,7 @@ export async function getResult(s: SessionRow) {
   const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
   const frame = s.frame ?? null;
   // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
-  const { lean } = decide({ frame, cls, picks, name: s.nickname });
+  const { lean, decision } = decide({ frame, cls, picks, name: s.nickname });
   const pages = buildUnpaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links });
   return {
     status: "ready" as const,
@@ -340,6 +340,8 @@ export async function getResult(s: SessionRow) {
     // v4: 안내 박스는 폭력(구체 행동)·관계 속 두려움일 때만(주의 단계 삭제). 결제와 상관없이 보임.
     notice: buildSafetyNotice({ data, safety }),
     paid: false,
+    // 결정형 고민인지(세 장이 한쪽을 골랐는지)만 — 어느 쪽인지는 보내지 않는다. 결제 카드 문구를 고르는 데 쓴다.
+    decision,
     saved: Boolean(s.user_id),
   };
 }

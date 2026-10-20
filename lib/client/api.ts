@@ -79,5 +79,6 @@ export type ResultResponse =
       pages: ResultPage[];
       notice: string | null;
       paid: boolean;
+      decision?: boolean;
       saved: boolean;
     };

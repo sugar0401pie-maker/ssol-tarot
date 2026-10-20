@@ -7,6 +7,8 @@ import { initialState, next, type FlowAction, type FlowStateBase } from "@/lib/t
 import { api, saveKey, ApiError, type PickResponse } from "@/lib/client/api";
 import { fill } from "@/lib/client/text";
 import { CardBack, CardFace, CardCaption, Stars } from "./Cards";
+import { SceneArt } from "./SceneArt";
+import type { SceneArtMap, SceneId } from "@/lib/client/sceneArt";
 import { WaitNotice } from "./WaitNotice";
 import { IntroFriends, type Friend } from "./IntroFriends";
 import { DrawBoard } from "./DrawBoard";
@@ -16,7 +18,7 @@ import { SafetyScreen } from "./SafetyScreen";
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
 
 export type Copy = (typeof import("@/data/tarot_data.json"))["copy"];
-export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[] };
+export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap };
 
 type FlowState = FlowStateBase;
 type Action = FlowAction;
@@ -24,7 +26,9 @@ type Action = FlowAction;
 const SHUFFLE_MIN_MS = 3000; // 스펙 7.4: 안내문을 읽고 고민을 떠올릴 시간, 움직임 줄이기에서도 유지
 const AGAIN_KEY = "ssol_tarot_again";
 
-export default function TarotFlow({ copy, pickCount, friends }: FlowProps) {
+const NO_SCENE_ART: SceneArtMap = {};
+
+export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART }: FlowProps) {
   const router = useRouter();
   const flowData = useMemo(() => ({ copy, deck: { pick_count: pickCount } }), [copy, pickCount]);
   const [state, setState] = useState<FlowState>(() => initialState());
@@ -167,8 +171,10 @@ export default function TarotFlow({ copy, pickCount, friends }: FlowProps) {
   if (screen === "safety") return <SafetyScreen copy={copy} />;
 
   return (
-    <main className="night-bg relative flex min-h-dvh flex-col overflow-hidden">
+    <main className="night-bg relative flex min-h-dvh flex-col overflow-x-hidden">
       <Stars />
+      {/* 장면 맨 위 그림(그림 파일이 있는 장면만). 장면이 바뀔 때마다 다시 고름 */}
+      <SceneArt key={screen} map={sceneArt} id={screen as SceneId} />
       {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
       {screen === "welcome" && (
         <Framed>

@@ -140,6 +140,16 @@
 .tv4 .notice p { margin: 0 0 6px; }
 .tv4 .notice p:last-child { margin: 0; }
 .tv4 .notice a { color: var(--line); font-weight: 700; text-decoration: underline; }
+/* 공유 창 — 시안에는 공유 창이 없어 아스트로 하우스 공유 시트 모양을 이 화면 색으로 옮김 */
+.tv4 .sheet-dim { position: fixed; inset: 0; z-index: 10; background: #001e38a6; display: flex; align-items: flex-end; justify-content: center; }
+.tv4 .sheet { position: relative; width: 100%; max-width: 400px; background: var(--cream); border-radius: 20px 20px 0 0; padding: 22px 18px calc(18px + env(safe-area-inset-bottom)); text-align: center; }
+.tv4 .sheet h3 { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 17px; color: var(--line); margin: 0 0 16px; }
+.tv4 .sheet-x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--line); font-size: 18px; cursor: pointer; }
+.tv4 .share-grid { display: flex; justify-content: center; gap: 22px; }
+.tv4 .share-grid button { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.tv4 .share-grid i { font-style: normal; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+.tv4 .sheet-note { font-size: 12.5px; color: var(--line); margin: 14px 0 0; word-break: keep-all; }
+.tv4 .sheet-small { font-size: 11px; color: var(--muted); margin: 14px 0 0; }
 .tv4 .toast { font-size: 12px; color: var(--muted); text-align: center; margin: 8px 0 0 !important; }
 @media (prefers-reduced-motion: reduce) {
   .tv4 .rail { scroll-behavior: auto; }
