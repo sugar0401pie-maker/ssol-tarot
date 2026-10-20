@@ -28,7 +28,7 @@ export default function LoginScreen() {
     const problem = checkLoginInput(email, password);
     setError(problem);
     if (problem) return;
-    // TODO: 실제 연동 — getBrowserClient().auth.signInWithPassword({ email, password }) 후 router.replace(next).
+    // TODO: 실제 연동 — (await getBrowserClient())?.auth.signInWithPassword({ email, password }) 후 router.replace(next).
     // 실패 시 "이메일 또는 비밀번호를 확인해 주세요." 안내. 쿠키는 .ssolwellnesshouse.com에 심겨 쏘웰라와 공유된다.
     void next;
     setNotice(NOT_CONNECTED);

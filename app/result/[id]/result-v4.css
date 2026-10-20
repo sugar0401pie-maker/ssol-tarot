@@ -17,6 +17,7 @@
   background: var(--bg);
   font-family: var(--font-noto-sans-kr), "Noto Sans KR", sans-serif;
   color: var(--ink);
+  line-height: normal; /* 시안 기본값. Tailwind 초기화는 1.5라 머리글·점·쪽 번호 높이가 1px씩 달라짐 */
   min-height: 100dvh;
   display: flex;
   justify-content: center;
@@ -61,7 +62,7 @@
 .tv4 .pbody ul { margin: 0 0 10px 18px; }
 .tv4 .pbody li { margin-bottom: 6px; word-break: keep-all; }
 .tv4 .strip { display: flex; gap: 8px; margin: 4px 0 2px; }
-.tv4 .card { margin: 0; position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 16px #01223f40; background: #fff; cursor: zoom-in; padding: 0; border: 0; display: flex; flex-direction: column; justify-content: flex-start; }
+.tv4 .card { margin: 0; position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 16px #01223f40; background: #fff; cursor: zoom-in; padding: 0; border: 0; display: flex; flex-direction: column; justify-content: flex-start; text-align: start; }
 /* 버튼은 내용을 세로 가운데 정렬하므로(시안은 figure) 위쪽 붙임으로 되돌림 */
 .tv4 .card img { display: block; width: 100%; }
 .tv4 .card img.rev180 { transform: rotate(180deg); }
@@ -70,11 +71,12 @@
 .tv4 .mini { margin-top: 6px; padding-top: 10px; border-top: 1px dashed #20487033; }
 .tv4 .mini .pos { display: inline-block; font-size: 10.5px; background: var(--night); color: var(--gold-soft); padding: 1px 8px; border-radius: 9px; margin-right: 6px; vertical-align: 2px; }
 .tv4 .mini b { font-family: var(--font-gowun-batang), "Gowun Batang", serif; color: var(--line); font-size: 15.5px; }
-.tv4 .mini small { color: var(--muted); }
+.tv4 .mini small { color: var(--muted); font-size: smaller; } /* 브라우저 기본 small(시안 11.67px) — Tailwind 초기화는 80%(11.2px) */
 .tv4 .kw { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 6px !important; }
 .tv4 .kw span { font-size: 11.5px; background: #fff; border: 1px solid var(--gold); color: #7a5a12; border-radius: 12px; padding: 1px 9px; }
 .tv4 .card.xl { width: 100%; margin: 2px 0 14px; border-radius: 14px; }
-.tv4 .card .revtag { font-size: 9.5px; color: #9a7b3a; text-align: center; padding: 3px 0 4px; background: var(--cream); }
+/* 시안은 figure > figcaption — figcaption 기본 규칙(고운바탕 700)을 이어받은 뒤 revtag가 크기·색만 바꾼다 */
+.tv4 .card .revtag { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-weight: 700; font-size: 9.5px; color: #9a7b3a; text-align: center; padding: 3px 0 4px; background: var(--cream); }
 .tv4 .cardinfo { border-left: 3px solid var(--gold); padding: 4px 0 4px 12px; margin: 0 0 6px; background: transparent; }
 .tv4 .cardinfo .cname { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 17px; color: var(--line); line-height: 1.5; margin: 0 !important; }
 .tv4 .cardinfo .cname .ch { font-family: var(--font-noto-sans-kr), "Noto Sans KR", sans-serif; font-size: 12px; color: var(--muted); }

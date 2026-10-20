@@ -18,6 +18,3 @@ export function introFriends() {
 }
 
 export const PICK_COUNT = data.deck.pick_count;
-
-// 뽑기 칸 이름(자리 순서대로).
-export const SLOT_LABELS = [...data.positions].sort((a, b) => a.order - b.order).map((p) => p.name);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { cardImg } from "@/lib/client/cardImage";
 
 // 카드 앞면/뒷면 (디자인 가이드 6장).
 // - 앞면 그림은 2:3, 카드명은 그림에 넣지 않고 하단 크림 띠(약 92% 높이)에 웹 글자로 얹는다.
@@ -11,13 +12,16 @@ import { useState } from "react";
 // 그 그림으로 바꾸면 true로 — 웹 글자 카드명을 겹쳐 쓰지 않는다. 지금 public/images/tarot/의 시안(v2.2 패키지)은 띠가 비어 있어 false.
 const CARD_ART_HAS_LABEL = false;
 
+// 카드 뒷면은 화면마다 크기가 달라도(뽑기 부채 52~64px, 섞기 144px) 같은 파일 하나를 받도록 크기를 한 값으로 고정한다.
+const BACK = cardImg("/images/tarot/card-back.webp", "144px");
+
 export function CardBack({ className = "" }: { className?: string }) {
   const [broken, setBroken] = useState(false);
   return (
     <div className={`relative aspect-[2/3] overflow-hidden rounded-[6%] bg-night shadow-md ${className}`}>
       {!broken ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src="/images/tarot/card-back.webp" alt="" draggable={false} className="h-full w-full object-cover" onError={() => setBroken(true)} />
+        <img {...BACK} alt="" draggable={false} decoding="async" className="h-full w-full object-cover" onError={() => setBroken(true)} />
       ) : (
         <div className="h-full w-full rounded-[6%] border border-gold" />
       )}
@@ -31,12 +35,14 @@ export function CardFace({
   character,
   reversed,
   className = "",
+  sizes = "(max-width: 384px) 30vw, 120px",
 }: {
   image: string;
   name: string;
   character: string;
   reversed: boolean;
   className?: string;
+  sizes?: string; // 화면에서 차지하는 너비(기본: 뽑기 화면 3칸)
 }) {
   const [broken, setBroken] = useState(false);
   const alt = `${name} — ${character}${reversed ? " (역방향)" : ""}`;
@@ -51,8 +57,9 @@ export function CardFace({
     <div className={`relative aspect-[2/3] overflow-hidden rounded-[6%] shadow-md [container-type:inline-size] ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={image}
+        {...cardImg(image, sizes)}
         alt={alt}
+        decoding="async"
         draggable={false}
         className={`h-full w-full object-cover ${reversed ? "rotate-180" : ""}`}
         onError={() => setBroken(true)}

@@ -108,7 +108,7 @@ COPY = dict(
     button_pick="지금 뽑을게요", button_reshuffle="다시 섞을게요"),
   pick=dict(
     guide="고민을 되새기면서 가장 마음이 가는 카드 3개를 뽑아주세요.",
-    slot_labels=["지금의 마음", "나를 붙잡는 것", "다음 한 걸음"],
+    slot_labels=["지나온 길", "지금의 흐름", "앞으로의 열쇠"],
     counter="{picked} / 3"),
   reveal=dict(
     done="카드를 다 뽑았어요. 이제 설명을 보러 가볼까요?",

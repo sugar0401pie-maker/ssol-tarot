@@ -1,11 +1,12 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, loadKey, ApiError, type ResultResponse, type ResultPage, type ResultCard } from "@/lib/client/api";
 import { getAccessToken } from "@/lib/supabase/browser";
 import { clean } from "@/lib/client/text";
+import { cardImg } from "@/lib/client/cardImage";
 import { parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
 import { SafetyScreen } from "./SafetyScreen";
@@ -129,10 +130,16 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
     };
   }, [go, idx]);
 
+  // 스크롤 이벤트는 1초에 수십 번 온다 — 한 화면 그리기에 한 번만 계산(쪽 번호가 같으면 React가 다시 그리지 않음).
+  const ticking = useRef(false);
   function onScroll() {
     const el = rail.current;
-    if (!el) return;
-    requestAnimationFrame(() => setIdx(Math.round(el.scrollLeft / el.clientWidth)));
+    if (!el || ticking.current) return;
+    ticking.current = true;
+    requestAnimationFrame(() => {
+      ticking.current = false;
+      setIdx(Math.round(el.scrollLeft / el.clientWidth));
+    });
   }
 
   async function save() {
@@ -165,7 +172,8 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
     router.push("/");
   }
 
-  const ctx: Ctx = { r, copy, opts, openZoom: setZoom };
+  // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 11쪽을 다시 해석하지 않게.
+  const ctx: Ctx = useMemo(() => ({ r, copy, opts, openZoom: setZoom }), [r, copy, opts]);
 
   return (
     <div className="tv4">
@@ -240,7 +248,7 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
       </div>
       <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label="크게 보기 닫기" tabIndex={zoom ? 0 : -1}>
         {/* eslint-disable-next-line @next/next/no-img-element -- 시안과 같은 단순 확대(고정 크기 이미지) */}
-        {zoom && <img src={zoom.src} alt={zoom.alt} className={zoom.reversed ? "rev180" : ""} />}
+        {zoom && <img {...cardImg(zoom.src, "min(70vw, 300px)")} alt={zoom.alt} className={zoom.reversed ? "rev180" : ""} />}
       </button>
     </div>
   );
@@ -248,12 +256,13 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
 
 type Ctx = { r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void };
 
-function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
+const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
   if (p.card) return <CardPage p={p} ctx={ctx} />;
   if (p.page === 5 && !r.paid) {
-    // 5쪽: 메인 문구·첫 줄·카드별 한 줄까지 무료, 결론부터는 결제 후. 서버가 결론을 보내지 않으므로 블러 아래는 고정 예시.
-    const sample = ctx.copy.result.blur_samples.pages["6"];
+    // 5쪽: 메인 문구·첫 줄·카드별 한 줄까지 무료, 결론부터는 결제 후. 서버가 결론을 보내지 않으므로 블러 아래는
+    // 데이터의 5쪽 전용 고정 예시(blur_samples.locked5 — 민준님 예시, 이 사용자 내용 아님).
+    const sample = ctx.copy.result.blur_samples.locked5;
     return (
       <>
         <Blocks blocks={parseBlocks(p.free, opts)} ctx={ctx} />
@@ -270,7 +279,7 @@ function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
     );
   }
   return <Blocks blocks={parseBlocks(p.body, opts)} ctx={ctx} />;
-}
+});
 
 function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
   const c = ctx.copy.result;
@@ -301,8 +310,9 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   return (
     <>
       <button type="button" className="card xl" onClick={() => ctx.openZoom({ src, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} className={c.reversed ? "rev180" : ""} />
+        {/* 2~4쪽은 처음엔 옆으로 밀려 있는 쪽이라 늦게 불러온다(넘겨 갈 때 받음) */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- 최적화 주소는 cardImg(getImageProps)로 직접 넣음 */}
+        <img {...cardImg(src, "(max-width: 400px) 92vw, 364px")} alt={alt} loading="lazy" decoding="async" className={c.reversed ? "rev180" : ""} />
       </button>
       <div className="cardinfo">
         <p className="cname">
@@ -476,7 +486,7 @@ function Strip({ cards, ctx }: { cards: ResultCard[]; ctx: Ctx }) {
           return (
             <button type="button" key={c.id} className="card sm" onClick={() => ctx.openZoom({ src: c.image, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={c.image} alt={alt} className={c.reversed ? "rev180" : ""} />
+              <img {...cardImg(c.image, "(max-width: 400px) 30vw, 120px")} alt={alt} fetchPriority="high" className={c.reversed ? "rev180" : ""} />
               {c.reversed && <span className="revtag" style={{ display: "block" }}>역방향</span>}
             </button>
           );
