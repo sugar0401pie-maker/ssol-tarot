@@ -79,7 +79,7 @@ export default function ResultView({ id, copy, opts }: { id: string; copy: ViewC
     return (
       <main className="night-bg relative flex min-h-dvh items-center justify-center px-6">
         <Stars />
-        <WaitNotice nickname={nickname || "당신"} message={copy.loading.message} elapsedLabel={copy.loading.elapsed} />
+        <WaitNotice nickname={nickname} message={copy.loading.message} elapsedLabel={copy.loading.elapsed} lines={copy.loading.messages} />
       </main>
     );
   }

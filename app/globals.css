@@ -38,9 +38,9 @@ body {
   font-family: var(--font-noto-sans-kr), system-ui, sans-serif;
 }
 
-/* 밤 화면 배경: 위는 night, 아래로 night-deep */
+/* 밤 화면 배경(design-preview .night): 위쪽이 살짝 밝은 원형 그라데이션 → night → night-deep */
 .night-bg {
-  background: linear-gradient(180deg, var(--night) 0%, var(--night) 55%, var(--night-deep) 100%);
+  background: radial-gradient(120% 70% at 50% 0%, #0a4373 0%, var(--night) 45%, var(--night-deep) 100%);
 }
 .dawn-bg {
   background: var(--card-cream);
@@ -79,8 +79,41 @@ body {
   height: 2px;
   border-radius: 9999px;
   background: var(--gold-soft);
-  animation: twinkle 4s ease-in-out infinite;
+  animation: twinkle 4s ease-in-out infinite; /* 주기는 별마다 3~6초(Stars에서 지정, 디자인 가이드) */
 }
+/* 금선 프레임 모서리 장식(디자인 가이드 4장: 조개·불가사리 SVG 4개) */
+.frame-corner { position: absolute; width: 26px; height: 26px; color: var(--gold); opacity: 0.8; pointer-events: none; z-index: 1; }
+/* 경험 질문 아래 초승달 원호(design-preview .moonarc) */
+.moonarc { width: 36px; height: 12px; border: 1.5px solid var(--gold); border-top: none; border-radius: 0 0 36px 36px; opacity: 0.8; }
+/* 대기 엠블럼: 카드 뒷면 가운데(달 속 두 물결)를 원으로 잘라 18초에 한 바퀴(design-preview .emb) */
+.wait-emb { width: 150px; height: 150px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 40px #e3c68e44; animation: wait-spin 18s linear infinite; }
+.wait-emb img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.55); }
+@keyframes wait-spin { to { transform: rotate(360deg); } }
+/* 섞기 화면: 섞는 동안 금빛 잔상, 다 섞이면 물결 빛 한 번, [지금 뽑을게요]면 더미가 아래로 내려가며 사라짐(스펙 7.4) */
+.shuffle-zone { transition: transform 0.48s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.48s; }
+.shuffle-zone .mystic-ring, .shuffle-zone .mystic-orbit { transition: opacity 0.6s; }
+.shuffle-zone:not(.is-mixing) .mystic-orbit, .shuffle-zone:not(.is-mixing) .mystic-ring { opacity: 0; }
+.shuffle-zone.is-mixing .shuffle-card { filter: drop-shadow(0 0 10px rgba(227, 198, 142, 0.55)); }
+.shuffle-zone.is-leaving { transform: translateY(160px) scale(0.92); opacity: 0; }
+.shuffle-shine { position: absolute; inset: -6px; border-radius: 10px; pointer-events: none; opacity: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(252, 239, 212, 0.55) 48%, rgba(227, 198, 142, 0.35) 52%, transparent 70%);
+  background-size: 250% 100%; background-position: 120% 0; }
+.shuffle-zone.is-done .shuffle-shine { animation: shuffle-shine 1.1s ease-out 0.25s 1 both; }
+@keyframes shuffle-shine { 0% { opacity: 1; background-position: 120% 0; } 100% { opacity: 0; background-position: -60% 0; } }
+/* 섞기·대기의 신비한 연출(owner 2026-10-20): 엠블럼 + 반대로 도는 카드·별 고리 + 3초마다 바뀌며 깜빡이는 문구 */
+.mystic { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; }
+.mystic-ring { position: absolute; inset: 22px; border-radius: 50%; }
+.mystic-ring-dash { border: 1px dashed rgba(227, 198, 142, 0.55); animation: wait-spin 40s linear infinite reverse; }
+.mystic-orbit { position: absolute; inset: 0; }
+.mystic-orbit-cards { animation: wait-spin 14s linear infinite; }
+.mystic-orbit-stars { animation: wait-spin 9s linear infinite reverse; }
+.mystic-card, .mystic-star { position: absolute; left: 50%; top: 50%; transform-origin: 0 0; }
+.mystic-card img { display: block; width: 34px; height: 51px; margin: -25px 0 0 -17px; border-radius: 4px; box-shadow: 0 0 12px rgba(227, 198, 142, 0.5); }
+.mystic-star { color: var(--gold); font-size: 13px; line-height: 1; margin: -7px 0 0 -6px; animation: twinkle 2.4s ease-in-out infinite; }
+.mystic-center { position: relative; z-index: 1; width: 130px; height: 130px; }
+.mystic-line { animation: mystic-in 0.6s ease-out, mystic-blink 2s ease-in-out 0.6s infinite; }
+@keyframes mystic-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes mystic-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
 /* 버튼 — 밤: moon 채움 / 보조: 금테 투명. 아침: navy 채움 */
 .btn-night {
@@ -213,6 +246,10 @@ body {
 .swim-rtl { animation: swim-rtl 4.2s cubic-bezier(0.3, 0.6, 0.7, 0.4) forwards; }
 .bob { animation: bob 1.6s ease-in-out infinite; }
 
+@keyframes fade-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
@@ -221,7 +258,12 @@ body {
 
 /* 움직임 줄이기: 셔플·회전·헤엄 대신 페이드(셔플 최소 3초는 화면 코드가 유지) */
 @media (prefers-reduced-motion: reduce) {
-  .shuffle-left, .shuffle-right, .shuffle-spin, .bob, .breathe, .star { animation: none; }
+  .shuffle-left, .shuffle-right, .shuffle-spin, .bob, .breathe, .star, .wait-emb, .mystic-ring-dash, .mystic-orbit-cards, .mystic-orbit-stars, .mystic-star { animation: none; }
+  .mystic-line { animation: mystic-in 0.6s ease-out; }
+  .shuffle-zone, .shuffle-zone.is-done .shuffle-shine { transition: opacity 0.3s; animation: none; }
+  .shuffle-zone.is-leaving { transform: none; }
+  /* 움직임 대신 페이드(스펙 7.4) */
+  .shuffle-left, .shuffle-right, .shuffle-spin { animation: fade-pulse 1.5s ease-in-out infinite; }
   .swim-ltr, .swim-rtl { animation: fade-inout 4.2s ease-in-out forwards; }
   .flip-card { transition: opacity 0.3s; }
   .dawn-glow { animation: none; display: none; }

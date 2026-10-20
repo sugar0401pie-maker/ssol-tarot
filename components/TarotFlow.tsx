@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { initialState, next, type FlowAction, type FlowStateBase } from "@/lib/tarot/flow.js";
 import { api, saveKey, ApiError, type PickResponse } from "@/lib/client/api";
 import { fill } from "@/lib/client/text";
-import { CardBack, CardFace, CardCaption, Stars } from "./Cards";
+import { CardBack, CardFace, CardCaption, FrameCorners, Stars } from "./Cards";
 import { SceneArt } from "./SceneArt";
+import { MysticOrbit, RotatingLine } from "./Mystic";
 import type { SceneArtMap, SceneId } from "@/lib/client/sceneArt";
 import { WaitNotice } from "./WaitNotice";
 import type { Friend } from "./IntroCardSpin";
@@ -24,7 +25,7 @@ export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; frien
 type FlowState = FlowStateBase;
 type Action = FlowAction;
 
-const SHUFFLE_MIN_MS = 3000; // 스펙 7.4: 안내문을 읽고 고민을 떠올릴 시간, 움직임 줄이기에서도 유지
+const SHUFFLE_MIN_MS = 6000; // 스펙 7.4는 최소 3초. 3초마다 바뀌는 안내(owner 2026-10-20)가 두 줄은 보이도록 6초. 움직임 줄이기에서도 유지
 const AGAIN_KEY = "ssol_tarot_again";
 
 const NO_SCENE_ART: SceneArtMap = {};
@@ -195,6 +196,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
             <Sparkle />
             <h1 className="font-serif text-[24px] font-bold leading-snug text-gold-soft">{fill(copy.experience.title, { nickname })}</h1>
             <p className="font-serif text-[18px] text-moon">{copy.experience.sub}</p>
+            <div className="moonarc mt-3" aria-hidden />
             <div className="mt-8 flex w-full flex-col gap-3">
               {[
                 { v: "returning", label: copy.experience.button_returning },
@@ -234,7 +236,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         </Framed>
       )}
       {screen === "shuffle" && session && (
-        <ShuffleScreen copy={copy} session={session} onPick={(shuffleId) => {
+        <ShuffleScreen copy={copy} session={session} nickname={nickname} onPick={(shuffleId) => {
           setShuffleId(shuffleId);
           go({ type: "PICK_NOW" });
         }} />
@@ -252,7 +254,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
       )}
       {screen === "loading" && (
         <div className="relative flex flex-1 items-center justify-center px-6">
-          <WaitNotice nickname={nickname} message={copy.loading.message} elapsedLabel={copy.loading.elapsed} />
+          <WaitNotice nickname={nickname} message={copy.loading.message} elapsedLabel={copy.loading.elapsed} lines={copy.loading.messages} />
         </div>
       )}
     </main>
@@ -266,6 +268,7 @@ type C = FlowProps["copy"];
 function Framed({ children }: { children: React.ReactNode }) {
   return (
     <div className="gold-frame relative flex flex-1 flex-col items-center justify-center px-9 py-16">
+      <FrameCorners />
       <div className="w-full max-w-sm">{children}</div>
     </div>
   );
@@ -297,15 +300,16 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
       .catch(() => setCount(null));
   }, []);
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-16 text-center">
-      <Link href="/login" className="absolute right-5 top-5 text-[13px] text-moon/80 underline">
-        로그인
+    <div className="gold-frame relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-14 text-center">
+      <FrameCorners />
+      <Link href="/login" className="absolute right-7 top-7 z-[2] text-[13px] text-moon/80 underline">
+        {copy.intro.login}
       </Link>
       {/* 제목이 맨 위, 그 아래 카드 부채 연출(owner 2026-10-20 — 바다 친구 지나가기 대신) */}
       <div className="fade-up flex w-full flex-col items-center gap-3">
-        <p className="text-[13px] tracking-[0.2em] text-gold">SSOL WELLNESS HOUSE</p>
-        <h1 className="font-serif text-[30px] font-bold text-gold-soft">쏠 타로 하우스</h1>
-        <p className="text-[14px] text-moon/80">고민을 떠올리며 세 장의 카드를 뽑아 보세요</p>
+        <p className="text-[13px] tracking-[10px] text-gold" aria-hidden>✦ ✦ ✦</p>
+        <h1 className="font-serif text-[30px] font-bold text-gold-soft">{copy.intro.title}</h1>
+        <p className="text-[14px] text-moon/90">{copy.intro.sub}</p>
       </div>
       <IntroCardSpin cards={friends} />
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
@@ -401,13 +405,15 @@ function WorryScreen({
 function ShuffleScreen({
   copy,
   session,
+  nickname,
   onPick,
 }: {
   copy: C;
   session: { id: string; key: string };
+  nickname: string;
   onPick: (shuffleId: string) => void;
 }) {
-  const [phase, setPhase] = useState<"mixing" | "done" | "error">("mixing");
+  const [phase, setPhase] = useState<"mixing" | "done" | "error" | "leaving">("mixing");
   const [shuffleId, setShuffleId] = useState<string | null>(null);
   const [round, setRound] = useState(0);
   useEffect(() => {
@@ -426,29 +432,45 @@ function ShuffleScreen({
       alive = false;
     };
   }, [session, round]);
+  const mixing = phase === "mixing";
+  // [지금 뽑을게요]: 더미가 아래로 내려가며 사라진 뒤 뽑기 화면으로(스펙 7.4)
+  function pickNow(id: string) {
+    setPhase("leaving");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(() => onPick(id), reduce ? 0 : 480);
+  }
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-16 text-center">
+    <div className="relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-12 text-center">
       <p className="fade-up max-w-sm font-serif text-[18px] leading-relaxed text-gold-soft">{copy.shuffle.guide}</p>
-      <div className="relative my-10 h-56 w-36" aria-hidden>
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className={`absolute inset-0 ${phase === "mixing" ? (i % 3 === 0 ? "shuffle-left" : i % 3 === 1 ? "shuffle-right" : "shuffle-spin") : ""}`}
-            style={{ animationDelay: `${i * 0.12}s`, transform: phase === "mixing" ? undefined : `translateY(${-i * 2}px)`, transition: "transform .4s" }}
-          >
-            <CardBack className="w-full" />
+      {/* 섞는 동안: 더미 둘레로 카드·별이 돌고(신비한 연출, owner 2026-10-20) 카드는 좌우로 갈라졌다 겹치며 금빛 잔상.
+          다 섞이면 가지런히 모이고 물결 빛이 한 번 지나간다(스펙 7.4). */}
+      <div className={`shuffle-zone ${mixing ? "is-mixing" : ""} ${phase === "done" ? "is-done" : ""} ${phase === "leaving" ? "is-leaving" : ""}`}>
+        <MysticOrbit size={320}>
+          <div className="relative h-56 w-36" aria-hidden>
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className={`shuffle-card absolute inset-0 ${mixing ? (i % 3 === 0 ? "shuffle-left" : i % 3 === 1 ? "shuffle-right" : "shuffle-spin") : ""}`}
+                style={{ animationDelay: `${i * 0.12}s`, transform: mixing ? undefined : `translateY(${-i * 2}px)`, transition: "transform .4s" }}
+              >
+                <CardBack className="w-full" />
+              </div>
+            ))}
+            <span className="shuffle-shine" />
           </div>
-        ))}
+        </MysticOrbit>
       </div>
-      <div className="flex w-full max-w-sm flex-col gap-3">
-        {phase === "done" && shuffleId && (
+      <div className="flex min-h-[170px] w-full max-w-sm flex-col justify-end gap-3">
+        {mixing && <RotatingLine lines={copy.shuffle.messages} nickname={nickname} className="mb-4 font-serif text-[16px] text-moon" />}
+        {(phase === "done" || phase === "leaving") && shuffleId && (
           <>
             <p className="fade-up text-[15px] text-moon">{copy.shuffle.done}</p>
-            <button type="button" className="btn-night fade-up w-full rounded-full py-3.5 text-[15px] font-medium" onClick={() => onPick(shuffleId)}>
+            <button type="button" disabled={phase === "leaving"} className="btn-night fade-up w-full rounded-full py-3.5 text-[15px] font-medium" onClick={() => pickNow(shuffleId)}>
               {copy.shuffle.button_pick}
             </button>
             <button
               type="button"
+              disabled={phase === "leaving"}
               className="btn-night-ghost fade-up w-full rounded-full py-3.5 text-[15px]"
               onClick={() => {
                 setPhase("mixing");
@@ -462,7 +484,7 @@ function ShuffleScreen({
         )}
         {phase === "error" && (
           <button type="button" className="btn-night-ghost w-full rounded-full py-3.5 text-[15px]" onClick={() => { setPhase("mixing"); setRound((r) => r + 1); }}>
-            연결이 잠시 끊겼어요. 다시 섞기
+            {copy.shuffle.error_retry}
           </button>
         )}
       </div>
