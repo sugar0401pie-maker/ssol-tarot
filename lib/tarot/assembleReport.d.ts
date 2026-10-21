@@ -11,3 +11,4 @@ export function buildLinkUserBlock(a: { name: string; worryText: string | null; 
 export function buildStoryUserBlock(a: any): string | null;
 export function parseStoryApply(raw: unknown, opts?: { violence?: boolean }): any;
 export function readingSentence(a: any): string;
+export function comboScore(a: { picks: ExpandedPick[]; data: TarotData; cls?: any; worryText?: string }): { score: number; pace: "near" | "step" | "slow"; parts: any[] };

@@ -57,7 +57,7 @@ export default function ResultsList() {
           <div className="mt-10 flex flex-col items-center gap-5 text-center">
             <p className="text-[15px] text-moon/85">아직 저장된 결과가 없어요.</p>
             <Link href="/?start=1" className="btn-night block w-full rounded-full py-3.5 text-center text-[15px] font-medium">
-              타로 보기
+              지금 보러 갈까요?
             </Link>
           </div>
         )}

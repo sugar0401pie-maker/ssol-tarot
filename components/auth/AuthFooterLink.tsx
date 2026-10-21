@@ -7,7 +7,8 @@ import { useEffect, useState } from "react";
 import { getBrowserClient, isRealSession } from "@/lib/supabase/browser";
 import { signOut } from "@/lib/supabase/authClient";
 
-export default function AuthFooterLink() {
+// tone="dark": 결과 화면(크림 바탕)용 남색 글자(owner 2026-10-21 "결과보고서 화면 밑에도 로그인/로그아웃 작게")
+export default function AuthFooterLink({ tone = "light" }: { tone?: "light" | "dark" }) {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [toast, setToast] = useState("");
 
@@ -31,7 +32,7 @@ export default function AuthFooterLink() {
   if (loggedIn === null) return null;
 
   return (
-    <p className="pb-3 text-center text-sm text-moon/80">
+    <p className={tone === "dark" ? "authfoot pb-1 pt-4 text-center text-[12px] text-[#204870]/70" : "pb-3 text-center text-sm text-moon/80"}>
       {loggedIn ? (
         <>
           <Link href="/results" className="underline">내 결과</Link>

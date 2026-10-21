@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
+import { paceTeaser, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
@@ -99,4 +99,15 @@ test("D 입력: 안전 칸·고민 틀·방향 포함 / E 입력: 5·6쪽 글(al
   assert.match(e, /direction_lean=\{/);
   assert.equal(buildDUserBlock({ name: cs.name, worryText: null, cls: cs.ai, picks, frame, lean, safety }), null);
   assert.equal(buildEUserBlock({ name: cs.name, worryText: "", cls: cs.ai, picks, frame, lean, alreadyShown: "" }), null);
+});
+
+test("7쪽 예고는 풀리는 속도에 따라 바뀌고, 방향(선택지 이름)은 드러내지 않는다", () => {
+  assert.equal(paceTeaser("near"), "카드는 앞으로 이 고민이 해결된다고 말해요, 이유는 다음과 같아요");
+  assert.equal(paceTeaser("step"), "카드는 앞으로 충분히 승산이 있다고 말해요, 이유는 다음과 같아요");
+  assert.equal(paceTeaser("slow"), "카드는 앞으로 시간은 걸려도 가능하다고 말해요, 이유는 다음과 같아요");
+  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const P = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null }));
+  const t7 = String(P[6].teaser);
+  assert.match(t7, /^카드는 앞으로 .+고 말해요, 이유는 다음과 같아요$/);
+  assert.doesNotMatch(t7, /현재 회사에 남기|이직 제안 수락/);
 });

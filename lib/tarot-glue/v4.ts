@@ -4,7 +4,7 @@
 import data from "../../data/tarot_data.json" with { type: "json" };
 import tables from "../../data/decision_tables.json" with { type: "json" };
 import { pickTable, lean as leanOf, type Lean } from "../tarot/decision.js";
-import { buildPages, buildLinkUserBlock, buildStoryUserBlock } from "../tarot/assembleReport.js";
+import { buildPages, buildLinkUserBlock, buildStoryUserBlock, comboScore } from "../tarot/assembleReport.js";
 import { buildPagesV4, SUBHEADS } from "../tarot/pagesV4.js";
 import type { ExpandedPick, Safety } from "../tarot/types";
 
@@ -80,7 +80,19 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
   name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null;
 }): any[] {
   const base = buildPages({ name, cls, picks, data, links: C?.links ?? null, safety, worryText: worryText || "", paid: false });
-  return buildPagesV4({ base, frame, lean, C, E: null, name, paid: false, data });
+  const pages = buildPagesV4({ base, frame, lean, C, E: null, name, paid: false, data });
+  // 7쪽(잠긴 쪽) 예고를 카드 결과의 풀리는 속도에 맞춰(owner 2026-10-21 "카드는 앞으로 {해결된다}고 말해요, 이유는 다음과 같아요").
+  // 속도는 7쪽 흐름 판정과 같은 점수(comboScore) — 결정형의 '어느 쪽'은 드러내지 않는다.
+  const teaser = paceTeaser(comboScore({ picks, data, cls, worryText: worryText || "" }).pace);
+  return teaser ? pages.map((p) => (p.page === 7 ? { ...p, teaser } : p)) : pages;
+}
+
+/** 7쪽 예고 문장(데이터 copy.result.v4.teaser7_pace + pace_phrases). 문구가 없으면 null(패키지 기본 예고 그대로). */
+export function paceTeaser(pace: "near" | "step" | "slow"): string | null {
+  const v4 = (data.copy.result as any).v4 ?? {};
+  const tpl: string | undefined = v4.teaser7_pace;
+  const phrase: string | undefined = v4.pace_phrases?.[pace];
+  return tpl && phrase ? tpl.replace("{pace}", phrase) : null;
 }
 
 // 결제 전 응답에 실을 칸만 고른다(허용 목록). 특히 5쪽 locked(결론 "세 장을 합치면 ‘○○’ 쪽이…"부터)와

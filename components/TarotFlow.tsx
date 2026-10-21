@@ -461,7 +461,8 @@ function WorryScreen({
   }, [examples.length]);
   return (
     <div className="fade-up flex flex-col gap-3">
-      <h1 className="text-center font-serif text-[22px] font-bold leading-snug text-gold-soft">{fill(copy.worry.title, { nickname })}</h1>
+      {/* owner 줄바꿈("…고민을 / 편하게 작성해주세요.")이 휴대폰에서 세 줄로 밀리지 않게 화면 폭에 맞춰 글자 크기를 줄인다(최대 22px) */}
+      <h1 className="whitespace-pre-line break-keep text-center font-serif text-[clamp(16px,4.8vw,22px)] font-bold leading-snug text-gold-soft">{fill(copy.worry.title, { nickname })}</h1>
       <p className="text-center text-[14px] leading-relaxed text-moon/90">{copy.worry.sub}</p>
       <div className="relative mt-4">
         <textarea

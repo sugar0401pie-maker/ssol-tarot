@@ -12,6 +12,7 @@ import type { Copy } from "./TarotFlow";
 import { SafetyScreen } from "./SafetyScreen";
 import { ShareSheet } from "./share/ShareSheet";
 import KakaoTalkLogo from "./share/KakaoTalkLogo";
+import AuthFooterLink from "./auth/AuthFooterLink";
 import { SceneArt } from "./SceneArt";
 import { RESULT_PAGE_SCENE, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
@@ -272,6 +273,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
                   </button>
                 )}
                 {(p.page === 1 || p.page === n) && <p className="fineprint">{copy.disclaimer}</p>}
+                <AuthFooterLink tone="dark" />
               </div>
             </section>
           ))}
