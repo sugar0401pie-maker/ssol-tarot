@@ -266,13 +266,27 @@ export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: un
   };
 }
 
+// 모델 출력에서 JSON 부분만(코드 울타리·앞뒤 말 제거). 검수 초안·검수 결과에 쓴다.
+function jsonPart(raw: string): string {
+  const t = raw.replace(/^```(json)?|```$/gm, "").trim();
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  return a >= 0 && b > a ? t.slice(a, b + 1) : "null";
+}
+function parseJsonLoose(raw: string): unknown {
+  try {
+    return JSON.parse(jsonPart(raw));
+  } catch {
+    return null;
+  }
+}
+
 // AI 검수(owner 2026-10-21): 초안(JSON 원문)을 같은 규칙으로 다시 읽혀 어긴 문장만 고친 판을 받는다. 실패하면 null(초안 그대로 씀).
 // 호출하는 쪽이 원래 검증기로 다시 걸러서, 검증을 통과하고 초안보다 나쁘지 않을 때만 바꾼다.
-async function reviewDraft(originalSystem: string, userBlock: string, draft: string, timeoutMs: number, label: string): Promise<string | null> {
+async function reviewDraft(parts: { key: string; system: string; userBlock: string }[], draft: string, timeoutMs: number): Promise<string | null> {
   try {
-    return await generateText(REVIEW_SYSTEM, reviewUserMessage(originalSystem, userBlock, draft), { timeoutMs, maxOutputTokens: 8000, label: `R-${label}` });
+    return await generateText(REVIEW_SYSTEM, reviewUserMessage(parts, draft), { timeoutMs, maxOutputTokens: 12000, label: "R" });
   } catch (e) {
-    console.warn(`검수(${label}) 실패:`, e instanceof Error ? e.message : "unknown");
+    console.warn("검수 실패:", e instanceof Error ? e.message : "unknown");
     return null;
   }
 }
@@ -306,35 +320,24 @@ export async function prepareResult(sessionId: string) {
     const picks = expandPicks(s.picks);
     const { decision, lean } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname });
     const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean });
-    // 연결 한 줄(C)은 최대 20초(스펙 7.7은 12초였으나 owner 2026-10-21 "시간이 좀 걸려도 괜찮아요, 검수를 한 번 더"),
-    // 그다음 검수(R) 최대 20초. 넘으면 그 단계 없이(초안 또는 한 줄 없이) 연다.
-    const deadline = Date.now() + 20000;
+    // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7). 무료 결과에는 검수를 하지 않는다(owner 2026-10-21 비용 — 검수는 유료 1번만).
+    const deadline = Date.now() + 12000;
     const parse = (raw: string) => parseC(raw, { decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost });
     let best: ReturnType<typeof parseC> | null = null;
-    let bestRaw: string | null = null;
     for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
       if (left < 2000) break;
       try {
-        const raw = await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C" });
-        const r = parse(raw);
+        const r = parse(await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C" }));
         // 걸린 칸만 비고 나머지는 쓴다(README_v4). 한 줄(links)까지 통과했으면 재시도하지 않음.
-        if (!best || (r.links && !best.links)) {
-          best = r;
-          bestRaw = raw;
-        }
+        if (!best || (r.links && !best.links)) best = r;
         if (r.errors.length) console.warn("C 검증 탈락 칸:", r.errors.length, "건");
         if (r.links) break;
       } catch (e) {
         console.warn("C 호출 실패:", e instanceof Error ? e.message : "unknown");
       }
     }
-    if (best && bestRaw && userBlock) {
-      const reviewed = await reviewDraft(C_SYSTEM, userBlock, bestRaw, 20000, "C");
-      const r = reviewed ? parse(reviewed) : null;
-      // 검수본은 원래 검증을 통과하고, 초안보다 탈락 칸이 많지 않을 때만 쓴다
-      if (r && r.links && r.errors.length <= best.errors.length) best = r;
-    }
+
     if (best) {
       const { errors: _errors, ...rest } = best;
       void _errors;
@@ -364,15 +367,14 @@ export async function getResult(s: SessionRow) {
   if (s.picks.length < data.deck.pick_count) return { status: "drawing" as const };
   if (s.result_status !== "ready") {
     // 백그라운드 작업이 어떤 이유로 끊겼을 때(배포 중 재시작 등) 영원히 기다리지 않도록,
-    // 마지막 갱신 후 130초가 지나면 연결 한 줄 없이(스펙의 실패 대체 동작과 같음) 결과를 연다.
-    // (분류 대기 최대 40초 + C 20초 + 검수 20초가 다 걸려도 그 안에 끝나도록 — 예전 60초에서 늘림, 2026-10-21)
+    // 마지막 갱신 후 70초가 지나면 연결 한 줄 없이(스펙의 실패 대체 동작과 같음) 결과를 연다(분류 대기 최대 40초 + C 12초).
     const idle = Date.now() - new Date(s.updated_at).getTime();
-    if (idle < 130000) return { status: "preparing" as const };
+    if (idle < 70000) return { status: "preparing" as const };
     // 분류(안전 판단 포함)가 아직 진행 중이면 결과를 열지 않는다 — 늦게 온 urgent를 놓치지 않게(fail safe).
     // 분류 호출은 길어야 30초라, 3분이 넘도록 pending이면 끊긴 것으로 보고 키워드 판정만으로 연다.
     if (s.classification_status === "pending" && idle < 180000) return { status: "preparing" as const };
   }
-  // 결제했는데 유료 리포트(D·E)를 아직 만드는 중이면 기다리는 화면. 4분 40초가 지나도(D·E 각 최대 45초×2 + 검수 40초씩 = 260초 < 함수 한도 300초) 안 끝났으면(서버 재시작 등) 만든 만큼 —
+  // 결제했는데 유료 리포트(D·E)를 아직 만드는 중이면 기다리는 화면. 4분 40초가 지나도(D·E 각 최대 50초×2 + 검수 45초 = 245초 < 함수 한도 300초) 안 끝났으면(서버 재시작 등) 만든 만큼 —
   // 없으면 DB 문장(패키지 대체 경로)으로 연다. 결제한 사람이 영원히 기다리지 않게.
   const paid = Boolean(s.paid_at);
   if (paid && s.report_status === "generating" && Date.now() - new Date(s.report_started_at ?? s.updated_at).getTime() < 280000) {
@@ -540,7 +542,7 @@ export async function generateReport(sessionId: string) {
       let dRaw: string | null = null;
       for (let i = 0; i < 2 && dBlock; i++) {
         try {
-          const raw = await generateText(D_SYSTEM, dBlock, { timeoutMs: 45000, maxOutputTokens: 6000, label: "D" });
+          const raw = await generateText(D_SYSTEM, dBlock, { timeoutMs: 50000, maxOutputTokens: 6000, label: "D" });
           const r = parseStoryApply(raw, { violence });
           if (!sa || (r.story && r.apply)) {
             sa = r;
@@ -552,18 +554,13 @@ export async function generateReport(sessionId: string) {
           console.warn("D 호출 실패:", e instanceof Error ? e.message : "unknown");
         }
       }
-      // 검수(R): 원래 검증을 통과하고 이야기·적용 두 칸이 모두 살아 있을 때만 바꾼다
-      if (sa && dRaw && dBlock) {
-        const reviewed = await reviewDraft(D_SYSTEM, dBlock, dRaw, 40000, "D");
-        const r = reviewed ? parseStoryApply(reviewed, { violence }) : null;
-        if (r && r.story && r.apply) sa = r;
-      }
+
       const shown = [sa?.story, sa?.apply].filter(Boolean).join("\n\n");
       const eBlock = buildEUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, alreadyShown: shown });
       let eRaw: string | null = null;
       for (let i = 0; i < 2 && eBlock; i++) {
         try {
-          const raw = await generateText(E_SYSTEM, eBlock, { timeoutMs: 45000, maxOutputTokens: 8000, label: "E" });
+          const raw = await generateText(E_SYSTEM, eBlock, { timeoutMs: 50000, maxOutputTokens: 8000, label: "E" });
           const r = parseE(raw, { lean, frame, violence });
           if (r.E) {
             E = r.E;
@@ -575,11 +572,24 @@ export async function generateReport(sessionId: string) {
           console.warn("E 호출 실패:", e instanceof Error ? e.message : "unknown");
         }
       }
-      // 검수(R): 원래 검증(parseE)을 통과할 때만 바꾼다
-      if (E && eRaw && eBlock) {
-        const reviewed = await reviewDraft(E_SYSTEM, eBlock, eRaw, 40000, "E");
-        const r = reviewed ? parseE(reviewed, { lean, frame, violence }) : null;
-        if (r && r.E) E = r.E;
+      // 검수(R) 한 번(owner 2026-10-21 "검수는 1번만"): D·E 초안을 한 번에 다시 읽힌다. 고친 판은 부분마다 원래 검증을 다시 통과해야 쓰고
+      // (D는 이야기·적용 두 칸 모두, E는 parseE 통과), 아니면 그 부분은 초안 그대로.
+      if ((dRaw || eRaw) && dBlock) {
+        const parts = [{ key: "D", system: D_SYSTEM, userBlock: dBlock }, ...(eBlock ? [{ key: "E", system: E_SYSTEM, userBlock: eBlock }] : [])];
+        const draft = `{"D":${dRaw ? jsonPart(dRaw) : "null"},"E":${eRaw ? jsonPart(eRaw) : "null"}}`;
+        const reviewed = await reviewDraft(parts, draft, 45000);
+        const obj = reviewed ? parseJsonLoose(reviewed) : null;
+        if (obj && typeof obj === "object") {
+          const o = obj as { D?: unknown; E?: unknown };
+          if (sa && o.D) {
+            const r = parseStoryApply(o.D, { violence });
+            if (r.story && r.apply) sa = r;
+          }
+          if (E && o.E) {
+            const r = parseE(o.E, { lean, frame, violence });
+            if (r.E) E = r.E;
+          }
+        }
       }
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });

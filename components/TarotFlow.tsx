@@ -28,6 +28,7 @@ export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; frien
 type FlowState = FlowStateBase;
 type Action = FlowAction;
 
+const MIN_WAIT_MS = 3000; // 카드를 다 고른 뒤 대기 화면 최소 시간(owner 2026-10-21)
 const SHUFFLE_MIN_MS = 6000; // 스펙 7.4는 최소 3초. 3초마다 바뀌는 안내(owner 2026-10-20)가 두 줄은 보이도록 6초. 움직임 줄이기에서도 유지
 const AGAIN_KEY = "ssol_tarot_again";
 
@@ -188,32 +189,41 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
     }
   }
 
-  async function seeResult() {
+  // [결과 보기]: 결과가 이미 준비됐어도 신비한 대기 화면(카드·별이 도는 연출 + 안내 문구)을 최소 3초는 보여 준다
+  // (owner 2026-10-21 "카드 고르고 나서 돌아가는 건 3초 정도"). 안전 안내(urgent)는 기다리지 않고 바로.
+  const loadingSince = useRef(0);
+  function seeResult() {
     if (!session) return;
-    try {
-      const r = await api<{ status: string }>(`/api/tarot/session/${session.id}/result`, { key: session.key });
-      if (r.status === "safety") return go({ type: "AI_URGENT" });
-      if (r.status === "ready") return router.push(`/result/${session.id}`);
-    } catch {
-      /* 대기 화면에서 다시 확인 */
-    }
+    loadingSince.current = Date.now();
     go({ type: "SEE_RESULT", ready: false });
   }
 
-  // 대기 화면: 1초 간격으로 결과 준비 확인
+  // 대기 화면: 0.5초 간격으로 결과 준비 확인, 준비되면 3초를 채운 뒤 결과로
   useEffect(() => {
     if (state.screen !== "loading" || !session) return;
+    if (!loadingSince.current) loadingSince.current = Date.now();
     let stop = false;
-    const t = setInterval(async () => {
+    let busy = false;
+    const check = async () => {
+      if (stop || busy) return;
+      busy = true;
       try {
         const r = await api<{ status: string }>(`/api/tarot/session/${session.id}/result`, { key: session.key });
         if (stop) return;
-        if (r.status === "safety") go({ type: "AI_URGENT" });
-        else if (r.status === "ready") router.push(`/result/${session.id}`);
+        if (r.status === "safety") return go({ type: "AI_URGENT" });
+        if (r.status === "ready") {
+          stop = true;
+          const left = MIN_WAIT_MS - (Date.now() - loadingSince.current);
+          setTimeout(() => router.push(`/result/${session.id}`), Math.max(0, left));
+        }
       } catch {
         /* 다음 주기 */
+      } finally {
+        busy = false;
       }
-    }, 1000);
+    };
+    void check();
+    const t = setInterval(check, 500);
     return () => {
       stop = true;
       clearInterval(t);
