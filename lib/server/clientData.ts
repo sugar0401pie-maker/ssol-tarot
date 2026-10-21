@@ -10,11 +10,9 @@ export function clientCopy() {
   return copy as Omit<typeof data.copy, "cta_chat">;
 }
 
-// 인트로에 지나가는 바다 친구 21종(캐릭터 20 + 바다의 노인). 21번 단체 카드는 제외.
+// 인트로에서 도는 카드 22장(카드 이름·그림만 — 해석 문장 없음).
 export function introFriends() {
-  return data.cards
-    .filter((c) => c.no !== 21)
-    .map((c) => ({ name: c.name, character: c.character, image: `/images/tarot/${c.image.file}` }));
+  return data.cards.map((c) => ({ name: c.name, character: c.character, image: `/images/tarot/${c.image.file}` }));
 }
 
 export const PICK_COUNT = data.deck.pick_count;
