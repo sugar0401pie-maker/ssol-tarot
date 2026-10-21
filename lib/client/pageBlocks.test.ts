@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { parseBlocks, parseInline, splitHeadline, type Block } from "./pageBlocks.ts";
+import { parseBlocks, parseInline, splitHeadline, splitTeaser, type Block } from "./pageBlocks.ts";
 import { resultParseOpts } from "../tarot-glue/v4.ts";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
 
@@ -81,4 +81,10 @@ test("관계형 계획 머리말(선택지 이름이 들어감)도 소제목", (
 test("※ 작은 글씨, 빈 값", () => {
   assert.deepEqual(parseBlocks("※ 점수 차이가 작아요", O), [{ type: "fine", text: "점수 차이가 작아요" }]);
   assert.deepEqual(parseBlocks(null, O), []);
+});
+
+test("잠긴 쪽 예고는 쉼표나 ' — ' 뒤에서 나눈다", () => {
+  assert.deepEqual(splitTeaser("카드로 본 나의 성향과, 그동안의 고민을 실제 장면에 대어 본 분석"), ["카드로 본 나의 성향과,", "그동안의 고민을 실제 장면에 대어 본 분석"]);
+  assert.deepEqual(splitTeaser("오늘 / 3일 안에 / 이번 주 — 처방을 옮긴 작은 실천 3장"), ["오늘 / 3일 안에 / 이번 주", "처방을 옮긴 작은 실천 3장"]);
+  assert.deepEqual(splitTeaser("앞의 분석에서 바로 이어지는 웰니스 처방 두 가지"), ["앞의 분석에서 바로 이어지는 웰니스 처방 두 가지"]);
 });

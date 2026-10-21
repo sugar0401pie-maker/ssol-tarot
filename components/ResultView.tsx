@@ -7,7 +7,7 @@ import { api, loadKey, ApiError, type ResultResponse, type ResultPage, type Resu
 import { getAccessToken } from "@/lib/supabase/browser";
 import { clean } from "@/lib/client/text";
 import { cardImg } from "@/lib/client/cardImage";
-import { parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
+import { splitTeaser, parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
 import { SafetyScreen } from "./SafetyScreen";
 import { ShareSheet } from "./share/ShareSheet";
@@ -229,7 +229,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
               </header>
               <div className="pbody">
                 {sceneArt && RESULT_PAGE_SCENE[p.page] && (
-                  <SceneArt map={sceneArt} id={RESULT_PAGE_SCENE[p.page]!} className="scene" sizes="(max-width: 400px) 92vw, 364px" />
+                  <SceneArt map={sceneArt} id={RESULT_PAGE_SCENE[p.page]!} className="scene" sizes="(max-width: 400px) 92vw, 364px" reserve />
                 )}
                 <PageBody p={p} ctx={ctx} />
                 {p.page >= 4 && (
@@ -308,7 +308,15 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
   if (isLocked(p, r.paid)) {
     return (
       <>
-        {p.teaser && <p className="teaser">{p.teaser}</p>}
+        {p.teaser && (
+          <p className="teaser">
+            {splitTeaser(p.teaser).map((l, i) => (
+              <span key={i} className="block">
+                {l}
+              </span>
+            ))}
+          </p>
+        )}
         <Lock blur={p.blur ?? null} ctx={ctx} page={p.page} />
       </>
     );

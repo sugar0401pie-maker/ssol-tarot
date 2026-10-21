@@ -62,6 +62,16 @@ export function splitHeadline(s: string): string[] {
   return [s];
 }
 
+// 잠긴 쪽 예고 한 줄(copy.result.pages[].teaser) 줄바꿈(owner 2026-10-21 "애매하게 두 줄 되는 것"): 쉼표나 " — " 뒤에서 나눈다.
+// 화면에서는 줄마다 단어 단위로 고르게(text-wrap: balance) 맞춘다. 나눌 곳이 없으면 한 줄 그대로.
+export function splitTeaser(s: string): string[] {
+  for (const sep of [", ", " — "]) {
+    const i = s.indexOf(sep);
+    if (i > 3 && i < s.length - sep.length - 3) return [s.slice(0, i + (sep === ", " ? 1 : 0)).trimEnd(), s.slice(i + sep.length).trimStart()];
+  }
+  return [s];
+}
+
 const WHOLE_BOLD = /^\*\*([^*]+)\*\*$/;
 const MINI = /^\d+\.\s+(.+?)\s+·\s+(.+?)\s+—\s+(.+?)(\s*\(역방향\))?$/;
 const MAP = /^\[\[읽기 지도:\s*(.+)\]\]$/;
