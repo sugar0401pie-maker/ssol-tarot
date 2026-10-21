@@ -9,6 +9,8 @@ import { fill } from "@/lib/client/text";
 import { CardBack, CardFace, CardCaption, FrameCorners, Stars } from "./Cards";
 import { SceneArt } from "./SceneArt";
 import { MysticOrbit, RotatingLine } from "./Mystic";
+import PageFoot from "./PageFoot";
+import { getRealSession } from "@/lib/supabase/browser";
 import type { SceneArtMap, SceneId } from "@/lib/client/sceneArt";
 import { WaitNotice } from "./WaitNotice";
 import type { Friend } from "./IntroCardSpin";
@@ -73,6 +75,15 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
       startSession(a.nickname, a.experience);
     }
   }, []);
+
+  // 로그인 화면에서 [타로 보기]로 돌아온 경우(/?start=1): 로그인돼 있으면 바로 시작하고 주소는 첫 화면으로 정리.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("start") !== "1") return;
+    void getRealSession().then((s) => {
+      router.replace("/");
+      if (s) go({ type: "START" });
+    });
+  }, [router, go]);
 
   function startSession(nickname: string, experience: string) {
     const p = api<{ id: string; key: string }>("/api/tarot/session", { body: { nickname, experience } }).then((s) => {
@@ -186,6 +197,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
       />
       {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
+      {screen === "intro" && <PageFoot />}
       {screen === "welcome" && (
         <Framed>
           <WelcomeScreen
@@ -300,7 +312,12 @@ function Crescent() {
 }
 
 function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; onStart: () => void }) {
+  const router = useRouter();
   const [count, setCount] = useState<number | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+    void getRealSession().then((s) => setLoggedIn(!!s));
+  }, []);
   useEffect(() => {
     fetch("/api/tarot/stats")
       .then((r) => r.json())
@@ -323,9 +340,13 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
       </div>
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
         {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
-        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={onStart}>
+        {/* 아스트로 첫 화면처럼 두 버튼(owner 2026-10-21). 로그인해야 이용할 수 있어서, 로그인 전이면 둘 다 로그인 화면을 거친다. */}
+        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={() => (loggedIn ? onStart() : router.push(`/login?next=${encodeURIComponent("/?start=1")}`))}>
           {copy.intro.button}
         </button>
+        <Link href={loggedIn ? "/results" : "/login?next=/results"} className="btn-night-ghost block w-full rounded-full py-4 text-[16px] font-bold">
+          {copy.intro.button_results}
+        </Link>
       </div>
     </div>
   );

@@ -1581,7 +1581,9 @@
    "login": "로그인",
    "ui_rule": "2026-10-20 화면에 코드로 박혀 있던 글자를 data로 옮김(스펙 원칙: 문구는 data에서만). title·sub는 design-preview 1번 화면 그대로.",
    "participants": "벌써 {count}명이 쏠 타로 하우스를 다녀갔어요",
-   "button": "테스트 하기"
+   "button": "타로 보기",
+   "button_results": "이전 결과 보기",
+   "buttons_rule": "2026-10-21 owner: 아스트로 첫 화면처럼 두 버튼. 로그인 전이면 둘 다 로그인 화면을 거친다(로그인해야 이용)."
   },
   "welcome": {
    "title": "쏠 타로 하우스에 오신\n당신을 환영합니다.",

@@ -3,6 +3,8 @@
 // 화면을 열 때마다 그 장면 그림 중 한 장을 무작위로. 그림이 없으면 아무것도 그리지 않는다(지금 화면 그대로).
 export const SCENES = [
   "intro", "welcome", "experience", "first_time", "worry", "shuffle", "draw", "reveal", "loading",
+  // 로그인 화면 안내 그림(owner 2026-10-21 "아스트로 로그인처럼") — 폴더가 비어 있으면 환영 장면 그림을 쓴다
+  "login",
   // 결과 화면(owner 그림 09~12): 해석 → 5쪽, 웰니스 처방 → 9쪽, 실천 → 10쪽, 쏘웰라로 이어 가기 → 11쪽
   "result_interpret", "result_wellness", "result_practice", "result_continue",
 ] as const;

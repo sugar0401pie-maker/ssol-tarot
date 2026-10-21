@@ -18,6 +18,7 @@
 
 @theme inline {
   --color-night: var(--night);
+  --color-cream: var(--moon); /* 아스트로에서 옮긴 로그인 화면이 text-cream을 쓴다 */
   --color-night-deep: var(--night-deep);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);

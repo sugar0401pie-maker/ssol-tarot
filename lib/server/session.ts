@@ -97,6 +97,8 @@ function assertNotSafety(s: SessionRow) {
 // ---------- 1. 세션 시작 ----------
 
 export async function createSession(input: { nickname: unknown; experience: unknown; userId: string | null }) {
+  // 2026-10-21 owner 결정: 로그인해야 테스트를 할 수 있다(예전엔 게스트도 끝까지 가능). 화면에서 막는 것과 별개로 서버에서도 막는다.
+  if (!input.userId) throw new TarotError(401, "로그인이 필요해요.");
   const nickname = String(input.nickname ?? "").trim();
   if (nickname.length < copy.welcome.min_len) throw new TarotError(400, copy.welcome.empty_error);
   const experience = input.experience === "first" || input.experience === "returning" ? input.experience : null;
@@ -366,6 +368,34 @@ export async function claim(s: SessionRow, userId: string | null) {
   if (s.user_id && s.user_id !== userId) throw new TarotError(409, "이미 다른 계정에 저장된 결과예요.");
   if (!s.user_id) await update(s.id, { user_id: userId });
   return { saved: true };
+}
+
+// ---------- 내 결과 목록(/results) ----------
+
+// 로그인한 사람의 지난 타로 결과(최근 순, 최대 50개). 카드 이름·자리·방향과 날짜만 — 고민 원문·해석 본문은 넣지 않는다.
+// 결과까지 간 것(카드 3장)만, 안전 안내로 끝난 세션은 뺀다.
+export async function listResults(userId: string | null) {
+  if (!userId) throw new TarotError(401, "로그인이 필요해요.");
+  const { data: rows, error } = await db()
+    .from("tarot_sessions")
+    .select("id, nickname, picks, result_status, safety_level, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) {
+    console.error("tarot_sessions 목록 조회 실패:", error.message);
+    throw new TarotError(500, "잠시 후 다시 시도해 주세요.");
+  }
+  return {
+    results: (rows ?? [])
+      .filter((r) => Array.isArray(r.picks) && r.picks.length >= data.deck.pick_count && r.result_status !== "safety" && r.safety_level !== "urgent")
+      .map((r) => ({
+        id: r.id as string,
+        nickname: r.nickname as string,
+        createdAt: r.created_at as string,
+        cards: expandPicks(r.picks as Pick[]).map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
+      })),
+  };
 }
 
 export async function participantCount(): Promise<number | null> {
