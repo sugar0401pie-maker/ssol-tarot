@@ -104,7 +104,7 @@ function Fan({
             className="relative -mx-[11px] w-[52px] shrink-0 transition-[transform,opacity] duration-150 md:-mx-[14px] md:w-[64px]"
             style={{
               transform: `translateY(${Math.abs(t) * 18 - (lifted ? 14 : 0)}px) rotate(${t * 24}deg)`,
-              opacity: isTaken ? 0 : 1,
+              opacity: isTaken || pending === slot ? 0 : 1, // 누른 카드는 날아가는 복제본이 대신 보인다
               zIndex: lifted ? 50 : i,
             }}
             tabIndex={isTaken ? -1 : 0}

@@ -569,16 +569,48 @@ function ShuffleScreen({
 // 뽑은 카드: 뒷면으로 아래에서 칸으로 날아든 뒤(0.4초) 앞면으로 뒤집힌다(0.6초) — 디자인 가이드 4장 뽑기
 // 처음부터 is-flipped로 그리면 전환이 일어나지 않으므로, 뒷면으로 먼저 그리고 잠시 뒤 뒤집는다.
 const SLOT_FLIP_DELAY_MS = 400;
-function SlotFlip({ children }: { children: React.ReactNode }) {
+// 보드에서 날아온 카드(owner 2026-10-21 "누르면 카드가 돌돌 돌아가면서 자리로")는 이미 칸에 도착했으니 아래에서 날아들기 없이 곧바로 뒤집는다.
+const ARRIVED_FLIP_DELAY_MS = 120;
+function SlotFlip({ children, arrived = false }: { children: React.ReactNode; arrived?: boolean }) {
   const [flipped, setFlipped] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setFlipped(true), SLOT_FLIP_DELAY_MS);
+    const t = setTimeout(() => setFlipped(true), arrived ? ARRIVED_FLIP_DELAY_MS : SLOT_FLIP_DELAY_MS);
     return () => clearTimeout(t);
-  }, []);
+  }, [arrived]);
+  if (arrived) return <div className={`flip-card aspect-[2/3] w-full ${flipped ? "is-flipped" : ""}`}>{children}</div>;
   // 날아들기(투명도 애니메이션)는 바깥 상자에 — 같은 요소에 두면 브라우저가 3D를 평평하게 그려 뒤집어도 뒷면이 보인다.
   return (
     <div className="slot-fly">
       <div className={`flip-card aspect-[2/3] w-full ${flipped ? "is-flipped" : ""}`}>{children}</div>
+    </div>
+  );
+}
+
+// 보드에서 누른 카드 뒷면이 두 바퀴 돌면서 칸 크기로 커지며 날아간다(0.65초). 화면에 고정된 복제본이라 보드·칸 배치에 영향 없음.
+function CardFlight({ from, to, done }: { from: DOMRect; to: DOMRect; done: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return done();
+    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
+    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    const k = to.width / from.width;
+    const a = el.animate(
+      [
+        { transform: "translate(0, 0) rotate(0deg) scale(1)" },
+        { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 40}px) rotate(360deg) scale(${(1 + k) / 2 + 0.15})`, offset: 0.55 },
+        { transform: `translate(${dx}px, ${dy}px) rotate(720deg) scale(${k})` },
+      ],
+      { duration: 650, easing: "cubic-bezier(0.3, 0.7, 0.3, 1)", fill: "forwards" },
+    );
+    a.onfinish = () => done();
+    return () => a.cancel();
+    // 한 번 날리고 끝(새 비행은 key로 새로 만든다)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div ref={ref} aria-hidden className="pointer-events-none fixed z-[60] drop-shadow-[0_0_14px_rgba(227,198,142,0.6)]" style={{ left: from.left, top: from.top, width: from.width, transformOrigin: "50% 50%" }}>
+      <CardBack className="w-full" />
     </div>
   );
 }
@@ -603,6 +635,8 @@ function DrawScreen({
   const [picks, setPicks] = useState<PickResponse[]>([]);
   const [pending, setPending] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [flight, setFlight] = useState<{ from: DOMRect; to: DOMRect; done: () => void } | null>(null);
+  const [arrived, setArrived] = useState<number[]>([]);
   const takenSlots = picks.map((p) => p.slot);
 
   async function choose(slot: number) {
@@ -610,13 +644,29 @@ function DrawScreen({
     if (pending !== null || picks.length >= pickCount || takenSlots.includes(slot)) return;
     setPending(slot);
     setErr(null);
+    // 누르자마자 그 카드가 돌면서 칸으로 날아간다(owner 2026-10-21 — 예전엔 서버 응답을 기다리는 동안 아무 변화가 없어 멈춘 것처럼 보였다).
+    // 날아가는 동안 서버에 뽑기를 요청하고, 둘 다 끝나면 칸에서 앞면으로 뒤집는다. 무엇이 나올지는 여전히 서버만 안다.
+    const index = picks.length;
+    const fromEl = [...document.querySelectorAll<HTMLElement>(`[data-slot="${slot}"]`)].find((el) => el.getClientRects().length > 0);
+    const toEl = document.querySelector<HTMLElement>(`[data-target="${index}"]`);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let landed: Promise<void> = Promise.resolve();
+    if (fromEl && toEl && !reduce) {
+      const from = fromEl.getBoundingClientRect();
+      const to = toEl.getBoundingClientRect();
+      landed = new Promise<void>((done) => setFlight({ from, to, done }));
+    }
     try {
-      const r = await api<PickResponse>(`/api/tarot/session/${session.id}/pick`, { key: session.key, body: { shuffleId, slot } });
+      const [r] = await Promise.all([api<PickResponse>(`/api/tarot/session/${session.id}/pick`, { key: session.key, body: { shuffleId, slot } }), landed]);
       if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(10);
+      const flew = Boolean(fromEl && toEl && !reduce);
+      if (flew) setArrived((a) => [...a, index]);
+      setFlight(null);
       setPicks((p) => [...p, r]);
       onPicked();
-      await new Promise((res) => setTimeout(res, SLOT_FLIP_DELAY_MS + 650)); // 날아들기 0.4초 + 뒤집기 0.6초
+      await new Promise((res) => setTimeout(res, (flew ? ARRIVED_FLIP_DELAY_MS : SLOT_FLIP_DELAY_MS) + 650)); // 뒤집기 0.6초
     } catch (e) {
+      setFlight(null);
       setErr(e instanceof ApiError ? e.message : "잠시 후 다시 눌러 주세요.");
     } finally {
       setPending(null);
@@ -625,6 +675,7 @@ function DrawScreen({
 
   return (
     <div className="relative flex flex-1 flex-col items-center px-4 pb-10 pt-10">
+      {flight && <CardFlight key={`${flight.from.left}-${flight.from.top}`} {...flight} />}
       <p className="mb-5 max-w-sm text-center font-serif text-[17px] leading-relaxed text-gold-soft">
         {revealed ? copy.reveal.done : copy.pick.guide}
       </p>
@@ -642,11 +693,11 @@ function DrawScreen({
           return (
             <div key={label} className="flex flex-col items-center gap-1.5">
               <span className="text-[12px] text-gold">{label}</span>
-              <div className="flip-scene relative w-full">
+              <div className="flip-scene relative w-full" data-target={i}>
                 {p ? (
                   <div className="relative">
                     <span className="dawn-glow" aria-hidden />
-                    <SlotFlip>
+                    <SlotFlip arrived={arrived.includes(i)}>
                       <div className="flip-face">
                         <CardBack className="w-full" />
                       </div>
