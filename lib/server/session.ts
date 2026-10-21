@@ -15,7 +15,7 @@ import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
-import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E_SYSTEM, worryUserMessage } from "./prompts";
+import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E_SYSTEM, REVIEW_SYSTEM, reviewUserMessage, worryUserMessage } from "./prompts";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
 // v4.0(2026-10-20): 결과 11쪽. 고민 제출 → A 분류 + A2 고민 틀 / 3장째 → 방향 계산(코드) + C / 결제 후 → D·E(결제 연동 때).
@@ -266,6 +266,17 @@ export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: un
   };
 }
 
+// AI 검수(owner 2026-10-21): 초안(JSON 원문)을 같은 규칙으로 다시 읽혀 어긴 문장만 고친 판을 받는다. 실패하면 null(초안 그대로 씀).
+// 호출하는 쪽이 원래 검증기로 다시 걸러서, 검증을 통과하고 초안보다 나쁘지 않을 때만 바꾼다.
+async function reviewDraft(originalSystem: string, userBlock: string, draft: string, timeoutMs: number, label: string): Promise<string | null> {
+  try {
+    return await generateText(REVIEW_SYSTEM, reviewUserMessage(originalSystem, userBlock, draft), { timeoutMs, maxOutputTokens: 8000, label: `R-${label}` });
+  } catch (e) {
+    console.warn(`검수(${label}) 실패:`, e instanceof Error ? e.message : "unknown");
+    return null;
+  }
+}
+
 // 백그라운드(3장째 직후): 분류가 끝나길 잠깐 기다린 뒤 카드별 고민 연결 한 줄(C)을 만들고 결과를 'ready'로.
 // 무료 1~3번 본문은 읽을 때마다 같은 재료(picks·분류·links)로 조립하므로 따로 저장하지 않는다.
 export async function prepareResult(sessionId: string) {
@@ -295,23 +306,34 @@ export async function prepareResult(sessionId: string) {
     const picks = expandPicks(s.picks);
     const { decision, lean } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname });
     const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean });
-    // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7).
-    const deadline = Date.now() + 12000;
+    // 연결 한 줄(C)은 최대 20초(스펙 7.7은 12초였으나 owner 2026-10-21 "시간이 좀 걸려도 괜찮아요, 검수를 한 번 더"),
+    // 그다음 검수(R) 최대 20초. 넘으면 그 단계 없이(초안 또는 한 줄 없이) 연다.
+    const deadline = Date.now() + 20000;
+    const parse = (raw: string) => parseC(raw, { decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost });
     let best: ReturnType<typeof parseC> | null = null;
+    let bestRaw: string | null = null;
     for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
       if (left < 2000) break;
       try {
-        const r = parseC(await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C" }), {
-          decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost,
-        });
+        const raw = await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C" });
+        const r = parse(raw);
         // 걸린 칸만 비고 나머지는 쓴다(README_v4). 한 줄(links)까지 통과했으면 재시도하지 않음.
-        if (!best || (r.links && !best.links)) best = r;
+        if (!best || (r.links && !best.links)) {
+          best = r;
+          bestRaw = raw;
+        }
         if (r.errors.length) console.warn("C 검증 탈락 칸:", r.errors.length, "건");
         if (r.links) break;
       } catch (e) {
         console.warn("C 호출 실패:", e instanceof Error ? e.message : "unknown");
       }
+    }
+    if (best && bestRaw && userBlock) {
+      const reviewed = await reviewDraft(C_SYSTEM, userBlock, bestRaw, 20000, "C");
+      const r = reviewed ? parse(reviewed) : null;
+      // 검수본은 원래 검증을 통과하고, 초안보다 탈락 칸이 많지 않을 때만 쓴다
+      if (r && r.links && r.errors.length <= best.errors.length) best = r;
     }
     if (best) {
       const { errors: _errors, ...rest } = best;
@@ -342,17 +364,18 @@ export async function getResult(s: SessionRow) {
   if (s.picks.length < data.deck.pick_count) return { status: "drawing" as const };
   if (s.result_status !== "ready") {
     // 백그라운드 작업이 어떤 이유로 끊겼을 때(배포 중 재시작 등) 영원히 기다리지 않도록,
-    // 마지막 갱신 후 60초가 지나면 연결 한 줄 없이(스펙의 실패 대체 동작과 같음) 결과를 연다.
+    // 마지막 갱신 후 130초가 지나면 연결 한 줄 없이(스펙의 실패 대체 동작과 같음) 결과를 연다.
+    // (분류 대기 최대 40초 + C 20초 + 검수 20초가 다 걸려도 그 안에 끝나도록 — 예전 60초에서 늘림, 2026-10-21)
     const idle = Date.now() - new Date(s.updated_at).getTime();
-    if (idle < 60000) return { status: "preparing" as const };
+    if (idle < 130000) return { status: "preparing" as const };
     // 분류(안전 판단 포함)가 아직 진행 중이면 결과를 열지 않는다 — 늦게 온 urgent를 놓치지 않게(fail safe).
     // 분류 호출은 길어야 30초라, 3분이 넘도록 pending이면 끊긴 것으로 보고 키워드 판정만으로 연다.
     if (s.classification_status === "pending" && idle < 180000) return { status: "preparing" as const };
   }
-  // 결제했는데 유료 리포트(D·E)를 아직 만드는 중이면 기다리는 화면. 4분이 지나도 안 끝났으면(서버 재시작 등) 만든 만큼 —
+  // 결제했는데 유료 리포트(D·E)를 아직 만드는 중이면 기다리는 화면. 4분 40초가 지나도(D·E 각 최대 45초×2 + 검수 40초씩 = 260초 < 함수 한도 300초) 안 끝났으면(서버 재시작 등) 만든 만큼 —
   // 없으면 DB 문장(패키지 대체 경로)으로 연다. 결제한 사람이 영원히 기다리지 않게.
   const paid = Boolean(s.paid_at);
-  if (paid && s.report_status === "generating" && Date.now() - new Date(s.report_started_at ?? s.updated_at).getTime() < 240000) {
+  if (paid && s.report_status === "generating" && Date.now() - new Date(s.report_started_at ?? s.updated_at).getTime() < 280000) {
     return { status: "preparing" as const };
   }
   const picks = expandPicks(s.picks);
@@ -514,29 +537,49 @@ export async function generateReport(sessionId: string) {
       const violence = s.violence || s.classification_status === "failed";
       const safety = { level: s.safety_level, violence, fear: Boolean(s.fear) };
       const dBlock = buildDUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, safety });
+      let dRaw: string | null = null;
       for (let i = 0; i < 2 && dBlock; i++) {
         try {
-          const r = parseStoryApply(await generateText(D_SYSTEM, dBlock, { timeoutMs: 60000, maxOutputTokens: 6000, label: "D" }), { violence });
-          if (!sa || (r.story && r.apply)) sa = r;
+          const raw = await generateText(D_SYSTEM, dBlock, { timeoutMs: 45000, maxOutputTokens: 6000, label: "D" });
+          const r = parseStoryApply(raw, { violence });
+          if (!sa || (r.story && r.apply)) {
+            sa = r;
+            dRaw = raw;
+          }
           if (r.story && r.apply) break;
           console.warn("D 검증 탈락 — 다시 시도");
         } catch (e) {
           console.warn("D 호출 실패:", e instanceof Error ? e.message : "unknown");
         }
       }
+      // 검수(R): 원래 검증을 통과하고 이야기·적용 두 칸이 모두 살아 있을 때만 바꾼다
+      if (sa && dRaw && dBlock) {
+        const reviewed = await reviewDraft(D_SYSTEM, dBlock, dRaw, 40000, "D");
+        const r = reviewed ? parseStoryApply(reviewed, { violence }) : null;
+        if (r && r.story && r.apply) sa = r;
+      }
       const shown = [sa?.story, sa?.apply].filter(Boolean).join("\n\n");
       const eBlock = buildEUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, alreadyShown: shown });
+      let eRaw: string | null = null;
       for (let i = 0; i < 2 && eBlock; i++) {
         try {
-          const r = parseE(await generateText(E_SYSTEM, eBlock, { timeoutMs: 60000, maxOutputTokens: 8000, label: "E" }), { lean, frame, violence });
+          const raw = await generateText(E_SYSTEM, eBlock, { timeoutMs: 45000, maxOutputTokens: 8000, label: "E" });
+          const r = parseE(raw, { lean, frame, violence });
           if (r.E) {
             E = r.E;
+            eRaw = raw;
             break;
           }
           console.warn("E 검증 탈락 칸:", r.errors.length, "건");
         } catch (e) {
           console.warn("E 호출 실패:", e instanceof Error ? e.message : "unknown");
         }
+      }
+      // 검수(R): 원래 검증(parseE)을 통과할 때만 바꾼다
+      if (E && eRaw && eBlock) {
+        const reviewed = await reviewDraft(E_SYSTEM, eBlock, eRaw, 40000, "E");
+        const r = reviewed ? parseE(reviewed, { lean, frame, violence }) : null;
+        if (r && r.E) E = r.E;
       }
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });
