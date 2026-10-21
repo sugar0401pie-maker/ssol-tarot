@@ -381,9 +381,12 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
   return (
     <div className="gold-frame relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-14 text-center">
       <FrameCorners />
-      <Link href="/login" className="absolute right-7 top-7 z-[2] text-[13px] text-moon/80 underline">
-        {copy.intro.login}
-      </Link>
+      {/* 로그인한 사람에게는 '로그인' 링크를 보이지 않는다(하단에 '내 결과 · 로그아웃'이 있음) */}
+      {!loggedIn && (
+        <Link href="/login" className="absolute right-7 top-7 z-[2] text-[13px] text-moon/80 underline">
+          {copy.intro.login}
+        </Link>
+      )}
       {/* 제목이 맨 위, 그 아래 카드 부채 연출(owner 2026-10-20 — 바다 친구 지나가기 대신) */}
       <div className="fade-up flex w-full flex-col items-center gap-3">
         <p className="text-[13px] tracking-[10px] text-gold" aria-hidden>✦ ✦ ✦</p>

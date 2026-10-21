@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { CardBack } from "./Cards";
 
-// 22장 뒷면 펼침(스펙 7.4). 모바일은 두 줄 부채꼴(위 11·아래 11), 넓은 화면은 한 줄 부채꼴.
+// 22장 뒷면 펼침(스펙 7.4). 모바일은 두 줄 부채꼴(위 11·아래 11), 넓은 화면은 한 줄 부채꼴(태블릿에서 양 끝이 잘리지 않게 겹침을 늘림 — 2026-10-21).
 // 손가락을 대고 훑으면 닿은 카드가 살짝 떠오르고, 떼는 순간 그 카드가 선택된다(작은 카드를 정확히 누르기 어려운 문제).
 // 자리 번호(0~21)만 다룬다 — 어떤 카드가 있는지는 서버만 안다.
 export function DrawBoard({
@@ -101,7 +101,7 @@ function Fan({
                 onKey(slot);
               }
             }}
-            className="relative -mx-[11px] w-[52px] shrink-0 transition-[transform,opacity] duration-150 md:-mx-[14px] md:w-[64px]"
+            className="relative -mx-[11px] w-[52px] shrink-0 transition-[transform,opacity] duration-150 md:-mx-[17px] md:w-[60px]"
             style={{
               transform: `translateY(${Math.abs(t) * 18 - (lifted ? 14 : 0)}px) rotate(${t * 24}deg)`,
               opacity: isTaken || pending === slot ? 0 : 1, // 누른 카드는 날아가는 복제본이 대신 보인다
