@@ -10,7 +10,8 @@ import { cardImg } from "@/lib/client/cardImage";
 import { parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
 import { SafetyScreen } from "./SafetyScreen";
-import { ShareSheet } from "./ShareSheet";
+import { ShareSheet } from "./share/ShareSheet";
+import KakaoTalkLogo from "./share/KakaoTalkLogo";
 import { SceneArt } from "./SceneArt";
 import { RESULT_PAGE_SCENE, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
@@ -232,10 +233,15 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
                 {p.page >= 4 && (
                   <>
                     <div className="sharerow">
-                      <button type="button" className="btn line sm" onClick={() => setSharing(true)}>
-                        공유하기
+                      {/* 아스트로 하우스와 같은 두 버튼(owner 2026-10-21): 카카오 노랑 [SNS 공유하기] + 금색 [저장하기] */}
+                      <button type="button" className="btn sns sm" onClick={() => setSharing(true)}>
+                        <KakaoTalkLogo size={24} />
+                        SNS 공유하기
                       </button>
-                      <button type="button" className="btn line sm" onClick={save}>
+                      <button type="button" className="btn gold sm" onClick={save}>
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                          <path d="M6 3.5h12v17l-6-4.2-6 4.2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                        </svg>
                         저장하기
                       </button>
                     </div>
@@ -268,20 +274,10 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
             </section>
           ))}
         </div>
-        <div className="nav">
-          <button type="button" aria-label="이전 페이지" disabled={idx === 0} onClick={() => go(idx - 1)}>
-            ‹
-          </button>
-          <span>
-            {idx + 1} / {n}
-          </span>
-          <button type="button" aria-label="다음 페이지" disabled={idx === n - 1} onClick={() => go(idx + 1)}>
-            ›
-          </button>
-        </div>
+        {/* 아래 ‹ 쪽 수 › 막대는 없앴다(owner 2026-10-21) — 쪽 이동은 각 쪽의 [돌아가기][다음으로]·옆으로 넘기기·위 점 표시로 */}
       </div>
       {r.cards[2] && (
-        <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} />
+        <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} nickname={r.nickname} />
       )}
       <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label="크게 보기 닫기" tabIndex={zoom ? 0 : -1}>
         {/* eslint-disable-next-line @next/next/no-img-element -- 시안과 같은 단순 확대(고정 크기 이미지) */}

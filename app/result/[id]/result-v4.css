@@ -52,7 +52,7 @@
 .tv4 .dots i.lock.on { background: #b8a77a; }
 .tv4 .rail { flex: 1; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .tv4 .rail::-webkit-scrollbar { display: none; }
-.tv4 .page { flex: 0 0 100%; scroll-snap-align: start; overflow-y: auto; padding: 0 0 90px; }
+.tv4 .page { flex: 0 0 100%; scroll-snap-align: start; overflow-y: auto; padding: 0 0 calc(28px + env(safe-area-inset-bottom)); } /* 아래 ‹ › 막대를 없애(2026-10-21) 그 자리 여백도 줄임 */
 .tv4 .ph { position: sticky; top: 0; z-index: 2; background: linear-gradient(var(--cream) 80%, #fef3de00); padding: 14px 18px 10px; display: flex; align-items: center; gap: 8px; }
 .tv4 .ph h1 { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 16px; color: var(--line); flex: 1; line-height: 1.35; word-break: keep-all; }
 .tv4 .ph .no { font-size: 11px; color: var(--muted); min-width: 32px; }
@@ -108,8 +108,11 @@
 .tv4 .rmap .down .mforce { color: #5a6a85; }
 .tv4 .revsay { background: #20487010; border-radius: 10px; padding: 10px 12px !important; }
 .tv4 .revlab { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; background: var(--line); border-radius: 8px; padding: 0 7px; margin-right: 6px; }
-.tv4 .sharerow { display: flex; gap: 8px; justify-content: center; margin: 18px 0 0; }
-.tv4 .sharerow .sm { font-size: 13px; padding: 7px 16px; flex: 0 1 auto; }
+/* [SNS 공유하기][저장하기] — 쏠 아스트로 하우스 결과 화면과 같은 두 칸 버튼(owner 2026-10-21). 공유 = 카카오 노랑, 저장 = 타로 금색 */
+.tv4 .sharerow { display: flex; gap: 10px; margin: 18px 0 0; }
+.tv4 .sharerow .sm { flex: 1; margin: 0; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14.5px; padding: 13px 8px; border-radius: 999px; }
+.tv4 .btn.sns { background: #fee500; color: #191919; }
+.tv4 .btn.gold { background: var(--gold); color: var(--night); }
 .tv4 .cardinfo .arc { font-size: 11.5px; color: var(--muted); margin: 2px 0 0 !important; }
 .tv4 .sum { font-size: 16px; line-height: 1.6; color: var(--line); margin: 4px 0 12px; padding-left: 10px; border-left: 3px solid var(--gold); }
 .tv4 .sum b { font-weight: 700; }
@@ -145,14 +148,20 @@
 .tv4 .scene { display: block; width: 100%; height: auto; margin: 2px 0 14px; border-radius: 14px; box-shadow: 0 6px 16px #01223f40; }
 /* 공유 창 — 시안에는 공유 창이 없어 아스트로 하우스 공유 시트 모양을 이 화면 색으로 옮김 */
 .tv4 .sheet-dim { position: fixed; inset: 0; z-index: 10; background: #001e38a6; display: flex; align-items: flex-end; justify-content: center; }
-.tv4 .sheet { position: relative; width: 100%; max-width: 400px; background: var(--cream); border-radius: 20px 20px 0 0; padding: 22px 18px calc(18px + env(safe-area-inset-bottom)); text-align: center; }
-.tv4 .sheet h3 { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 17px; color: var(--line); margin: 0 0 16px; }
-.tv4 .sheet-x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--line); font-size: 18px; cursor: pointer; }
-.tv4 .share-grid { display: flex; justify-content: center; gap: 22px; }
-.tv4 .share-grid button { border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
-.tv4 .share-grid i { font-style: normal; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
-.tv4 .sheet-note { font-size: 12.5px; color: var(--line); margin: 14px 0 0; word-break: keep-all; }
-.tv4 .sheet-small { font-size: 11px; color: var(--muted); margin: 14px 0 0; }
+.tv4 .sheet { position: relative; width: 100%; max-width: 480px; max-height: 92dvh; overflow-y: auto; background: var(--cream); border-radius: 22px 22px 0 0; padding: 12px 20px calc(20px + env(safe-area-inset-bottom)); text-align: left; }
+/* 공유 창 — 쏠 아스트로 하우스 .sheet 구성(손잡이·왼쪽 제목·동그란 닫기·3열 아이콘), 색은 타로 하우스 것 */
+.tv4 .sheet .grab { width: 44px; height: 5px; border-radius: 9px; background: #20487033; margin: 0 auto 14px; }
+.tv4 .sheet h3 { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 19px; color: var(--line); margin: 0 0 4px; padding-right: 48px; }
+.tv4 .sheet .kicker { font-size: 13px; color: var(--muted); margin: 0 0 14px; word-break: keep-all; }
+.tv4 .sheet-x { position: absolute; top: 14px; right: 14px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--gold); background: #20487014; color: var(--line); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.tv4 .share-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 0 4px; }
+.tv4 .share-grid button { border: 0; background: transparent; color: var(--line); font: inherit; font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 6px 2px; min-height: 76px; }
+.tv4 .share-grid i { font-style: normal; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.tv4 .sheet-note { font-size: 12.5px; color: var(--line); margin: 10px 0 0; text-align: center; word-break: keep-all; }
+.tv4 .share-preview { display: block; margin: 14px auto 0; max-height: 34vh; border-radius: 16px; box-shadow: 0 8px 24px #01223f40; }
+.tv4 .share-save { margin-top: 14px; }
+.tv4 .share-save:disabled { opacity: 0.5; }
+.tv4 .sheet-small { font-size: 11.5px; color: var(--muted); margin: 10px 0 0; text-align: center; word-break: keep-all; }
 .tv4 .toast { font-size: 12px; color: var(--muted); text-align: center; margin: 8px 0 0 !important; }
 @media (prefers-reduced-motion: reduce) {
   .tv4 .rail { scroll-behavior: auto; }
