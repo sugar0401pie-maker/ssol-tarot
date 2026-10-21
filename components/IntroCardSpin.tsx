@@ -10,7 +10,7 @@ export type Friend = { name: string; character: string; image: string };
 // 크게 돌며 앞면을 보여 준 뒤 다시 제자리로 돌아간다. 앞면은 섞은 주머니에서 하나씩(22장을 다 돌기 전엔 같은 카드 없음).
 // 화면 연출이라 Math.random으로 충분. 움직임 줄이기면 펼친 부채만 보이고 돌지 않는다(globals.css).
 const FAN = 7; // 부채에 보이는 카드 수
-const STEP_MS = 3200; // 한 장이 나와서 돌아가기까지
+const STEP_MS = 2400; // 한 장이 나와서 돌아가기까지(owner 2026-10-21: 더 빠르게, 3.2초 → 2.4초)
 const ORDER = [3, 4, 2, 5, 1, 6, 0]; // 가운데부터 바깥으로 번갈아 — 부채 전체에서 고르게 나오게
 const SIZES = "(max-width: 400px) 50vw, 200px";
 const BACK = cardImg("/images/tarot/card-back.webp", "130px");
@@ -41,7 +41,7 @@ export function IntroCardSpin({ cards }: { cards: Friend[] }) {
     let n = -1;
     let upcoming = draw();
     preload(upcoming);
-    const t0 = setTimeout(() => setSpread(true), 150); // 펼치기
+    const t0 = setTimeout(() => setSpread(true), 80); // 펼치기
     if (reduce) return () => clearTimeout(t0);
     const step = () => {
       n = (n + 1) % FAN;
@@ -56,7 +56,7 @@ export function IntroCardSpin({ cards }: { cards: Friend[] }) {
     const t1 = setTimeout(() => {
       step();
       t2 = setInterval(step, STEP_MS);
-    }, 1400);
+    }, 700); // 펼친 뒤 첫 카드가 나오기까지(1.4초 → 0.7초)
     return () => {
       clearTimeout(t0);
       clearTimeout(t1);

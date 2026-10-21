@@ -318,10 +318,11 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
         <p className="text-[13px] tracking-[10px] text-gold" aria-hidden>✦ ✦ ✦</p>
         <h1 className="font-serif text-[30px] font-bold text-gold-soft">{copy.intro.title}</h1>
         <p className="text-[14px] text-moon/90">{copy.intro.sub}</p>
+        {/* 카드 부채는 제목 바로 아래(owner 2026-10-21: 플래시를 앞으로) */}
+        <IntroCardSpin cards={friends} />
       </div>
-      <IntroCardSpin cards={friends} />
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
-        {count !== null && count > 0 && <p className="text-[13px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
+        {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
         <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={onStart}>
           {copy.intro.button}
         </button>
@@ -341,7 +342,7 @@ function WelcomeScreen({ copy, error, onSubmit }: { copy: C; error: string | nul
       }}
     >
       <Sparkle />
-      <h1 className="font-serif text-[26px] font-bold leading-snug text-gold-soft">{copy.welcome.title}</h1>
+      <h1 className="whitespace-pre-line font-serif text-[26px] font-bold leading-snug text-gold-soft">{copy.welcome.title}</h1>
       <p className="text-[15px] text-moon/90">{copy.welcome.sub}</p>
       <input
         className="input-night mt-6 w-full px-4 py-3.5 text-center text-[16px]"

@@ -175,23 +175,23 @@ body {
 .flip-front { transform: rotateY(180deg); }
 
 /* 인트로 카드 부채(owner 2026-10-20): 겹친 더미 → 부채로 펼침 → 한 장씩 앞으로 나와 크게 돌며 앞면 → 제자리.
-   카드 130px(2:3), 나온 카드는 1.42배(약 185px) — 제목을 가리지 않게 부채 상자(390px) 안에서만 움직인다. 들어갈 때는 먼저 뒤집고 돌아가고, 나올 때는 먼저 나온 뒤 뒤집는다. */
-.intro-fan { position: relative; width: 100%; max-width: 380px; height: 390px; margin-top: 8px; perspective: 1200px; }
+   카드 130px(2:3), 나온 카드는 1.3배(약 170px) — 제목을 가리지 않게 부채 상자(330px, 위 여백 30px) 안에서만 움직인다. 들어갈 때는 먼저 뒤집고 돌아가고, 나올 때는 먼저 나온 뒤 뒤집는다. */
+.intro-fan { position: relative; width: 100%; max-width: 380px; height: 330px; margin-top: 30px; perspective: 1200px; }
 .intro-fan-card {
-  position: absolute; left: 50%; bottom: 10px; width: 130px; aspect-ratio: 2 / 3; margin-left: -65px;
+  position: absolute; left: 50%; bottom: 50px; width: 130px; aspect-ratio: 2 / 3; margin-left: -65px;
   transform-origin: 50% 150%;
   transform: rotate(0deg);
-  transition: transform 0.7s cubic-bezier(0.22, 0.8, 0.24, 1) 0.35s;
+  transition: transform 0.55s cubic-bezier(0.22, 0.8, 0.24, 1) 0.2s;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
 }
 .intro-fan.is-spread .intro-fan-card { transform: rotate(var(--a)); transition-delay: var(--d); }
 .intro-fan.is-spread .intro-fan-card.is-on {
-  transform: rotate(0deg) translateY(-34px) scale(1.42);
+  transform: rotate(0deg) translateY(-18px) scale(1.3);
   transition-delay: 0s;
   filter: drop-shadow(0 0 26px rgba(227, 198, 142, 0.55));
 }
 .intro-fan-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.45, 0, 0.25, 1); }
-.intro-fan-card.is-on .intro-fan-inner { transform: rotateY(180deg); transition-delay: 0.45s; }
+.intro-fan-card.is-on .intro-fan-inner { transform: rotateY(180deg); transition-delay: 0.25s; }
 .intro-fan-face { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 6%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .intro-fan-front { transform: rotateY(180deg); }
 @media (prefers-reduced-motion: reduce) {

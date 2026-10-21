@@ -72,7 +72,7 @@ COPY = dict(
   intro=dict(rule="디저트 테스트 인트로와 동일 구성(제목 + 참여자 수 + 시작 버튼). 히어로 자리에 바다 친구들이 한 명씩 무작위로 지나가는 연출(디자인 가이드 5-1)",
              participants="벌써 {count}명이 쏠 타로 하우스를 다녀갔어요", button="테스트 하기"),
   welcome=dict(
-    title="쏠 타로 하우스에 오신 당신을 환영합니다.",
+    title="쏠 타로 하우스에 오신\n당신을 환영합니다.",
     sub="당신을 뭐라고 불러드리면 될까요?",
     placeholder="닉네임", min_len=1, max_len=10,
     empty_error="불러드릴 이름을 적어 주세요.",
