@@ -177,9 +177,9 @@ export async function runClassification(sessionId: string) {
   if (!worry) return;
   const msg = worryUserMessage(worry);
   const [cls, frame] = await Promise.all([
-    tryTwice("고민 분류(A)", async () => parseClassification(await generateText(CLASSIFY_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800 }), data)),
+    tryTwice("고민 분류(A)", async () => parseClassification(await generateText(CLASSIFY_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data)),
     tryTwice("고민 틀(A2)", async () => {
-      const r = parseFrame(await generateText(FRAME_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800 }));
+      const r = parseFrame(await generateText(FRAME_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
       // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
       if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
       return r.frame;
@@ -259,11 +259,20 @@ export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: un
 export async function prepareResult(sessionId: string) {
   const started = Date.now();
   let s: SessionRow | null = null;
-  // 분류가 셔플·뽑기 동안 안 끝났으면 최대 12초 기다린다.
-  while (Date.now() - started < 12000) {
+  // 분류(A)가 셔플·뽑기 동안 안 끝났으면 끝날 때까지 기다린다(안전 우선 — 스펙 6장·7.3).
+  // 예전엔 12초만 기다려서, 분류가 늦게 urgent를 주면 이미 열린 결과가 그대로 남을 수 있었다.
+  // 분류는 15초 × 최대 2번이라 40초면 반드시 끝난다. 그래도 pending이면(서버 재시작 등) 분류 실패로 보고
+  // 키워드 판정만으로 진행하되, 폭력 여부를 모르므로 C에는 violence=true처럼 조심스럽게 넘긴다(fail safe).
+  let classificationLost = false;
+  while (true) {
     const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
     s = row as SessionRow | null;
     if (!s || s.classification_status !== "pending") break;
+    if (Date.now() - started > 40000) {
+      classificationLost = true;
+      await update(sessionId, { classification_status: "failed" });
+      break;
+    }
     await new Promise((r) => setTimeout(r, 800));
   }
   if (!s || s.result_status === "safety" || s.safety_level === "urgent") return;
@@ -274,14 +283,15 @@ export async function prepareResult(sessionId: string) {
     const picks = expandPicks(s.picks);
     const { decision, lean } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname });
     const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean });
-    const deadline = started + 12000 + 15000;
+    // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7).
+    const deadline = Date.now() + 12000;
     let best: ReturnType<typeof parseC> | null = null;
     for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
       if (left < 2000) break;
       try {
-        const r = parseC(await generateText(C_SYSTEM, userBlock, { timeoutMs: Math.min(15000, left), maxOutputTokens: 2000 }), {
-          decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence,
+        const r = parseC(await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C" }), {
+          decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost,
         });
         // 걸린 칸만 비고 나머지는 쓴다(README_v4). 한 줄(links)까지 통과했으면 재시도하지 않음.
         if (!best || (r.links && !best.links)) best = r;
@@ -323,6 +333,9 @@ export async function getResult(s: SessionRow) {
     // 마지막 갱신 후 60초가 지나면 연결 한 줄 없이(스펙의 실패 대체 동작과 같음) 결과를 연다.
     const idle = Date.now() - new Date(s.updated_at).getTime();
     if (idle < 60000) return { status: "preparing" as const };
+    // 분류(안전 판단 포함)가 아직 진행 중이면 결과를 열지 않는다 — 늦게 온 urgent를 놓치지 않게(fail safe).
+    // 분류 호출은 길어야 30초라, 3분이 넘도록 pending이면 끊긴 것으로 보고 키워드 판정만으로 연다.
+    if (s.classification_status === "pending" && idle < 180000) return { status: "preparing" as const };
   }
   const picks = expandPicks(s.picks);
   const cls = classificationForReport(s.classification);

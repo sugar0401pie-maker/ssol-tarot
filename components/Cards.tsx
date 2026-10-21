@@ -97,7 +97,7 @@ export function Stars() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       {STARS.map(([x, y], i) => (
-        <span key={i} className="star" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${(i % 6) * 0.7}s` }} />
+        <span key={i} className="star" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${(i % 6) * 0.7}s`, animationDuration: `${3 + ((i * 7) % 4)}s` }} />
       ))}
     </div>
   );
@@ -112,5 +112,33 @@ export function MoonEmblem({ size = 88 }: { size?: number }) {
       <path d="M22 54 q7-7 14 0 t14 0 t14 0 t14 0" fill="none" stroke="var(--night)" strokeWidth="3" strokeLinecap="round" />
       <path d="M26 64 q6-6 12 0 t12 0 t12 0 t12 0" fill="none" stroke="var(--night)" strokeWidth="3" strokeLinecap="round" />
     </svg>
+  );
+}
+
+// 금선 프레임 네 모서리 장식(디자인 가이드 4장) — 왼쪽 위·오른쪽 아래는 조개, 오른쪽 위·왼쪽 아래는 불가사리.
+function Shell() {
+  return (
+    <svg viewBox="0 0 26 26" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round">
+      <path d="M13 22 C5 20 3 12 6 7 C9 3 17 3 20 7 C23 12 21 20 13 22 Z" />
+      <path d="M13 22 L9 6 M13 22 L13 4.5 M13 22 L17 6 M13 22 L6.5 9.5 M13 22 L19.5 9.5" />
+    </svg>
+  );
+}
+function Starfish() {
+  return (
+    <svg viewBox="0 0 26 26" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round">
+      <path d="M13 3 L15.4 10 L22.8 10.2 L17 14.7 L19.1 21.8 L13 17.6 L6.9 21.8 L9 14.7 L3.2 10.2 L10.6 10 Z" />
+      <circle cx="13" cy="12.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+export function FrameCorners() {
+  return (
+    <div aria-hidden>
+      <span className="frame-corner" style={{ left: 4, top: 4 }}><Shell /></span>
+      <span className="frame-corner" style={{ right: 4, top: 4 }}><Starfish /></span>
+      <span className="frame-corner" style={{ left: 4, bottom: 4 }}><Starfish /></span>
+      <span className="frame-corner" style={{ right: 4, bottom: 4, transform: "rotate(180deg)" }}><Shell /></span>
+    </div>
   );
 }

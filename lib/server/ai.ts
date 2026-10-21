@@ -13,7 +13,7 @@ export function aiConfigured(): boolean {
 export async function generateText(
   system: string,
   user: string,
-  { timeoutMs = 12000, maxOutputTokens = 800 }: { timeoutMs?: number; maxOutputTokens?: number } = {},
+  { timeoutMs = 12000, maxOutputTokens = 800, label = "AI" }: { timeoutMs?: number; maxOutputTokens?: number; label?: string } = {},
 ): Promise<string> {
   const client = new OpenAI({ timeout: timeoutMs, maxRetries: 0 });
   const response = await client.responses.create({
@@ -24,6 +24,11 @@ export async function generateText(
     ],
     max_output_tokens: maxOutputTokens,
   });
+  // 건당 비용 확인용(스펙 12장 체크리스트): 토큰 수와 모델만 남긴다 — 고민 원문·응답 문장은 절대 로그에 넣지 않는다.
+  const u = response.usage;
+  if (u) console.info(`[tarot-ai] ${label} model=${MODEL} in=${u.input_tokens} out=${u.output_tokens} reasoning=${u.output_tokens_details?.reasoning_tokens ?? 0}`);
+  // 길이 한도 등으로 잘린 응답(incomplete)은 쓰지 않는다(스펙 체크리스트 — 저장·노출 금지).
+  if (response.status && response.status !== "completed") throw new Error(`AI 응답이 완료되지 않음(${response.status})`);
   const text = response.output_text?.trim();
   if (!text) throw new Error("AI가 빈 응답을 반환함");
   return text;
