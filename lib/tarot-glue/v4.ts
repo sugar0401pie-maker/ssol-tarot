@@ -4,7 +4,7 @@
 import data from "../../data/tarot_data.json" with { type: "json" };
 import tables from "../../data/decision_tables.json" with { type: "json" };
 import { pickTable, lean as leanOf, type Lean } from "../tarot/decision.js";
-import { buildPages, buildLinkUserBlock } from "../tarot/assembleReport.js";
+import { buildPages, buildLinkUserBlock, buildStoryUserBlock } from "../tarot/assembleReport.js";
 import { buildPagesV4, SUBHEADS } from "../tarot/pagesV4.js";
 import type { ExpandedPick, Safety } from "../tarot/types";
 
@@ -31,13 +31,48 @@ export function buildCUserBlock({ name, worryText, cls, picks, frame, lean }: {
 }): string | null {
   const base = buildLinkUserBlock({ name, worryText, cls, picks, data });
   if (!base) return null;
-  const dl = lean
+  return base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(leanInput(lean))}\n</user_data>`);
+}
+
+// 방향(direction_lean) 입력 칸 — C·D·E가 같은 모양을 받는다.
+function leanInput(lean: Lean | null) {
+  return lean
     ? {
         decision: true, side: lean.side, option: lean.option, other: lean.other, strength: lean.strength,
         with_condition: lean.with_condition, cards: lean.cards.map((c) => ({ position: c.position, score: c.score, weight: c.weight, meaning: c.meaning })),
       }
     : null;
-  return base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(dl)}\n</user_data>`);
+}
+
+// D 사용자 메시지(결제 후 5·6쪽). 프롬프트 [입력]: worry_text, worry_frame, direction_lean, cards, crisis_level, violence_flag.
+// v3 D 입력(buildStoryUserBlock = C 입력 + 안전 칸) 뒤에 고민 틀과 방향을 덧붙인다(C와 같은 방법). 고민 미작성이면 null.
+export function buildDUserBlock({ name, worryText, cls, picks, frame, lean, safety }: {
+  name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null; safety: Safety;
+}): string | null {
+  const base = buildStoryUserBlock({ name, worryText, cls, picks, data, safety });
+  if (!base) return null;
+  return base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(leanInput(lean))}\n</user_data>`);
+}
+
+// E 사용자 메시지(결제 후 7~10쪽). [입력]: worry_text, worry_frame, direction_lean, cards, already_shown(5·6쪽 글 — 되풀이 금지).
+export function buildEUserBlock({ name, worryText, cls, picks, frame, lean, alreadyShown }: {
+  name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null; alreadyShown: string;
+}): string | null {
+  const base = buildCUserBlock({ name, worryText, cls, picks, frame, lean });
+  if (!base) return null;
+  return base.replace("</user_data>", `already_shown="""${alreadyShown.trim()}"""\n</user_data>`);
+}
+
+// 11쪽 조립(결제 후). sa = parseStoryApply 결과(D, 탈락 칸은 null → DB 문장), E = parseE의 E(탈락이면 null → 대체 경로).
+// 순서·인자는 패키지 fixtures/runCase.mjs와 같다.
+export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lean, C, sa, E }: {
+  name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; sa: any | null; E: any | null;
+}): any[] {
+  const base = buildPages({
+    name, cls, picks, data, links: C?.links ?? null, safety, worryText: worryText || "", paid: true,
+    story: sa?.story ?? null, apply: sa?.apply ?? null, key: sa?.key ?? null, storyHead: sa?.storyHead ?? null, applyHead: sa?.applyHead ?? null,
+  });
+  return buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data });
 }
 
 // 11쪽 조립(결제 전). C는 parseC 결과(통과한 칸만), D·E는 결제 뒤에만 생기므로 지금은 없음.
@@ -63,6 +98,15 @@ export function sanitizeUnpaid(pages: any[]): any[] {
       // arcana(원래 타로 카드 이름)는 2~4쪽 카드 정보에 보이는 공개 정보(시안 "원래 타로 카드 · 정의(Justice)").
       out.card = { position: c.position, name: c.name, character: c.character, reversed: c.reversed, keywords: c.keywords, arcana: c.arcana, image: c.image };
     }
+    return out;
+  });
+}
+
+// 결제 후 응답: 같은 허용 목록이지만 본문(body)을 그대로 싣는다(결론·6~11쪽 포함). 화면에 안 쓰는 내부 칸(combo·map·locked)은 뺀다.
+export function sanitizePaid(pages: any[]): any[] {
+  return pages.map((p) => {
+    const out: Record<string, unknown> = {};
+    for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     return out;
   });
 }

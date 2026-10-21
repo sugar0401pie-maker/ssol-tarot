@@ -206,7 +206,9 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   }
 
   // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 11쪽을 다시 해석하지 않게.
-  const ctx: Ctx = useMemo(() => ({ r, copy, opts, openZoom: setZoom }), [r, copy, opts]);
+  // [결제하고 이어 읽기] → 결제 화면(/checkout/{id}?page=쪽). 결제가 끝나면 누른 그 쪽으로 돌아온다.
+  const pay = useCallback((page: number) => router.push(`/checkout/${id}?page=${page}`), [router, id]);
+  const ctx: Ctx = useMemo(() => ({ r, copy, opts, openZoom: setZoom, pay }), [r, copy, opts, pay]);
 
   return (
     <div className="tv4">
@@ -287,7 +289,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   );
 }
 
-type Ctx = { r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void };
+type Ctx = { r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
@@ -299,7 +301,7 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
     return (
       <>
         <Blocks blocks={parseBlocks(p.free, opts)} ctx={ctx} />
-        <Lock blur={sample} ctx={ctx} />
+        <Lock blur={sample} ctx={ctx} page={p.page} />
       </>
     );
   }
@@ -307,14 +309,14 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
     return (
       <>
         {p.teaser && <p className="teaser">{p.teaser}</p>}
-        <Lock blur={p.blur ?? null} ctx={ctx} />
+        <Lock blur={p.blur ?? null} ctx={ctx} page={p.page} />
       </>
     );
   }
   return <Blocks blocks={parseBlocks(p.body, opts)} ctx={ctx} />;
 });
 
-function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
+function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number }) {
   const c = ctx.copy.result;
   return (
     <div className="lockwrap">
@@ -327,11 +329,10 @@ function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
         <b>{ctx.r.decision ? c.paywall_title_decision : c.paywall_title}</b>
         <p>{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
         <p className="price">{c.paywall_price}</p>
-        {/* TODO: 실제 연동 — 토스 결제(1,900원) 후 유료 리포트(D·E 호출) 생성. 결제 전 유료 본문은 만들지 않는다. */}
-        <button type="button" className="btn fill" disabled>
+        {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
+        <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
           {c.paywall_button}
         </button>
-        <small>결제는 준비 중이에요</small>
       </div>
     </div>
   );

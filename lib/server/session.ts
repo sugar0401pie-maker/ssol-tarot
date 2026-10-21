@@ -7,10 +7,15 @@ import { screenWorry } from "@/lib/tarot-glue/screenWorry";
 import { buildSafetyNotice } from "@/lib/tarot/assembleReport.js";
 import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
-import { decide, buildCUserBlock, buildUnpaidPages, sanitizeUnpaid } from "@/lib/tarot-glue/v4";
+import { decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
+import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
+import { parseE } from "@/lib/tarot/validateV4.js";
+import { REPORT_ORDER_NAME, REPORT_PRICE, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
+import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
+import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
-import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, worryUserMessage } from "./prompts";
+import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E_SYSTEM, worryUserMessage } from "./prompts";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
 // v4.0(2026-10-20): 결과 11쪽. 고민 제출 → A 분류 + A2 고민 틀 / 3장째 → 방향 계산(코드) + C / 결제 후 → D·E(결제 연동 때).
@@ -43,6 +48,11 @@ type SessionRow = {
   result_status: string;
   created_at: string;
   updated_at: string;
+  // 유료 리포트(마이그레이션 20261021000000 전에는 없을 수 있음)
+  paid_at?: string | null;
+  report?: { sa: unknown; E: unknown } | null;
+  report_status?: "none" | "generating" | "ready" | "failed";
+  report_started_at?: string | null;
 };
 
 export class TarotError extends Error {
@@ -339,12 +349,33 @@ export async function getResult(s: SessionRow) {
     // 분류 호출은 길어야 30초라, 3분이 넘도록 pending이면 끊긴 것으로 보고 키워드 판정만으로 연다.
     if (s.classification_status === "pending" && idle < 180000) return { status: "preparing" as const };
   }
+  // 결제했는데 유료 리포트(D·E)를 아직 만드는 중이면 기다리는 화면. 4분이 지나도 안 끝났으면(서버 재시작 등) 만든 만큼 —
+  // 없으면 DB 문장(패키지 대체 경로)으로 연다. 결제한 사람이 영원히 기다리지 않게.
+  const paid = Boolean(s.paid_at);
+  if (paid && s.report_status === "generating" && Date.now() - new Date(s.report_started_at ?? s.updated_at).getTime() < 240000) {
+    return { status: "preparing" as const };
+  }
   const picks = expandPicks(s.picks);
   const cls = classificationForReport(s.classification);
   const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
   const frame = s.frame ?? null;
   // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
   const { lean, decision } = decide({ frame, cls, picks, name: s.nickname });
+  if (paid) {
+    const rep = (s.report ?? null) as { sa?: unknown; E?: unknown } | null;
+    const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null });
+    return {
+      status: "ready" as const,
+      nickname: s.nickname,
+      createdAt: s.created_at,
+      cards: picks.map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
+      pages: sanitizePaid(pages),
+      notice: buildSafetyNotice({ data, safety }),
+      paid: true,
+      decision,
+      saved: Boolean(s.user_id),
+    };
+  }
   const pages = buildUnpaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links });
   return {
     status: "ready" as const,
@@ -368,6 +399,152 @@ export async function claim(s: SessionRow, userId: string | null) {
   if (s.user_id && s.user_id !== userId) throw new TarotError(409, "이미 다른 계정에 저장된 결과예요.");
   if (!s.user_id) await update(s.id, { user_id: userId });
   return { saved: true };
+}
+
+// ---------- 결제(토스) — 쏠 아스트로 하우스 결제와 같은 원칙 ----------
+// ① 금액은 서버가 정한다(REPORT_PRICE) ② 토스가 돌려준 값은 믿지 않고 시크릿 키로 승인 확인(confirm)한 뒤에만 결제 완료
+// ③ 돈이 나갔을 수 있으면 절대 '취소'로 바꾸지 않는다(decideAfterConfirmFailure) ④ 같은 결과를 두 번 결제하면 두 번째를 토스에서 취소.
+
+type OrderRow = { id: string; user_id: string; session_id: string; amount: number; status: "pending" | "paid" | "canceled"; payment_key: string | null };
+const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 뒤 이 화면을 새로고침해 주세요. 계속되면 contact@ssolwellness.com으로 알려 주세요.";
+
+export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }) {
+  if (!userId || s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
+  // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
+  if (body.withdrawalAck !== true) throw new TarotError(400, "청약철회 안내에 동의해 주세요.");
+  if (s.safety_level === "urgent" || s.result_status === "safety") throw new TarotError(403, "이 결과는 결제할 수 없어요.");
+  if (s.picks.length < data.deck.pick_count || s.result_status !== "ready") throw new TarotError(409, "결과가 아직 준비되지 않았어요.");
+  if (s.paid_at) throw Object.assign(new TarotError(409, "이미 결제한 리포트예요."), { paid: true });
+  const { data: row, error } = await db()
+    .from("tarot_orders")
+    .insert({ user_id: userId, session_id: s.id, amount: REPORT_PRICE, withdrawal_version: WITHDRAWAL_NOTICE_VERSION })
+    .select("id")
+    .single();
+  if (error || !row) {
+    console.error("tarot_orders 생성 실패:", error?.message);
+    throw new TarotError(500, "주문을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
+  }
+  return { orderId: row.id as string, orderName: REPORT_ORDER_NAME, amount: REPORT_PRICE, customerKey: userId };
+}
+
+async function settleOrder(orderId: string, status: "canceled") {
+  await db().from("tarot_orders").update({ status }).eq("id", orderId).neq("status", "paid");
+}
+
+/** 결제 완료 저장. 같은 결과에 이미 결제된 주문이 있으면(유일 색인 위반) "duplicate". */
+async function markOrderPaid(orderId: string, v: { paymentKey: string; method: string | null }): Promise<"ok" | "duplicate"> {
+  const { error } = await db()
+    .from("tarot_orders")
+    .update({ status: "paid", payment_key: v.paymentKey, method: v.method, paid_at: new Date().toISOString() })
+    .eq("id", orderId);
+  if (!error) return "ok";
+  if (error.code === "23505") return "duplicate";
+  throw new Error(`tarot_orders 결제 저장 실패: ${error.message}`);
+}
+
+export async function confirmPayment(userId: string | null, body: { paymentKey?: unknown; orderId?: unknown; amount?: unknown }) {
+  if (!userId) throw new TarotError(401, "로그인이 필요해요.");
+  const paymentKey = typeof body.paymentKey === "string" ? body.paymentKey : "";
+  const orderId = typeof body.orderId === "string" ? body.orderId : "";
+  const amount = Number(body.amount);
+  if (!paymentKey || !/^[0-9a-f-]{36}$/i.test(orderId) || !Number.isFinite(amount)) throw new TarotError(400, "결제 정보가 올바르지 않아요.");
+
+  const { data: o } = await db().from("tarot_orders").select("id, user_id, session_id, amount, status, payment_key").eq("id", orderId).maybeSingle();
+  const order = o as OrderRow | null;
+  if (!order || order.user_id !== userId) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
+  if (order.status === "paid") return { ok: true, sessionId: order.session_id, generate: false }; // 새로고침 등으로 다시 온 경우
+  if (order.amount !== amount) throw new TarotError(400, "결제 금액이 일치하지 않아요.");
+
+  let method: string | null = null;
+  if (order.status === "pending") {
+    // 같은 결과를 이미 결제했다면(다른 탭의 주문) 토스 승인을 하지 않는다 — 승인 전이면 카드에서 돈이 나가지 않는다.
+    const { data: sess } = await db().from("tarot_sessions").select("paid_at").eq("id", order.session_id).maybeSingle();
+    if (sess?.paid_at) {
+      await settleOrder(orderId, "canceled");
+      throw Object.assign(new TarotError(409, "이미 결제한 결과예요. 결과 화면에서 바로 볼 수 있어요."), { sessionId: order.session_id });
+    }
+    const r = await confirmTossPayment({ paymentKey, orderId, amount });
+    if (r.ok) method = r.method;
+    else {
+      // 승인 응답이 실패여도 토스에서는 이미 승인됐을 수 있다 — 실제 상태를 물어 DONE이면 결제 완료, 확실히 아니면 취소, 모르면 재시도 안내.
+      const lookup = await getTossPayment(paymentKey);
+      const d = decideAfterConfirmFailure(lookup, { orderId, amount });
+      if (d === "cancel") {
+        await settleOrder(orderId, "canceled");
+        throw new TarotError(502, r.error);
+      }
+      if (d === "retry") throw new TarotError(503, CONFIRM_RETRY_MESSAGE);
+      method = lookup?.method ?? null;
+    }
+  } else {
+    // 'canceled' 주문: 예전에 오류로 잘못 취소됐을 수 있으니 토스에서 실제로 승인됐는지만 확인한다(다시 승인하지 않음).
+    const lookup = await getTossPayment(paymentKey);
+    if (decideAfterConfirmFailure(lookup, { orderId, amount }) !== "paid") throw new TarotError(409, "이미 처리된 주문이에요.");
+    method = lookup?.method ?? null;
+  }
+
+  // 여기부터는 토스 승인이 확인됨.
+  const saved = await markOrderPaid(orderId, { paymentKey, method });
+  if (saved === "duplicate") {
+    const refunded = await cancelTossPayment(paymentKey, "같은 결과에 대한 중복 결제");
+    if (refunded) await settleOrder(orderId, "canceled");
+    console.error(refunded ? "타로 중복 결제 취소함" : "타로 중복 결제 취소 실패(수동 확인 필요)", orderId);
+    throw Object.assign(new TarotError(409, refunded ? "이미 결제한 결과라 이번 결제는 취소했어요." : CONFIRM_RETRY_MESSAGE), { sessionId: order.session_id });
+  }
+  const now = new Date().toISOString();
+  await update(order.session_id, { paid_at: now, report_status: "generating", report_started_at: now });
+  return { ok: true, sessionId: order.session_id, generate: true };
+}
+
+// 결제 직후(백그라운드): D(5·6쪽) → E(7~10쪽). E는 D가 쓴 5·6쪽 글을 받아 되풀이하지 않는다(already_shown).
+// 검증에서 떨어지면 1회 다시 부르고, 그래도 안 되면 그 부분은 패키지 대체 경로(DB 문장)로 — README_v4.
+export async function generateReport(sessionId: string) {
+  const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
+  const s = row as SessionRow | null;
+  if (!s || !s.paid_at) return;
+  let sa: ReturnType<typeof parseStoryApply> | null = null;
+  let E: unknown = null;
+  try {
+    const cls = classificationForReport(s.classification);
+    if (s.worry_text && cls && aiConfigured()) {
+      const picks = expandPicks(s.picks);
+      const frame = s.frame ?? null;
+      const { lean } = decide({ frame, cls, picks, name: s.nickname });
+      // 분류가 실패했으면 폭력 여부를 모르므로 더 조심스러운 쪽(violence=true)으로(스펙 6장 fail safe)
+      const violence = s.violence || s.classification_status === "failed";
+      const safety = { level: s.safety_level, violence, fear: Boolean(s.fear) };
+      const dBlock = buildDUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, safety });
+      for (let i = 0; i < 2 && dBlock; i++) {
+        try {
+          const r = parseStoryApply(await generateText(D_SYSTEM, dBlock, { timeoutMs: 60000, maxOutputTokens: 6000, label: "D" }), { violence });
+          if (!sa || (r.story && r.apply)) sa = r;
+          if (r.story && r.apply) break;
+          console.warn("D 검증 탈락 — 다시 시도");
+        } catch (e) {
+          console.warn("D 호출 실패:", e instanceof Error ? e.message : "unknown");
+        }
+      }
+      const shown = [sa?.story, sa?.apply].filter(Boolean).join("\n\n");
+      const eBlock = buildEUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, alreadyShown: shown });
+      for (let i = 0; i < 2 && eBlock; i++) {
+        try {
+          const r = parseE(await generateText(E_SYSTEM, eBlock, { timeoutMs: 60000, maxOutputTokens: 8000, label: "E" }), { lean, frame, violence });
+          if (r.E) {
+            E = r.E;
+            break;
+          }
+          console.warn("E 검증 탈락 칸:", r.errors.length, "건");
+        } catch (e) {
+          console.warn("E 호출 실패:", e instanceof Error ? e.message : "unknown");
+        }
+      }
+    }
+    await update(sessionId, { report: { sa, E }, report_status: "ready" });
+  } catch (e) {
+    console.error("유료 리포트 생성 실패:", e instanceof Error ? e.message : "unknown");
+    // 실패해도 결제한 사람은 결과를 본다 — report 없이 DB 문장(대체 경로)으로 열림
+    await update(sessionId, { report: sa || E ? { sa, E } : null, report_status: "failed" }).catch(() => {});
+  }
 }
 
 // ---------- 내 결과 목록(/results) ----------

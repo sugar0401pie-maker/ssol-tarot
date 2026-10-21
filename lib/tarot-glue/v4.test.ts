@@ -1,7 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { decide, buildCUserBlock, buildUnpaidPages, sanitizeUnpaid } from "./v4.ts";
+import { fileURLToPath } from "node:url";
+import { decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
+import { parseStoryApply } from "../tarot/assembleReport.js";
+import { parseE } from "../tarot/validateV4.js";
+import { runCase } from "../tarot/fixtures/runCase.mjs";
 import { picksFromSlots, createShuffle } from "../tarot/deck.js";
 import { parseFrame, parseC } from "../tarot/validateV4.js";
 import { screenText, mergeSafety } from "../tarot/safety.js";
@@ -57,4 +61,42 @@ test("고민 미작성(분류·틀·C 없음)도 11쪽이 끊기지 않는다", 
   const out = sanitizeUnpaid(buildUnpaidPages({ name: "지수", cls: null, picks, safety: { level: "none", violence: false, fear: false }, worryText: "", frame: null, lean: null, C: null }));
   assert.equal(out.length, 11);
   assert.ok(out[0].body && out[4].free);
+});
+
+
+// ---------- 결제 후(D·E) ----------
+test("결제 후 11쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — 도현님 D·E 출력으로", () => {
+  const tables = JSON.parse(fs.readFileSync(new URL("../../data/decision_tables.json", import.meta.url), "utf8"));
+  const ref = runCase(fileURLToPath(new URL(".", FX)), data, tables);
+  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const C = parseC(readJ("C_out.json"), { decision: true, strength: lean?.strength ?? null, frame, lean, violence: safety.violence });
+  const sa = parseStoryApply(readJ("D_out.json"), { violence: safety.violence });
+  const E = parseE(readJ("E_out.json"), { lean, frame, violence: safety.violence }).E;
+  const P = buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C, sa, E });
+  assert.equal(P.length, 11);
+  assert.deepEqual(P.map((p: { body?: string }) => p.body), ref.paid.map((p: { body?: string }) => p.body));
+  // 응답에는 본문이 실리고(결론 포함) 내부 칸(combo·map·locked)은 빠진다
+  const out = sanitizePaid(P);
+  assert.ok(out[4].body && /세 장을 합치면 ‘현재 회사에 남기’ 쪽/.test(String(out[4].body)));
+  for (const p of out) for (const k of ["combo", "map", "locked"]) assert.equal(k in p, false);
+});
+
+test("D·E가 없거나 탈락해도(대체 경로) 결제 후 11쪽이 모두 본문을 가진다", () => {
+  const P = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean: null, C: null, sa: null, E: null }));
+  assert.equal(P.length, 11);
+  for (const p of P) assert.ok(p.body, `${p.page}쪽 본문 있음`);
+});
+
+test("D 입력: 안전 칸·고민 틀·방향 포함 / E 입력: 5·6쪽 글(already_shown) 포함 / 미작성이면 null", () => {
+  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const d = buildDUserBlock({ name: cs.name, worryText: cs.worry, cls: cs.ai, picks, frame, lean, safety })!;
+  assert.match(d, /crisis_level=/);
+  assert.match(d, /violence_flag=false/);
+  assert.match(d, /worry_frame=\{/);
+  assert.match(d, /"option":"현재 회사에 남기"/);
+  const e = buildEUserBlock({ name: cs.name, worryText: cs.worry, cls: cs.ai, picks, frame, lean, alreadyShown: "5쪽 글\n\n6쪽 글" })!;
+  assert.match(e, /already_shown="""5쪽 글\n\n6쪽 글"""/);
+  assert.match(e, /direction_lean=\{/);
+  assert.equal(buildDUserBlock({ name: cs.name, worryText: null, cls: cs.ai, picks, frame, lean, safety }), null);
+  assert.equal(buildEUserBlock({ name: cs.name, worryText: "", cls: cs.ai, picks, frame, lean, alreadyShown: "" }), null);
 });
