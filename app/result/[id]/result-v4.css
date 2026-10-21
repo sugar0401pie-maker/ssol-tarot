@@ -115,7 +115,8 @@
 .tv4 .sum b { font-weight: 700; }
 .tv4 .lockwrap { position: relative; margin-top: 6px; }
 .tv4 .blurred { filter: blur(5px); opacity: 0.75; user-select: none; pointer-events: none; max-height: 340px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 40%, transparent); mask-image: linear-gradient(#000 40%, transparent); }
-.tv4 .pay { position: relative; margin-top: -140px; background: var(--night); color: var(--moon); border-radius: 18px; padding: 18px 16px 12px; text-align: center; box-shadow: 0 10px 30px #01223f55; }
+/* z-index·translateZ(0): 흐림(filter) 처리된 글 위에 겹친 상자가 iOS 사파리에서 스크롤할 때 제자리에 남아 보이는 그리기 문제를 막는다(owner 2026-10-21 "스크롤할 때 같이 움직이게") */
+.tv4 .pay { position: relative; z-index: 1; transform: translateZ(0); margin-top: -140px; background: var(--night); color: var(--moon); border-radius: 18px; padding: 18px 16px 12px; text-align: center; box-shadow: 0 10px 30px #01223f55; }
 .tv4 .pay::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--gold); border-radius: 13px; opacity: 0.5; pointer-events: none; }
 .tv4 .pay b { font-family: var(--font-gowun-batang), "Gowun Batang", serif; font-size: 16px; color: var(--gold-soft); display: block; margin-bottom: 6px; }
 .tv4 .pay p { font-size: 12.5px; line-height: 1.6; color: var(--moon) !important; }

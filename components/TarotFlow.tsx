@@ -34,7 +34,9 @@ const AGAIN_KEY = "ssol_tarot_again";
 const NO_SCENE_ART: SceneArtMap = {};
 // 섞기·뽑기·다 뽑음·대기는 아래에 누를 것(버튼·22장 보드)이 많아서, 그림 높이를 화면의 약 1/4로 줄여(가운데 기준으로 위아래만 잘림)
 // 휴대폰 한 화면 안에서 스크롤 없이 진행할 수 있게 한다. 다른 장면은 그림 비율 그대로.
-const COMPACT_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"]);
+const COMPACT_SCENES = new Set<string>(["reveal", "loading"]);
+// 섞기·뽑기 화면에는 장면 그림을 넣지 않는다(owner 2026-10-21) — 그 그림은 결과 6~8쪽 맨 위에서 쓴다(RESULT_PAGE_SCENE).
+const NO_ART_SCENES = new Set<string>(["shuffle", "draw"]);
 // 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
 const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
 
@@ -228,7 +230,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
     <main className="night-bg relative flex min-h-dvh flex-col overflow-x-hidden">
       <Stars />
       {/* 장면 맨 위 그림(그림 파일이 있는 장면만). 장면이 바뀔 때마다 다시 고름 */}
-      {!FRAMED_SCENES.has(screen) && (
+      {!FRAMED_SCENES.has(screen) && !NO_ART_SCENES.has(screen) && (
         <SceneArt
           key={screen}
           map={sceneArt}
@@ -513,7 +515,7 @@ function ShuffleScreen({
   }
   return (
     <div className="relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-12 text-center">
-      <p className="fade-up max-w-sm font-serif text-[18px] leading-relaxed text-gold-soft">{copy.shuffle.guide}</p>
+      <p className="fade-up max-w-sm whitespace-pre-line break-keep font-serif text-[18px] leading-relaxed text-gold-soft">{copy.shuffle.guide}</p>
       {/* 섞는 동안: 더미 둘레로 카드·별이 돌고(신비한 연출, owner 2026-10-20) 카드는 좌우로 갈라졌다 겹치며 금빛 잔상.
           다 섞이면 가지런히 모이고 물결 빛이 한 번 지나간다(스펙 7.4). */}
       <div className={`shuffle-zone ${mixing ? "is-mixing" : ""} ${phase === "done" ? "is-done" : ""} ${phase === "leaving" ? "is-leaving" : ""}`}>

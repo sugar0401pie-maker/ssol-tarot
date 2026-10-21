@@ -45,10 +45,21 @@ export function parseInline(s: string): Inline {
   return out;
 }
 
-// 메인 문구가 길면 첫 쉼표 뒤에서 줄을 바꾼다(copy.result.headline_break).
+// 메인 문구 줄바꿈(copy.result.headline_break): 첫 쉼표 뒤. 쉼표가 없으면 메인 문구 틀(headline_frames)의 이음말
+// "~을 지나 / ~으로", "~에서 / ~으로" 뒤에서 자동으로 바꾼다(owner 2026-10-21 "여러 갈래로 흩어지는 힘을 지나 / 한 가지만 지키는 여유로").
+// 앞뒤가 너무 짧으면(4자 미만) 나누지 않는다 — AI가 쓴 메인 문구에 우연히 낀 '에서'로 어색하게 끊기지 않게.
+const HEADLINE_JOINS = [" 지나 ", "에서 "];
 export function splitHeadline(s: string): string[] {
   const i = s.indexOf(", ");
-  return i < 0 ? [s] : [s.slice(0, i + 1), s.slice(i + 2)];
+  if (i >= 0) return [s.slice(0, i + 1), s.slice(i + 2)];
+  for (const j of HEADLINE_JOINS) {
+    const k = s.indexOf(j);
+    if (k < 0) continue;
+    const head = s.slice(0, k + j.length).trimEnd();
+    const tail = s.slice(k + j.length).trim();
+    if (head.length >= 4 && tail.length >= 4) return [head, tail];
+  }
+  return [s];
 }
 
 const WHOLE_BOLD = /^\*\*([^*]+)\*\*$/;

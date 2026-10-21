@@ -21,6 +21,11 @@ test("굵게: 짝이 맞는 **만, 짝이 안 맞으면 글자 그대로", () =>
 test("메인 문구는 첫 쉼표 뒤에서 줄바꿈(시안과 같음)", () => {
   assert.deepEqual(splitHeadline("회사일까 일일까, 세 장이 답했어요"), ["회사일까 일일까,", "세 장이 답했어요"]);
   assert.deepEqual(splitHeadline("쉼표 없음"), ["쉼표 없음"]);
+  // 메인 문구 틀의 이음말에서 자동 줄바꿈(owner 2026-10-21)
+  assert.deepEqual(splitHeadline("여러 갈래로 흩어지는 힘을 지나 한 가지만 지키는 여유로"), ["여러 갈래로 흩어지는 힘을 지나", "한 가지만 지키는 여유로"]);
+  assert.deepEqual(splitHeadline("익숙한 고민에서 내 목소리를 듣는 쪽으로"), ["익숙한 고민에서", "내 목소리를 듣는 쪽으로"]);
+  assert.deepEqual(splitHeadline("지금은 버티는 힘, 다음은 쉬는 법"), ["지금은 버티는 힘,", "다음은 쉬는 법"]);
+  assert.deepEqual(splitHeadline("집에서 쉬기"), ["집에서 쉬기"]); // 뒤가 너무 짧으면 그대로
 });
 
 test("1쪽: 카드 줄·고민 틀 상자·카드별 미니·키워드", () => {

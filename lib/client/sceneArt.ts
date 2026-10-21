@@ -20,4 +20,7 @@ export function pickSceneArt(map: SceneArtMap, id: SceneId, rand: number): strin
 }
 
 /** 결과 쪽 번호 → 그 쪽 맨 위 그림 장면(없으면 그림 없음). 1~4쪽은 카드 그림이 이미 맨 위에 있다. */
-export const RESULT_PAGE_SCENE: Partial<Record<number, SceneId>> = { 5: "result_interpret", 9: "result_wellness", 10: "result_practice", 11: "result_continue" };
+// 6~8쪽(owner 2026-10-21 "결과 6~8쪽에 캐릭터가 없어서 넣어 주세요"): 섞기·뽑기 화면에서 뺀 그림과 다 뽑음 그림을 다시 쓴다.
+export const RESULT_PAGE_SCENE: Partial<Record<number, SceneId>> = {
+  5: "result_interpret", 6: "shuffle", 7: "draw", 8: "reveal", 9: "result_wellness", 10: "result_practice", 11: "result_continue",
+};
