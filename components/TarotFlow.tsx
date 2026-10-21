@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { initialState, next, type FlowAction, type FlowStateBase } from "@/lib/tarot/flow.js";
 import { api, saveKey, ApiError, type PickResponse } from "@/lib/client/api";
 import { fill } from "@/lib/client/text";
@@ -10,6 +10,7 @@ import { CardBack, CardFace, CardCaption, FrameCorners, Stars } from "./Cards";
 import { SceneArt } from "./SceneArt";
 import { MysticOrbit, RotatingLine } from "./Mystic";
 import PageFoot from "./PageFoot";
+import { STEP_PATH, stepFromPath, canFollow, entryStep, type Step } from "@/lib/client/steps";
 import { getRealSession } from "@/lib/supabase/browser";
 import type { SceneArtMap, SceneId } from "@/lib/client/sceneArt";
 import { WaitNotice } from "./WaitNotice";
@@ -22,7 +23,7 @@ import { SafetyScreen } from "./SafetyScreen";
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
 
 export type Copy = (typeof import("@/data/tarot_data.json"))["copy"];
-export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap };
+export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap; initialStep?: Step | null };
 
 type FlowState = FlowStateBase;
 type Action = FlowAction;
@@ -37,8 +38,9 @@ const COMPACT_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"])
 // 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
 const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
 
-export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART }: FlowProps) {
+export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART, initialStep = null }: FlowProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const flowData = useMemo(() => ({ copy, deck: { pick_count: pickCount } }), [copy, pickCount]);
   const [state, setState] = useState<FlowState>(() => initialState());
   const [session, setSession] = useState<{ id: string; key: string } | null>(null);
@@ -78,14 +80,46 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
     }
   }, []);
 
-  // 로그인 화면에서 [타로 보기]로 돌아온 경우(/?start=1): 로그인돼 있으면 바로 시작하고 주소는 첫 화면으로 정리.
+  // 로그인 화면에서 [타로 보기]로 돌아온 경우(/?start=1): 로그인돼 있으면 바로 시작(주소는 아래 동기화가 /welcome으로).
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("start") !== "1") return;
     void getRealSession().then((s) => {
-      router.replace("/");
+      window.history.replaceState(null, "", "/");
       if (s) go({ type: "START" });
     });
-  }, [router, go]);
+  }, [go]);
+
+  // ---------- 화면마다 자기 주소(owner 2026-10-21) ----------
+  // 주소로 바로 들어온 경우(/welcome·/draw 새로고침 등): 고민·카드는 브라우저에 저장해 두지 않으므로 환영 화면부터 다시.
+  // 로그인 전이면 로그인 화면을 거친다(로그인해야 이용).
+  const [booting, setBooting] = useState(() => entryStep(initialStep) !== "intro");
+  useEffect(() => {
+    if (!booting) return;
+    void getRealSession().then((s) => {
+      if (!s) return router.replace(`/login?next=${encodeURIComponent(STEP_PATH.welcome)}`);
+      setState({ ...initialState(), screen: "welcome" } as FlowState);
+      setBooting(false);
+    });
+  }, [booting, router]);
+  // 화면이 바뀌면 주소를 그 화면 것으로(pushState — 뒤로 가기가 이전 화면 주소로 간다). 결과 화면은 /result/{id}로 따로 이동.
+  const screenRef = useRef(state.screen);
+  screenRef.current = state.screen;
+  useEffect(() => {
+    if (booting) return;
+    const path = STEP_PATH[state.screen as Step];
+    if (path && window.location.pathname !== path) window.history.pushState(null, "", path);
+  }, [state.screen, booting]);
+  // 뒤로/앞으로 가기로 주소가 바뀐 경우: 고민을 내기 전 단계 안에서 뒤로 가는 것만 따라가고, 그 밖에는 지금 화면 주소로 되돌린다.
+  useEffect(() => {
+    if (booting) return;
+    const cur = screenRef.current as Step;
+    const to = stepFromPath(pathname);
+    if (!to || to === cur || !STEP_PATH[cur]) return;
+    if (canFollow(cur, to)) setState((st) => (to === "intro" ? initialState() : { ...st, screen: to }) as FlowState);
+    else window.history.pushState(null, "", STEP_PATH[cur]);
+    // 주소가 바뀔 때만 본다(화면 상태가 먼저 바뀐 경우까지 보면 방금 누른 이동을 되돌려 버린다)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   function startSession(nickname: string, experience: string) {
     const p = api<{ id: string; key: string }>("/api/tarot/session", { body: { nickname, experience } }).then((s) => {
@@ -186,6 +220,8 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
 
   const screen = state.screen;
 
+  // 주소로 바로 들어와 로그인 확인 중 — 첫 화면이 잠깐 보였다 바뀌지 않게 빈 밤 화면만
+  if (booting) return <main className="night-bg min-h-dvh" />;
   if (screen === "safety") return <SafetyScreen copy={copy} />;
 
   return (

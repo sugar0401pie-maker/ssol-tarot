@@ -31,7 +31,7 @@ function hideBroken(e: React.SyntheticEvent<HTMLImageElement>) {
   e.currentTarget.style.visibility = "hidden";
 }
 
-export default function ResultView({ id, copy, opts }: { id: string; copy: ViewCopy; opts: ParseOpts }) {
+export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: string; copy: ViewCopy; opts: ParseOpts; initialPage?: number }) {
   const [res, setRes] = useState<ResultResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nickname, setNickname] = useState("");
@@ -99,13 +99,13 @@ export default function ResultView({ id, copy, opts }: { id: string; copy: ViewC
       </main>
     );
   }
-  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} />;
+  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} initialPage={initialPage} />;
 }
 
 // 쪽이 잠겨 있는지(시안 LOCK.unpaid = 6~11쪽). 5쪽은 일부 무료라 점 표시는 열린 쪽으로 둔다.
 const isLocked = (p: ResultPage, paid: boolean) => !paid && p.page >= 6;
 
-function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts }) {
+function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; initialPage: number }) {
   const rail = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
   const [zoom, setZoom] = useState<{ src: string; alt: string; reversed: boolean } | null>(null);
@@ -147,6 +147,20 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
       window.removeEventListener("resize", onResize);
     };
   }, [go, idx]);
+
+  // 쪽마다 자기 주소(owner 2026-10-21 "모든 페이지 개별 링크"): /result/{id}/{쪽}. 주소로 들어오면 그 쪽부터 보여 주고,
+  // 넘길 때마다 주소만 바꾼다(replaceState — 뒤로 가기가 11번 쌓이지 않게. Next가 주소 변경을 라우터와 맞춰 준다).
+  useEffect(() => {
+    const el = rail.current;
+    const k = Math.max(0, Math.min(n - 1, initialPage - 1));
+    if (el && k > 0) el.scrollTo({ left: k * el.clientWidth, behavior: "instant" });
+    // 처음 한 번만 — 이후에는 사용자가 넘긴 쪽을 따른다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    const path = `/result/${id}/${idx + 1}`;
+    if (window.location.pathname !== path) window.history.replaceState(null, "", path);
+  }, [id, idx]);
 
   // 스크롤 이벤트는 1초에 수십 번 온다 — 한 화면 그리기에 한 번만 계산(쪽 번호가 같으면 React가 다시 그리지 않음).
   const ticking = useRef(false);
