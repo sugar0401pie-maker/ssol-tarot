@@ -29,6 +29,9 @@ const SHUFFLE_MIN_MS = 6000; // 스펙 7.4는 최소 3초. 3초마다 바뀌는 
 const AGAIN_KEY = "ssol_tarot_again";
 
 const NO_SCENE_ART: SceneArtMap = {};
+// 섞기·뽑기·다 뽑음·대기는 아래에 누를 것(버튼·22장 보드)이 많아서, 그림 높이를 화면의 약 1/4로 줄여(가운데 기준으로 위아래만 잘림)
+// 휴대폰 한 화면 안에서 스크롤 없이 진행할 수 있게 한다. 다른 장면은 그림 비율 그대로.
+const COMPACT_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"]);
 
 export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART }: FlowProps) {
   const router = useRouter();
@@ -176,7 +179,12 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
     <main className="night-bg relative flex min-h-dvh flex-col overflow-x-hidden">
       <Stars />
       {/* 장면 맨 위 그림(그림 파일이 있는 장면만). 장면이 바뀔 때마다 다시 고름 */}
-      <SceneArt key={screen} map={sceneArt} id={screen as SceneId} />
+      <SceneArt
+        key={screen}
+        map={sceneArt}
+        id={screen as SceneId}
+        className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
+      />
       {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
       {screen === "welcome" && (
         <Framed>
@@ -492,6 +500,23 @@ function ShuffleScreen({
   );
 }
 
+// 뽑은 카드: 뒷면으로 아래에서 칸으로 날아든 뒤(0.4초) 앞면으로 뒤집힌다(0.6초) — 디자인 가이드 4장 뽑기
+// 처음부터 is-flipped로 그리면 전환이 일어나지 않으므로, 뒷면으로 먼저 그리고 잠시 뒤 뒤집는다.
+const SLOT_FLIP_DELAY_MS = 400;
+function SlotFlip({ children }: { children: React.ReactNode }) {
+  const [flipped, setFlipped] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setFlipped(true), SLOT_FLIP_DELAY_MS);
+    return () => clearTimeout(t);
+  }, []);
+  // 날아들기(투명도 애니메이션)는 바깥 상자에 — 같은 요소에 두면 브라우저가 3D를 평평하게 그려 뒤집어도 뒷면이 보인다.
+  return (
+    <div className="slot-fly">
+      <div className={`flip-card aspect-[2/3] w-full ${flipped ? "is-flipped" : ""}`}>{children}</div>
+    </div>
+  );
+}
+
 function DrawScreen({
   copy,
   session,
@@ -524,7 +549,7 @@ function DrawScreen({
       if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(10);
       setPicks((p) => [...p, r]);
       onPicked();
-      await new Promise((res) => setTimeout(res, 650)); // 뒤집기 0.6초
+      await new Promise((res) => setTimeout(res, SLOT_FLIP_DELAY_MS + 650)); // 날아들기 0.4초 + 뒤집기 0.6초
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : "잠시 후 다시 눌러 주세요.");
     } finally {
@@ -537,8 +562,15 @@ function DrawScreen({
       <p className="mb-5 max-w-sm text-center font-serif text-[17px] leading-relaxed text-gold-soft">
         {revealed ? copy.reveal.done : copy.pick.guide}
       </p>
+      {/* 다 뽑으면 보드는 사라지고 세 장이 가운데로 모이며 ✦✦✦와 새벽빛(디자인 가이드 4장 "다 뽑음") */}
+      {revealed && (
+        <p className="fade-up mb-1 text-[14px] tracking-[0.5em] text-gold" aria-hidden>
+          ✦✦✦
+        </p>
+      )}
       {/* 슬롯 3개: 지나온 길 / 지금의 흐름 / 앞으로의 열쇠 */}
-      <div className={`grid w-full max-w-sm grid-cols-3 gap-3 transition-all duration-500 ${revealed ? "mt-4 scale-105" : ""}`}>
+      <div className={`relative grid w-full max-w-sm grid-cols-3 gap-3 transition-all duration-500 ${revealed ? "reveal-trio mt-4 scale-105" : ""}`}>
+        {revealed && <span className="reveal-dawn" aria-hidden />}
         {copy.pick.slot_labels.map((label, i) => {
           const p = picks[i];
           return (
@@ -548,17 +580,22 @@ function DrawScreen({
                 {p ? (
                   <div className="relative">
                     <span className="dawn-glow" aria-hidden />
-                    <div className="flip-card is-flipped aspect-[2/3] w-full" style={{ animation: "none" }}>
+                    <SlotFlip>
                       <div className="flip-face">
                         <CardBack className="w-full" />
                       </div>
                       <div className="flip-face flip-front">
                         <CardFace image={p.card.image} name={p.card.name} character={p.card.character} reversed={p.reversed} className="w-full" />
                       </div>
-                    </div>
+                    </SlotFlip>
                   </div>
                 ) : (
-                  <div className="aspect-[2/3] w-full rounded-[6%] border border-dashed border-gold/70" />
+                  <div className="flex aspect-[2/3] w-full items-center justify-center rounded-[6%] border border-dashed border-gold/70">
+                    {/* 빈 칸: 점선 금테 + 초승달(디자인 가이드 4장) */}
+                    <svg viewBox="0 0 24 24" className="h-6 w-6 text-gold/70" aria-hidden>
+                      <path d="M15.5 3.5a8.5 8.5 0 1 0 5 15.4A7 7 0 1 1 15.5 3.5z" fill="currentColor" />
+                    </svg>
+                  </div>
                 )}
               </div>
               {p && (p.reversed ? <CardCaption name={p.card.name} reversed dark /> : <span className="fade-up text-center font-serif text-[12px] text-moon">{p.card.name}</span>)}

@@ -26,6 +26,11 @@ type Ready = Extract<ResultResponse, { status: "ready" }>;
 // 쏘웰라 채팅(같은 계정) — 11쪽 버튼. 결제 연동 전에는 11쪽이 잠겨 있어 아직 보이지 않는다.
 const SOWELLA_URL = "https://app.ssolwellnesshouse.com/chat";
 
+// 카드 그림을 못 받으면 깨진 그림 아이콘 대신 빈 카드 틀만 남긴다(카드명은 옆 글자로 이미 보임).
+function hideBroken(e: React.SyntheticEvent<HTMLImageElement>) {
+  e.currentTarget.style.visibility = "hidden";
+}
+
 export default function ResultView({ id, copy, opts }: { id: string; copy: ViewCopy; opts: ParseOpts }) {
   const [res, setRes] = useState<ResultResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -325,13 +330,13 @@ function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
 function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const c = p.card!;
   const src = `/images/tarot/${c.image}`;
-  const alt = `${c.name} — ${c.character}`;
+  const alt = `${c.name} — ${c.character}${c.reversed ? " (역방향)" : ""}`;
   return (
     <>
       <button type="button" className="card xl" onClick={() => ctx.openZoom({ src, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
         {/* 2~4쪽은 처음엔 옆으로 밀려 있는 쪽이라 늦게 불러온다(넘겨 갈 때 받음) */}
         {/* eslint-disable-next-line @next/next/no-img-element -- 최적화 주소는 cardImg(getImageProps)로 직접 넣음 */}
-        <img {...cardImg(src, "(max-width: 400px) 92vw, 364px")} alt={alt} loading="lazy" decoding="async" className={c.reversed ? "rev180" : ""} />
+        <img {...cardImg(src, "(max-width: 400px) 92vw, 364px")} alt={alt} loading="lazy" decoding="async" className={c.reversed ? "rev180" : ""} onError={hideBroken} />
       </button>
       <div className="cardinfo">
         <p className="cname">
@@ -501,11 +506,11 @@ function Strip({ cards, ctx }: { cards: ResultCard[]; ctx: Ctx }) {
     <>
       <div className="strip">
         {cards.map((c) => {
-          const alt = `${c.name} — ${c.character}`;
+          const alt = `${c.name} — ${c.character}${c.reversed ? " (역방향)" : ""}`;
           return (
             <button type="button" key={c.id} className="card sm" onClick={() => ctx.openZoom({ src: c.image, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...cardImg(c.image, "(max-width: 400px) 30vw, 120px")} alt={alt} fetchPriority="high" className={c.reversed ? "rev180" : ""} />
+              <img {...cardImg(c.image, "(max-width: 400px) 30vw, 120px")} alt={alt} fetchPriority="high" className={c.reversed ? "rev180" : ""} onError={hideBroken} />
               {c.reversed && <span className="revtag" style={{ display: "block" }}>역방향</span>}
             </button>
           );
