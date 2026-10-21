@@ -34,6 +34,8 @@ const NO_SCENE_ART: SceneArtMap = {};
 // 섞기·뽑기·다 뽑음·대기는 아래에 누를 것(버튼·22장 보드)이 많아서, 그림 높이를 화면의 약 1/4로 줄여(가운데 기준으로 위아래만 잘림)
 // 휴대폰 한 화면 안에서 스크롤 없이 진행할 수 있게 한다. 다른 장면은 그림 비율 그대로.
 const COMPACT_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"]);
+// 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
+const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
 
 export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART }: FlowProps) {
   const router = useRouter();
@@ -190,16 +192,18 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
     <main className="night-bg relative flex min-h-dvh flex-col overflow-x-hidden">
       <Stars />
       {/* 장면 맨 위 그림(그림 파일이 있는 장면만). 장면이 바뀔 때마다 다시 고름 */}
-      <SceneArt
-        key={screen}
-        map={sceneArt}
-        id={screen as SceneId}
-        className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
-      />
+      {!FRAMED_SCENES.has(screen) && (
+        <SceneArt
+          key={screen}
+          map={sceneArt}
+          id={screen as SceneId}
+          className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
+        />
+      )}
       {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
       {screen === "intro" && <PageFoot />}
       {screen === "welcome" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <WelcomeScreen
             copy={copy}
             error={state.error ?? null}
@@ -211,10 +215,10 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         </Framed>
       )}
       {screen === "experience" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <div className="fade-up flex flex-col items-center gap-3 text-center">
             <Sparkle />
-            <h1 className="font-serif text-[24px] font-bold leading-snug text-gold-soft">{fill(copy.experience.title, { nickname })}</h1>
+            <h1 className="whitespace-pre-line break-keep font-serif text-[24px] font-bold leading-snug text-gold-soft">{fill(copy.experience.title, { nickname })}</h1>
             <p className="font-serif text-[18px] text-moon">{copy.experience.sub}</p>
             <div className="moonarc mt-3" aria-hidden />
             <div className="mt-8 flex w-full flex-col gap-3">
@@ -239,10 +243,10 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         </Framed>
       )}
       {screen === "first_time" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <div className="fade-up flex flex-col items-center gap-6 text-center">
             <Crescent />
-            <p className="text-[16px] leading-relaxed text-moon">{fill(copy.first_time.body, { nickname })}</p>
+            <p className="whitespace-pre-line text-[16px] leading-relaxed text-moon">{fill(copy.first_time.body, { nickname })}</p>
             <Crescent />
             <button type="button" className="btn-night mt-2 w-full rounded-full py-3.5 text-[15px] font-medium" onClick={() => go({ type: "FIRST_TIME_OK" })}>
               {copy.first_time.button}
@@ -251,7 +255,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         </Framed>
       )}
       {screen === "worry" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} />
         </Framed>
       )}
@@ -285,11 +289,13 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
 
 type C = FlowProps["copy"];
 
-function Framed({ children }: { children: React.ReactNode }) {
+// 금선 테두리 화면. 장면 그림은 테두리 안쪽 맨 위에 둔다(owner 2026-10-21: "이미지는 웹페이지 전체 테두리 안에").
+function Framed({ children, art }: { children: React.ReactNode; art?: React.ReactNode }) {
   return (
-    <div className="gold-frame relative flex flex-1 flex-col items-center justify-center px-9 py-16">
+    <div className="gold-frame relative flex flex-1 flex-col items-center px-[22px] pb-16 pt-[22px]">
       <FrameCorners />
-      <div className="w-full max-w-sm">{children}</div>
+      {art}
+      <div className="flex w-full max-w-sm flex-1 flex-col justify-center px-[14px] pt-8">{children}</div>
     </div>
   );
 }
