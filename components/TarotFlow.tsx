@@ -301,15 +301,13 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
       <Link href="/login" className="absolute right-5 top-5 text-[13px] text-moon/80 underline">
         로그인
       </Link>
-      {/* 제목 위에서 도는 카드(owner 2026-10-20 — 바다 친구 지나가기 연출 대신) */}
-      <div className="fade-up flex flex-col items-center gap-6">
-        <IntroCardSpin cards={friends} />
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-[13px] tracking-[0.2em] text-gold">SSOL WELLNESS HOUSE</p>
-          <h1 className="font-serif text-[30px] font-bold text-gold-soft">쏠 타로 하우스</h1>
-          <p className="text-[14px] text-moon/80">고민을 떠올리며 세 장의 카드를 뽑아 보세요</p>
-        </div>
+      {/* 제목이 맨 위, 그 아래 카드 부채 연출(owner 2026-10-20 — 바다 친구 지나가기 대신) */}
+      <div className="fade-up flex w-full flex-col items-center gap-3">
+        <p className="text-[13px] tracking-[0.2em] text-gold">SSOL WELLNESS HOUSE</p>
+        <h1 className="font-serif text-[30px] font-bold text-gold-soft">쏠 타로 하우스</h1>
+        <p className="text-[14px] text-moon/80">고민을 떠올리며 세 장의 카드를 뽑아 보세요</p>
       </div>
+      <IntroCardSpin cards={friends} />
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
         {count !== null && count > 0 && <p className="text-[13px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
         <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={onStart}>
