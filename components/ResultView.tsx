@@ -11,6 +11,8 @@ import { parseBlocks, parseInline, type Block, type Inline, type ParseOpts } fro
 import type { Copy } from "./TarotFlow";
 import { SafetyScreen } from "./SafetyScreen";
 import { ShareSheet } from "./ShareSheet";
+import { SceneArt } from "./SceneArt";
+import { RESULT_PAGE_SCENE, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
 import { WaitNotice } from "./WaitNotice";
 
@@ -106,6 +108,14 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
   const [msg, setMsg] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
   const closeShare = useCallback(() => setSharing(false), []);
+  // 결과 쪽 맨 위 장면 그림 목록(빌드 때 만든 정적 목록). 못 받으면 그림 없이 그대로.
+  const [sceneArt, setSceneArt] = useState<SceneArtMap | null>(null);
+  useEffect(() => {
+    fetch("/api/scene-art")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => setSceneArt(j))
+      .catch(() => setSceneArt(null));
+  }, []);
   const router = useRouter();
   const n = r.pages.length;
 
@@ -196,6 +206,9 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
                 <h1>{p.title}</h1>
               </header>
               <div className="pbody">
+                {sceneArt && RESULT_PAGE_SCENE[p.page] && (
+                  <SceneArt map={sceneArt} id={RESULT_PAGE_SCENE[p.page]!} className="scene" sizes="(max-width: 400px) 92vw, 364px" />
+                )}
                 <PageBody p={p} ctx={ctx} />
                 {p.page >= 4 && (
                   <>

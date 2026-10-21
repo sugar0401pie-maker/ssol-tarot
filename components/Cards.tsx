@@ -9,8 +9,8 @@ import { cardImg } from "@/lib/client/cardImage";
 // - 이미지가 없거나 못 불러오면 크림 배경 + 남색 테두리 + 카드명 대체 카드(크래시 없이).
 
 // 최종 카드 그림(2026-10-07 owner 제공 "labeled" 버전)은 그림 하단 띠에 "번호 카드명 (캐릭터)"가 이미 인쇄돼 있다.
-// 그 그림으로 바꾸면 true로 — 웹 글자 카드명을 겹쳐 쓰지 않는다. 지금 public/images/tarot/의 시안(v2.2 패키지)은 띠가 비어 있어 false.
-const CARD_ART_HAS_LABEL = false;
+// 그 그림으로 바꾸면 true로 — 웹 글자 카드명을 겹쳐 쓰지 않는다.
+const CARD_ART_HAS_LABEL = true; // 2026-10-20 owner 고화질 카드(이름 인쇄된 판)로 교체
 
 // 카드 뒷면은 화면마다 크기가 달라도(뽑기 부채 52~64px, 섞기 144px) 같은 파일 하나를 받도록 크기를 한 값으로 고정한다.
 const BACK = cardImg("/images/tarot/card-back.webp", "144px");
