@@ -65,7 +65,8 @@ export function splitHeadline(s: string): string[] {
 // 잠긴 쪽 예고 한 줄(copy.result.pages[].teaser) 줄바꿈(owner 2026-10-21 "애매하게 두 줄 되는 것"): 쉼표나 " — " 뒤에서 나눈다.
 // 화면에서는 줄마다 단어 단위로 고르게(text-wrap: balance) 맞춘다. 나눌 곳이 없으면 한 줄 그대로.
 export function splitTeaser(s: string): string[] {
-  for (const sep of [", ", " — "]) {
+  // 줄표(—)가 있으면 그 자리가 문장의 큰 마디라 먼저 끊는다("오늘 바로, 3일 안에, 이번 주 안에 — 내가 해 볼…"이 첫 쉼표에서 끊기지 않게).
+  for (const sep of [" — ", ", "]) {
     const i = s.indexOf(sep);
     if (i > 3 && i < s.length - sep.length - 3) return [s.slice(0, i + (sep === ", " ? 1 : 0)).trimEnd(), s.slice(i + sep.length).trimStart()];
   }
