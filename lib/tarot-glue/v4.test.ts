@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { paceTeaser, changeParts, SIGNS_HEAD, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
+import { paceTeaser, PLAN_MOVED_HEAD, changeParts, SIGNS_HEAD, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
@@ -191,4 +191,14 @@ test("7쪽 다듬기: 자리 이름 + 카드 이름 → 'N 번째 카드인 ‘�
   assert.equal(tidyDirection(`지나온 길 ‘${name}’이 보여 줘요.`), `첫 번째 카드인 ‘${name}’이 보여 줘요.`);
   assert.equal(tidyDirection("**세 장은 ‘회사에 소송을 하는 것’ 쪽입니다.** 조금 더 신중히 준비해야 해요."), "**세 장은 ‘회사에 소송을 하는 것’ 쪽입니다.** 다만 조금 더 신중히 준비해야 해요.");
   assert.equal(tidyDirection("가장 큰 근거는 앞으로의 열쇠입니다."), "가장 큰 근거는 앞으로의 열쇠입니다.");
+});
+
+test("7쪽 '이번 주에 이것부터' 계획은 실천 카드 쪽 맨 위로 옮기고 머리말을 바꾼다(owner 2026-10-22)", () => {
+  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const P = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") }));
+  assert.ok(!/이번 주에 이것부터/.test(String(P[6].body)), "7쪽에 계획 없음");
+  const p9 = String(P[8].body);
+  const at = p9.indexOf(PLAN_MOVED_HEAD);
+  assert.ok(at > 0 && at < p9.indexOf("• 오늘"), "실천 카드 위");
+  assert.ok(p9.includes("◦ 언제: 이번 주 금요일 퇴근 후"));
 });

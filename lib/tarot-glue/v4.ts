@@ -141,6 +141,7 @@ export function hideChangePage(pages: any[]): any[] {
       if (parts && p.page === PRACTICE_PAGE && p.body && parts.signs.length) return { ...p, body: appendSigns(String(p.body), parts.signs) };
       return p;
     })
+    .map((p, _i, all) => movePlan(p, all))
     .map((p) => (p.page === DIRECTION_PAGE && p.body ? { ...p, body: tidyDirection(String(p.body)) } : p))
     .map((p) => (p.page > HIDDEN_PAGE ? renumber(p) : p));
 }
@@ -159,6 +160,34 @@ export function tidyDirection(body: string): string {
     }
   });
   return out.replace(/(쪽(?:이에요|입니다|예요)\.(?:\*\*)?)\s+(조금 더|좀 더)/g, "$1 다만 $2");
+}
+
+// 7쪽 "…이번 주에 이것부터" 계획(언제·어디서·무엇을)은 실천 카드와 겹쳐서, 실천 카드 쪽 맨 위(안내 문단 다음)로 옮기고
+// 머리말을 PLAN_MOVED_HEAD로 바꾼다(owner 2026-10-22). 7쪽에는 남기지 않는다.
+export const PLAN_MOVED_HEAD = "이번 주에 이것부터 해보는게 어떨까요?";
+const PLAN_HEAD_END = /이번 주에 이것부터$/;
+function splitPlan(body: string): { rest: string; plan: string[] | null } {
+  const chunks = body.split(/\n\s*\n/);
+  const at = chunks.findIndex((c) => {
+    const ls = c.split("\n").map((l) => l.trim());
+    return PLAN_HEAD_END.test(ls[0]) && ls.length > 1 && ls.slice(1).every((l) => l.startsWith("◦ "));
+  });
+  if (at < 0) return { rest: body, plan: null };
+  const plan = chunks[at].split("\n").slice(1).map((l) => l.trim());
+  chunks.splice(at, 1);
+  return { rest: chunks.join("\n\n"), plan };
+}
+function movePlan(p: any, all: any[]): any {
+  const src = all.find((x) => x.page === DIRECTION_PAGE);
+  const found = src?.body ? splitPlan(String(src.body)) : null;
+  if (!found?.plan) return p;
+  if (p.page === DIRECTION_PAGE) return { ...p, body: found.rest };
+  if (p.page === PRACTICE_PAGE && p.body) {
+    const chunks = String(p.body).split(/\n\s*\n/);
+    chunks.splice(Math.min(1, chunks.length), 0, [PLAN_MOVED_HEAD, ...found.plan].join("\n"));
+    return { ...p, body: chunks.join("\n\n") };
+  }
+  return p;
 }
 
 /** 예전 8쪽 본문 → { head: 첫 굵은 줄(** 뗀 것), signs: "이런 변화가 보일 거예요" 아래 ◦ 줄들 } */
@@ -229,7 +258,7 @@ export function resultParseOpts() {
     ...Object.values(r.flow_titles ?? {}), r.tendency_title].filter((x): x is string => typeof x === "string");
   const sec = [r.reflect_title].filter((x): x is string => typeof x === "string");
   return {
-    subheads: [...new Set([...SUBHEADS, ...fromData, SIGNS_HEAD])].filter((x) => !sec.includes(x)),
+    subheads: [...new Set([...SUBHEADS, ...fromData, SIGNS_HEAD, PLAN_MOVED_HEAD])].filter((x) => !sec.includes(x)),
     secHeads: sec,
     planHeadSuffix: "이번 주에 이것부터",
     positions: data.positions.map((p) => p.name),
