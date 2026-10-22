@@ -418,7 +418,8 @@ function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
               </h2>
             );
           case "sub":
-            return <h4 key={i}>{b.text}</h4>;
+            // 바로 앞이 굵은 요약 줄이면 구분선은 요약 줄 위에 그렸다 — 소제목에는 다시 긋지 않는다
+            return <h4 key={i} className={blocks[i - 1]?.type === "sum" ? "after-sum" : undefined}>{b.text}</h4>;
           case "sec":
             return (
               <h3 key={i} className="sec">
@@ -426,7 +427,15 @@ function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
               </h3>
             );
           case "sum":
-            return (
+            // 굵은 요약 줄 바로 뒤에 소제목이 오면, 요약 줄이 그 소제목의 머리말로 보이도록 점선 구분선을 요약 줄 위로 올린다(owner 2026-10-22)
+            return blocks[i + 1]?.type === "sub" ? (
+              <Fragment key={i}>
+                <hr className="sumdiv" />
+                <p className="sum">
+                  <b>{b.text}</b>
+                </p>
+              </Fragment>
+            ) : (
               <p key={i} className="sum">
                 <b>{b.text}</b>
               </p>

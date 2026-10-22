@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { paceTeaser, CHAT_HEAD, PLAN_MOVED_HEAD, changeParts, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
+import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
@@ -95,9 +95,9 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   assert.ok(out[1].body && out[1].card.name);
 });
 
-test("고민 미작성(분류·틀·C 없음)도 9쪽이 끊기지 않는다(8쪽 숨김·실천/쏘웰라 합침 뒤)", () => {
+test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다(8쪽 숨김 뒤)", () => {
   const out = sanitizeUnpaid(buildUnpaidPages({ name: "지수", cls: null, picks, safety: { level: "none", violence: false, fear: false }, worryText: "", frame: null, lean: null, C: null }));
-  assert.equal(out.length, 9);
+  assert.equal(out.length, 10);
   assert.ok(out[0].body && out[4].free);
 });
 
@@ -119,9 +119,9 @@ test("결제 후 11쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   for (const p of out) for (const k of ["combo", "map", "locked"]) assert.equal(k in p, false);
 });
 
-test("D·E가 없거나 탈락해도(대체 경로) 결제 후 9쪽이 모두 본문을 가진다(8쪽 숨김·합침 뒤)", () => {
+test("D·E가 없거나 탈락해도(대체 경로) 결제 후 10쪽이 모두 본문을 가진다(8쪽 숨김 뒤)", () => {
   const P = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean: null, C: null, sa: null, E: null }));
-  assert.equal(P.length, 9);
+  assert.equal(P.length, 10);
   for (const p of P) assert.ok(p.body, `${p.page}쪽 본문 있음`);
 });
 
@@ -151,40 +151,33 @@ test("7쪽 예고는 풀리는 속도에 따라 바뀌고, 방향(선택지 이�
 });
 
 test("화면으로 보내는 글에서 선택지 표시 '(암시)'를 뗀다", () => {
-  const pages = [{ page: 6, title: "내 고민에 대어 보면", body: "소송을 하지 않는 것 (암시)보다 회사에 소송을 하는 것 쪽을 가리켜요." }];
+  const pages = [{ page: 9, title: "변화를 위해 지금 할 수 있는 것", body: "소송을 하지 않는 것 (암시)보다 회사에 소송을 하는 것 쪽을 가리켜요." }];
   assert.equal(sanitizePaid(pages)[0].body, "소송을 하지 않는 것보다 회사에 소송을 하는 것 쪽을 가리켜요.");
   const un = sanitizeUnpaid([{ page: 1, title: "t", body: "선택지: 이직하기 / 남기 (암시)" }]);
   assert.equal(un[0].body, "선택지: 이직하기 / 남기");
 });
 
-test("8쪽은 숨기고 실천 카드·쏘웰라 쪽을 합쳐 9쪽으로 보낸다(owner 2026-10-22)", () => {
+test("8쪽은 숨겨 10쪽으로 보내고, 쏘웰라 쪽은 따로 둔다(owner 2026-10-22)", () => {
   const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
-  const paid = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") }));
-  assert.equal(paid.length, 9);
-  assert.deepEqual(paid.map((p) => p.page), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const paid = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") }), { other: lean?.other });
+  assert.deepEqual(paid.map((p) => p.page), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   assert.ok(!paid.some((p) => p.title === "앞으로 이렇게 바뀔 거예요"));
   assert.equal(paid[7].title, "변화를 위해 지금 할 수 있는 것");
+  assert.ok(!String(paid[7].body).includes("이런 변화가 보일 거예요"), "변화 문장은 없앰");
   assert.equal(paid[8].title, "이번 주 실천 카드");
+  assert.ok(String(paid[8].body).startsWith("**이 실천은 정답이 아니라"), "마무리 첫 문장이 맨 위");
   assert.ok(!JSON.stringify(paid[8]).includes("9쪽 처방"));
+  assert.equal(paid[9].title, "쏘웰라와 이어서 이야기하기");
   const unpaid = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null }));
-  assert.equal(unpaid.length, 9);
-  assert.equal(unpaid[8].title, "이번 주 실천 카드");
-  const last = String(paid[8].body);
-  assert.ok(last.includes("[쏘웰라 3일 무료로 시작하기]") && last.indexOf(CHAT_HEAD) > last.indexOf("• 오늘"), "실천 카드 뒤에 쏘웰라 안내·버튼");
-  assert.ok(!/해 보면서[^\n]*쏘웰라와 이어서 이야기해 볼 수 있/.test(last), "겹치는 문장 뺌");
+  assert.equal(unpaid.length, 10);
 });
 
-test("예전 8쪽의 변화(한 줄 요약·신호 3개)는 처방 쪽 맨 위로 옮긴다(owner 2026-10-22)", () => {
-  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
-  const raw = buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") });
-  const parts = changeParts(raw.find((p) => p.page === 8).body);
-  assert.ok(parts.head && parts.signs.length === 3);
-  const P = sanitizePaid(raw);
-  assert.equal(P[7].title, "변화를 위해 지금 할 수 있는 것");
-  const rx = String(P[7].body);
-  assert.ok(rx.startsWith(`**${parts.head}**`), "맨 위에 한 줄 요약");
-  assert.ok(parts.signs.every((x) => rx.includes(x)) && rx.includes("이런 변화가 보일 거예요"));
-  assert.ok(!String(P[6].body).includes(parts.head!) && !String(P[8].body).includes(parts.signs[0]), "7쪽·실천 카드 쪽에는 없음");
+test("5쪽 결론 줄은 '세 장을 종합하면' 위로, 6쪽 장면 문단은 owner 문장 규칙대로", () => {
+  const p5 = "## h\n\nlead\n\n세 장을 종합하면 이렇습니다\n◦ a\n\n**세 장을 합치면 ‘소송’ 쪽이 조금 더 커요.**\n\n**story head**";
+  assert.equal(conclusionFirst(p5), "## h\n\nlead\n\n**세 장을 합치면 ‘소송’ 쪽이 조금 더 커요.**\n\n세 장을 종합하면 이렇습니다\n◦ a\n\n**story head**");
+  const p6 = "예를 들어 회사에 소송을 하는 것을 검토하면서 자료를 확인하는 장면이 열립니다. 카드의 앞으로의 열쇠는 나를 소진시키지 않는 조건을 갖추는 데 있고, 그 조건을 확인한 뒤에는 소송을 하지 않는 것보다 회사에 소송을 하는 것 쪽을 가리켜요.";
+  assert.equal(tidyApply(p6, "소송을 하지 않는 것 (암시)"), "카드를 종합하면 회사에 소송을 하는 것을 검토하면서 자료를 확인하는 이런 장면이 그려집니다. 세 번째 카드는 제일 먼저 나를 소진시키지 않는 조건을 갖추는 데 있고, 그 조건을 확인한 뒤에는 회사에 소송을 하는 방향을 가리켜요.");
+  assert.equal(closingFirst("lead\n\n• 오늘: x\n\n**이 실천은 정답이 아니라 실험이에요.** 해 보면서 쏘웰라와 이야기해요."), "**이 실천은 정답이 아니라 실험이에요.**\n\nlead\n\n• 오늘: x\n\n해 보면서 쏘웰라와 이야기해요.");
 });
 
 test("7쪽 다듬기: 자리 이름 + 카드 이름 → 'N 번째 카드인 ‘이름’', 조금 더 앞에 '다만'", () => {

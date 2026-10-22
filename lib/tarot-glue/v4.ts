@@ -126,42 +126,59 @@ function stripImplied<T>(v: T): T {
 // 8쪽('앞으로 이렇게 바뀔 거예요') 숨김(owner 2026-10-22 "동어반복이라는 이야기 — 숨겨버리자, 총 10장"). 패키지는 11쪽을 그대로
 // 만들고, 화면으로 보낼 때만 8쪽을 빼고 9~11쪽을 8~10쪽으로 당긴다. 본문 속 "9쪽 처방"(10쪽 → 이제 9쪽의 안내)도 "8쪽 처방"으로.
 export const HIDDEN_PAGE = 8;
-// 예전 8쪽 글 중 앞날의 변화(한 줄 요약 + "이런 변화가 보일 거예요" 신호 3개)는 처방 쪽(예전 9쪽 → 이제 8쪽, 제목 "변화를 위해 지금 할 수
-// 있는 것") 맨 위에 녹인다(owner 2026-10-22 — 처음엔 7쪽·실천 카드 쪽에 나눠 붙였다가 "처방 쪽에 미래 내용이 빠져 보인다"며 옮김).
-// 가운데 카드 설명 문단은 앞 쪽들과 겹쳐서 버린다.
-const RX_PAGE = 9;
+// 예전 8쪽('앞으로 이렇게 바뀔 거예요')은 내용 없이 뺀다(owner 2026-10-22 — 처방 쪽에 붙였던 변화 문장도 "그냥 없애버리자").
 const PRACTICE_PAGE = 10;
 const DIRECTION_PAGE = 7;
-export function hideChangePage(pages: any[]): any[] {
-  const change = pages.find((p) => p.page === HIDDEN_PAGE);
-  const parts = change?.body ? changeParts(String(change.body)) : null;
+export type TidyCtx = { other?: string | null };
+export function hideChangePage(pages: any[], ctx: TidyCtx = {}): any[] {
   return pages
     .filter((p) => p.page !== HIDDEN_PAGE)
-    .map((p) => {
-      if (parts && p.page === RX_PAGE && p.body && (parts.head || parts.signs.length)) return { ...p, body: prependChange(String(p.body), parts) };
-      return p;
-    })
     .map((p, _i, all) => movePlan(p, all))
+    .map((p) => (p.page === 5 && p.body ? { ...p, body: conclusionFirst(String(p.body)) } : p))
+    .map((p) => (p.page === 6 && p.body ? { ...p, body: tidyApply(String(p.body), ctx.other ?? null) } : p))
     .map((p) => (p.page === DIRECTION_PAGE && p.body ? { ...p, body: tidyDirection(String(p.body)) } : p))
-    .map((p, _i, all) => (p.page === PRACTICE_PAGE ? mergeChatPage(p, all.find((x) => x.page === CHAT_PAGE)) : p))
-    .filter((p) => p.page !== CHAT_PAGE)
+    .map((p) => (p.page === PRACTICE_PAGE && p.body ? { ...p, body: closingFirst(String(p.body)) } : p))
     .map((p) => (p.page > HIDDEN_PAGE ? renumber(p) : p));
 }
 
-// 실천 카드 쪽과 쏘웰라 쪽 합치기(owner 2026-10-22 "10/11과 11/11이 겹쳐서 합쳐버려도") → 결과는 총 9쪽.
-// 실천 카드 마무리 문단의 "…쏘웰라와 이어서 이야기해 볼 수 있습니다" 문장은 바로 아래 쏘웰라 안내와 겹쳐서 뺀다.
-// 쏘웰라 쪽 제목은 소제목으로, 본문(안내 + [쏘웰라 3일 무료로 시작하기] 버튼)은 그대로 뒤에 붙인다. watch 안내(fineprint)도 옮긴다.
-export const CHAT_HEAD = "쏘웰라와 이어서 이야기하기";
-const CHAT_PAGE = 11;
-function mergeChatPage(p: any, chat: any): any {
-  if (!chat) return p;
-  const out = { ...p, next: chat.next ?? null };
-  if (chat.fineprint) out.fineprint = chat.fineprint;
-  if (p.body && chat.body) {
-    const body = String(p.body).replace(/\s*해 보면서[^\n]*?쏘웰라와 이어서 이야기해 볼 수 있(?:어요|습니다)\./, "");
-    out.body = `${body}\n\n${CHAT_HEAD}\n${String(chat.body)}`;
-  }
+// 5쪽(결제 후): "**세 장을 합치면 ‘…’ 쪽이 ….**" 결론 줄을 "세 장을 종합하면 이렇습니다" 바로 위로(owner 2026-10-22).
+export function conclusionFirst(body: string): string {
+  const chunks = body.split(/\n\s*\n/);
+  const ci = chunks.findIndex((c) => /^\*\*세 장을 합치면 .+\*\*$/.test(c.trim()));
+  const title = String((data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");
+  const si = chunks.findIndex((c) => c.trim().startsWith(title));
+  if (ci < 0 || si < 0 || ci < si) return body;
+  const [line] = chunks.splice(ci, 1);
+  chunks.splice(si, 0, line);
+  return chunks.join("\n\n");
+}
+
+// 6쪽 장면 문단 다듬기(owner 2026-10-22, 이미 만든 리포트에도): "예를 들어" → "카드를 종합하면", "장면이 열립니다" → "이런 장면이 그려집니다",
+// "(카드의) 앞으로의 열쇠는" → "세 번째 카드는"(뒤가 "~데 있고"면 "제일 먼저"도), 반대쪽 선택지를 되새기는 "{다른 쪽}보다 " 빼기, "~것 쪽을 가리켜요" → "~방향을 가리켜요".
+// (패키지 검증기가 apply에 '예를 들어'를 요구해서 AI 지시는 그대로 두고 화면으로 보낼 때만 바꾼다.)
+export function tidyApply(body: string, other: string | null): string {
+  let out = body
+    .replace(/(^|\n|\*\*)예를 들어\s+/g, "$1카드를 종합하면 ")
+    .replace(/장면이 열립니다\./g, "이런 장면이 그려집니다.")
+    .replace(/(?:카드의 )?앞으로의 열쇠는 (?=[^.]*?데 있고)/g, "세 번째 카드는 제일 먼저 ")
+    .replace(/(?:카드의 )?앞으로의 열쇠는 /g, "세 번째 카드는 ")
+    .replace(/것 쪽을 가리(켜요|킵니다)/g, "방향을 가리$1");
+  const o = (other ?? "").replace(/\s*\(암시\)/g, "").trim();
+  if (o) out = out.split(`${o}보다 `).join("");
   return out;
+}
+
+// 실천 카드 쪽: 마무리 문단의 첫 문장("**이 실천은 정답이 아니라 …**")을 맨 위(그림 바로 아래)로(owner 2026-10-22). 나머지 문장은 그 자리에.
+export function closingFirst(body: string): string {
+  const chunks = body.split(/\n\s*\n/);
+  const at = chunks.findIndex((c) => /^\*\*이 실천은/.test(c.trim()));
+  if (at <= 0) return body;
+  const m = chunks[at].trim().match(/^(\*\*이 실천은[^*]*\*\*)\s*([\s\S]*)$/);
+  if (!m) return body;
+  if (m[2].trim()) chunks[at] = m[2].trim();
+  else chunks.splice(at, 1);
+  chunks.unshift(m[1]);
+  return chunks.join("\n\n");
 }
 
 // 7쪽 글 다듬기(owner 2026-10-22) — E 프롬프트에도 같은 규칙을 넣었지만, 이미 만든 리포트와 규칙을 놓친 글을 위해 화면으로 보낼 때 한 번 더:
@@ -219,13 +236,6 @@ export function changeParts(body: string): { head: string | null; signs: string[
   return { head: m ? m[1].trim() : null, signs };
 }
 
-// 처방 쪽 맨 위: "**{한 줄 요약}**" → "이런 변화가 보일 거예요" + 신호 → (원래 처방 안내·처방)
-function prependChange(body: string, parts: { head: string | null; signs: string[] }): string {
-  const block: string[] = [];
-  if (parts.head) block.push(`**${parts.head}**`);
-  if (parts.signs.length) block.push([(data.copy.result as any).v4?.change_signs ?? "이런 변화가 보일 거예요", ...parts.signs].join("\n"));
-  return [...block, body].join("\n\n");
-}
 function renumber(p: any): any {
   const fix = (v: unknown): unknown =>
     typeof v === "string" ? v.replace(/9쪽 처방/g, "8쪽 처방") : Array.isArray(v) ? v.map(fix) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fix(x)])) : v;
@@ -248,8 +258,8 @@ export function sanitizeUnpaid(pages: any[]): any[] {
 }
 
 // 결제 후 응답: 같은 허용 목록이지만 본문(body)을 그대로 싣는다(결론·6~11쪽 포함). 화면에 안 쓰는 내부 칸(combo·map·locked)은 뺀다.
-export function sanitizePaid(pages: any[]): any[] {
-  return hideChangePage(stripImplied(pages)).map((p) => {
+export function sanitizePaid(pages: any[], ctx: TidyCtx = {}): any[] {
+  return hideChangePage(stripImplied(pages), ctx).map((p) => {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     return out;
@@ -265,7 +275,7 @@ export function resultParseOpts() {
     ...Object.values(r.flow_titles ?? {}), r.tendency_title].filter((x): x is string => typeof x === "string");
   const sec = [r.reflect_title].filter((x): x is string => typeof x === "string");
   return {
-    subheads: [...new Set([...SUBHEADS, ...fromData, PLAN_MOVED_HEAD, CHAT_HEAD])].filter((x) => !sec.includes(x)),
+    subheads: [...new Set([...SUBHEADS, ...fromData, PLAN_MOVED_HEAD])].filter((x) => !sec.includes(x)),
     secHeads: sec,
     planHeadSuffix: "이번 주에 이것부터",
     positions: data.positions.map((p) => p.name),

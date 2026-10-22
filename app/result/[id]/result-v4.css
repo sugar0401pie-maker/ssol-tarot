@@ -116,6 +116,9 @@
 .tv4 .cardinfo .arc { font-size: 11.5px; color: var(--muted); margin: 2px 0 0 !important; }
 .tv4 .sum { font-size: 16px; line-height: 1.6; color: var(--line); margin: 4px 0 12px; padding-left: 10px; border-left: 3px solid var(--gold); }
 .tv4 .sum b { font-weight: 700; }
+/* 굵은 요약 줄 + 소제목 묶음(owner 2026-10-22): 구분선은 요약 줄 위에, 소제목은 선 없이 바로 붙인다 */
+.tv4 .sumdiv { border: 0; border-top: 1px dashed #20487033; margin: 18px 0 12px; }
+.tv4 .pbody h4.after-sum { border-top: 0; padding-top: 0; margin-top: 8px; }
 .tv4 .lockwrap { position: relative; margin-top: 6px; }
 .tv4 .blurred { filter: blur(5px); opacity: 0.75; user-select: none; pointer-events: none; max-height: 340px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 40%, transparent); mask-image: linear-gradient(#000 40%, transparent); }
 /* z-index·translateZ(0): 흐림(filter) 처리된 글 위에 겹친 상자가 iOS 사파리에서 스크롤할 때 제자리에 남아 보이는 그리기 문제를 막는다(owner 2026-10-21 "스크롤할 때 같이 움직이게") */

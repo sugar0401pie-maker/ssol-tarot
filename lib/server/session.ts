@@ -397,7 +397,7 @@ export async function getResult(s: SessionRow) {
       nickname: s.nickname,
       createdAt: s.created_at,
       cards: picks.map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
-      pages: sanitizePaid(pages),
+      pages: sanitizePaid(pages, { other: lean?.other ?? null }),
       notice: buildSafetyNotice({ data, safety }),
       paid: true,
       decision,
