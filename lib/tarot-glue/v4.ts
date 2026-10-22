@@ -111,8 +111,18 @@ export function paceTeaser(pace: "near" | "step" | "slow"): string | null {
 // 블러는 CSS로 가리는 게 아니라 데이터가 없는 상태여야 한다(스펙 11장 5번).
 // fineprint = v4.1 watch(주의) 안내 한 줄 — 마지막 쪽 맨 아래 작은 글씨, 결제 전에도 보인다(README_v4).
 const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back"] as const;
+// 고민 틀의 선택지에는 원문에 없던 쪽이라는 표시 "(암시)"가 붙는데, AI가 그 이름을 그대로 옮겨 쓰면 본문에
+// "소송을 하지 않는 것 (암시)보다"처럼 보인다(owner 2026-10-22 실제 결제 리포트). 화면으로 보내는 글에서만 뗀다.
+const IMPLIED = /\s*\(암시\)/g;
+function stripImplied<T>(v: T): T {
+  if (typeof v === "string") return v.replace(IMPLIED, "") as T;
+  if (Array.isArray(v)) return v.map(stripImplied) as T;
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, stripImplied(x)])) as T;
+  return v;
+}
+
 export function sanitizeUnpaid(pages: any[]): any[] {
-  return pages.map((p) => {
+  return stripImplied(pages).map((p) => {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     // 5쪽은 무료 부분(free)만 — 결제 전 원본 body가 비어 있어도 혹시 결론이 섞여 들어오지 않게 비운다.
@@ -128,7 +138,7 @@ export function sanitizeUnpaid(pages: any[]): any[] {
 
 // 결제 후 응답: 같은 허용 목록이지만 본문(body)을 그대로 싣는다(결론·6~11쪽 포함). 화면에 안 쓰는 내부 칸(combo·map·locked)은 뺀다.
 export function sanitizePaid(pages: any[]): any[] {
-  return pages.map((p) => {
+  return stripImplied(pages).map((p) => {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     return out;

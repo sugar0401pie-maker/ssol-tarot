@@ -35,9 +35,10 @@ const AGAIN_KEY = "ssol_tarot_again";
 const NO_SCENE_ART: SceneArtMap = {};
 // 섞기·뽑기·다 뽑음·대기는 아래에 누를 것(버튼·22장 보드)이 많아서, 그림 높이를 화면의 약 1/4로 줄여(가운데 기준으로 위아래만 잘림)
 // 휴대폰 한 화면 안에서 스크롤 없이 진행할 수 있게 한다. 다른 장면은 그림 비율 그대로.
-const COMPACT_SCENES = new Set<string>(["reveal", "loading"]);
+const COMPACT_SCENES = new Set<string>(["reveal"]);
 // 섞기·뽑기 화면에는 장면 그림을 넣지 않는다(owner 2026-10-21) — 그 그림은 결과 6~8쪽 맨 위에서 쓴다(RESULT_PAGE_SCENE).
-const NO_ART_SCENES = new Set<string>(["shuffle", "draw"]);
+// 결과 대기(/loading)도 그림 없이 신비한 연출만(owner 2026-10-22).
+const NO_ART_SCENES = new Set<string>(["shuffle", "draw", "loading"]);
 // 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
 const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
 
@@ -326,7 +327,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
       )}
       {screen === "loading" && (
         <div className="relative flex flex-1 items-center justify-center px-6">
-          <WaitNotice nickname={nickname} message={copy.loading.message} elapsedLabel={copy.loading.elapsed} lines={copy.loading.messages} />
+          <WaitNotice nickname={nickname} message={copy.loading.message} longWait={copy.loading.long_wait} longWaitSeconds={copy.loading.long_wait_seconds} lines={copy.loading.messages} />
         </div>
       )}
     </main>

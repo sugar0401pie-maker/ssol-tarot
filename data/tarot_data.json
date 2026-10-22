@@ -1649,6 +1649,8 @@
   "loading": {
    "message": "{nickname}님의 타로 결과를 분석하고 있어요...",
    "elapsed": "({seconds}초 경과)",
+   "long_wait": "조금만 더 기다려주시면 {nickname}님의 결과가 완성돼요.",
+   "long_wait_seconds": 30,
    "messages": [
     "카드를 읽고 있어요..",
     "{nickname}님의 고민을 생각하고 있어요..",
@@ -1659,7 +1661,7 @@
    ],
    "messages_rule": "2026-10-20 owner 요청: 기다리는 동안 3초마다 한 줄씩 바뀌고 글자가 은은하게 깜빡임(Claude 초안 — owner 확인 필요, 예측·단정 표현 없음). 경과 초는 그 아래 줄에 그대로.",
    "rule": "시간이 걸리는 모든 대기 화면(고민 분류, 결과 준비, 결제 후 리포트 생성, 공유 이미지 생성)에 같은 문구와 경과 초를 1초마다 갱신해 보여준다. 일정 시간 이상 걸릴 때의 추가 안내는 미정(CSO 결정 예정).",
-   "long_wait_policy": "미정"
+   "long_wait_policy": "2026-10-22 owner: 경과 초는 숨기고, 30초가 지나면 long_wait 한 줄을 보여 준다(elapsed는 쓰지 않음)."
   },
   "result": {
    "headline": "{nickname}님에게 온 세 장의 카드",

@@ -32,6 +32,8 @@ export type ParseOpts = {
   planHeadSuffix?: string; // 관계형 계획 머리말("‘{선택지}’ 쪽으로 정했다면, 이번 주에 이것부터")처럼 목록에 없는 소제목의 끝말
   positions: string[]; // 자리 이름(지나온 길·지금의 흐름·앞으로의 열쇠) — 읽기 지도에서 자리와 카드명을 가름
   forceLabels: Record<ForceDir, string[]>;
+  // 문장이 4개 이상인 문단을 둘로 나눌지(owner 2026-10-22, 6쪽 "문단 한 번 더 나눠줘") — 유료 6쪽에만 켠다.
+  splitLong?: boolean;
 };
 
 export function parseInline(s: string): Inline {
@@ -79,6 +81,8 @@ const MAP = /^\[\[읽기 지도:\s*(.+)\]\]$/;
 const BUTTON = /^\[([^\]]+)\]$/;
 
 function mapCells(src: string, o: ParseOpts): MapCell[] {
+  // 패키지가 붙이는 " / 번호 오름차순·내림차순"은 화면에 쓰지 않는다(owner 2026-10-22 "번호 내림차순은 없애도 될 듯").
+  src = src.replace(/\s*\/\s*번호\s*(오름|내림)차순\s*$/, "");
   return src.split(/\s+→\s+/).map((seg) => {
     const [left, ...rest] = seg.split(" — ");
     const force = rest.join(" — ").trim();
@@ -93,6 +97,39 @@ function mapCells(src: string, o: ParseOpts): MapCell[] {
 
 function isSub(line: string, o: ParseOpts) {
   return o.subheads.includes(line) || Boolean(o.planHeadSuffix && line.endsWith(o.planHeadSuffix) && line.length <= 40 && !line.includes("**"));
+}
+
+/** 문단을 문장으로 나눈다(마침표·물음표·느낌표 + 띄어쓰기). 굵게(**…**)와 따옴표 안은 끊지 않는다. */
+export function splitSentences(s: string): string[] {
+  const out: string[] = [];
+  let bold = false, quote = false, start = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s.startsWith("**", i)) {
+      // 굵은 문장이 끝나는 곳("…예요.** 다음 문장")도 문장 끝으로 본다.
+      const closesSentence = bold && /[.?!]/.test(s[i - 1] ?? "") && /\s/.test(s[i + 2] ?? "");
+      bold = !bold;
+      i++;
+      if (closesSentence) { out.push(s.slice(start, i + 1).trim()); start = i + 1; }
+      continue;
+    }
+    const ch = s[i];
+    if (ch === "\u201C" || ch === "\u201D" || ch === '"') { quote = ch === "\u201C" ? true : ch === "\u201D" ? false : !quote; continue; }
+    if (!bold && !quote && /[.?!]/.test(ch) && /\s/.test(s[i + 1] ?? "") ) {
+      out.push(s.slice(start, i + 1).trim());
+      start = i + 1;
+    }
+  }
+  const rest = s.slice(start).trim();
+  if (rest) out.push(rest);
+  return out;
+}
+
+/** 문장이 4개 이상인 문단은 앞뒤 둘로(앞쪽이 같거나 한 문장 더 많게). 3개 이하는 그대로. */
+export function splitLongParagraph(line: string): string[] {
+  const ss = splitSentences(line);
+  if (ss.length < 4) return [line];
+  const k = Math.ceil(ss.length / 2);
+  return [ss.slice(0, k).join(" "), ss.slice(k).join(" ")];
 }
 
 export function parseBlocks(text: string | null | undefined, o: ParseOpts): Block[] {
@@ -125,6 +162,7 @@ export function parseBlocks(text: string | null | undefined, o: ParseOpts): Bloc
         const m = line.match(MINI)!;
         out.push({ type: "mini", position: m[1], name: m[2], character: m[3], reversed: Boolean(m[4]) });
       } else if (WHOLE_BOLD.test(line)) out.push({ type: "sum", text: line.match(WHOLE_BOLD)![1] });
+      else if (o.splitLong) for (const part of splitLongParagraph(line)) out.push({ type: "p", inline: parseInline(part) });
       else out.push({ type: "p", inline: parseInline(line) });
     }
   }

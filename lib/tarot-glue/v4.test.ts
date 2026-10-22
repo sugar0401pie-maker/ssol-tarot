@@ -149,3 +149,10 @@ test("7쪽 예고는 풀리는 속도에 따라 바뀌고, 방향(선택지 이�
   assert.match(t7, /^카드는 앞으로 .+고 말해요, 이유는 다음과 같아요$/);
   assert.doesNotMatch(t7, /현재 회사에 남기|이직 제안 수락/);
 });
+
+test("화면으로 보내는 글에서 선택지 표시 '(암시)'를 뗀다", () => {
+  const pages = [{ page: 6, title: "내 고민에 대어 보면", body: "소송을 하지 않는 것 (암시)보다 회사에 소송을 하는 것 쪽을 가리켜요." }];
+  assert.equal(sanitizePaid(pages)[0].body, "소송을 하지 않는 것보다 회사에 소송을 하는 것 쪽을 가리켜요.");
+  const un = sanitizeUnpaid([{ page: 1, title: "t", body: "선택지: 이직하기 / 남기 (암시)" }]);
+  assert.equal(un[0].body, "선택지: 이직하기 / 남기");
+});

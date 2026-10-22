@@ -86,7 +86,7 @@ export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: st
     return (
       <main className="night-bg relative flex min-h-dvh items-center justify-center px-6">
         <Stars />
-        <WaitNotice nickname={nickname} message={copy.loading.message} elapsedLabel={copy.loading.elapsed} lines={copy.loading.messages} />
+        <WaitNotice nickname={nickname} message={copy.loading.message} longWait={copy.loading.long_wait} longWaitSeconds={copy.loading.long_wait_seconds} lines={copy.loading.messages} />
       </main>
     );
   }
@@ -325,7 +325,7 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
       </>
     );
   }
-  return <Blocks blocks={parseBlocks(p.body, opts)} ctx={ctx} />;
+  return <Blocks blocks={parseBlocks(p.body, p.page === 6 ? { ...opts, splitLong: true } : opts)} ctx={ctx} />;
 });
 
 function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number }) {

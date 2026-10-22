@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { parseBlocks, parseInline, splitHeadline, splitTeaser, type Block } from "./pageBlocks.ts";
+import { parseBlocks, parseInline, splitHeadline, splitTeaser, splitSentences, splitLongParagraph, type Block } from "./pageBlocks.ts";
 import { resultParseOpts } from "../tarot-glue/v4.ts";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
 
@@ -88,4 +88,23 @@ test("잠긴 쪽 예고는 쉼표나 ' — ' 뒤에서 나눈다", () => {
   assert.deepEqual(splitTeaser("오늘 / 3일 안에 / 이번 주 — 처방을 옮긴 작은 실천 3장"), ["오늘 / 3일 안에 / 이번 주", "처방을 옮긴 작은 실천 3장"]);
   assert.deepEqual(splitTeaser("앞의 분석에서 바로 이어지는 웰니스 처방 두 가지"), ["앞의 분석에서 바로 이어지는 웰니스 처방 두 가지"]);
   assert.deepEqual(splitTeaser("오늘 바로, 3일 안에, 이번 주 안에 — 내가 해 볼 작은 실천 세 장"), ["오늘 바로, 3일 안에, 이번 주 안에", "내가 해 볼 작은 실천 세 장"]);
+});
+
+test("6쪽 긴 문단은 문장 수 절반에서 한 번 더 나눈다(owner 2026-10-22)", () => {
+  const p = "예를 들어 회사에 소송을 하는 것을 검토하면서 법률 상담으로 부담을 확인하는 장면이 열립니다. 그때 근거와 감당할 범위를 따져 보면 판단이 정리됩니다. 카드의 앞으로의 열쇠는 나를 소진시키지 않는 조건을 갖추는 데 있어요. 그래서 이 고민은 토대 위에서 나아가는 흐름입니다.";
+  assert.deepEqual(splitLongParagraph(p), [
+    "예를 들어 회사에 소송을 하는 것을 검토하면서 법률 상담으로 부담을 확인하는 장면이 열립니다. 그때 근거와 감당할 범위를 따져 보면 판단이 정리됩니다.",
+    "카드의 앞으로의 열쇠는 나를 소진시키지 않는 조건을 갖추는 데 있어요. 그래서 이 고민은 토대 위에서 나아가는 흐름입니다.",
+  ]);
+  // 굵은 첫 문장·따옴표 안 물음표는 문장 경계를 망가뜨리지 않는다
+  assert.deepEqual(splitSentences('**도현님이 붙들어 온 질문은 "수락해야 할까요?"예요.** 두 번째 문장이에요. 세 번째예요.'), ['**도현님이 붙들어 온 질문은 "수락해야 할까요?"예요.**', "두 번째 문장이에요.", "세 번째예요."]);
+  // 세 문장 이하는 그대로
+  assert.deepEqual(splitLongParagraph("하나예요. 둘이에요. 셋이에요."), ["하나예요. 둘이에요. 셋이에요."]);
+});
+
+test("읽기 지도 끝의 '번호 내림차순'은 화면에 쓰지 않는다", () => {
+  const blocks = parseBlocks("[[읽기 지도: 지나온 길 바위 위의 쉼 — 힘이 안으로 모여요 → 지금의 흐름 진주를 품는 힘 — 힘이 안으로 모여요 → 앞으로의 열쇠 새 집으로 이사 — 힘이 바깥으로 뻗어 가요 / 번호 내림차순]]", O);
+  const map = blocks[0] as Extract<Block, { type: "map" }>;
+  assert.equal(map.cells.length, 3);
+  assert.ok(!JSON.stringify(map).includes("번호"));
 });
