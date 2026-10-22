@@ -126,10 +126,69 @@ function stripImplied<T>(v: T): T {
 // 8쪽('앞으로 이렇게 바뀔 거예요') 숨김(owner 2026-10-22 "동어반복이라는 이야기 — 숨겨버리자, 총 10장"). 패키지는 11쪽을 그대로
 // 만들고, 화면으로 보낼 때만 8쪽을 빼고 9~11쪽을 8~10쪽으로 당긴다. 본문 속 "9쪽 처방"(10쪽 → 이제 9쪽의 안내)도 "8쪽 처방"으로.
 export const HIDDEN_PAGE = 8;
+// 예전 8쪽 글 중 쓸모 있는 두 가지는 다른 쪽에 녹인다(owner 2026-10-22 A안): 한 줄 요약(첫 굵은 줄) → 7쪽 결론 바로 아래,
+// "이런 변화가 보일 거예요" 신호 3개 → 실천 카드 쪽 맨 아래(마무리 문단 앞). 가운데 카드 설명 문단은 앞 쪽들과 겹쳐서 버린다.
+export const SIGNS_HEAD = "이런 변화가 보이면 잘 가고 있는 거예요";
+const PRACTICE_PAGE = 10;
+const DIRECTION_PAGE = 7;
 export function hideChangePage(pages: any[]): any[] {
+  const change = pages.find((p) => p.page === HIDDEN_PAGE);
+  const parts = change?.body ? changeParts(String(change.body)) : null;
   return pages
     .filter((p) => p.page !== HIDDEN_PAGE)
+    .map((p) => {
+      if (parts && p.page === DIRECTION_PAGE && p.body && parts.head) return { ...p, body: insertAfterLean(String(p.body), parts.head) };
+      if (parts && p.page === PRACTICE_PAGE && p.body && parts.signs.length) return { ...p, body: appendSigns(String(p.body), parts.signs) };
+      return p;
+    })
+    .map((p) => (p.page === DIRECTION_PAGE && p.body ? { ...p, body: tidyDirection(String(p.body)) } : p))
     .map((p) => (p.page > HIDDEN_PAGE ? renumber(p) : p));
+}
+
+// 7쪽 글 다듬기(owner 2026-10-22) — E 프롬프트에도 같은 규칙을 넣었지만, 이미 만든 리포트와 규칙을 놓친 글을 위해 화면으로 보낼 때 한 번 더:
+// ① "앞으로의 열쇠인 품어 주는 품은" → "세 번째 카드인 ‘품어 주는 품’은"(자리 이름 + 카드 이름 → 순서 + 작은따옴표 카드 이름)
+// ② "‘…’ 쪽입니다. 조금 더 신중히…" → "… 쪽입니다. 다만 조금 더 신중히…"
+const ORDINAL = ["첫 번째", "두 번째", "세 번째"];
+export function tidyDirection(body: string): string {
+  let out = body;
+  const names = (data.cards as { name: string }[]).map((c) => c.name).sort((a, b) => b.length - a.length);
+  data.positions.forEach((pos: { name: string }, i: number) => {
+    for (const name of names) {
+      const re = new RegExp(`${pos.name}(?:인|이자|의)?\\s*[‘'"]?${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[’'"]?`, "g");
+      out = out.replace(re, `${ORDINAL[i]} 카드인 ‘${name}’`);
+    }
+  });
+  return out.replace(/(쪽(?:이에요|입니다|예요)\.(?:\*\*)?)\s+(조금 더|좀 더)/g, "$1 다만 $2");
+}
+
+/** 예전 8쪽 본문 → { head: 첫 굵은 줄(** 뗀 것), signs: "이런 변화가 보일 거예요" 아래 ◦ 줄들 } */
+export function changeParts(body: string): { head: string | null; signs: string[] } {
+  const lines = body.split("\n").map((l) => l.trim());
+  const first = lines.find(Boolean) ?? "";
+  const m = first.match(/^\*\*(.+)\*\*$/);
+  const at = lines.findIndex((l) => /^이런 변화가 보일 거예요/.test(l));
+  const signs: string[] = [];
+  if (at >= 0) for (let i = at + 1; i < lines.length && lines[i].startsWith("◦ "); i++) signs.push(lines[i]);
+  return { head: m ? m[1].trim() : null, signs };
+}
+
+// 7쪽: "카드가 가리키는 방향" 아래 결론 줄(◦ 선택지 …) 바로 다음 문단으로. 결정형이 아니라 그 줄이 없으면 첫 문단 다음에.
+function insertAfterLean(body: string, head: string): string {
+  const chunks = body.split(/\n\s*\n/);
+  let at = chunks.findIndex((c) => c.split("\n").some((l) => l.trim() === (data.copy.result as any).v4?.direction_title) && /\n◦ /.test(c));
+  if (at < 0) at = 0;
+  chunks.splice(at + 1, 0, head);
+  return chunks.join("\n\n");
+}
+
+// 실천 카드 쪽: 마무리 문단("**이 실천은 정답이 아니라…**")이 있으면 그 앞에, 없으면 맨 끝에.
+function appendSigns(body: string, signs: string[]): string {
+  const block = [SIGNS_HEAD, ...signs].join("\n");
+  const chunks = body.split(/\n\s*\n/);
+  const closing = chunks.findIndex((c) => /^\*\*이 실천은/.test(c.trim()));
+  if (closing >= 0) chunks.splice(closing, 0, block);
+  else chunks.push(block);
+  return chunks.join("\n\n");
 }
 function renumber(p: any): any {
   const fix = (v: unknown): unknown =>
@@ -170,7 +229,7 @@ export function resultParseOpts() {
     ...Object.values(r.flow_titles ?? {}), r.tendency_title].filter((x): x is string => typeof x === "string");
   const sec = [r.reflect_title].filter((x): x is string => typeof x === "string");
   return {
-    subheads: [...new Set([...SUBHEADS, ...fromData])].filter((x) => !sec.includes(x)),
+    subheads: [...new Set([...SUBHEADS, ...fromData, SIGNS_HEAD])].filter((x) => !sec.includes(x)),
     secHeads: sec,
     planHeadSuffix: "이번 주에 이것부터",
     positions: data.positions.map((p) => p.name),

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { paceTeaser, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
+import { paceTeaser, changeParts, SIGNS_HEAD, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
@@ -169,4 +169,26 @@ test("8쪽(앞으로 이렇게 바뀔 거예요)은 화면에 보내지 않고 1
   const unpaid = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null }));
   assert.equal(unpaid.length, 10);
   assert.equal(unpaid[9].title, "쏘웰라와 이어서 이야기하기");
+});
+
+test("예전 8쪽의 한 줄 요약은 7쪽 결론 아래, 변화 신호는 실천 카드 쪽으로 옮긴다(owner A안)", () => {
+  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const raw = buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") });
+  const parts = changeParts(raw.find((p) => p.page === 8).body);
+  assert.ok(parts.head && parts.signs.length === 3);
+  const P = sanitizePaid(raw);
+  const p7 = String(P[6].body);
+  const leanAt = p7.indexOf("◦ 현재 회사에 남기");
+  assert.ok(leanAt >= 0 && p7.indexOf(parts.head!) > leanAt, "결론 줄 다음에 한 줄 요약");
+  const p9 = String(P[8].body);
+  assert.ok(p9.includes(SIGNS_HEAD) && parts.signs.every((s) => p9.includes(s)));
+  assert.ok(p9.indexOf(SIGNS_HEAD) < p9.indexOf("**이 실천은"), "마무리 문단 앞에");
+});
+
+test("7쪽 다듬기: 자리 이름 + 카드 이름 → 'N 번째 카드인 ‘이름’', 조금 더 앞에 '다만'", () => {
+  const name = data.cards[0].name;
+  assert.equal(tidyDirection(`앞으로의 열쇠인 ${name}은 뜻입니다.`), `세 번째 카드인 ‘${name}’은 뜻입니다.`);
+  assert.equal(tidyDirection(`지나온 길 ‘${name}’이 보여 줘요.`), `첫 번째 카드인 ‘${name}’이 보여 줘요.`);
+  assert.equal(tidyDirection("**세 장은 ‘회사에 소송을 하는 것’ 쪽입니다.** 조금 더 신중히 준비해야 해요."), "**세 장은 ‘회사에 소송을 하는 것’ 쪽입니다.** 다만 조금 더 신중히 준비해야 해요.");
+  assert.equal(tidyDirection("가장 큰 근거는 앞으로의 열쇠입니다."), "가장 큰 근거는 앞으로의 열쇠입니다.");
 });
