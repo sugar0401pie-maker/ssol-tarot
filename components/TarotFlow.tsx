@@ -266,8 +266,12 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
           className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
         />
       )}
+<<<<<<< HEAD
 >>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
       {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
+=======
+      {screen === "intro" && <IntroScreen copy={copy} friends={friends} />}
+>>>>>>> 3febf9dd547edeaf30808f51c7ffb5b6f7d48518
       {screen === "intro" && <PageFoot />}
       {screen === "welcome" && (
         <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
@@ -390,7 +394,7 @@ function Crescent() {
   );
 }
 
-function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; onStart: () => void }) {
+function IntroScreen({ copy, friends }: { copy: C; friends: Friend[] }) {
   const router = useRouter();
   const [count, setCount] = useState<number | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -434,7 +438,7 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
         {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
         {/* 아스트로 첫 화면처럼 두 버튼(owner 2026-10-21). 로그인해야 이용할 수 있어서, 로그인 전이면 둘 다 로그인 화면을 거친다. */}
-        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={() => (loggedIn ? onStart() : router.push(`/login?next=${encodeURIComponent("/?start=1")}`))}>
+        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={() => router.push(`/login?next=${encodeURIComponent("/?start=1")}`)}>
           {copy.intro.button}
         </button>
         <Link href={loggedIn ? "/results" : "/login?next=/results"} className="btn-night-ghost block w-full rounded-full py-4 text-[16px] font-bold">
