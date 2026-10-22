@@ -11,7 +11,7 @@ import { getRealSession } from "@/lib/supabase/browser";
 import { Stars } from "./Cards";
 import PageFoot from "./PageFoot";
 
-type Item = { id: string; nickname: string; createdAt: string; cards: ResultCard[] };
+type Item = { id: string; nickname: string; createdAt: string; paid?: boolean; cards: ResultCard[] };
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "long", day: "numeric" });
@@ -79,6 +79,8 @@ export default function ResultsList() {
                     ))}
                   </div>
                   <div className="min-w-0 flex-1 text-left">
+                    {/* 결제한 결과는 날짜 위에 둥근 표시(owner 2026-10-22) */}
+                    {it.paid && <span className="mb-1 inline-block rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold text-night-deep">전체 열람 가능</span>}
                     <p className="text-[12px] text-gold">{fmtDate(it.createdAt)}</p>
                     <p className="mt-0.5 truncate font-serif text-[15px] text-moon">{it.cards.map((c) => c.name).join(" · ")}</p>
                   </div>

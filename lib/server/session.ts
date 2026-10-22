@@ -590,7 +590,7 @@ export async function listResults(userId: string | null) {
   if (!userId) throw new TarotError(401, "로그인이 필요해요.");
   const { data: rows, error } = await db()
     .from("tarot_sessions")
-    .select("id, nickname, picks, result_status, safety_level, created_at")
+    .select("id, nickname, picks, result_status, safety_level, created_at, paid_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -605,6 +605,8 @@ export async function listResults(userId: string | null) {
         id: r.id as string,
         nickname: r.nickname as string,
         createdAt: r.created_at as string,
+        // 유료 리포트를 결제한 결과인지 — 목록에 '전체 열람 가능' 표시(owner 2026-10-22)
+        paid: Boolean((r as { paid_at?: string | null }).paid_at),
         cards: expandPicks(r.picks as Pick[]).map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
       })),
   };
