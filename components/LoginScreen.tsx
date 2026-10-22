@@ -26,12 +26,14 @@ export default function LoginScreen({ sceneArt }: { sceneArt: SceneArtMap }) {
   // 이미 로그인돼 있으면(쏘웰라·디저트·아스트로에서 로그인한 경우 포함) 그냥 넘기지 않고 '이 계정으로 계속할까요?'를 먼저 보여 준다
   // (owner 2026-10-22 "닉네임 입력하기 전에 로그인하는 페이지"). 카카오·네이버 로그인을 막 마치고 돌아온 경우(?via=oauth)만 바로 넘어간다.
   const justOAuth = params.get("via") === "oauth";
+  // 세션 확인이 끝나기 전에는 로그인 폼(AuthStep)을 그리지 않는다 — AuthStep은 세션을 찾으면 곧바로 onSignedIn으로 넘겨 버리기 때문.
+  const [checked, setChecked] = useState(false);
   const [account, setAccount] = useState<string | null>(null);
   useEffect(() => {
     void getRealSession().then((s) => {
-      if (!s) return;
-      if (justOAuth) return goNext();
-      setAccount(s.user.email ?? "");
+      if (s && justOAuth) return goNext();
+      if (s) setAccount(s.user.email ?? "");
+      setChecked(true);
     });
   }, [goNext, justOAuth]);
 
@@ -50,7 +52,7 @@ export default function LoginScreen({ sceneArt }: { sceneArt: SceneArtMap }) {
         <Link href="/" className="text-[13px] text-moon/80">
           ← 처음으로
         </Link>
-        {account !== null ? (
+        {!checked ? null : account !== null ? (
           <div className="flex flex-col gap-5">
             <h1 className="big whitespace-pre-line break-keep">{title}</h1>
             <p className="small whitespace-pre-line">{account ? `지금 ${account}\n계정으로 로그인되어 있어요.` : "지금 쏠 웰니스 하우스 계정으로\n로그인되어 있어요."}</p>
