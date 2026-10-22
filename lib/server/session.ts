@@ -16,7 +16,7 @@ import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
 import { frameCall, type FrameVote } from "./frameExamples";
-import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E_SYSTEM, REVIEW_SYSTEM, reviewUserMessage, worryUserMessage } from "./prompts";
+import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E_SYSTEM, worryUserMessage } from "./prompts";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
 // v4.0(2026-10-20): 결과 11쪽. 고민 제출 → A 분류 + A2 고민 틀 / 3장째 → 방향 계산(코드) + C / 결제 후 → D·E(결제 연동 때).
@@ -293,31 +293,6 @@ export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: un
   };
 }
 
-// 모델 출력에서 JSON 부분만(코드 울타리·앞뒤 말 제거). 검수 초안·검수 결과에 쓴다.
-function jsonPart(raw: string): string {
-  const t = raw.replace(/^```(json)?|```$/gm, "").trim();
-  const a = t.indexOf("{"), b = t.lastIndexOf("}");
-  return a >= 0 && b > a ? t.slice(a, b + 1) : "null";
-}
-function parseJsonLoose(raw: string): unknown {
-  try {
-    return JSON.parse(jsonPart(raw));
-  } catch {
-    return null;
-  }
-}
-
-// AI 검수(owner 2026-10-21): 초안(JSON 원문)을 같은 규칙으로 다시 읽혀 어긴 문장만 고친 판을 받는다. 실패하면 null(초안 그대로 씀).
-// 호출하는 쪽이 원래 검증기로 다시 걸러서, 검증을 통과하고 초안보다 나쁘지 않을 때만 바꾼다.
-async function reviewDraft(parts: { key: string; system: string; userBlock: string }[], draft: string, timeoutMs: number): Promise<string | null> {
-  try {
-    return await generateText(REVIEW_SYSTEM, reviewUserMessage(parts, draft), { timeoutMs, maxOutputTokens: 12000, label: "R" });
-  } catch (e) {
-    console.warn("검수 실패:", e instanceof Error ? e.message : "unknown");
-    return null;
-  }
-}
-
 // 백그라운드(3장째 직후): 분류가 끝나길 잠깐 기다린 뒤 카드별 고민 연결 한 줄(C)을 만들고 결과를 'ready'로.
 // 무료 1~3번 본문은 읽을 때마다 같은 재료(picks·분류·links)로 조립하므로 따로 저장하지 않는다.
 export async function prepareResult(sessionId: string) {
@@ -402,7 +377,7 @@ export async function getResult(s: SessionRow) {
     // 분류 호출은 길어야 30초라, 3분이 넘도록 pending이면 끊긴 것으로 보고 키워드 판정만으로 연다.
     if (s.classification_status === "pending" && idle < 180000) return { status: "preparing" as const };
   }
-  // 결제했는데 유료 리포트(D·E)를 아직 만드는 중이면 기다리는 화면. 4분 40초가 지나도(D·E 각 최대 50초×2 + 검수 45초 = 245초 < 함수 한도 300초) 안 끝났으면(서버 재시작 등) 만든 만큼 —
+  // 결제했는데 유료 리포트(D·E)를 아직 만드는 중이면 기다리는 화면. 4분 40초가 지나도(D·E 동시, 각 최대 50초×2 = 100초 < 함수 한도 300초) 안 끝났으면(서버 재시작 등) 만든 만큼 —
   // 없으면 DB 문장(패키지 대체 경로)으로 연다. 결제한 사람이 영원히 기다리지 않게.
   const paid = Boolean(s.paid_at);
   if (paid && s.report_status === "generating" && Date.now() - new Date(s.report_started_at ?? s.updated_at).getTime() < 280000) {
@@ -549,8 +524,10 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   return { ok: true, sessionId: order.session_id, generate: true };
 }
 
-// 결제 직후(백그라운드): D(5·6쪽) → E(7~10쪽). E는 D가 쓴 5·6쪽 글을 받아 되풀이하지 않는다(already_shown).
-// 검증에서 떨어지면 1회 다시 부르고, 그래도 안 되면 그 부분은 패키지 대체 경로(DB 문장)로 — README_v4.
+// 결제 직후(백그라운드): D(5·6쪽)와 E(7~10쪽)를 **동시에** 부른다(패키지 설계 — ai-prompts-tarot-v4.md "E: 결제 직후(D와 동시)").
+// owner 2026-10-22 "검수하지마, 동시에": 예전엔 E가 D 글을 받아 되풀이를 피하느라 D를 기다렸고 그 뒤 검수(R)까지 해서 오래 걸렸다.
+// 이제 E의 already_shown은 비우고(되풀이 금지는 E 프롬프트 규칙이 맡음), 검수 단계는 없다. 안전·형식 검사는 그대로(parseStoryApply·parseE).
+// 검증에서 떨어지면 그 부분만 1회 다시 부르고, 그래도 안 되면 패키지 대체 경로(DB 문장) — README_v4.
 export async function generateReport(sessionId: string) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const s = row as SessionRow | null;
@@ -567,58 +544,35 @@ export async function generateReport(sessionId: string) {
       const violence = s.violence || s.classification_status === "failed";
       const safety = { level: s.safety_level, violence, fear: Boolean(s.fear) };
       const dBlock = buildDUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, safety });
-      let dRaw: string | null = null;
-      for (let i = 0; i < 2 && dBlock; i++) {
-        try {
-          const raw = await generateText(D_SYSTEM, dBlock, { timeoutMs: 50000, maxOutputTokens: 6000, label: "D" });
-          const r = parseStoryApply(raw, { violence });
-          if (!sa || (r.story && r.apply)) {
-            sa = r;
-            dRaw = raw;
-          }
-          if (r.story && r.apply) break;
-          console.warn("D 검증 탈락 — 다시 시도");
-        } catch (e) {
-          console.warn("D 호출 실패:", e instanceof Error ? e.message : "unknown");
-        }
-      }
+      const eBlock = buildEUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, alreadyShown: "" });
 
-      const shown = [sa?.story, sa?.apply].filter(Boolean).join("\n\n");
-      const eBlock = buildEUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, alreadyShown: shown });
-      let eRaw: string | null = null;
-      for (let i = 0; i < 2 && eBlock; i++) {
-        try {
-          const raw = await generateText(E_SYSTEM, eBlock, { timeoutMs: 50000, maxOutputTokens: 8000, label: "E" });
-          const r = parseE(raw, { lean, frame, violence });
-          if (r.E) {
-            E = r.E;
-            eRaw = raw;
-            break;
-          }
-          console.warn("E 검증 탈락 칸:", r.errors.length, "건");
-        } catch (e) {
-          console.warn("E 호출 실패:", e instanceof Error ? e.message : "unknown");
-        }
-      }
-      // 검수(R) 한 번(owner 2026-10-21 "검수는 1번만"): D·E 초안을 한 번에 다시 읽힌다. 고친 판은 부분마다 원래 검증을 다시 통과해야 쓰고
-      // (D는 이야기·적용 두 칸 모두, E는 parseE 통과), 아니면 그 부분은 초안 그대로.
-      if ((dRaw || eRaw) && dBlock) {
-        const parts = [{ key: "D", system: D_SYSTEM, userBlock: dBlock }, ...(eBlock ? [{ key: "E", system: E_SYSTEM, userBlock: eBlock }] : [])];
-        const draft = `{"D":${dRaw ? jsonPart(dRaw) : "null"},"E":${eRaw ? jsonPart(eRaw) : "null"}}`;
-        const reviewed = await reviewDraft(parts, draft, 45000);
-        const obj = reviewed ? parseJsonLoose(reviewed) : null;
-        if (obj && typeof obj === "object") {
-          const o = obj as { D?: unknown; E?: unknown };
-          if (sa && o.D) {
-            const r = parseStoryApply(o.D, { violence });
-            if (r.story && r.apply) sa = r;
-          }
-          if (E && o.E) {
-            const r = parseE(o.E, { lean, frame, violence });
-            if (r.E) E = r.E;
+      const runD = async () => {
+        let best: ReturnType<typeof parseStoryApply> | null = null;
+        for (let i = 0; i < 2 && dBlock; i++) {
+          try {
+            const r = parseStoryApply(await generateText(D_SYSTEM, dBlock, { timeoutMs: 50000, maxOutputTokens: 6000, label: "D" }), { violence });
+            if (!best || (r.story && r.apply)) best = r;
+            if (r.story && r.apply) break;
+            console.warn("D 검증 탈락 — 다시 시도");
+          } catch (e) {
+            console.warn("D 호출 실패:", e instanceof Error ? e.message : "unknown");
           }
         }
-      }
+        return best;
+      };
+      const runE = async () => {
+        for (let i = 0; i < 2 && eBlock; i++) {
+          try {
+            const r = parseE(await generateText(E_SYSTEM, eBlock, { timeoutMs: 50000, maxOutputTokens: 8000, label: "E" }), { lean, frame, violence });
+            if (r.E) return r.E;
+            console.warn("E 검증 탈락 칸:", r.errors.length, "건");
+          } catch (e) {
+            console.warn("E 호출 실패:", e instanceof Error ? e.message : "unknown");
+          }
+        }
+        return null;
+      };
+      [sa, E] = await Promise.all([runD(), runE()]);
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });
   } catch (e) {

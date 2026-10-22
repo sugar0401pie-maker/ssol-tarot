@@ -71,6 +71,8 @@ export function buildEUserBlock({ name, worryText, cls, picks, frame, lean, alre
 }): string | null {
   const base = buildCUserBlock({ name, worryText, cls, picks, frame, lean });
   if (!base) return null;
+  // D와 동시에 부르면(owner 2026-10-22) 5·6쪽 글이 아직 없다 — 빈 칸은 넣지 않는다.
+  if (!alreadyShown.trim()) return base;
   return base.replace("</user_data>", `already_shown="""${alreadyShown.trim()}"""\n</user_data>`);
 }
 
