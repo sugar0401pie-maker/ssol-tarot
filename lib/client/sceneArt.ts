@@ -22,6 +22,6 @@ export function pickSceneArt(map: SceneArtMap, id: SceneId, rand: number): strin
 /** 결과 쪽 번호 → 그 쪽 맨 위 그림 장면(없으면 그림 없음). 1~4쪽은 카드 그림이 이미 맨 위에 있다. */
 // 6~8쪽(owner 2026-10-21 "결과 6~8쪽에 캐릭터가 없어서 넣어 주세요"): 섞기·뽑기 화면에서 뺀 그림과 다 뽑음 그림을 다시 쓴다.
 export const RESULT_PAGE_SCENE: Partial<Record<number, SceneId>> = {
-  // 2026-10-22 8쪽(변화)을 숨겨 10쪽이 됨 — 예전 8쪽 그림(reveal)은 빠지고 9~11쪽 그림이 8~10쪽으로 당겨짐.
-  5: "result_interpret", 6: "shuffle", 7: "draw", 8: "result_wellness", 9: "result_practice", 10: "result_continue",
+  // 2026-10-22 8쪽(변화) 숨김 + 실천 카드·쏘웰라 쪽 합침 → 9쪽. 예전 8쪽 그림(reveal)·11쪽 그림(result_continue)은 빠짐.
+  5: "result_interpret", 6: "shuffle", 7: "draw", 8: "result_wellness", 9: "result_practice",
 };

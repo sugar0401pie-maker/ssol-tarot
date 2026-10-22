@@ -126,9 +126,10 @@ function stripImplied<T>(v: T): T {
 // 8쪽('앞으로 이렇게 바뀔 거예요') 숨김(owner 2026-10-22 "동어반복이라는 이야기 — 숨겨버리자, 총 10장"). 패키지는 11쪽을 그대로
 // 만들고, 화면으로 보낼 때만 8쪽을 빼고 9~11쪽을 8~10쪽으로 당긴다. 본문 속 "9쪽 처방"(10쪽 → 이제 9쪽의 안내)도 "8쪽 처방"으로.
 export const HIDDEN_PAGE = 8;
-// 예전 8쪽 글 중 쓸모 있는 두 가지는 다른 쪽에 녹인다(owner 2026-10-22 A안): 한 줄 요약(첫 굵은 줄) → 7쪽 결론 바로 아래,
-// "이런 변화가 보일 거예요" 신호 3개 → 실천 카드 쪽 맨 아래(마무리 문단 앞). 가운데 카드 설명 문단은 앞 쪽들과 겹쳐서 버린다.
-export const SIGNS_HEAD = "이런 변화가 보이면 잘 가고 있는 거예요";
+// 예전 8쪽 글 중 앞날의 변화(한 줄 요약 + "이런 변화가 보일 거예요" 신호 3개)는 처방 쪽(예전 9쪽 → 이제 8쪽, 제목 "변화를 위해 지금 할 수
+// 있는 것") 맨 위에 녹인다(owner 2026-10-22 — 처음엔 7쪽·실천 카드 쪽에 나눠 붙였다가 "처방 쪽에 미래 내용이 빠져 보인다"며 옮김).
+// 가운데 카드 설명 문단은 앞 쪽들과 겹쳐서 버린다.
+const RX_PAGE = 9;
 const PRACTICE_PAGE = 10;
 const DIRECTION_PAGE = 7;
 export function hideChangePage(pages: any[]): any[] {
@@ -137,13 +138,30 @@ export function hideChangePage(pages: any[]): any[] {
   return pages
     .filter((p) => p.page !== HIDDEN_PAGE)
     .map((p) => {
-      if (parts && p.page === DIRECTION_PAGE && p.body && parts.head) return { ...p, body: insertAfterLean(String(p.body), parts.head) };
-      if (parts && p.page === PRACTICE_PAGE && p.body && parts.signs.length) return { ...p, body: appendSigns(String(p.body), parts.signs) };
+      if (parts && p.page === RX_PAGE && p.body && (parts.head || parts.signs.length)) return { ...p, body: prependChange(String(p.body), parts) };
       return p;
     })
     .map((p, _i, all) => movePlan(p, all))
     .map((p) => (p.page === DIRECTION_PAGE && p.body ? { ...p, body: tidyDirection(String(p.body)) } : p))
+    .map((p, _i, all) => (p.page === PRACTICE_PAGE ? mergeChatPage(p, all.find((x) => x.page === CHAT_PAGE)) : p))
+    .filter((p) => p.page !== CHAT_PAGE)
     .map((p) => (p.page > HIDDEN_PAGE ? renumber(p) : p));
+}
+
+// 실천 카드 쪽과 쏘웰라 쪽 합치기(owner 2026-10-22 "10/11과 11/11이 겹쳐서 합쳐버려도") → 결과는 총 9쪽.
+// 실천 카드 마무리 문단의 "…쏘웰라와 이어서 이야기해 볼 수 있습니다" 문장은 바로 아래 쏘웰라 안내와 겹쳐서 뺀다.
+// 쏘웰라 쪽 제목은 소제목으로, 본문(안내 + [쏘웰라 3일 무료로 시작하기] 버튼)은 그대로 뒤에 붙인다. watch 안내(fineprint)도 옮긴다.
+export const CHAT_HEAD = "쏘웰라와 이어서 이야기하기";
+const CHAT_PAGE = 11;
+function mergeChatPage(p: any, chat: any): any {
+  if (!chat) return p;
+  const out = { ...p, next: chat.next ?? null };
+  if (chat.fineprint) out.fineprint = chat.fineprint;
+  if (p.body && chat.body) {
+    const body = String(p.body).replace(/\s*해 보면서[^\n]*?쏘웰라와 이어서 이야기해 볼 수 있(?:어요|습니다)\./, "");
+    out.body = `${body}\n\n${CHAT_HEAD}\n${String(chat.body)}`;
+  }
+  return out;
 }
 
 // 7쪽 글 다듬기(owner 2026-10-22) — E 프롬프트에도 같은 규칙을 넣었지만, 이미 만든 리포트와 규칙을 놓친 글을 위해 화면으로 보낼 때 한 번 더:
@@ -201,23 +219,12 @@ export function changeParts(body: string): { head: string | null; signs: string[
   return { head: m ? m[1].trim() : null, signs };
 }
 
-// 7쪽: "카드가 가리키는 방향" 아래 결론 줄(◦ 선택지 …) 바로 다음 문단으로. 결정형이 아니라 그 줄이 없으면 첫 문단 다음에.
-function insertAfterLean(body: string, head: string): string {
-  const chunks = body.split(/\n\s*\n/);
-  let at = chunks.findIndex((c) => c.split("\n").some((l) => l.trim() === (data.copy.result as any).v4?.direction_title) && /\n◦ /.test(c));
-  if (at < 0) at = 0;
-  chunks.splice(at + 1, 0, head);
-  return chunks.join("\n\n");
-}
-
-// 실천 카드 쪽: 마무리 문단("**이 실천은 정답이 아니라…**")이 있으면 그 앞에, 없으면 맨 끝에.
-function appendSigns(body: string, signs: string[]): string {
-  const block = [SIGNS_HEAD, ...signs].join("\n");
-  const chunks = body.split(/\n\s*\n/);
-  const closing = chunks.findIndex((c) => /^\*\*이 실천은/.test(c.trim()));
-  if (closing >= 0) chunks.splice(closing, 0, block);
-  else chunks.push(block);
-  return chunks.join("\n\n");
+// 처방 쪽 맨 위: "**{한 줄 요약}**" → "이런 변화가 보일 거예요" + 신호 → (원래 처방 안내·처방)
+function prependChange(body: string, parts: { head: string | null; signs: string[] }): string {
+  const block: string[] = [];
+  if (parts.head) block.push(`**${parts.head}**`);
+  if (parts.signs.length) block.push([(data.copy.result as any).v4?.change_signs ?? "이런 변화가 보일 거예요", ...parts.signs].join("\n"));
+  return [...block, body].join("\n\n");
 }
 function renumber(p: any): any {
   const fix = (v: unknown): unknown =>
@@ -258,7 +265,7 @@ export function resultParseOpts() {
     ...Object.values(r.flow_titles ?? {}), r.tendency_title].filter((x): x is string => typeof x === "string");
   const sec = [r.reflect_title].filter((x): x is string => typeof x === "string");
   return {
-    subheads: [...new Set([...SUBHEADS, ...fromData, SIGNS_HEAD, PLAN_MOVED_HEAD])].filter((x) => !sec.includes(x)),
+    subheads: [...new Set([...SUBHEADS, ...fromData, PLAN_MOVED_HEAD, CHAT_HEAD])].filter((x) => !sec.includes(x)),
     secHeads: sec,
     planHeadSuffix: "이번 주에 이것부터",
     positions: data.positions.map((p) => p.name),
