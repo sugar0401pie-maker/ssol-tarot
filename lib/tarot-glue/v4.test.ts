@@ -95,9 +95,9 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   assert.ok(out[1].body && out[1].card.name);
 });
 
-test("고민 미작성(분류·틀·C 없음)도 11쪽이 끊기지 않는다", () => {
+test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다(8쪽 숨김 뒤)", () => {
   const out = sanitizeUnpaid(buildUnpaidPages({ name: "지수", cls: null, picks, safety: { level: "none", violence: false, fear: false }, worryText: "", frame: null, lean: null, C: null }));
-  assert.equal(out.length, 11);
+  assert.equal(out.length, 10);
   assert.ok(out[0].body && out[4].free);
 });
 
@@ -119,9 +119,9 @@ test("결제 후 11쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   for (const p of out) for (const k of ["combo", "map", "locked"]) assert.equal(k in p, false);
 });
 
-test("D·E가 없거나 탈락해도(대체 경로) 결제 후 11쪽이 모두 본문을 가진다", () => {
+test("D·E가 없거나 탈락해도(대체 경로) 결제 후 10쪽이 모두 본문을 가진다(8쪽 숨김 뒤)", () => {
   const P = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean: null, C: null, sa: null, E: null }));
-  assert.equal(P.length, 11);
+  assert.equal(P.length, 10);
   for (const p of P) assert.ok(p.body, `${p.page}쪽 본문 있음`);
 });
 
@@ -155,4 +155,18 @@ test("화면으로 보내는 글에서 선택지 표시 '(암시)'를 뗀다", (
   assert.equal(sanitizePaid(pages)[0].body, "소송을 하지 않는 것보다 회사에 소송을 하는 것 쪽을 가리켜요.");
   const un = sanitizeUnpaid([{ page: 1, title: "t", body: "선택지: 이직하기 / 남기 (암시)" }]);
   assert.equal(un[0].body, "선택지: 이직하기 / 남기");
+});
+
+test("8쪽(앞으로 이렇게 바뀔 거예요)은 화면에 보내지 않고 10쪽으로 당긴다(owner 2026-10-22)", () => {
+  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const paid = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") }));
+  assert.equal(paid.length, 10);
+  assert.deepEqual(paid.map((p) => p.page), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.ok(!paid.some((p) => p.title === "앞으로 이렇게 바뀔 거예요"));
+  assert.equal(paid[7].title, "지금 해볼 수 있는 것들을 알려드릴게요");
+  assert.equal(paid[8].title, "이번 주 실천 카드");
+  assert.ok(!JSON.stringify(paid[8]).includes("9쪽 처방"));
+  const unpaid = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null }));
+  assert.equal(unpaid.length, 10);
+  assert.equal(unpaid[9].title, "쏘웰라와 이어서 이야기하기");
 });

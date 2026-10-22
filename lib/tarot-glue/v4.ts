@@ -123,8 +123,22 @@ function stripImplied<T>(v: T): T {
   return v;
 }
 
+// 8쪽('앞으로 이렇게 바뀔 거예요') 숨김(owner 2026-10-22 "동어반복이라는 이야기 — 숨겨버리자, 총 10장"). 패키지는 11쪽을 그대로
+// 만들고, 화면으로 보낼 때만 8쪽을 빼고 9~11쪽을 8~10쪽으로 당긴다. 본문 속 "9쪽 처방"(10쪽 → 이제 9쪽의 안내)도 "8쪽 처방"으로.
+export const HIDDEN_PAGE = 8;
+export function hideChangePage(pages: any[]): any[] {
+  return pages
+    .filter((p) => p.page !== HIDDEN_PAGE)
+    .map((p) => (p.page > HIDDEN_PAGE ? renumber(p) : p));
+}
+function renumber(p: any): any {
+  const fix = (v: unknown): unknown =>
+    typeof v === "string" ? v.replace(/9쪽 처방/g, "8쪽 처방") : Array.isArray(v) ? v.map(fix) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fix(x)])) : v;
+  return { ...(fix(p) as object), page: p.page - 1 };
+}
+
 export function sanitizeUnpaid(pages: any[]): any[] {
-  return stripImplied(pages).map((p) => {
+  return hideChangePage(stripImplied(pages)).map((p) => {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     // 5쪽은 무료 부분(free)만 — 결제 전 원본 body가 비어 있어도 혹시 결론이 섞여 들어오지 않게 비운다.
@@ -140,7 +154,7 @@ export function sanitizeUnpaid(pages: any[]): any[] {
 
 // 결제 후 응답: 같은 허용 목록이지만 본문(body)을 그대로 싣는다(결론·6~11쪽 포함). 화면에 안 쓰는 내부 칸(combo·map·locked)은 뺀다.
 export function sanitizePaid(pages: any[]): any[] {
-  return stripImplied(pages).map((p) => {
+  return hideChangePage(stripImplied(pages)).map((p) => {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     return out;
