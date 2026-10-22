@@ -17,3 +17,9 @@ test("입력 검사", () => {
   assert.equal(checkLoginInput("a@b.co", ""), "비밀번호를 입력해 주세요.");
   assert.equal(checkLoginInput(" a@b.co ", "pw"), null);
 });
+
+test("safeNext: 탭·줄바꿈·역슬래시가 섞인 주소는 거부(브라우저가 //로 읽음)", () => {
+  assert.equal(safeNext("/\t/evil.com"), "/");
+  assert.equal(safeNext("/\n/evil.com"), "/");
+  assert.equal(safeNext("/a\\b"), "/");
+});

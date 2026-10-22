@@ -20,7 +20,8 @@ export function loadKey(id: string): string | null {
 }
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  // sessionId: 결제 확인에서 "이미 결제한 결과"일 때 그 결과로 보내 주려고 서버가 함께 보낸 값
+  constructor(public status: number, message: string, public sessionId?: string) {
     super(message);
   }
 }
@@ -37,7 +38,10 @@ export async function api<T>(path: string, opts: { method?: string; body?: unkno
     cache: "no-store",
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(res.status, (json as { error?: string }).error ?? "잠시 후 다시 시도해 주세요.");
+  if (!res.ok) {
+    const j = json as { error?: string; sessionId?: string };
+    throw new ApiError(res.status, j.error ?? "잠시 후 다시 시도해 주세요.", j.sessionId);
+  }
   return json as T;
 }
 

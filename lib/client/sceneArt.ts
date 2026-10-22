@@ -3,6 +3,11 @@
 // 화면을 열 때마다 그 장면 그림 중 한 장을 무작위로. 그림이 없으면 아무것도 그리지 않는다(지금 화면 그대로).
 export const SCENES = [
   "intro", "welcome", "experience", "first_time", "worry", "shuffle", "draw", "reveal", "loading",
+<<<<<<< HEAD
+=======
+  // 로그인 화면 안내 그림(owner 2026-10-21 "아스트로 로그인처럼") — 폴더가 비어 있으면 환영 장면 그림을 쓴다
+  "login",
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
   // 결과 화면(owner 그림 09~12): 해석 → 5쪽, 웰니스 처방 → 9쪽, 실천 → 10쪽, 쏘웰라로 이어 가기 → 11쪽
   "result_interpret", "result_wellness", "result_practice", "result_continue",
 ] as const;
@@ -18,4 +23,11 @@ export function pickSceneArt(map: SceneArtMap, id: SceneId, rand: number): strin
 }
 
 /** 결과 쪽 번호 → 그 쪽 맨 위 그림 장면(없으면 그림 없음). 1~4쪽은 카드 그림이 이미 맨 위에 있다. */
+<<<<<<< HEAD
 export const RESULT_PAGE_SCENE: Partial<Record<number, SceneId>> = { 5: "result_interpret", 9: "result_wellness", 10: "result_practice", 11: "result_continue" };
+=======
+// 6~8쪽(owner 2026-10-21 "결과 6~8쪽에 캐릭터가 없어서 넣어 주세요"): 섞기·뽑기 화면에서 뺀 그림과 다 뽑음 그림을 다시 쓴다.
+export const RESULT_PAGE_SCENE: Partial<Record<number, SceneId>> = {
+  5: "result_interpret", 6: "shuffle", 7: "draw", 8: "reveal", 9: "result_wellness", 10: "result_practice", 11: "result_continue",
+};
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941

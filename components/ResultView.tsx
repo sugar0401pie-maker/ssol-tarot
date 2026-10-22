@@ -7,10 +7,16 @@ import { api, loadKey, ApiError, type ResultResponse, type ResultPage, type Resu
 import { getAccessToken } from "@/lib/supabase/browser";
 import { clean } from "@/lib/client/text";
 import { cardImg } from "@/lib/client/cardImage";
-import { parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
+import { splitTeaser, parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
 import { SafetyScreen } from "./SafetyScreen";
+<<<<<<< HEAD
 import { ShareSheet } from "./ShareSheet";
+=======
+import { ShareSheet } from "./share/ShareSheet";
+import KakaoTalkLogo from "./share/KakaoTalkLogo";
+import AuthFooterLink from "./auth/AuthFooterLink";
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
 import { SceneArt } from "./SceneArt";
 import { RESULT_PAGE_SCENE, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
@@ -31,7 +37,11 @@ function hideBroken(e: React.SyntheticEvent<HTMLImageElement>) {
   e.currentTarget.style.visibility = "hidden";
 }
 
+<<<<<<< HEAD
 export default function ResultView({ id, copy, opts }: { id: string; copy: ViewCopy; opts: ParseOpts }) {
+=======
+export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: string; copy: ViewCopy; opts: ParseOpts; initialPage?: number }) {
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
   const [res, setRes] = useState<ResultResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nickname, setNickname] = useState("");
@@ -99,13 +109,13 @@ export default function ResultView({ id, copy, opts }: { id: string; copy: ViewC
       </main>
     );
   }
-  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} />;
+  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} initialPage={initialPage} />;
 }
 
 // 쪽이 잠겨 있는지(시안 LOCK.unpaid = 6~11쪽). 5쪽은 일부 무료라 점 표시는 열린 쪽으로 둔다.
 const isLocked = (p: ResultPage, paid: boolean) => !paid && p.page >= 6;
 
-function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts }) {
+function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; initialPage: number }) {
   const rail = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
   const [zoom, setZoom] = useState<{ src: string; alt: string; reversed: boolean } | null>(null);
@@ -147,6 +157,20 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
       window.removeEventListener("resize", onResize);
     };
   }, [go, idx]);
+
+  // 쪽마다 자기 주소(owner 2026-10-21 "모든 페이지 개별 링크"): /result/{id}/{쪽}. 주소로 들어오면 그 쪽부터 보여 주고,
+  // 넘길 때마다 주소만 바꾼다(replaceState — 뒤로 가기가 11번 쌓이지 않게. Next가 주소 변경을 라우터와 맞춰 준다).
+  useEffect(() => {
+    const el = rail.current;
+    const k = Math.max(0, Math.min(n - 1, initialPage - 1));
+    if (el && k > 0) el.scrollTo({ left: k * el.clientWidth, behavior: "instant" });
+    // 처음 한 번만 — 이후에는 사용자가 넘긴 쪽을 따른다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    const path = `/result/${id}/${idx + 1}`;
+    if (window.location.pathname !== path) window.history.replaceState(null, "", path);
+  }, [id, idx]);
 
   // 스크롤 이벤트는 1초에 수십 번 온다 — 한 화면 그리기에 한 번만 계산(쪽 번호가 같으면 React가 다시 그리지 않음).
   const ticking = useRef(false);
@@ -191,7 +215,9 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
   }
 
   // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 11쪽을 다시 해석하지 않게.
-  const ctx: Ctx = useMemo(() => ({ r, copy, opts, openZoom: setZoom }), [r, copy, opts]);
+  // [결제하고 이어 읽기] → 결제 화면(/checkout/{id}?page=쪽). 결제가 끝나면 누른 그 쪽으로 돌아온다.
+  const pay = useCallback((page: number) => router.push(`/checkout/${id}?page=${page}`), [router, id]);
+  const ctx: Ctx = useMemo(() => ({ r, copy, opts, openZoom: setZoom, pay }), [r, copy, opts, pay]);
 
   return (
     <div className="tv4">
@@ -212,16 +238,25 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
               </header>
               <div className="pbody">
                 {sceneArt && RESULT_PAGE_SCENE[p.page] && (
+<<<<<<< HEAD
                   <SceneArt map={sceneArt} id={RESULT_PAGE_SCENE[p.page]!} className="scene" sizes="(max-width: 400px) 92vw, 364px" />
+=======
+                  <SceneArt map={sceneArt} id={RESULT_PAGE_SCENE[p.page]!} className="scene" sizes="(max-width: 400px) 92vw, 364px" reserve />
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
                 )}
                 <PageBody p={p} ctx={ctx} />
                 {p.page >= 4 && (
                   <>
                     <div className="sharerow">
-                      <button type="button" className="btn line sm" onClick={() => setSharing(true)}>
-                        공유하기
+                      {/* 아스트로 하우스와 같은 두 버튼(owner 2026-10-21): 카카오 노랑 [SNS 공유하기] + 금색 [저장하기] */}
+                      <button type="button" className="btn sns sm" onClick={() => setSharing(true)}>
+                        <KakaoTalkLogo size={24} />
+                        SNS 공유하기
                       </button>
-                      <button type="button" className="btn line sm" onClick={save}>
+                      <button type="button" className="btn gold sm" onClick={save}>
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                          <path d="M6 3.5h12v17l-6-4.2-6 4.2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                        </svg>
                         저장하기
                       </button>
                     </div>
@@ -250,24 +285,15 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
                   </button>
                 )}
                 {(p.page === 1 || p.page === n) && <p className="fineprint">{copy.disclaimer}</p>}
+                <AuthFooterLink tone="dark" />
               </div>
             </section>
           ))}
         </div>
-        <div className="nav">
-          <button type="button" aria-label="이전 페이지" disabled={idx === 0} onClick={() => go(idx - 1)}>
-            ‹
-          </button>
-          <span>
-            {idx + 1} / {n}
-          </span>
-          <button type="button" aria-label="다음 페이지" disabled={idx === n - 1} onClick={() => go(idx + 1)}>
-            ›
-          </button>
-        </div>
+        {/* 아래 ‹ 쪽 수 › 막대는 없앴다(owner 2026-10-21) — 쪽 이동은 각 쪽의 [돌아가기][다음으로]·옆으로 넘기기·위 점 표시로 */}
       </div>
       {r.cards[2] && (
-        <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} />
+        <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} nickname={r.nickname} />
       )}
       <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label="크게 보기 닫기" tabIndex={zoom ? 0 : -1}>
         {/* eslint-disable-next-line @next/next/no-img-element -- 시안과 같은 단순 확대(고정 크기 이미지) */}
@@ -277,7 +303,7 @@ function Swipe({ id, r, copy, opts }: { id: string; r: Ready; copy: ViewCopy; op
   );
 }
 
-type Ctx = { r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void };
+type Ctx = { r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
@@ -289,22 +315,30 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
     return (
       <>
         <Blocks blocks={parseBlocks(p.free, opts)} ctx={ctx} />
-        <Lock blur={sample} ctx={ctx} />
+        <Lock blur={sample} ctx={ctx} page={p.page} />
       </>
     );
   }
   if (isLocked(p, r.paid)) {
     return (
       <>
-        {p.teaser && <p className="teaser">{p.teaser}</p>}
-        <Lock blur={p.blur ?? null} ctx={ctx} />
+        {p.teaser && (
+          <p className="teaser">
+            {splitTeaser(p.teaser).map((l, i) => (
+              <span key={i} className="block">
+                {l}
+              </span>
+            ))}
+          </p>
+        )}
+        <Lock blur={p.blur ?? null} ctx={ctx} page={p.page} />
       </>
     );
   }
   return <Blocks blocks={parseBlocks(p.body, opts)} ctx={ctx} />;
 });
 
-function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
+function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number }) {
   const c = ctx.copy.result;
   return (
     <div className="lockwrap">
@@ -317,11 +351,10 @@ function Lock({ blur, ctx }: { blur: string | null; ctx: Ctx }) {
         <b>{ctx.r.decision ? c.paywall_title_decision : c.paywall_title}</b>
         <p>{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
         <p className="price">{c.paywall_price}</p>
-        {/* TODO: 실제 연동 — 토스 결제(1,900원) 후 유료 리포트(D·E 호출) 생성. 결제 전 유료 본문은 만들지 않는다. */}
-        <button type="button" className="btn fill" disabled>
+        {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
+        <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
           {c.paywall_button}
         </button>
-        <small>결제는 준비 중이에요</small>
       </div>
     </div>
   );

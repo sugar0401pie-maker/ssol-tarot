@@ -2,13 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { initialState, next, type FlowAction, type FlowStateBase } from "@/lib/tarot/flow.js";
 import { api, saveKey, ApiError, type PickResponse } from "@/lib/client/api";
 import { fill } from "@/lib/client/text";
 import { CardBack, CardFace, CardCaption, FrameCorners, Stars } from "./Cards";
 import { SceneArt } from "./SceneArt";
 import { MysticOrbit, RotatingLine } from "./Mystic";
+<<<<<<< HEAD
+=======
+import PageFoot from "./PageFoot";
+import { STEP_PATH, stepFromPath, canFollow, entryStep, type Step } from "@/lib/client/steps";
+import { getRealSession } from "@/lib/supabase/browser";
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
 import type { SceneArtMap, SceneId } from "@/lib/client/sceneArt";
 import { WaitNotice } from "./WaitNotice";
 import type { Friend } from "./IntroCardSpin";
@@ -20,21 +26,34 @@ import { SafetyScreen } from "./SafetyScreen";
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
 
 export type Copy = (typeof import("@/data/tarot_data.json"))["copy"];
-export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap };
+export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap; initialStep?: Step | null };
 
 type FlowState = FlowStateBase;
 type Action = FlowAction;
 
+<<<<<<< HEAD
+=======
+const MIN_WAIT_MS = 3000; // 카드를 다 고른 뒤 대기 화면 최소 시간(owner 2026-10-21)
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
 const SHUFFLE_MIN_MS = 6000; // 스펙 7.4는 최소 3초. 3초마다 바뀌는 안내(owner 2026-10-20)가 두 줄은 보이도록 6초. 움직임 줄이기에서도 유지
 const AGAIN_KEY = "ssol_tarot_again";
 
 const NO_SCENE_ART: SceneArtMap = {};
 // 섞기·뽑기·다 뽑음·대기는 아래에 누를 것(버튼·22장 보드)이 많아서, 그림 높이를 화면의 약 1/4로 줄여(가운데 기준으로 위아래만 잘림)
 // 휴대폰 한 화면 안에서 스크롤 없이 진행할 수 있게 한다. 다른 장면은 그림 비율 그대로.
+<<<<<<< HEAD
 const COMPACT_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"]);
+=======
+const COMPACT_SCENES = new Set<string>(["reveal", "loading"]);
+// 섞기·뽑기 화면에는 장면 그림을 넣지 않는다(owner 2026-10-21) — 그 그림은 결과 6~8쪽 맨 위에서 쓴다(RESULT_PAGE_SCENE).
+const NO_ART_SCENES = new Set<string>(["shuffle", "draw"]);
+// 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
+const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
 
-export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART }: FlowProps) {
+export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART, initialStep = null }: FlowProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const flowData = useMemo(() => ({ copy, deck: { pick_count: pickCount } }), [copy, pickCount]);
   const [state, setState] = useState<FlowState>(() => initialState());
   const [session, setSession] = useState<{ id: string; key: string } | null>(null);
@@ -73,6 +92,47 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
       startSession(a.nickname, a.experience);
     }
   }, []);
+
+  // 로그인 화면에서 [타로 보기]로 돌아온 경우(/?start=1): 로그인돼 있으면 바로 시작(주소는 아래 동기화가 /welcome으로).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("start") !== "1") return;
+    void getRealSession().then((s) => {
+      window.history.replaceState(null, "", "/");
+      if (s) go({ type: "START" });
+    });
+  }, [go]);
+
+  // ---------- 화면마다 자기 주소(owner 2026-10-21) ----------
+  // 주소로 바로 들어온 경우(/welcome·/draw 새로고침 등): 고민·카드는 브라우저에 저장해 두지 않으므로 환영 화면부터 다시.
+  // 로그인 전이면 로그인 화면을 거친다(로그인해야 이용).
+  const [booting, setBooting] = useState(() => entryStep(initialStep) !== "intro");
+  useEffect(() => {
+    if (!booting) return;
+    void getRealSession().then((s) => {
+      if (!s) return router.replace(`/login?next=${encodeURIComponent(STEP_PATH.welcome)}`);
+      setState({ ...initialState(), screen: "welcome" } as FlowState);
+      setBooting(false);
+    });
+  }, [booting, router]);
+  // 화면이 바뀌면 주소를 그 화면 것으로(pushState — 뒤로 가기가 이전 화면 주소로 간다). 결과 화면은 /result/{id}로 따로 이동.
+  const screenRef = useRef(state.screen);
+  screenRef.current = state.screen;
+  useEffect(() => {
+    if (booting) return;
+    const path = STEP_PATH[state.screen as Step];
+    if (path && window.location.pathname !== path) window.history.pushState(null, "", path);
+  }, [state.screen, booting]);
+  // 뒤로/앞으로 가기로 주소가 바뀐 경우: 고민을 내기 전 단계 안에서 뒤로 가는 것만 따라가고, 그 밖에는 지금 화면 주소로 되돌린다.
+  useEffect(() => {
+    if (booting) return;
+    const cur = screenRef.current as Step;
+    const to = stepFromPath(pathname);
+    if (!to || to === cur || !STEP_PATH[cur]) return;
+    if (canFollow(cur, to)) setState((st) => (to === "intro" ? initialState() : { ...st, screen: to }) as FlowState);
+    else window.history.pushState(null, "", STEP_PATH[cur]);
+    // 주소가 바뀔 때만 본다(화면 상태가 먼저 바뀐 경우까지 보면 방금 누른 이동을 되돌려 버린다)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   function startSession(nickname: string, experience: string) {
     const p = api<{ id: string; key: string }>("/api/tarot/session", { body: { nickname, experience } }).then((s) => {
@@ -139,32 +199,41 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
     }
   }
 
-  async function seeResult() {
+  // [결과 보기]: 결과가 이미 준비됐어도 신비한 대기 화면(카드·별이 도는 연출 + 안내 문구)을 최소 3초는 보여 준다
+  // (owner 2026-10-21 "카드 고르고 나서 돌아가는 건 3초 정도"). 안전 안내(urgent)는 기다리지 않고 바로.
+  const loadingSince = useRef(0);
+  function seeResult() {
     if (!session) return;
-    try {
-      const r = await api<{ status: string }>(`/api/tarot/session/${session.id}/result`, { key: session.key });
-      if (r.status === "safety") return go({ type: "AI_URGENT" });
-      if (r.status === "ready") return router.push(`/result/${session.id}`);
-    } catch {
-      /* 대기 화면에서 다시 확인 */
-    }
+    loadingSince.current = Date.now();
     go({ type: "SEE_RESULT", ready: false });
   }
 
-  // 대기 화면: 1초 간격으로 결과 준비 확인
+  // 대기 화면: 0.5초 간격으로 결과 준비 확인, 준비되면 3초를 채운 뒤 결과로
   useEffect(() => {
     if (state.screen !== "loading" || !session) return;
+    if (!loadingSince.current) loadingSince.current = Date.now();
     let stop = false;
-    const t = setInterval(async () => {
+    let busy = false;
+    const check = async () => {
+      if (stop || busy) return;
+      busy = true;
       try {
         const r = await api<{ status: string }>(`/api/tarot/session/${session.id}/result`, { key: session.key });
         if (stop) return;
-        if (r.status === "safety") go({ type: "AI_URGENT" });
-        else if (r.status === "ready") router.push(`/result/${session.id}`);
+        if (r.status === "safety") return go({ type: "AI_URGENT" });
+        if (r.status === "ready") {
+          stop = true;
+          const left = MIN_WAIT_MS - (Date.now() - loadingSince.current);
+          setTimeout(() => router.push(`/result/${session.id}`), Math.max(0, left));
+        }
       } catch {
         /* 다음 주기 */
+      } finally {
+        busy = false;
       }
-    }, 1000);
+    };
+    void check();
+    const t = setInterval(check, 500);
     return () => {
       stop = true;
       clearInterval(t);
@@ -173,21 +242,35 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
 
   const screen = state.screen;
 
+  // 주소로 바로 들어와 로그인 확인 중 — 첫 화면이 잠깐 보였다 바뀌지 않게 빈 밤 화면만
+  if (booting) return <main className="night-bg min-h-dvh" />;
   if (screen === "safety") return <SafetyScreen copy={copy} />;
 
   return (
     <main className="night-bg relative flex min-h-dvh flex-col overflow-x-hidden">
       <Stars />
       {/* 장면 맨 위 그림(그림 파일이 있는 장면만). 장면이 바뀔 때마다 다시 고름 */}
+<<<<<<< HEAD
       <SceneArt
         key={screen}
         map={sceneArt}
         id={screen as SceneId}
         className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
       />
+=======
+      {!FRAMED_SCENES.has(screen) && !NO_ART_SCENES.has(screen) && (
+        <SceneArt
+          key={screen}
+          map={sceneArt}
+          id={screen as SceneId}
+          className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
+        />
+      )}
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
       {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
+      {screen === "intro" && <PageFoot />}
       {screen === "welcome" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <WelcomeScreen
             copy={copy}
             error={state.error ?? null}
@@ -199,10 +282,10 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         </Framed>
       )}
       {screen === "experience" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <div className="fade-up flex flex-col items-center gap-3 text-center">
             <Sparkle />
-            <h1 className="font-serif text-[24px] font-bold leading-snug text-gold-soft">{fill(copy.experience.title, { nickname })}</h1>
+            <h1 className="whitespace-pre-line break-keep font-serif text-[24px] font-bold leading-snug text-gold-soft">{fill(copy.experience.title, { nickname })}</h1>
             <p className="font-serif text-[18px] text-moon">{copy.experience.sub}</p>
             <div className="moonarc mt-3" aria-hidden />
             <div className="mt-8 flex w-full flex-col gap-3">
@@ -227,10 +310,10 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         </Framed>
       )}
       {screen === "first_time" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <div className="fade-up flex flex-col items-center gap-6 text-center">
             <Crescent />
-            <p className="text-[16px] leading-relaxed text-moon">{fill(copy.first_time.body, { nickname })}</p>
+            <p className="whitespace-pre-line text-[16px] leading-relaxed text-moon">{fill(copy.first_time.body, { nickname })}</p>
             <Crescent />
             <button type="button" className="btn-night mt-2 w-full rounded-full py-3.5 text-[15px] font-medium" onClick={() => go({ type: "FIRST_TIME_OK" })}>
               {copy.first_time.button}
@@ -239,7 +322,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
         </Framed>
       )}
       {screen === "worry" && (
-        <Framed>
+        <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} />
         </Framed>
       )}
@@ -273,11 +356,19 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
 
 type C = FlowProps["copy"];
 
-function Framed({ children }: { children: React.ReactNode }) {
+// 금선 테두리 화면. 장면 그림은 테두리 안쪽 맨 위에 둔다(owner 2026-10-21: "이미지는 웹페이지 전체 테두리 안에").
+function Framed({ children, art }: { children: React.ReactNode; art?: React.ReactNode }) {
   return (
+<<<<<<< HEAD
     <div className="gold-frame relative flex flex-1 flex-col items-center justify-center px-9 py-16">
       <FrameCorners />
       <div className="w-full max-w-sm">{children}</div>
+=======
+    <div className="gold-frame relative flex flex-1 flex-col items-center px-[22px] pb-16 pt-[22px]">
+      <FrameCorners />
+      {art}
+      <div className="flex w-full max-w-sm flex-1 flex-col justify-center px-[14px] pt-8">{children}</div>
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
     </div>
   );
 }
@@ -300,7 +391,12 @@ function Crescent() {
 }
 
 function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; onStart: () => void }) {
+  const router = useRouter();
   const [count, setCount] = useState<number | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+    void getRealSession().then((s) => setLoggedIn(!!s));
+  }, []);
   useEffect(() => {
     fetch("/api/tarot/stats")
       .then((r) => r.json())
@@ -310,21 +406,40 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
   return (
     <div className="gold-frame relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-14 text-center">
       <FrameCorners />
+<<<<<<< HEAD
       <Link href="/login" className="absolute right-7 top-7 z-[2] text-[13px] text-moon/80 underline">
         {copy.intro.login}
       </Link>
+=======
+      {/* 로그인한 사람에게는 '로그인' 링크를 보이지 않는다(하단에 '내 결과 · 로그아웃'이 있음) */}
+      {!loggedIn && (
+        <Link href="/login" className="absolute right-7 top-7 z-[2] text-[13px] text-moon/80 underline">
+          {copy.intro.login}
+        </Link>
+      )}
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
       {/* 제목이 맨 위, 그 아래 카드 부채 연출(owner 2026-10-20 — 바다 친구 지나가기 대신) */}
       <div className="fade-up flex w-full flex-col items-center gap-3">
         <p className="text-[13px] tracking-[10px] text-gold" aria-hidden>✦ ✦ ✦</p>
         <h1 className="font-serif text-[30px] font-bold text-gold-soft">{copy.intro.title}</h1>
         <p className="text-[14px] text-moon/90">{copy.intro.sub}</p>
+<<<<<<< HEAD
       </div>
       <IntroCardSpin cards={friends} />
+=======
+        {/* 카드 부채는 제목 바로 아래(owner 2026-10-21: 플래시를 앞으로) */}
+        <IntroCardSpin cards={friends} />
+      </div>
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
-        {count !== null && count > 0 && <p className="text-[13px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
-        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={onStart}>
+        {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
+        {/* 아스트로 첫 화면처럼 두 버튼(owner 2026-10-21). 로그인해야 이용할 수 있어서, 로그인 전이면 둘 다 로그인 화면을 거친다. */}
+        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={() => (loggedIn ? onStart() : router.push(`/login?next=${encodeURIComponent("/?start=1")}`))}>
           {copy.intro.button}
         </button>
+        <Link href={loggedIn ? "/results" : "/login?next=/results"} className="btn-night-ghost block w-full rounded-full py-4 text-[16px] font-bold">
+          {copy.intro.button_results}
+        </Link>
       </div>
     </div>
   );
@@ -341,7 +456,7 @@ function WelcomeScreen({ copy, error, onSubmit }: { copy: C; error: string | nul
       }}
     >
       <Sparkle />
-      <h1 className="font-serif text-[26px] font-bold leading-snug text-gold-soft">{copy.welcome.title}</h1>
+      <h1 className="whitespace-pre-line font-serif text-[26px] font-bold leading-snug text-gold-soft">{copy.welcome.title}</h1>
       <p className="text-[15px] text-moon/90">{copy.welcome.sub}</p>
       <input
         className="input-night mt-6 w-full px-4 py-3.5 text-center text-[16px]"
@@ -382,7 +497,8 @@ function WorryScreen({
   }, [examples.length]);
   return (
     <div className="fade-up flex flex-col gap-3">
-      <h1 className="text-center font-serif text-[22px] font-bold leading-snug text-gold-soft">{fill(copy.worry.title, { nickname })}</h1>
+      {/* owner 줄바꿈("…고민을 / 편하게 작성해주세요.")이 휴대폰에서 세 줄로 밀리지 않게 화면 폭에 맞춰 글자 크기를 줄인다(최대 22px) */}
+      <h1 className="whitespace-pre-line break-keep text-center font-serif text-[clamp(16px,4.8vw,22px)] font-bold leading-snug text-gold-soft">{fill(copy.worry.title, { nickname })}</h1>
       <p className="text-center text-[14px] leading-relaxed text-moon/90">{copy.worry.sub}</p>
       <div className="relative mt-4">
         <textarea
@@ -449,7 +565,11 @@ function ShuffleScreen({
   }
   return (
     <div className="relative flex flex-1 flex-col items-center justify-between px-6 pb-14 pt-12 text-center">
+<<<<<<< HEAD
       <p className="fade-up max-w-sm font-serif text-[18px] leading-relaxed text-gold-soft">{copy.shuffle.guide}</p>
+=======
+      <p className="fade-up max-w-sm whitespace-pre-line break-keep font-serif text-[18px] leading-relaxed text-gold-soft">{copy.shuffle.guide}</p>
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
       {/* 섞는 동안: 더미 둘레로 카드·별이 돌고(신비한 연출, owner 2026-10-20) 카드는 좌우로 갈라졌다 겹치며 금빛 잔상.
           다 섞이면 가지런히 모이고 물결 빛이 한 번 지나간다(스펙 7.4). */}
       <div className={`shuffle-zone ${mixing ? "is-mixing" : ""} ${phase === "done" ? "is-done" : ""} ${phase === "leaving" ? "is-leaving" : ""}`}>
@@ -503,12 +623,24 @@ function ShuffleScreen({
 // 뽑은 카드: 뒷면으로 아래에서 칸으로 날아든 뒤(0.4초) 앞면으로 뒤집힌다(0.6초) — 디자인 가이드 4장 뽑기
 // 처음부터 is-flipped로 그리면 전환이 일어나지 않으므로, 뒷면으로 먼저 그리고 잠시 뒤 뒤집는다.
 const SLOT_FLIP_DELAY_MS = 400;
+<<<<<<< HEAD
 function SlotFlip({ children }: { children: React.ReactNode }) {
   const [flipped, setFlipped] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setFlipped(true), SLOT_FLIP_DELAY_MS);
     return () => clearTimeout(t);
   }, []);
+=======
+// 보드에서 날아온 카드(owner 2026-10-21 "누르면 카드가 돌돌 돌아가면서 자리로")는 이미 칸에 도착했으니 아래에서 날아들기 없이 곧바로 뒤집는다.
+const ARRIVED_FLIP_DELAY_MS = 120;
+function SlotFlip({ children, arrived = false }: { children: React.ReactNode; arrived?: boolean }) {
+  const [flipped, setFlipped] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setFlipped(true), arrived ? ARRIVED_FLIP_DELAY_MS : SLOT_FLIP_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [arrived]);
+  if (arrived) return <div className={`flip-card aspect-[2/3] w-full ${flipped ? "is-flipped" : ""}`}>{children}</div>;
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
   // 날아들기(투명도 애니메이션)는 바깥 상자에 — 같은 요소에 두면 브라우저가 3D를 평평하게 그려 뒤집어도 뒷면이 보인다.
   return (
     <div className="slot-fly">
@@ -517,6 +649,38 @@ function SlotFlip({ children }: { children: React.ReactNode }) {
   );
 }
 
+<<<<<<< HEAD
+=======
+// 보드에서 누른 카드 뒷면이 두 바퀴 돌면서 칸 크기로 커지며 날아간다(0.65초). 화면에 고정된 복제본이라 보드·칸 배치에 영향 없음.
+function CardFlight({ from, to, done }: { from: DOMRect; to: DOMRect; done: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return done();
+    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
+    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    const k = to.width / from.width;
+    const a = el.animate(
+      [
+        { transform: "translate(0, 0) rotate(0deg) scale(1)" },
+        { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 40}px) rotate(360deg) scale(${(1 + k) / 2 + 0.15})`, offset: 0.55 },
+        { transform: `translate(${dx}px, ${dy}px) rotate(720deg) scale(${k})` },
+      ],
+      { duration: 650, easing: "cubic-bezier(0.3, 0.7, 0.3, 1)", fill: "forwards" },
+    );
+    a.onfinish = () => done();
+    return () => a.cancel();
+    // 한 번 날리고 끝(새 비행은 key로 새로 만든다)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div ref={ref} aria-hidden className="pointer-events-none fixed z-[60] drop-shadow-[0_0_14px_rgba(227,198,142,0.6)]" style={{ left: from.left, top: from.top, width: from.width, transformOrigin: "50% 50%" }}>
+      <CardBack className="w-full" />
+    </div>
+  );
+}
+
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
 function DrawScreen({
   copy,
   session,
@@ -537,6 +701,8 @@ function DrawScreen({
   const [picks, setPicks] = useState<PickResponse[]>([]);
   const [pending, setPending] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [flight, setFlight] = useState<{ from: DOMRect; to: DOMRect; done: () => void } | null>(null);
+  const [arrived, setArrived] = useState<number[]>([]);
   const takenSlots = picks.map((p) => p.slot);
 
   async function choose(slot: number) {
@@ -544,13 +710,33 @@ function DrawScreen({
     if (pending !== null || picks.length >= pickCount || takenSlots.includes(slot)) return;
     setPending(slot);
     setErr(null);
+    // 누르자마자 그 카드가 돌면서 칸으로 날아간다(owner 2026-10-21 — 예전엔 서버 응답을 기다리는 동안 아무 변화가 없어 멈춘 것처럼 보였다).
+    // 날아가는 동안 서버에 뽑기를 요청하고, 둘 다 끝나면 칸에서 앞면으로 뒤집는다. 무엇이 나올지는 여전히 서버만 안다.
+    const index = picks.length;
+    const fromEl = [...document.querySelectorAll<HTMLElement>(`[data-slot="${slot}"]`)].find((el) => el.getClientRects().length > 0);
+    const toEl = document.querySelector<HTMLElement>(`[data-target="${index}"]`);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let landed: Promise<void> = Promise.resolve();
+    if (fromEl && toEl && !reduce) {
+      const from = fromEl.getBoundingClientRect();
+      const to = toEl.getBoundingClientRect();
+      landed = new Promise<void>((done) => setFlight({ from, to, done }));
+    }
     try {
-      const r = await api<PickResponse>(`/api/tarot/session/${session.id}/pick`, { key: session.key, body: { shuffleId, slot } });
+      const [r] = await Promise.all([api<PickResponse>(`/api/tarot/session/${session.id}/pick`, { key: session.key, body: { shuffleId, slot } }), landed]);
       if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(10);
+      const flew = Boolean(fromEl && toEl && !reduce);
+      if (flew) setArrived((a) => [...a, index]);
+      setFlight(null);
       setPicks((p) => [...p, r]);
       onPicked();
+<<<<<<< HEAD
       await new Promise((res) => setTimeout(res, SLOT_FLIP_DELAY_MS + 650)); // 날아들기 0.4초 + 뒤집기 0.6초
+=======
+      await new Promise((res) => setTimeout(res, (flew ? ARRIVED_FLIP_DELAY_MS : SLOT_FLIP_DELAY_MS) + 650)); // 뒤집기 0.6초
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
     } catch (e) {
+      setFlight(null);
       setErr(e instanceof ApiError ? e.message : "잠시 후 다시 눌러 주세요.");
     } finally {
       setPending(null);
@@ -559,6 +745,7 @@ function DrawScreen({
 
   return (
     <div className="relative flex flex-1 flex-col items-center px-4 pb-10 pt-10">
+      {flight && <CardFlight key={`${flight.from.left}-${flight.from.top}`} {...flight} />}
       <p className="mb-5 max-w-sm text-center font-serif text-[17px] leading-relaxed text-gold-soft">
         {revealed ? copy.reveal.done : copy.pick.guide}
       </p>
@@ -576,11 +763,15 @@ function DrawScreen({
           return (
             <div key={label} className="flex flex-col items-center gap-1.5">
               <span className="text-[12px] text-gold">{label}</span>
-              <div className="flip-scene relative w-full">
+              <div className="flip-scene relative w-full" data-target={i}>
                 {p ? (
                   <div className="relative">
                     <span className="dawn-glow" aria-hidden />
+<<<<<<< HEAD
                     <SlotFlip>
+=======
+                    <SlotFlip arrived={arrived.includes(i)}>
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
                       <div className="flip-face">
                         <CardBack className="w-full" />
                       </div>

@@ -5,6 +5,8 @@
 export function safeNext(raw: string | null | undefined): string {
   if (!raw) return "/";
   if (!raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) return "/";
+  // 브라우저는 주소의 탭·줄바꿈을 지워 "/\t/evil.com"을 "//evil.com"으로 읽는다 — 제어 문자·역슬래시가 있으면 거부(아스트로와 같은 규칙)
+  if (/[\u0000-\u001f\u007f\\]/.test(raw)) return "/";
   return raw;
 }
 

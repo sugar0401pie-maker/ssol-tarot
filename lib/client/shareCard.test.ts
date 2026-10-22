@@ -25,3 +25,14 @@ test("역방향이면 돌린 그림, 모든 카드의 공유 그림 파일이 �
       assert.ok(fs.existsSync(new URL(`../../public${p}`, import.meta.url)), p);
     }
 });
+
+test("공유 이미지 글자와 SNS 글: 카드 이름·위치·사이트만", async () => {
+  const { shareImageTexts, shareMessage, shareUrl } = await import("./shareCard.ts");
+  const t = shareImageTexts({ name: "물과 뭍 사이", reversed: true, positionName: "앞으로의 열쇠" });
+  assert.equal(t.name, "물과 뭍 사이");
+  assert.equal(t.line, "내 앞으로의 열쇠 · 역방향");
+  assert.match(t.foot, /^쏠 타로 하우스 · tarot\.ssolwellnesshouse\.com$/);
+  const m = shareMessage({ kakao_title: "내 앞으로의 열쇠는 ‘{card}’", kakao_desc: "고민을 비추는 웰니스 타로,\n나도 세 장을 뽑아 보세요.", kakao_desc_decision: "x", button: "b" }, { name: "물과 뭍 사이" }, false);
+  assert.equal(m, "내 앞으로의 열쇠는 ‘물과 뭍 사이’\n고민을 비추는 웰니스 타로, 나도 세 장을 뽑아 보세요.");
+  assert.equal(shareUrl("naver_blog", "https://t.example"), "https://t.example/?utm_source=naver_blog&utm_medium=share");
+});

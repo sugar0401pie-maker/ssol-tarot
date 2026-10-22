@@ -88,16 +88,27 @@ export function CardCaption({ name, reversed, dark = false }: { name: string; re
   );
 }
 
-// 밤 화면 별가루(위치는 고정값 — 렌더마다 달라지면 화면이 깜빡이므로 Math.random을 쓰지 않음)
-const STARS = [
-  [8, 12], [22, 6], [37, 18], [55, 9], [71, 15], [88, 7], [15, 32], [47, 28], [80, 30], [93, 45],
-  [5, 55], [30, 48], [64, 42], [12, 75], [42, 70], [76, 66], [90, 82], [25, 90], [58, 86], [68, 95],
-];
+// 밤 화면 별가루. 위치는 고정 씨앗으로 만든 값이라 렌더마다 같다(Math.random을 쓰면 서버·브라우저 그림이 달라 깜빡임).
+// owner 2026-10-21: 별을 더 많이 — 20개 → 64개, 그중 일부는 조금 크게.
+const STARS: [number, number, number][] = (() => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  return Array.from({ length: 64 }, () => [Math.round(rnd() * 980) / 10, Math.round(rnd() * 980) / 10, rnd() < 0.18 ? 3 : 2]);
+})();
 export function Stars() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+<<<<<<< HEAD
       {STARS.map(([x, y], i) => (
         <span key={i} className="star" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${(i % 6) * 0.7}s`, animationDuration: `${3 + ((i * 7) % 4)}s` }} />
+=======
+      {STARS.map(([x, y, size], i) => (
+        <span
+          key={i}
+          className="star"
+          style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, animationDelay: `${(i % 9) * 0.5}s`, animationDuration: `${3 + ((i * 7) % 4)}s` }}
+        />
+>>>>>>> 497198fe5a04dc80429fd19da85609b1be61a941
       ))}
     </div>
   );

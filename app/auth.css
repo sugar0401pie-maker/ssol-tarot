@@ -1,0 +1,31 @@
+/* 로그인·가입 화면과 하단 사업자 정보 — 쏠 아스트로 하우스 app/proto.css의 같은 이름 규칙을 값 그대로 옮기고(2026-10-21 owner 요청 "아스트로 로그인 화면처럼"),
+   색만 이 사이트 것으로(cream → --moon, gold → --gold). 다른 화면 모양에 섞이지 않게 .auth / .site-foot 아래로만 둔다. */
+.auth { --cream-70: rgba(252, 239, 212, 0.72); --cream-55: rgba(252, 239, 212, 0.55); --cream-12: rgba(252, 239, 212, 0.12); line-height: 1.65; }
+.auth .big { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.5; font-weight: 700; color: var(--moon); margin: 12px 0 10px; }
+.auth .small { color: var(--cream-70); margin: 0 0 20px; }
+.auth .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 12px 28px; border-radius: 999px;
+  border: 1.5px solid var(--gold); background: var(--gold); color: var(--navy); font-weight: 700; font-size: 1rem; transition: transform 0.15s, filter 0.15s; }
+.auth .btn:hover { filter: brightness(1.06); }
+.auth .btn:active { transform: scale(0.98); }
+.auth .btn.block { display: flex; width: 100%; }
+.auth .btn.ghost { background: transparent; color: var(--moon); border-color: var(--moon); }
+.auth .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.auth .btn.kakao { background: #fee500; border-color: #fee500; color: #191919; }
+.auth .btn.naver { background: #03c75a; border-color: #03c75a; color: #fff; }
+.auth .btn svg { flex: none; }
+.auth .stack { display: grid; gap: 12px; margin-top: 24px; }
+.auth .linkish { background: none; border: 0; color: var(--cream-70); text-decoration: underline; text-underline-offset: 3px; padding: 8px 4px; font-size: 0.88rem; }
+.auth .footer-ctrl { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 36px 0 8px; border-top: 1px solid var(--cream-12); padding-top: 12px; }
+.auth .err { color: #ffd7a8; font-size: 0.86rem; margin: 6px 0 0; }
+.auth .auth-input { width: 100%; min-height: 50px; border-radius: 14px; border: 1.5px solid transparent; background: var(--moon); color: var(--navy);
+  font: inherit; padding: 10px 14px; appearance: none; -webkit-appearance: none; }
+.auth .auth-input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.auth .guide-art { display: block; width: 100%; max-width: 320px; aspect-ratio: 1 / 1; object-fit: cover; margin: 4px auto 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
+
+/* 하단 사업자 정보(아스트로 .site-foot / .intro-foot 그대로, 왼쪽 정렬) */
+.site-foot { margin: 18px 0 0; font-size: 0.72rem; line-height: 1.7; color: rgba(252, 239, 212, 0.55); text-align: left; user-select: text; -webkit-user-select: text; }
+.site-foot p { margin: 0; }
+.site-foot a { color: rgba(252, 239, 212, 0.72); text-underline-offset: 2px; }
+.site-foot .ln { margin-bottom: 4px; }
+.page-foot { padding: 20px 24px calc(28px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(252, 239, 212, 0.12); }
+.page-foot .site-foot { margin: 0; color: rgba(252, 239, 212, 0.72); }
