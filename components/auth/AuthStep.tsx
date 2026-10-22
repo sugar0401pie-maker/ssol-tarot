@@ -122,7 +122,7 @@ export default function AuthStep({
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="big" tabIndex={-1}>
+      <h1 className="big whitespace-pre-line break-keep" tabIndex={-1}>
         {mode === "signup" ? "계정 만들기" : mode === "reset" ? "비밀번호 찾기" : title ?? "결과를 저장하고 보려면 로그인해 주세요."}
       </h1>
       {/* 안내말은 문장마다 줄을 바꿔 보여 준다(owner 2026-10-10 — DB 문장은 그대로, 화면에서만 줄바꿈) */}
