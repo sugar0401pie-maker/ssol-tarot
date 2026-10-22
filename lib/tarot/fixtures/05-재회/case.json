@@ -1,0 +1,39 @@
+{
+ "key": "05-재회",
+ "name": "서연",
+ "worry": "헤어진 지 석 달 됐어요. 제가 먼저 그만 만나자고 했는데 요즘 자꾸 그 사람 생각이 나요. 다시 연락해 볼까 고민인데, 괜히 연락했다가 또 같은 일로 다툴까 봐 겁나요.",
+ "ai": {
+  "domain": "LOV",
+  "emotions": [
+   "GRI",
+   "ANX"
+  ],
+  "need": "CONNECT",
+  "duration": "recent",
+  "locus": "self",
+  "urgency": "none",
+  "qtype": "yesno",
+  "qsub": "YN-EXCONTACT",
+  "self_focus": false,
+  "crisis_level": "none",
+  "violence": false,
+  "fear": false,
+  "off_topic": false,
+  "confidence": 0.85
+ },
+ "picks": [
+  {
+   "id": "new_shell",
+   "reversed": true
+  },
+  {
+   "id": "moon_drift",
+   "reversed": false
+  },
+  {
+   "id": "pearl",
+   "reversed": true
+  }
+ ],
+ "note": "v4.1 예시(가상, 손으로 작성). A2 = 고민 틀 v4.6 형식(table reunion, mode axis), C·D·E = v4 규칙에 맞춰 손으로 작성. demo_pipeline.mjs가 retrieve 색인으로 few-shot 입력과 두 번째 의견까지 재현."
+}

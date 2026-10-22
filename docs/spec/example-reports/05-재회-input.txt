@@ -1,0 +1,126 @@
+# 고민 원문
+헤어진 지 석 달 됐어요. 제가 먼저 그만 만나자고 했는데 요즘 자꾸 그 사람 생각이 나요. 다시 연락해 볼까 고민인데, 괜히 연락했다가 또 같은 일로 다툴까 봐 겁나요.
+
+# AI 분류 결과
+{"domain":"LOV","emotions":["GRI","ANX"],"need":"CONNECT","duration":"recent","locus":"self","urgency":"none","qtype":"yesno","qsub":"YN-EXCONTACT","self_focus":false,"crisis_level":"none","violence":false,"fear":false,"off_topic":false,"confidence":0.85}
+
+# 안전 확인
+{"level":"none","violence":false,"fear":false,"matched":[]}
+
+# 뽑은 카드(순서 = 자리)
+지나온 길: 새 집으로 이사 (역방향) → 지금의 흐름: 달빛 아래 떠다니기 → 앞으로의 열쇠: 진주를 품는 힘 (역방향)
+
+# [고민 제출 직후] A2 사용자 입력(비슷한 정답 5개 + 이번 고민)
+[비슷한 고민의 정답 예시 — 점수표 고르기와 선택지 순서만 참고합니다. 선택지·질문의 낱말은 이번 고민 원문에서 가져옵니다]
+아래 예시는 점수표·줄 세우기 방식을 보여 주는 것입니다. 선택지 문구는 따라 쓰지 말고 이번 고민 원문의 말로 쓰세요.
+<example n="1">
+<worry>헤어진 지 석 달 됐는데 아직도 생각나.. 언제 잊혀?</worry>
+<answer>{"table":"newlove","mode":"axis","options_ranked":["새로운 만남에 나서기","지금은 나에게 집중하기"]}</answer>
+</example>
+<example n="2">
+<worry>사귄 지 석 달 됐어요. 그 사람은 아직 SNS에 연애한다는 티를 하나도 안 내는데 저는 소프트 런칭이라도 하고 싶어요. 제가 먼저 올리면 그 사람이 불편해할까요? 괜히 서운한 티 내는 것 같아서 말도 못 꺼냈어요.</worry>
+<answer>{"table":"progress","mode":"axis","options_ranked":["한 걸음 나아가기","지금 단계 유지·더 지켜보기"]}</answer>
+</example>
+<example n="3">
+<worry>헤어진 지 두 달이에요. 제가 고칠 건 고치고 먼저 연락해 보려고 하는데, 그 사람 쪽에서 연락 올 타이밍이 있을까요? 기다리지만 말고 제가 움직여 보려고요.</worry>
+<answer>{"table":"reunion","mode":"axis","options_ranked":["다시 연락·받아주기·재회 시도","연락하지 않고 정리"]}</answer>
+</example>
+<example n="4">
+<worry>모임에서 처음 본 분이랑 단둘이 커피를 마셨어요. 대화가 잘 통해서 저는 또 보고 싶은데 그쪽은 어떤지 모르겠어요. 제가 먼저 연락해서 만나자고 하면 부담스러워할까요? 원래 먼저 다가가는 걸 잘 못해서 용기가 안 나요.</worry>
+<answer>{"table":"approach","mode":"axis","options_ranked":["먼저 연락·표현·질문·다가가기","연락을 멈추거나 기다리기"]}</answer>
+</example>
+<example n="5">
+<worry>같은 이유로 세 번 헤어졌어요. 이번에 또 다시 만나자고 연락이 왔는데, 다시 만나면 이번엔 다를까요?</worry>
+<answer>{"table":"reunion","mode":"axis","options_ranked":["다시 만나기","연락 받지 않고 정리"]}</answer>
+</example>
+
+[이번 고민 — 이 글의 고민 틀을 출력 형식대로 정리합니다]
+<worry>헤어진 지 석 달 됐어요. 제가 먼저 그만 만나자고 했는데 요즘 자꾸 그 사람 생각이 나요. 다시 연락해 볼까 고민인데, 괜히 연락했다가 또 같은 일로 다툴까 봐 겁나요.</worry>
+
+# 비슷한 정답(점수)
+Q2-042 newlove 0.178 — 헤어진 지 석 달 됐는데 아직도 생각나.. 언제 잊혀?
+Q2-179 progress 0.160 — 사귄 지 석 달 됐어요. 그 사람은 아직 SNS에 연애한다는 티를 하나도 안 내는데 저는 소프트 런칭이라도 하고 싶어요. 제가 먼저 올리면 그 사람이 불편해할까요? 괜히 서운한 티 내는 것 같아서 말도 못 꺼냈어요.
+Q2-016 reunion 0.132 — 헤어진 지 두 달이에요. 제가 고칠 건 고치고 먼저 연락해 보려고 하는데, 그 사람 쪽에서 연락 올 타이밍이 있을까요? 기다리지만 말고 제가 움직여 보려고요.
+Q1-096 approach 0.117 — 모임에서 처음 본 분이랑 단둘이 커피를 마셨어요. 대화가 잘 통해서 저는 또 보고 싶은데 그쪽은 어떤지 모르겠어요. 제가 먼저 연락해서 만나자고 하면 부담스러워할까요? 원래 먼저 다가가는 걸 잘 못해서 용기가 안 나요.
+Q2-125 reunion 0.112 — 같은 이유로 세 번 헤어졌어요. 이번에 또 다시 만나자고 연락이 왔는데, 다시 만나면 이번엔 다를까요?
+
+# A2 고민 틀 v4.6(검증 통과)
+{
+ "table": "reunion",
+ "decision_source": "explicit",
+ "mode": "axis",
+ "rank_reason": null,
+ "worry_type": "decision",
+ "options_ranked": [
+  "다시 연락해 보기",
+  "연락하지 않고 정리하기 (암시)"
+ ],
+ "core_question": "그 사람에게 다시 연락해 봐도 될까요?",
+ "hidden_question": "다시 만나도 같은 일로 다투지 않을 수 있을까요?",
+ "deadline": null,
+ "duration": "석 달",
+ "money": false,
+ "user_words": [
+  "헤어진 지 석 달 됐어요",
+  "요즘 자꾸 그 사람 생각이 나요",
+  "또 같은 일로 다툴까 봐 겁나요"
+ ],
+ "confidence": "high",
+ "options": [
+  "다시 연락해 보기",
+  "연락하지 않고 정리하기 (암시)"
+ ],
+ "option_axis": {
+  "move": "다시 연락해 보기",
+  "stay": "연락하지 않고 정리하기 (암시)"
+ }
+}
+
+# 두 번째 의견
+유사도 투표 1순위 표 'reunion'(비율 0.35) = A2 표 'reunion' → 그대로
+
+# 방향 계산(decision.lean, 점수표 reunion, mode axis)
+{
+ "table": "reunion",
+ "side": "move",
+ "strength": "clear",
+ "score": 2,
+ "mode": "axis",
+ "pick": 0,
+ "with_condition": false,
+ "conclusion": "다시 연락해 보기",
+ "option": "다시 연락해 보기",
+ "other": "연락하지 않고 정리하기",
+ "cards": [
+  {
+   "position": "지나온 길",
+   "score": 1,
+   "weight": 1,
+   "meaning": "아직 끝나지 않은 마음이 남아 있다는 카드"
+  },
+  {
+   "position": "지금의 흐름",
+   "score": -1,
+   "weight": 1,
+   "meaning": "오해와 불확실함이 큰 카드"
+  },
+  {
+   "position": "앞으로의 열쇠",
+   "score": 1,
+   "weight": 2,
+   "meaning": "감정이 앞서도 마음을 추스르면 다시 다가가 볼 만한 상태"
+  }
+ ]
+}
+
+# C 검증
+통과 (teaser·reasons 사용)
+
+# D 검증
+통과
+
+# E 검증
+통과
+
+# 말투를 못 바꾼 문장 끝(확인용)
+["않은 상태를 비춥니다."," 보는 쪽이 맞습니다.","람의 답에서 드러나요."]

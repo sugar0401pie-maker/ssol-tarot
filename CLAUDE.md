@@ -4,7 +4,7 @@
 
 쏠 웰니스 하우스의 세 번째 웰니스 테스트. `tarot.ssolwellnesshouse.com`에서 서비스한다.
 개발 기준: `docs/spec/tarot-master-spec.md`(마스터 스펙) > `data/tarot_data.json` > `docs/design/design-guide.md`.
-**v4.0부터 최신 문장은 `data/tarot_data.json`**이다. `db/쏠타로_문장DB.xlsx`는 v4 데이터보다 오래돼서 **지금 반영하면 안 된다**(미리보기: 187줄이 옛 문장으로 되돌아가고 경고 2·빠진 ID 24). owner가 엑셀을 v4에 맞춰 다시 만들기 전까지 `import_db.py`를 실행하지 않는다. 그때까지 `data/tarot_data.json`도 손으로 고치지 않는다(owner 패키지로만 교체).
+**v4.0부터 최신 문장은 `data/tarot_data.json`**이다(v4.1 반영 2026-10-22). `db/쏠타로_문장DB.xlsx`는 v4 데이터보다 오래돼서 **지금 반영하면 안 된다**(미리보기: 187줄이 옛 문장으로 되돌아가고 경고 2·빠진 ID 24). owner가 엑셀을 v4에 맞춰 다시 만들기 전까지 `import_db.py`를 실행하지 않는다. 그때까지 `data/tarot_data.json`도 손으로 고치지 않는다(owner 패키지로만 교체).
 owner 프로젝트 노트: `docs/project-note.md`. 출시 전 할 일: `docs/05_다음단계.md`.
 
 ## 0. 우선순위
@@ -29,7 +29,7 @@ owner는 개발자가 아니다. 큰 변경마다 (1) 무엇을·왜 바꾸는�
 ## 4. 안전 (스펙 6장)
 - 서버 키워드(`lib/tarot/safety.js`의 `screenText`) + AI 분류(`crisis_level`, `violence`)를 `mergeSafety`로 합쳐 **항상 높은 쪽**.
 - urgent면 카드로 넘어가지 않고 안전 안내 화면. 결제 화면도 보이지 않는다. 셔플·뽑기 도중 AI가 urgent를 주면 그 자리에서 전환.
-- v4: 주의(watch) 단계는 삭제(owner 결정 S2). violence(구체 행동)·fear(관계 속 두려움)면 결과 1쪽에 안내 박스. violence면 다가가기 실천·처방 제외(`filterPractices`, `prescriptionsFor`).
+- v4.1(CSO 2026-10-22, owner가 그대로 따르기로 함): urgent = 죽음에 대한 직접 표현·자해 행동·작별 준비만 → 카드 멈춤. **watch 부활** = 소극적 표현(사라지고 싶다·살 이유를 모르겠다·다 끝내고 싶다 등) → 결과·방향·결제 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄(`fineprint`). violence(구체 행동 — 남이 하는 협박 포함)면 방향 끔 + 상담센터·경찰서 안내 박스, 다가가기 실천·처방 제외(`filterPractices`, `prescriptionsFor`). fear(무섭다·물건 던지기·벽 치기)면 안내 박스 + 방향 계산.
 - AI 실패·데이터 누락 시 더 조심스러운 쪽으로(분류 실패 → 미작성 모드처럼 해석, 연결 한 줄 실패 → 그 줄 없이).
 - 안전 로직 테스트를 지우거나 느슨하게 만들어 빌드를 통과시키지 않는다.
 
@@ -84,3 +84,4 @@ owner는 개발자가 아니다. 큰 변경마다 (1) 무엇을·왜 바꾸는�
 - **2026-10-22 — 잠긴 쪽 예고 문구 교체(owner가 Claude 초안 중 추천안 선택).** 5쪽 "지나온 길이 지금의 나에게 어떻게 이어졌는지, 세 장이 한 편의 이야기로 들려줘요" · 6쪽 "카드가 읽어 낸 나의 성향, 그리고 내 고민 속 진짜 장면" · 9쪽 "내 고민에 꼭 맞춘 웰니스 처방 두 가지" · 10쪽 "오늘 바로, 3일 안에, 이번 주 안에 — 내가 해 볼 작은 실천 세 장" · 11쪽 "남은 이야기는 쏘웰라와 이어서 나눠 보세요 — 3일 무료 대화"(데이터 `pages[].teaser`·옛 sections 목록 + 원본 테스트 기대값).
 - **2026-10-22 — 고민 쓰기 예시 문구를 연애·이직 고민으로만 교체(owner).** 10-21에는 순서만 바꿔 연애 → 회사 문장이 먼저 뜨게 했는데, owner 요청은 예시 자체를 연애·이직류로 바꾸는 것이었다. `copy.worry.placeholder_examples` 6개를 연애·이직 번갈아(썸·이직 시기·재회("헤어진 연인과 다시 만날 수 있을까요?…", owner 10-22 요청으로 재회를 분명히)·이직 준비·결혼 상대·합격 회사 두 곳)로 바꿈(데이터 + `db/build_data.py`, 문장은 Claude 초안). '운'·'예언' 같은 점술 표현은 제품 원칙상 쓰지 않음. 분류기 예시(`worry_examples.json`)는 그대로.
 - **2026-10-22 — 닉네임 입력 전에 항상 로그인 화면(owner).** 예전엔 이미 로그인된 사람(쏘웰라·아스트로와 같은 계정 쿠키 포함)은 [타로 보기]에서 로그인 화면을 건너뛰고 바로 닉네임 화면으로 갔다. 이제 [타로 보기]는 항상 `/login?next=/?start=1`로 가고, 로그인돼 있으면 로그인 폼 대신 "지금 {이메일} 계정으로 로그인되어 있어요" + [이 계정으로 계속하기] / '다른 계정으로 로그인하기'(로그아웃 후 폼)를 보여 준다. 카카오·네이버 로그인을 막 마치고 돌아온 경우(`?via=oauth`, oauthRedirect에 붙임)는 확인 없이 바로 넘어간다. 로그인 제목 줄바꿈 "빠르게 로그인하고\n내 타로를 확인해볼까요?"(결과 쪽도 같은 방식), 제목은 `whitespace-pre-line break-keep`.
+- **2026-10-22 — owner 패키지 v4.1 반영(자연어 고민 판별 정확도·안전 단계, CSO 결정) + owner 결정 3가지.** 코드(`lib/tarot/*.js`, 새 `retrieve.js`·`frameInput.js`, 테스트 72개)·데이터(`decision_tables.json` 점수표 10개, `worry_examples.json`)·문서·판별 DB(`judge-db/`, 엑셀 v0.3·v0.4)를 교체. `tarot_data.json`은 v4.0 → v4.1 바뀐 곳(안전 키워드·안내 문구·watch 안내)만 우리 사본에 옮겼다(owner가 지금까지 바꾼 문구 49곳과 겹치는 곳 0 — 3-way 비교). 원본 테스트 기대값·경로 수정도 같은 방식으로 다시 적용. 프롬프트는 `scripts/sync_prompts.py --write`로 문서 원문 그대로(A·A2 v4.6·E가 바뀜). 흐름: 고민 제출 → 판별 DB 정답 490건에서 비슷한 고민 5개를 찾아 A2 입력에 붙이고(`lib/server/frameExamples.ts`, 글자 n-그램, AI 추가 호출 없음) 그 5개의 투표를 `tarot_sessions.frame_vote`에 저장 → 3장째 `decide()`가 `pickTable(safety)`·`isDecisionFrame`·`afterFrame`(두 번째 의견: 표가 다르고 비율 ≥ 0.6이면 강도만 한 단계 낮춤)로 방향 계산 → 결과·리포트도 같은 계산. watch면 마지막 쪽 `fineprint`(결제 전에도). **owner 결정**: ① 안전 단계는 CSO 결정 그대로("한 번 적은 문장만으로 판별하는 테스트라 여러 번 대화하는 쏘웰라와 기준이 같을 수 없다") — 우리 안전 테스트(`screenWorry.test.ts`)를 새 기준으로 고침. ② 두 번째 의견 기록은 **고민 원문과 함께** `tarot_frame_reviews`에 저장(서버 전용, 결과 삭제 시 같이 삭제, `status`·`reviewer_note`는 owner가 표 편집기에서). ③ 판별 DB는 엑셀로 검사·수정 → `scripts/judge_db_frame_gold.py <엑셀> [--write]`가 '고민 틀 정답(T6)' 시트를 `judge-db/data/frame_gold_v1.jsonl`로(미리보기·경고 있으면 안 씀, v0.4로 490줄 완전 일치 확인). 엑셀의 다른 시트(안전 신호·새 고민 글 등)는 평가용이라 서비스에 직접 쓰이지 않고, 안전 키워드는 여전히 패키지 `tarot_data.json`으로 바뀐다. **마이그레이션 `20261022000000_tarot_v41_frame_review.sql` owner 실행 필요** — 실행 전에도 동작한다(frame_vote 칸 없으면 빼고 저장 → 두 번째 의견·검수 기록만 빠짐). 같은 날 GitHub Desktop 병합이 충돌 표시(`<<<<<<<`)를 그대로 커밋해 Vercel 빌드가 실패했던 것(7e8ca88)은 내용 차이가 충돌 표시뿐이라 우리 파일로 병합(`-s ours`)해 고침.

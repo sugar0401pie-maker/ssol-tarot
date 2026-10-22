@@ -1,4 +1,7 @@
-// 쏠 타로 고민 분류 평가기 v0.1 (Node 18+, 외부 패키지 없음)
+// 쏠 타로 고민 분류 평가기 v0.2 (Node 18+, 외부 패키지 없음)
+//   v0.2(패키지 v4.1, 2026-10-22): 안전 정답은 data/worry_examples_v2.jsonl의 crisis_level·violence(CSO 2026-10-22 새 기준)가 원천.
+//     T1·T5처럼 같은 id가 있는 세트는 이 정답으로 덮어써서 잼(T2는 02_데이터/worry_examples.json의 정답으로). keyword 모드 맨 앞에 [DB] = worry_examples_v2 전체(1,432).
+//     T4(쏘웰라 위기 문장)는 v2.10 옛 기준 정답 그대로(사라지고 싶다·안 깼으면도 urgent) — 새 기준으로는 참고만.
 //   node run_eval.mjs keyword                         키워드 안전 확인만(모델 없이) — 안전 놓침·오탐
 //   node run_eval.mjs model ./model_adapter_example.mjs [세트 접두사 T1,T2…] [최대 문항]
 //                                                     분류 프롬프트 A로 실제 모델 호출 → eval/preds_<시각>.jsonl
@@ -15,8 +18,13 @@ const { validateClassification } = await import(path.join(ROOT, "03_코드/selec
 const data = JSON.parse(fs.readFileSync(path.join(ROOT, "02_데이터/tarot_data.json"), "utf8"));
 const readJsonl = (f) => fs.readFileSync(f, "utf8").trim().split("\n").filter(Boolean).map((l) => JSON.parse(l));
 const SETS = fs.readdirSync(path.join(here, "eval")).filter((f) => /^T\d.*\.jsonl$/.test(f)).sort();
+const DB_FILE = path.join(here, "data/worry_examples_v2.jsonl");
+const DB = fs.existsSync(DB_FILE) ? readJsonl(DB_FILE) : [];
+const LEGACY = path.join(ROOT, "02_데이터/worry_examples.json"); // T2(기존 60)의 새 기준 정답(v4.1에서 SAFE-01·02 고침)
+const DBG = Object.fromEntries([...(fs.existsSync(LEGACY) ? JSON.parse(fs.readFileSync(LEGACY, "utf8")).examples.filter((x) => x.crisis_level) : []), ...DB].map((x) => [x.id, x])); // 새 기준 안전 정답
+const withGold = (x) => (DBG[x.id] && "crisis_level" in x ? { ...x, crisis_level: DBG[x.id].crisis_level, violence: DBG[x.id].violence } : x);
 const loadSets = (only) => SETS.filter((f) => !only || only.split(",").some((p) => f.startsWith(p)))
-  .flatMap((f) => readJsonl(path.join(here, "eval", f)).map((x) => ({ ...x, set: f.split("_")[0] })));
+  .flatMap((f) => readJsonl(path.join(here, "eval", f)).map((x) => ({ ...withGold(x), set: f.split("_")[0] })));
 
 function systemPrompt() {
   const md = fs.readFileSync(path.join(ROOT, "01_설계/ai-prompts-tarot-v2.md"), "utf8");
@@ -47,11 +55,23 @@ function safetyReport(rows, getFinal) {
 const mode = process.argv[2];
 if (mode === "keyword") {
   const rows = loadSets(process.argv[3]);
-  console.log(`키워드 안전 확인만 — ${rows.length}문항 (AI 없이)`);
+  console.log(`키워드 안전 확인만 — ${rows.length}문항 (AI 없이) · 정답 = worry_examples_v2 새 기준(CSO 2026-10-22)`);
+  if (DB.length && !process.argv[3]) {
+    console.log(`[DB] worry_examples_v2 전체 ${DB.length} (urgent ${DB.filter((x) => x.crisis_level === "urgent").length} · watch ${DB.filter((x) => x.crisis_level === "watch").length})`);
+    const r = safetyReport(DB, (x) => screenText(x.text, data.safety_keywords));
+    if (r.urgent_miss.length || r.false_stop.length) console.log("   ✗ 위험 놓침/잘못 멈춤:", JSON.stringify({ 위험놓침: r.urgent_miss, 잘못멈춤: r.false_stop }));
+    console.log(`   주의 놓침 ${r.watch_miss.length}개는 AI 분류가 맡음(키워드로 다 잡지 않음)`);
+  }
   for (const s of [...new Set(rows.filter((x) => "crisis_level" in x).map((x) => x.set))]) {
     console.log(`[${s}]`);
     safetyReport(rows.filter((x) => x.set === s && ("crisis_level" in x)), (x) => screenText(x.text, data.safety_keywords));
+    if (s === "T4") { // 옛 기준 urgent가 새 키워드에서 어디로 가는지(새 기준: 소극적 표현 → watch)
+      const c = { urgent: 0, watch: 0, none: 0 };
+      rows.filter((x) => x.set === s && x.crisis_level === "urgent").forEach((x) => c[screenText(x.text, data.safety_keywords).level]++);
+      console.log(`  (옛 기준 urgent ${c.urgent + c.watch + c.none}개 → 새 키워드 urgent ${c.urgent} · watch ${c.watch} · none ${c.none})`);
+    }
   }
+  console.log("※ T4는 v2.10 옛 기준 정답(소극적 표현도 urgent)이라 새 기준 키워드로는 위험 놓침이 많게 나옵니다 — 새 기준 판단은 [DB]·T1을 보세요.");
   console.log("※ 키워드는 보조 장치입니다. 놓친 것은 AI 분류가 잡아야 하고, 최종 합격은 score(키워드+AI 합침)로 봅니다.");
 } else if (mode === "model") {
   const adapter = await import(path.resolve(process.argv[3]));

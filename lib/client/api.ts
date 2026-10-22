@@ -69,6 +69,8 @@ export type ResultPage = {
   free?: string;
   teaser?: string;
   blur?: string | null;
+  // v4.1 watch(주의): 마지막 쪽 맨 아래 작은 글씨 한 줄("※ …"). 결제 전에도 온다.
+  fineprint?: string;
   next?: string | null;
   back?: string | null;
 };

@@ -15,6 +15,7 @@ import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
+import { frameCall, type FrameVote } from "./frameExamples";
 import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E_SYSTEM, REVIEW_SYSTEM, reviewUserMessage, worryUserMessage } from "./prompts";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
@@ -39,6 +40,8 @@ type SessionRow = {
   fear?: boolean;
   // v4 A2 고민 틀(사용자 원문 구절 포함 — 원문과 같은 수준으로 다룸)
   frame?: unknown;
+  // v4.1 비슷한 정답 5개의 투표(두 번째 의견용). 마이그레이션 20261022000000 전에는 없을 수 있음.
+  frame_vote?: FrameVote | null;
   current_shuffle_id: string | null;
   reshuffle_count: number;
   picked_slots: number[];
@@ -85,12 +88,21 @@ export async function loadSession(id: string, auth: { key: string | null; userId
 async function update(id: string, patch: Partial<SessionRow>) {
   const write = (p: Partial<SessionRow>) => db().from("tarot_sessions").update({ ...p, updated_at: new Date().toISOString() }).eq("id", id);
   let { error } = await write(patch);
+  // v4.1 칸(frame_vote) 마이그레이션 전이면 그 칸만 빼고 다시 쓴다(두 번째 의견만 빠짐).
+  if (error && /frame_vote/.test(error.message) && "frame_vote" in patch) {
+    console.warn("tarot_sessions.frame_vote 칸 없음(마이그레이션 20261022000000 실행 필요) — 그 칸 없이 저장");
+    const rest: Partial<SessionRow> = { ...patch };
+    delete rest.frame_vote;
+    patch = rest;
+    ({ error } = await write(rest));
+  }
   // v4 칸(frame·fear) 마이그레이션 전이면 그 칸만 빼고 다시 쓴다 — 결과가 멈추지 않게(이때는 비결정형 경로로 동작).
   if (error && /frame|fear/.test(error.message) && ("frame" in patch || "fear" in patch)) {
     console.warn("tarot_sessions v4 칸 없음(마이그레이션 20261020000000 실행 필요) — 그 칸 없이 저장");
     const rest: Partial<SessionRow> = { ...patch };
     delete rest.frame;
     delete rest.fear;
+    delete rest.frame_vote;
     ({ error } = await write(rest));
   }
   if (error) {
@@ -188,16 +200,19 @@ export async function runClassification(sessionId: string) {
   const worry = row?.worry_text as string | null;
   if (!worry) return;
   const msg = worryUserMessage(worry);
+  // v4.1: A2 사용자 입력에 비슷한 고민의 정답 5개를 붙이고(few-shot), 같은 5개의 투표를 두 번째 의견용으로 저장한다.
+  const fc = frameCall(worry);
   const [cls, frame] = await Promise.all([
     tryTwice("고민 분류(A)", async () => parseClassification(await generateText(CLASSIFY_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data)),
     tryTwice("고민 틀(A2)", async () => {
-      const r = parseFrame(await generateText(FRAME_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
+      const r = parseFrame(await generateText(FRAME_SYSTEM, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
       // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
       if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
       return r.frame;
     }),
   ]);
-  // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety, v4: watch 없음). 분류에 실패해도 키워드 결과는 유지.
+  // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety — v4.1: none < watch < urgent, CSO 2026-10-22).
+  // urgent만 카드를 멈추고, watch는 결과 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄. 분류에 실패해도 키워드 결과는 유지.
   const merged = mergeSafety(screenWorry(worry), cls);
   const patch: Partial<SessionRow> = {
     classification: cls,
@@ -206,9 +221,21 @@ export async function runClassification(sessionId: string) {
     violence: merged.violence,
     fear: merged.fear,
     frame,
+    frame_vote: fc.vote,
   };
   if (merged.level === "urgent") patch.result_status = "safety";
   await update(sessionId, patch);
+}
+
+// v4.1 두 번째 의견이 A2와 다를 때의 검수 대기 기록(README_v4 '운영 로그'). owner 결정(2026-10-22): 고민 원문도 함께 저장.
+// 서버 전용 표(tarot_frame_reviews) — 로그에는 남기지 않는다. 저장 실패해도 결과는 그대로 진행(검수 기록만 빠짐).
+async function saveFrameReview(s: SessionRow, reviewLog: Record<string, unknown>, lowered: boolean) {
+  if (!s.worry_text) return;
+  const { error } = await db().from("tarot_frame_reviews").upsert(
+    { session_id: s.id, user_id: s.user_id, worry_text: s.worry_text, frame: s.frame ?? null, vote: s.frame_vote ?? null, review_log: { ...reviewLog, worry_id: s.id }, lowered },
+    { onConflict: "session_id", ignoreDuplicates: true },
+  );
+  if (error) console.warn("고민 틀 검수 기록 저장 실패:", error.message);
 }
 
 // ---------- 3. 셔플 ----------
@@ -318,7 +345,8 @@ export async function prepareResult(sessionId: string) {
   const cls = classificationForReport(s.classification);
   if (s.worry_text && aiConfigured()) {
     const picks = expandPicks(s.picks);
-    const { decision, lean } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname });
+    const { decision, lean, review_log, lowered } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null });
+    if (review_log) await saveFrameReview(s, review_log, lowered);
     const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean });
     // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7). 무료 결과에는 검수를 하지 않는다(owner 2026-10-21 비용 — 검수는 유료 1번만).
     const deadline = Date.now() + 12000;
@@ -385,7 +413,7 @@ export async function getResult(s: SessionRow) {
   const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
   const frame = s.frame ?? null;
   // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
-  const { lean, decision } = decide({ frame, cls, picks, name: s.nickname });
+  const { lean, decision } = decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null });
   if (paid) {
     const rep = (s.report ?? null) as { sa?: unknown; E?: unknown } | null;
     const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null });
@@ -534,7 +562,7 @@ export async function generateReport(sessionId: string) {
     if (s.worry_text && cls && aiConfigured()) {
       const picks = expandPicks(s.picks);
       const frame = s.frame ?? null;
-      const { lean } = decide({ frame, cls, picks, name: s.nickname });
+      const { lean } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null });
       // 분류가 실패했으면 폭력 여부를 모르므로 더 조심스러운 쪽(violence=true)으로(스펙 6장 fail safe)
       const violence = s.violence || s.classification_status === "failed";
       const safety = { level: s.safety_level, violence, fear: Boolean(s.fear) };

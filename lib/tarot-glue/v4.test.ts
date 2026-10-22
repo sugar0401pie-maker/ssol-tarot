@@ -28,7 +28,45 @@ test("도현님(이직 결정형): 방향이 '현재 회사에 남기'로 계산
 });
 
 test("고민 틀이 없으면 비결정형", () => {
-  assert.deepEqual(decide({ frame: null, cls: cs.ai, picks, name: cs.name }), { decision: false, lean: null });
+  assert.deepEqual(decide({ frame: null, cls: cs.ai, picks, name: cs.name }), { decision: false, lean: null, review_log: null, lowered: false });
+});
+
+test("v4.1: 고민 틀 v4.6(options_ranked·mode)도 같은 방향, 폭력 확인이면 방향을 끈다", () => {
+  const f46 = parseFrame(readJ("A2_out_v46.json")).frame;
+  const d = decide({ frame: f46, cls: cs.ai, picks, name: cs.name });
+  assert.equal(d.decision, true);
+  assert.equal(d.lean?.side, "stay");
+  assert.equal(d.lean?.mode, "axis");
+  assert.equal(decide({ frame: f46, cls: cs.ai, picks, name: cs.name, safety: { violence: true } }).decision, false);
+});
+
+test("v4.1 두 번째 의견: 비슷한 정답들의 표가 다르고 비율 ≥ 0.6이면 강도만 한 단계 낮추고 검수 기록을 남긴다", () => {
+  const base = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const same = decide({ frame, cls: cs.ai, picks, name: cs.name, vote: { table: frame.table, share: 1, top_score: 0.5 } });
+  assert.equal(same.lean?.strength, base.lean?.strength);
+  assert.equal(same.review_log, null);
+  const other = decide({ frame, cls: cs.ai, picks, name: cs.name, vote: { table: "start", share: 0.8, top_score: 0.5 } });
+  assert.equal(other.lean?.side, base.lean?.side); // 쪽·선택지는 그대로
+  assert.equal(other.lean?.option, base.lean?.option);
+  const LOWER: Record<string, string> = { strong: "clear", clear: "slight", slight: "slight" };
+  assert.equal(other.lean?.strength, LOWER[base.lean!.strength]);
+  assert.equal(other.review_log?.sim_table, "start");
+  // 비율이 낮으면 강도는 그대로, 기록만
+  const weak = decide({ frame, cls: cs.ai, picks, name: cs.name, vote: { table: "start", share: 0.4, top_score: 0.5 } });
+  assert.equal(weak.lean?.strength, base.lean?.strength);
+  assert.equal(weak.lowered, false);
+  assert.equal(weak.review_log?.below_min_share, true);
+});
+
+test("v4.1 주의(watch): 결제 전 응답에도 마지막 쪽 109 안내 한 줄(fineprint)이 실린다", () => {
+  const watch = { level: "watch" as const, violence: false, fear: false };
+  const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
+  const pages = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety: watch, worryText: cs.worry, frame, lean, C: null }));
+  const last = pages[pages.length - 1];
+  assert.match(String(last.fineprint), /109/);
+  assert.equal(pages.filter((p) => p.fineprint).length, 1);
+  const none = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null }));
+  assert.equal(none.some((p) => p.fineprint), false);
 });
 
 test("C 입력에 고민 틀과 방향이 들어가고, 미작성이면 null", () => {

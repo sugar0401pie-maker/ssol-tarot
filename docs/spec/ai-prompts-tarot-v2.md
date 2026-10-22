@@ -1,5 +1,7 @@
 # 쏠 타로 하우스 — AI 프롬프트 v3.0
 
+> v4.1(2026-10-22): A-2의 [안전 판단]을 CSO 2026-10-22 기준으로 고침 — urgent는 죽음에 대한 직접 표현·자해 행동·작별 준비만, 소극적 표현은 watch(결과 그대로 + 마지막 쪽 안내 한 줄), 관계를 끝낸다는 "다 끝낼 거예요"는 none(예시 추가), violence는 구체 행동만·물건 던지기/무섭다는 fear(출력에 fear 칸 추가).
+
 > AI는 세 곳에서만 짧게 씁니다. 모두 저비용 모델입니다.
 > ① **고민 분류**(A, 고민 제출 직후) ② **카드별 고민 연결 한 줄**(C, 3장째를 뽑는 순간) ③ **세 장이 함께 들려주는 이야기 + 내 고민에 대어 보면**(D, 결제 후).
 > **v3.2 변경(2026-10-20)**: D의 story는 첫·두 번째 카드(그동안의 행동 → 지금의 작용), 세 번째 카드는 새 칸 `key`(7쪽). apply는 그동안 붙들어 온 고민 + 예시 장면, 성향은 서버가 DB로 붙임.
@@ -174,21 +176,26 @@ qsub (v2.11, 연애 고민일 때만 — 아니면 null): 아래 세부 유형 �
 - duration·locus·urgency는 글에 직접 드러난 것만 봅니다. 짐작하지 않고, 애매하면 recent·self·none.
 - 의미 없는 글, 장난, 테스트 문장이면 off_topic=true로 두고 나머지는 가장 가까운 값으로 채웁니다.
 
-[안전 판단 — 애매하면 높은 쪽]
+[안전 판단 — 애매하면 높은 쪽] (v4.1 · CSO 2026-10-22 기준)
 crisis_level:
-- "urgent": 죽고 싶다, 사라지고 싶다, 자해, 삶을 끝내는 생각이나 계획이 직접·간접적으로 드러남
-  (간접 표현 예: 아침에 안 깼으면, 영원히 잠들고 싶다, 제가 없으면 다들 편할 거예요, 살 이유가 없다, 마지막 인사·편지를 써 뒀다,
-  "안 되면 다 끝낼 거예요"). 이별·실직·시험 뒤에 나와도 같습니다. 지금 없는 목소리가 들림·감시당한다는 확신,
-  약을 한꺼번에 먹음도 urgent.
-- "watch": 극심한 무기력·절망, 며칠째 잠을 못 잠·못 먹음·출근 못 함·방에만 있음, 아무도 없다는 고립감,
-  "앞으로도 절대 안 바뀔 거예요" 같은 절망 확신, 술 없이는 못 버팀, 극단적으로 굶거나 먹고 토함처럼 많이 힘든 상태가 드러남
-- "none": 그 외. 관용 표현은 위기로 보지 않습니다("배고파 죽겠어", "웃겨 죽는 줄", "사라지고 싶을 만큼 창피했어요ㅋㅋ",
-  "다 끝내고 싶은 건 이 연애예요"). 단, 관용 표현 뒤에 며칠째 못 먹음·출근 못 함 같은 신호가 붙으면 watch.
-violence (true/false): 신체 폭력, 협박, 물건 던지기, 휴대폰 검사·위치 강요·사람을 못 만나게 하기 같은 통제,
-스토킹, 상대가 무섭다는 표현이 있으면 true. (v2.10) 단어가 없어도 행동으로 판단합니다: 화나면 벽을 침, 카톡·비번을 다 보여 달라고 함,
-옷차림·만남을 정해 줌, 헤어지자 하면 집·회사 앞에 옴, 번호를 바꿔도 연락함, "헤어지면 사진을 뿌리겠다·죽어 버리겠다"로 붙잡음,
-월급·카드를 가져감·생활비를 안 주고 검사함, 늘 눈치 보며 무섭다. 가족·직장에서도 같습니다. 서로 원해서 한 비번 공유처럼
-강요가 없으면 false.
+- "urgent"(카드를 멈추고 안전 안내): 죽음에 대한 직접 표현 — 죽고 싶다, 그만 살려고요, (돌아가신 분을) 따라가고 싶다·곁으로 가고 싶다,
+  제가 먼저 죽으면 좋겠다, 죽는 방법을 검색해 봤다, 더 버틸 이유가 안 보인다. 자해 행동(나를 아프게·다치게 하는 짓을 함, 저를 해치는 습관).
+  세상과의 작별 준비(가족에게 편지를 써 둠, 약을 모아 둠). 상대가 "헤어지면 죽어 버리겠다"로 붙잡는 글은 urgent가 아니라 violence(협박)입니다(CSO 2차).
+  이별·실직·시험 뒤에 나와도 같습니다. 지금 없는 목소리가 들림·감시당한다는 확신, 약을 한꺼번에 먹음도 urgent.
+- "watch"(결과는 그대로 보여 주고 마지막 쪽에 안내 한 줄): 소극적 표현 — 살 자신이 없다, 살 이유를 모르겠다, 안 사는 게 낫겠다,
+  사라지고 싶다·지워지고 싶다, 아침에 안 깼으면·눈 안 떴으면, 영원히 잠들고 싶다, 내가 없는 게 낫다·다들 편할 거다(짐이라는 느낌),
+  다 끝내고 싶다, 내일이 안 왔으면. 한 달 이상 못 먹음·못 잠, 술 없이는 못 버팀(술 의존), 방에만 있음·밖에 안 나감,
+  "앞으로도 절대 안 바뀔 거예요" 같은 절망 확신, 극단적으로 굶거나 먹고 토함.
+- "none": 그 외. 이별·시험 뒤 한 달이 안 되게 못 먹음·입맛 없음("헤어지고 나흘째 거의 못 먹었어요"), "다 끝낼 거예요"가
+  관계를 끝낸다는 뜻이거나 시험·일을 끝내겠다는 뜻, 생활비·돈 관리 방식(부부·연인 사이의 합의일 수 있음), 관용 표현
+  ("배고파 죽겠어", "웃겨 죽는 줄", "사라지고 싶을 만큼 창피했어요ㅋㅋ", "다 끝내고 싶은 건 이 연애예요").
+  단, 관용 표현 뒤에 한 달 넘게 못 먹음·방에만 있음 같은 신호가 붙으면 watch.
+violence (true/false — 방향 계산을 끄고 상담센터·경찰서 안내): 구체적인 행동만 — 사람을 때림·밀침·목을 조름, 협박(죽이겠다·사진을 뿌리겠다·
+가만두지 않겠다, "헤어지면 죽어 버리겠다"로 붙잡음), 휴대폰·비밀번호 검사(카톡을 다 보여 달라고 함), 위치 공유 강요, 사람을 못 만나게 함,
+돈을 뺏음, 스토킹(헤어지자 하면 집·회사 앞에 옴, 번호를 바꿔도 연락함). 가족·직장에서도 같습니다. 서로 원해서 한 비번 공유처럼
+강요가 없으면 false. 생활비를 정해 줌·영수증 확인·통장 관리 같은 돈 관리 방식만으로는 false.
+fear (true/false — 안내 박스만, 방향 계산은 함): 물건을 던짐·벽이나 책상을 침, 그 사람이 무섭다·눈치 보여 말을 못 한다.
+"떠날까 봐 무서워요"(잃을까 봐), 차단했다는 말만으로는 false.
 
 [예시]
 고민: 회사에서 열심히 하는데 인정받지 못하는 것 같아 지쳐요.
@@ -208,7 +215,7 @@ violence (true/false): 신체 폭력, 협박, 물건 던지기, 휴대폰 검사
 고민: 회사 일 때문에 바빠서 연인한테 소홀해졌고 그래서 자주 싸워요.
 → {"domain": "LOV", "emotions": ["HUR", "TIR"], "need": "CONNECT", "duration": "recent", "locus": "self", "urgency": "none", "self_focus": false, "crisis_level": "none", "violence": false, "off_topic": false, "confidence": 0.9}
 고민: 다 끝내 버리면 편해질 것 같다는 생각을 해요.
-→ {"domain": "DIR", "emotions": ["TIR", "GRI"], "need": "REST", "duration": "recent", "locus": "self", "urgency": "none", "self_focus": false, "crisis_level": "urgent", "violence": false, "off_topic": false, "confidence": 0.9}
+→ {"domain": "DIR", "emotions": ["TIR", "GRI"], "need": "REST", "duration": "recent", "locus": "self", "urgency": "none", "self_focus": false, "crisis_level": "watch", "violence": false, "off_topic": false, "confidence": 0.9}
 고민: 이 관계를 끝내고 싶은데 용기가 안 나요.
 → {"domain": "LOV", "emotions": ["CON", "ANX"], "need": "START", "duration": "recent", "locus": "self", "urgency": "none", "self_focus": false, "crisis_level": "none", "violence": false, "off_topic": false, "confidence": 0.9}
 
@@ -224,9 +231,11 @@ violence (true/false): 신체 폭력, 협박, 물건 던지기, 휴대폰 검사
 → {"domain": "LOV", "emotions": ["CON", "TIR"], "need": "START", "duration": "recent", "locus": "self", "urgency": "none", "qtype": "worry", "self_focus": false, "crisis_level": "none", "violence": false, "off_topic": false, "confidence": 0.85}
 고민: 이별 3일차
 → {"domain": "LOV", "emotions": ["GRI"], "need": "LETGO", "duration": "recent", "locus": "self", "urgency": "none", "qtype": "worry", "self_focus": false, "crisis_level": "none", "violence": false, "off_topic": false, "confidence": 0.7}
+고민: 이번에도 바람피우면 이 관계 다 끝낼 거예요. 벌써 두 번째예요. 다시 믿어도 될까요?
+→ {"domain": "LOV", "emotions": ["HUR", "CON"], "need": "CHOOSE", "duration": "recent", "locus": "other", "urgency": "none", "qtype": "worry", "qsub": "OM-CHEAT", "self_focus": false, "crisis_level": "none", "violence": false, "off_topic": false, "confidence": 0.8}
 
 [출력 — 이 형식만]
-{"domain":"LOV","emotions":["HUR","LON"],"need":"CONNECT","duration":"recent","locus":"self","urgency":"none","qtype":"worry","qsub":"OM-REPLY","self_focus":false,"crisis_level":"none","violence":false,"off_topic":false,"confidence":0.82}
+{"domain":"LOV","emotions":["HUR","LON"],"need":"CONNECT","duration":"recent","locus":"self","urgency":"none","qtype":"worry","qsub":"OM-REPLY","self_focus":false,"crisis_level":"none","violence":false,"fear":false,"off_topic":false,"confidence":0.82}
 ```
 
 ### A-3. 정확도 점검

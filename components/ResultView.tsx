@@ -272,6 +272,8 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
                     {copy.result.retry}
                   </button>
                 )}
+                {/* v4.1 watch: 마지막 쪽 맨 아래 109 안내(결제 후에는 본문 끝에도 같은 줄이 있으니 그때는 한 번만) */}
+                {p.fineprint && !(p.body ?? "").includes(p.fineprint) && <p className="fineprint">{p.fineprint}</p>}
                 {(p.page === 1 || p.page === n) && <p className="fineprint">{copy.disclaimer}</p>}
                 <AuthFooterLink tone="dark" />
               </div>

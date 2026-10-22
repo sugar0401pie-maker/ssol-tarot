@@ -40,7 +40,10 @@
  "side": "stay",
  "strength": "strong",
  "score": -4,
+ "mode": "axis",
+ "pick": 1,
  "with_condition": true,
+ "conclusion": "현재 회사에 남기",
  "option": "현재 회사에 남기",
  "other": "이직 제안 수락",
  "cards": [
