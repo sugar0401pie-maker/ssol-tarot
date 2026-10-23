@@ -1,5 +1,16 @@
 # 쏠 타로 v4.1 코드 — 개발자용
 
+> **v4.2 (2026-10-23, CSO 유료 ①~⑧) — 먼저 읽기**
+> - 결과는 **10쪽**: 1 세 장 · 2~4 카드 · 5 세 장이 함께 · 6 내 고민에 대어 보면 · 7 해결의 흐름 · **8 처방 · 9 이번 주 실천 · 10 쏘웰라**. 옛 8쪽(앞으로 이렇게 바뀔 거예요)은 뺌. `copy.result.pages`·`blur_samples`도 10쪽 번호. 아래 본문의 '11쪽'·'9·10쪽'은 v4.1 기준 설명이니 한 칸씩 당겨 읽기.
+> - **E 호출을 둘로**: E1(7쪽 direction{head, lean, flow{head, body}, body, if_then, decide_by, plan}) + E2(8쪽 rx 2 + 9쪽 practices.three·week). 결제 직후 D·E1·E2를 동시에. 검증 `parseE(raw, {lean, frame, part:"E1"|"E2", worryText})` → `mergeE(E1, E2)` → `buildPagesV4({E})`. 옛 한 번 호출 E도 `part:"all"`로 계속 받음(change는 무시).
+> - ① 9쪽 '오늘' = `tarot_data.json today_practices`(44)에서 앞으로의 열쇠 카드로(`pagesV4.todayFromDb`). 행동 겹침 경고 `validateV4.overlapWarnings(actionsOf(E, today))`(로그용).
+> - ② 결정형 7쪽 맨 위 = E1 `direction.flow`. DB 속도 문단은 결정형에서 안 씀. E 실패면 방향 블록만.
+> - ③ 카드별 이유 = `decision_tables.json types.<표>.reasons`(440) → `lean().cards[i].reason`("…라, ‘그 카드 쪽 선택지’ 쪽을 가리켜요."). 5쪽에 그대로 보이고 D·E1·E2 입력 `card_reasons`로 넘김. C는 reasons를 안 씀.
+> - ④ 읽기 지도 말(`copy.result.force_labels`)·DB 이유 문장(`combo.reasons`)에서 '웅크린·묶여 있는' 같은 말 정리. ⑤ 8쪽은 처방부터(머리말·결론 headline 없음 — C headline·lead는 결정형에서 안 씀). ⑦ 원문에 없는 '○요일'은 parseE가 '중 하루'로 바꾸고 `warnings`에 남김. ⑧ 6쪽 apply 검증 150~600자·3~6문장(예시 장면 한 문장).
+> - 2~4쪽 자리 해석 132개 3문장(3번째 문장은 행동 제안 없음, 앞 문장 말 되풀이 없음).
+> - 예시: `fixtures/05-재회/`(C_out_v42·D_out·E1_out·E2_out) → `01_설계/example-reports/05-재회-full.md`.
+
+
 결과 화면을 넘겨 보기 11쪽으로 만든다. 결정형 고민(A인가 B인가, 또는 고민 뒤에 숨은 행동)이면 카드 점수로 방향을 정하고, 그 방향을 결론으로 보여 준다.
 규칙은 `01_설계/규칙_v4.md`(S 안전 · R 방향 · V 검증)를 따른다. Node 18 이상이면 되고 외부 패키지는 없다.
 

@@ -1,12 +1,12 @@
 // v4.0 결과 파이프라인의 순수 부분(네트워크 없음 → 단위 테스트 가능). 서버(lib/server/session.ts)가 이 함수들만 부른다.
-//   ① 방향 계산(decision.js)  ② C 호출 입력 만들기  ③ 11쪽 조립(buildPages → buildPagesV4)  ④ 결제 전 응답 거르기
+//   ① 방향 계산(decision.js)  ② C 호출 입력 만들기  ③ 10쪽 조립(buildPages → buildPagesV4, v4.2)  ④ 결제 전 응답 거르기
 // 원본 패키지 코드(lib/tarot/*.js)는 바꾸지 않는다.
 import data from "../../data/tarot_data.json" with { type: "json" };
 import tables from "../../data/decision_tables.json" with { type: "json" };
 import { pickTable, isDecisionFrame, lean as leanOf, type Lean } from "../tarot/decision.js";
 import { afterFrame } from "../tarot/frameInput.js";
 import { buildPages, buildLinkUserBlock, buildStoryUserBlock, comboScore } from "../tarot/assembleReport.js";
-import { buildPagesV4, SUBHEADS } from "../tarot/pagesV4.js";
+import { buildPagesV4, SUBHEADS, todayFromDb } from "../tarot/pagesV4.js";
 import type { ExpandedPick, Safety } from "../tarot/types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -45,7 +45,7 @@ export function buildCUserBlock({ name, worryText, cls, picks, frame, lean }: {
   return base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(leanInput(lean))}\n</user_data>`);
 }
 
-// 방향(direction_lean) 입력 칸 — C·D·E가 같은 모양을 받는다.
+// 방향(direction_lean) 입력 칸 — C·D·E1·E2가 같은 모양을 받는다.
 function leanInput(lean: Lean | null) {
   return lean
     ? {
@@ -55,6 +55,12 @@ function leanInput(lean: Lean | null) {
     : null;
 }
 
+// v4.2 ③ 카드별 이유 3줄(이유 문장 DB — 5쪽에 이미 보인 문장). D·E1·E2 입력 card_reasons. 결정형이 아니면 넣지 않는다.
+function withReasons(block: string, lean: Lean | null): string {
+  const reasons = lean ? lean.cards.map((c) => (c.reason ? `${c.position}: ${c.reason}` : null)).filter(Boolean) : [];
+  return reasons.length ? block.replace("</user_data>", `card_reasons=${JSON.stringify(reasons)}\n</user_data>`) : block;
+}
+
 // D 사용자 메시지(결제 후 5·6쪽). 프롬프트 [입력]: worry_text, worry_frame, direction_lean, cards, crisis_level, violence_flag.
 // v3 D 입력(buildStoryUserBlock = C 입력 + 안전 칸) 뒤에 고민 틀과 방향을 덧붙인다(C와 같은 방법). 고민 미작성이면 null.
 export function buildDUserBlock({ name, worryText, cls, picks, frame, lean, safety }: {
@@ -62,21 +68,30 @@ export function buildDUserBlock({ name, worryText, cls, picks, frame, lean, safe
 }): string | null {
   const base = buildStoryUserBlock({ name, worryText, cls, picks, data, safety });
   if (!base) return null;
-  return base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(leanInput(lean))}\n</user_data>`);
+  return withReasons(base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(leanInput(lean))}\n</user_data>`), lean);
 }
 
-// E 사용자 메시지(결제 후 7~10쪽). [입력]: worry_text, worry_frame, direction_lean, cards, already_shown(5·6쪽 글 — 되풀이 금지).
-export function buildEUserBlock({ name, worryText, cls, picks, frame, lean, alreadyShown }: {
-  name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null; alreadyShown: string;
+// v4.2: E를 둘로 나눠 D와 함께 동시에 부른다(속도). E1 = 7쪽(방향·흐름·이번 주 계획), E2 = 8쪽 처방 2 + 9쪽 '3일 안에'·'이번 주'.
+// [입력] worry_text, worry_frame, direction_lean, card_reasons, cards, already_shown(5·6쪽 글 — D와 동시라 아직 없어서 넣지 않음),
+// E2만 db_today(9쪽 '오늘' 실천 — 코드가 앞으로의 열쇠 카드로 DB에서 고른 것: title·how — 같은 행동을 쓰지 않게).
+function eBase({ name, worryText, cls, picks, frame, lean }: {
+  name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null;
 }): string | null {
   const base = buildCUserBlock({ name, worryText, cls, picks, frame, lean });
+  return base ? withReasons(base, lean) : null;
+}
+export function buildE1UserBlock(args: { name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null }): string | null {
+  return eBase(args);
+}
+export function buildE2UserBlock(args: { name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null }): string | null {
+  const base = eBase(args);
   if (!base) return null;
-  // D와 동시에 부르면(owner 2026-10-22) 5·6쪽 글이 아직 없다 — 빈 칸은 넣지 않는다.
-  if (!alreadyShown.trim()) return base;
-  return base.replace("</user_data>", `already_shown="""${alreadyShown.trim()}"""\n</user_data>`);
+  const key = args.picks[2];
+  const today = key ? todayFromDb(data, { no: key.card.no, reversed: Boolean(key.reversed) }, args.lean) : null;
+  return today ? base.replace("</user_data>", `db_today=${JSON.stringify({ title: today.title, how: today.how })}\n</user_data>`) : base;
 }
 
-// 11쪽 조립(결제 후). sa = parseStoryApply 결과(D, 탈락 칸은 null → DB 문장), E = parseE의 E(탈락이면 null → 대체 경로).
+// 10쪽 조립(결제 후, v4.2 — 패키지가 처음부터 10쪽). sa = parseStoryApply 결과(D, 탈락 칸은 null → DB 문장), E = mergeE(E1, E2)(둘 다 탈락이면 null → 대체 경로).
 // 순서·인자는 패키지 fixtures/runCase.mjs와 같다.
 export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lean, C, sa, E }: {
   name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; sa: any | null; E: any | null;
@@ -88,7 +103,7 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
   return buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
 }
 
-// 11쪽 조립(결제 전). C는 parseC 결과(통과한 칸만), D·E는 결제 뒤에만 생기므로 지금은 없음.
+// 10쪽 조립(결제 전). C는 parseC 결과(통과한 칸만), D·E는 결제 뒤에만 생기므로 지금은 없음.
 export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, lean, C }: {
   name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null;
 }): any[] {
@@ -109,7 +124,7 @@ export function paceTeaser(pace: "near" | "step" | "slow"): string | null {
 }
 
 // 결제 전 응답에 실을 칸만 고른다(허용 목록). 특히 5쪽 locked(결론 "세 장을 합치면 ‘○○’ 쪽이…"부터)와
-// combo·map(점수·읽기 지도 — 결론을 짐작할 수 있음)은 빼고, 6~11쪽은 본문 없이 제목·예고·고정 예시(blur)만.
+// combo·map(점수·읽기 지도 — 결론을 짐작할 수 있음)은 빼고, 6~10쪽은 본문 없이 제목·예고·고정 예시(blur)만.
 // 블러는 CSS로 가리는 게 아니라 데이터가 없는 상태여야 한다(스펙 11장 5번).
 // fineprint = v4.1 watch(주의) 안내 한 줄 — 마지막 쪽 맨 아래 작은 글씨, 결제 전에도 보인다(README_v4).
 const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back"] as const;
@@ -123,22 +138,18 @@ function stripImplied<T>(v: T): T {
   return v;
 }
 
-// 8쪽('앞으로 이렇게 바뀔 거예요') 숨김(owner 2026-10-22 "동어반복이라는 이야기 — 숨겨버리자, 총 10장"). 패키지는 11쪽을 그대로
-// 만들고, 화면으로 보낼 때만 8쪽을 빼고 9~11쪽을 8~10쪽으로 당긴다. 본문 속 "9쪽 처방"(10쪽 → 이제 9쪽의 안내)도 "8쪽 처방"으로.
-export const HIDDEN_PAGE = 8;
-// 예전 8쪽('앞으로 이렇게 바뀔 거예요')은 내용 없이 뺀다(owner 2026-10-22 — 처방 쪽에 붙였던 변화 문장도 "그냥 없애버리자").
-const PRACTICE_PAGE = 10;
+// 화면으로 보내기 전 owner 다듬기(2026-10-22). v4.2부터 패키지가 처음부터 10쪽을 만든다(옛 8쪽 '앞으로 이렇게 바뀔 거예요'는
+// 패키지·프롬프트 모두에서 없어짐 — 예전처럼 화면에서 쪽을 빼거나 번호를 당기지 않는다). 쪽 번호: 7 방향 · 8 처방 · 9 실천 · 10 쏘웰라.
+const PRACTICE_PAGE = 9;
 const DIRECTION_PAGE = 7;
 export type TidyCtx = { other?: string | null };
-export function hideChangePage(pages: any[], ctx: TidyCtx = {}): any[] {
+export function tidyPages(pages: any[], ctx: TidyCtx = {}): any[] {
   return pages
-    .filter((p) => p.page !== HIDDEN_PAGE)
     .map((p, _i, all) => movePlan(p, all))
     .map((p) => (p.page === 5 && p.body ? { ...p, body: conclusionFirst(String(p.body)) } : p))
     .map((p) => (p.page === 6 && p.body ? { ...p, body: tidyApply(String(p.body), ctx.other ?? null) } : p))
     .map((p) => (p.page === DIRECTION_PAGE && p.body ? { ...p, body: tidyDirection(String(p.body)) } : p))
-    .map((p) => (p.page === PRACTICE_PAGE && p.body ? { ...p, body: closingFirst(String(p.body)) } : p))
-    .map((p) => (p.page > HIDDEN_PAGE ? renumber(p) : p));
+    .map((p) => (p.page === PRACTICE_PAGE && p.body ? { ...p, body: closingFirst(String(p.body)) } : p));
 }
 
 // 5쪽(결제 후): "**세 장을 합치면 ‘…’ 쪽이 ….**" 결론 줄을 "세 장을 종합하면 이렇습니다" 바로 위로(owner 2026-10-22).
@@ -225,25 +236,8 @@ function movePlan(p: any, all: any[]): any {
   return p;
 }
 
-/** 예전 8쪽 본문 → { head: 첫 굵은 줄(** 뗀 것), signs: "이런 변화가 보일 거예요" 아래 ◦ 줄들 } */
-export function changeParts(body: string): { head: string | null; signs: string[] } {
-  const lines = body.split("\n").map((l) => l.trim());
-  const first = lines.find(Boolean) ?? "";
-  const m = first.match(/^\*\*(.+)\*\*$/);
-  const at = lines.findIndex((l) => /^이런 변화가 보일 거예요/.test(l));
-  const signs: string[] = [];
-  if (at >= 0) for (let i = at + 1; i < lines.length && lines[i].startsWith("◦ "); i++) signs.push(lines[i]);
-  return { head: m ? m[1].trim() : null, signs };
-}
-
-function renumber(p: any): any {
-  const fix = (v: unknown): unknown =>
-    typeof v === "string" ? v.replace(/9쪽 처방/g, "8쪽 처방") : Array.isArray(v) ? v.map(fix) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fix(x)])) : v;
-  return { ...(fix(p) as object), page: p.page - 1 };
-}
-
 export function sanitizeUnpaid(pages: any[]): any[] {
-  return hideChangePage(stripImplied(pages)).map((p) => {
+  return tidyPages(stripImplied(pages)).map((p) => {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     // 5쪽은 무료 부분(free)만 — 결제 전 원본 body가 비어 있어도 혹시 결론이 섞여 들어오지 않게 비운다.
@@ -257,9 +251,9 @@ export function sanitizeUnpaid(pages: any[]): any[] {
   });
 }
 
-// 결제 후 응답: 같은 허용 목록이지만 본문(body)을 그대로 싣는다(결론·6~11쪽 포함). 화면에 안 쓰는 내부 칸(combo·map·locked)은 뺀다.
+// 결제 후 응답: 같은 허용 목록이지만 본문(body)을 그대로 싣는다(결론·6~10쪽 포함). 화면에 안 쓰는 내부 칸(combo·map·locked)은 뺀다.
 export function sanitizePaid(pages: any[], ctx: TidyCtx = {}): any[] {
-  return hideChangePage(stripImplied(pages), ctx).map((p) => {
+  return tidyPages(stripImplied(pages), ctx).map((p) => {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     return out;
@@ -271,7 +265,7 @@ export function sanitizePaid(pages: any[], ctx: TidyCtx = {}): any[] {
 export function resultParseOpts() {
   const r = data.copy.result as any;
   const v4 = r.v4 ?? {};
-  const fromData = [v4.summary_title, v4.direction_title, v4.decide_title, v4.change_signs, v4.plan_head?.stay, v4.plan_head?.move, v4.plan_head?.none,
+  const fromData = [v4.summary_title, v4.direction_title, v4.decide_title, v4.plan_head?.stay, v4.plan_head?.move, v4.plan_head?.none,
     ...Object.values(r.flow_titles ?? {}), r.tendency_title].filter((x): x is string => typeof x === "string");
   const sec = [r.reflect_title].filter((x): x is string => typeof x === "string");
   return {

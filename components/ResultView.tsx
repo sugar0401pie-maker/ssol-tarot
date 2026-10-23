@@ -18,14 +18,14 @@ import { RESULT_PAGE_SCENE, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
 import { WaitNotice } from "./WaitNotice";
 
-// 결과 넘겨 보기 11쪽(v4.0). 화면 모양은 owner 시안 docs/design/result-swipe-preview-v4.html과 똑같이 맞춘다
+// 결과 넘겨 보기 10쪽(v4.2 — 예전 11쪽에서 옛 8쪽이 빠짐). 화면 모양은 owner 시안 docs/design/result-swipe-preview-v4.html과 똑같이 맞춘다
 // (CSS: app/result/[id]/result-v4.css, 줄 → 블록 규칙: lib/client/pageBlocks.ts).
-// 결제 전 6~11쪽과 5쪽 결론 부분은 서버가 본문을 보내지 않는다 — 블러 아래 글은 데이터의 고정 예시(blur_samples)다.
+// 결제 전 6~10쪽과 5쪽 결론 부분은 서버가 본문을 보내지 않는다 — 블러 아래 글은 데이터의 고정 예시(blur_samples)다.
 
 type ViewCopy = Omit<Copy, "cta_chat">;
 type Ready = Extract<ResultResponse, { status: "ready" }>;
 
-// 쏘웰라 채팅(같은 계정) — 11쪽 버튼. 결제 연동 전에는 11쪽이 잠겨 있어 아직 보이지 않는다.
+// 쏘웰라 채팅(같은 계정) — 10쪽 버튼(결제 후에 열림).
 const SOWELLA_URL = "https://app.ssolwellnesshouse.com/chat";
 
 // 카드 그림을 못 받으면 깨진 그림 아이콘 대신 빈 카드 틀만 남긴다(카드명은 옆 글자로 이미 보임).
@@ -104,7 +104,7 @@ export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: st
   return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} initialPage={initialPage} />;
 }
 
-// 쪽이 잠겨 있는지(시안 LOCK.unpaid = 6~11쪽). 5쪽은 일부 무료라 점 표시는 열린 쪽으로 둔다.
+// 쪽이 잠겨 있는지(6~10쪽). 5쪽은 일부 무료라 점 표시는 열린 쪽으로 둔다.
 const isLocked = (p: ResultPage, paid: boolean) => !paid && p.page >= 6;
 
 function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; initialPage: number }) {
@@ -151,7 +151,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   }, [go, idx]);
 
   // 쪽마다 자기 주소(owner 2026-10-21 "모든 페이지 개별 링크"): /result/{id}/{쪽}. 주소로 들어오면 그 쪽부터 보여 주고,
-  // 넘길 때마다 주소만 바꾼다(replaceState — 뒤로 가기가 11번 쌓이지 않게. Next가 주소 변경을 라우터와 맞춰 준다).
+  // 넘길 때마다 주소만 바꾼다(replaceState — 뒤로 가기가 쪽마다 쌓이지 않게. Next가 주소 변경을 라우터와 맞춰 준다).
   useEffect(() => {
     const el = rail.current;
     const k = Math.max(0, Math.min(n - 1, initialPage - 1));
@@ -206,7 +206,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
     router.push("/");
   }
 
-  // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 11쪽을 다시 해석하지 않게.
+  // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 모든 쪽을 다시 해석하지 않게.
   // [결제하고 이어 읽기] → 결제 화면(/checkout/{id}?page=쪽). 결제가 끝나면 누른 그 쪽으로 돌아온다.
   const pay = useCallback((page: number) => router.push(`/checkout/${id}?page=${page}`), [router, id]);
   const ctx: Ctx = useMemo(() => ({ r, copy, opts, openZoom: setZoom, pay }), [r, copy, opts, pay]);

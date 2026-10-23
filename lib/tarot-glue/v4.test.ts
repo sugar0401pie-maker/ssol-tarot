@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
+import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
@@ -82,7 +82,7 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   const { decision, lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
   const C = parseC(readJ("C_out.json"), { decision, strength: lean?.strength, frame, lean, violence: safety.violence });
   const raw = buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C });
-  assert.equal(raw.length, 11);
+  assert.equal(raw.length, 10);
   assert.ok(raw[4].locked, "원본 5쪽에는 locked(결론)가 들어 있음 — 그래서 거르는 함수가 필요");
   const out = sanitizeUnpaid(raw);
   const text = JSON.stringify(out);
@@ -95,7 +95,7 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   assert.ok(out[1].body && out[1].card.name);
 });
 
-test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다(8쪽 숨김 뒤)", () => {
+test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다", () => {
   const out = sanitizeUnpaid(buildUnpaidPages({ name: "지수", cls: null, picks, safety: { level: "none", violence: false, fear: false }, worryText: "", frame: null, lean: null, C: null }));
   assert.equal(out.length, 10);
   assert.ok(out[0].body && out[4].free);
@@ -103,7 +103,7 @@ test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다(8�
 
 
 // ---------- 결제 후(D·E) ----------
-test("결제 후 11쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — 도현님 D·E 출력으로", () => {
+test("결제 후 10쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — 도현님 D·E 출력으로", () => {
   const tables = JSON.parse(fs.readFileSync(new URL("../../data/decision_tables.json", import.meta.url), "utf8"));
   const ref = runCase(fileURLToPath(new URL(".", FX)), data, tables);
   const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
@@ -111,7 +111,7 @@ test("결제 후 11쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   const sa = parseStoryApply(readJ("D_out.json"), { violence: safety.violence });
   const E = parseE(readJ("E_out.json"), { lean, frame, violence: safety.violence }).E;
   const P = buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C, sa, E });
-  assert.equal(P.length, 11);
+  assert.equal(P.length, 10); // v4.2: 패키지가 처음부터 10쪽
   assert.deepEqual(P.map((p: { body?: string }) => p.body), ref.paid.map((p: { body?: string }) => p.body));
   // 응답에는 본문이 실리고(결론 포함) 내부 칸(combo·map·locked)은 빠진다
   const out = sanitizePaid(P);
@@ -119,24 +119,29 @@ test("결제 후 11쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   for (const p of out) for (const k of ["combo", "map", "locked"]) assert.equal(k in p, false);
 });
 
-test("D·E가 없거나 탈락해도(대체 경로) 결제 후 10쪽이 모두 본문을 가진다(8쪽 숨김 뒤)", () => {
+test("D·E가 없거나 탈락해도(대체 경로) 결제 후 10쪽이 모두 본문을 가진다", () => {
   const P = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean: null, C: null, sa: null, E: null }));
   assert.equal(P.length, 10);
   for (const p of P) assert.ok(p.body, `${p.page}쪽 본문 있음`);
 });
 
-test("D 입력: 안전 칸·고민 틀·방향 포함 / E 입력: 5·6쪽 글(already_shown) 포함 / 미작성이면 null", () => {
+test("D 입력: 안전 칸·고민 틀·방향·카드별 이유 / E1·E2 입력(E2는 db_today) / 미작성이면 null", () => {
   const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
   const d = buildDUserBlock({ name: cs.name, worryText: cs.worry, cls: cs.ai, picks, frame, lean, safety })!;
   assert.match(d, /crisis_level=/);
   assert.match(d, /violence_flag=false/);
   assert.match(d, /worry_frame=\{/);
   assert.match(d, /"option":"현재 회사에 남기"/);
-  const e = buildEUserBlock({ name: cs.name, worryText: cs.worry, cls: cs.ai, picks, frame, lean, alreadyShown: "5쪽 글\n\n6쪽 글" })!;
-  assert.match(e, /already_shown="""5쪽 글\n\n6쪽 글"""/);
-  assert.match(e, /direction_lean=\{/);
+  assert.match(d, /card_reasons=\["지나온 길: .+쪽을 가리켜요\."/);
+  const e1 = buildE1UserBlock({ name: cs.name, worryText: cs.worry, cls: cs.ai, picks, frame, lean })!;
+  assert.match(e1, /direction_lean=\{/);
+  assert.match(e1, /card_reasons=/);
+  assert.doesNotMatch(e1, /already_shown|db_today/);
+  const e2 = buildE2UserBlock({ name: cs.name, worryText: cs.worry, cls: cs.ai, picks, frame, lean })!;
+  assert.match(e2, /db_today=\{"title":"[^"]+","how":"[^"]+"\}/);
   assert.equal(buildDUserBlock({ name: cs.name, worryText: null, cls: cs.ai, picks, frame, lean, safety }), null);
-  assert.equal(buildEUserBlock({ name: cs.name, worryText: "", cls: cs.ai, picks, frame, lean, alreadyShown: "" }), null);
+  assert.equal(buildE1UserBlock({ name: cs.name, worryText: "", cls: cs.ai, picks, frame, lean }), null);
+  assert.equal(buildE2UserBlock({ name: cs.name, worryText: "", cls: cs.ai, picks, frame, lean }), null);
 });
 
 test("7쪽 예고는 풀리는 속도에 따라 바뀌고, 방향(선택지 이름)은 드러내지 않는다", () => {
@@ -157,7 +162,7 @@ test("화면으로 보내는 글에서 선택지 표시 '(암시)'를 뗀다", (
   assert.equal(un[0].body, "선택지: 이직하기 / 남기");
 });
 
-test("8쪽은 숨겨 10쪽으로 보내고, 쏘웰라 쪽은 따로 둔다(owner 2026-10-22)", () => {
+test("결과는 10쪽(옛 8쪽 없음), 8 처방 · 9 실천 · 10 쏘웰라(v4.2 · owner 2026-10-22)", () => {
   const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
   const paid = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") }), { other: lean?.other });
   assert.deepEqual(paid.map((p) => p.page), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -196,4 +201,18 @@ test("7쪽 '이번 주에 이것부터' 계획은 실천 카드 쪽 맨 위로 �
   const at = p9.indexOf(PLAN_MOVED_HEAD);
   assert.ok(at > 0 && at < p9.indexOf("• 오늘"), "실천 카드 위");
   assert.ok(p9.includes("◦ 언제: 이번 주 금요일 퇴근 후"));
+});
+
+test("v4.2 재회 예시(E1+E2): 7쪽 맨 위 흐름, 계획은 9쪽 맨 위로, 9쪽 '오늘'은 DB 실천", () => {
+  const FX2 = new URL("../tarot/fixtures/05-재회/", import.meta.url);
+  const tables = JSON.parse(fs.readFileSync(new URL("../../data/decision_tables.json", import.meta.url), "utf8"));
+  const ref = runCase(fileURLToPath(FX2), data, tables);
+  const out = sanitizePaid(ref.paid, { other: ref.lean?.other });
+  assert.equal(out.length, 10);
+  assert.ok(String(out[6].body).startsWith("**"), "7쪽은 흐름(굵은 줄)부터");
+  assert.ok(!/이번 주에 이것부터/.test(String(out[6].body)));
+  const p9 = String(out[8].body);
+  assert.ok(p9.indexOf(PLAN_MOVED_HEAD) >= 0 && p9.indexOf(PLAN_MOVED_HEAD) < p9.indexOf("• 오늘"));
+  assert.ok(p9.includes("• 오늘: 버거운 정도 점수 매기기"), "오늘 = DB(앞으로의 열쇠 카드)");
+  assert.ok(String(out[7].body).startsWith("▸ "), "8쪽은 처방부터(머리말 없음)");
 });

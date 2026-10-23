@@ -14,7 +14,8 @@ export type Lean = {
   not_concluded?: string[];
   strength_before?: string;
   second_opinion?: { sim_table: string | null };
-  cards: { position: string; score: number; weight: number; meaning: string }[];
+  // v4.2: key(카드 번호_up/rev)·option(그 카드가 가리키는 선택지)·reason(이유 문장 DB 한 줄, 없으면 null)
+  cards: { position: string; key?: string; score: number; weight: number; meaning: string; option?: string; reason?: string | null }[];
   small_note?: string;
 };
 export const SIDE_WORD: Record<string, string>;
@@ -27,5 +28,6 @@ export function secondOpinion(a: { frameTable: string | null; simTable: string |
 export function applySecondOpinion(L: Lean | null, so: SecondOpinion | null): Lean | null;
 export function minShareOf(tables: any): number;
 export function lean(a: { picks: any[]; type: string; tables: any; money?: boolean; name?: string; frame?: any }): Lean | null;
+export function reasonLine(clause: string, option: string): string;
 export function reasonFallback(meaning: string, side: string): string;
 export function cardSide(score: number): "move" | "stay";

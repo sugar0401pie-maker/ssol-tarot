@@ -7,16 +7,17 @@ import { screenWorry } from "@/lib/tarot-glue/screenWorry";
 import { buildSafetyNotice } from "@/lib/tarot/assembleReport.js";
 import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
-import { decide, buildCUserBlock, buildDUserBlock, buildEUserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
+import { decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
-import { parseE } from "@/lib/tarot/validateV4.js";
+import { parseE, mergeE, overlapWarnings, actionsOf } from "@/lib/tarot/validateV4.js";
+import { todayFromDb } from "@/lib/tarot/pagesV4.js";
 import { REPORT_ORDER_NAME, REPORT_PRICE, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
 import { frameCall, type FrameVote } from "./frameExamples";
-import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E_SYSTEM, worryUserMessage } from "./prompts";
+import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
 // v4.0(2026-10-20): 결과 11쪽. 고민 제출 → A 분류 + A2 고민 틀 / 3장째 → 방향 계산(코드) + C / 결제 후 → D·E(결제 연동 때).
@@ -524,10 +525,10 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   return { ok: true, sessionId: order.session_id, generate: true };
 }
 
-// 결제 직후(백그라운드): D(5·6쪽)와 E(7~10쪽)를 **동시에** 부른다(패키지 설계 — ai-prompts-tarot-v4.md "E: 결제 직후(D와 동시)").
-// owner 2026-10-22 "검수하지마, 동시에": 예전엔 E가 D 글을 받아 되풀이를 피하느라 D를 기다렸고 그 뒤 검수(R)까지 해서 오래 걸렸다.
-// 이제 E의 already_shown은 비우고(되풀이 금지는 E 프롬프트 규칙이 맡음), 검수 단계는 없다. 안전·형식 검사는 그대로(parseStoryApply·parseE).
-// 검증에서 떨어지면 그 부분만 1회 다시 부르고, 그래도 안 되면 패키지 대체 경로(DB 문장) — README_v4.
+// 결제 직후(백그라운드): D(5·6쪽)·E1(7쪽)·E2(8·9쪽)를 **동시에** 부른다(v4.2 패키지 — E를 둘로 나눠 속도를 줄임).
+// owner 2026-10-22 "검수하지마": 검수 단계는 없다. 안전·형식 검사는 그대로(parseStoryApply·parseE part E1/E2).
+// 9쪽 '오늘' 실천과 카드별 이유는 AI가 쓰지 않는다(DB — pagesV4.todayFromDb, decision.lean().cards[].reason).
+// 검증에서 떨어지면 그 부분만 1회 다시 부르고, 그래도 안 되면 그 부분은 패키지 대체 경로(DB 문장) — README_v4.
 export async function generateReport(sessionId: string) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const s = row as SessionRow | null;
@@ -543,8 +544,10 @@ export async function generateReport(sessionId: string) {
       // 분류가 실패했으면 폭력 여부를 모르므로 더 조심스러운 쪽(violence=true)으로(스펙 6장 fail safe)
       const violence = s.violence || s.classification_status === "failed";
       const safety = { level: s.safety_level, violence, fear: Boolean(s.fear) };
-      const dBlock = buildDUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, safety });
-      const eBlock = buildEUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, alreadyShown: "" });
+      const args = { name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean };
+      const dBlock = buildDUserBlock({ ...args, safety });
+      const e1Block = buildE1UserBlock(args);
+      const e2Block = buildE2UserBlock(args);
 
       const runD = async () => {
         let best: ReturnType<typeof parseStoryApply> | null = null;
@@ -560,19 +563,27 @@ export async function generateReport(sessionId: string) {
         }
         return best;
       };
-      const runE = async () => {
-        for (let i = 0; i < 2 && eBlock; i++) {
+      // E1·E2: 실패한 쪽만 다시 부른다(05_다음단계 v4.2). 경고(지어낸 요일을 고친 것 등)는 개수만 기록 — 내용은 남기지 않는다.
+      const runE = async (part: "E1" | "E2", system: string, block: string | null) => {
+        for (let i = 0; i < 2 && block; i++) {
           try {
-            const r = parseE(await generateText(E_SYSTEM, eBlock, { timeoutMs: 50000, maxOutputTokens: 8000, label: "E" }), { lean, frame, violence });
+            const r = parseE(await generateText(system, block, { timeoutMs: 50000, maxOutputTokens: 6000, label: part }), { lean, frame, violence, part, worryText: s.worry_text ?? "" });
+            if (r.warnings.length) console.info(`${part} 경고:`, r.warnings.length, "건");
             if (r.E) return r.E;
-            console.warn("E 검증 탈락 칸:", r.errors.length, "건");
+            console.warn(`${part} 검증 탈락 칸:`, r.errors.length, "건");
           } catch (e) {
-            console.warn("E 호출 실패:", e instanceof Error ? e.message : "unknown");
+            console.warn(`${part} 호출 실패:`, e instanceof Error ? e.message : "unknown");
           }
         }
         return null;
       };
-      [sa, E] = await Promise.all([runD(), runE()]);
+      const [d, e1, e2] = await Promise.all([runD(), runE("E1", E1_SYSTEM, e1Block), runE("E2", E2_SYSTEM, e2Block)]);
+      sa = d;
+      E = mergeE(e1, e2);
+      // 행동 겹침(7쪽 계획·8쪽 처방·9쪽 실천) 경고 — 운영에서 E2 재호출 기준을 정하려고 건수만 남긴다(README_v4 ①).
+      const key = picks[2];
+      const overlaps = overlapWarnings(actionsOf(E, key ? todayFromDb(data, { no: key.card.no, reversed: Boolean(key.reversed) }, lean) : null));
+      if (overlaps.length) console.info("행동 겹침 경고:", overlaps.map((o) => `${o.a}↔${o.b}`).join(", "));
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });
   } catch (e) {

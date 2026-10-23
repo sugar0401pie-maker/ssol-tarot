@@ -56,20 +56,24 @@ test("7쪽: 방향 블록·결정 질문·계획 머리말이 소제목", () => 
   const b = parseBlocks(page(7).body, O);
   const subs = b.filter((x) => x.type === "sub").map((x) => (x as { text: string }).text);
   assert.deepEqual(subs, ["카드가 가리키는 방향", "이렇게 결정해 볼까요?", "남는 쪽으로 정했다면, 이번 주에 이것부터"]);
-  assert.equal(b[0].type, "sum");
+  assert.equal(b[0].type, "sub"); // 도현 예시는 옛 E(흐름 없음) — v4.2부터 DB 속도 문단은 결정형 7쪽에 안 씀
+  // v4.2 E1(재회 예시): 맨 위가 '결론 쪽으로 풀려 가는 흐름'(굵은 줄)
+  const r2 = runCase(fileURLToPath(new URL("../tarot/fixtures/05-재회/", import.meta.url)), data, tables);
+  const b2 = parseBlocks(r2.paid.find((p: { page: number }) => p.page === 7).body, O);
+  assert.deepEqual(types(b2).slice(0, 3), ["sum", "p", "sub"]);
 });
 
-test("9·10쪽: 다리 문장 + 처방/실천 항목(제목 + 다음 줄)", () => {
-  const b9 = parseBlocks(page(9).body, O);
-  assert.deepEqual(types(b9), ["headline", "p", "p", "bridge", "item", "bridge", "item"]);
-  const it = b9[4];
+test("8·9쪽: 처방(머리말 없이 다리 문장부터 — v4.2 ⑤) + 실천 항목(제목 + 다음 줄)", () => {
+  const b8 = parseBlocks(page(8).body, O);
+  assert.deepEqual(types(b8), ["bridge", "item", "bridge", "item"]);
+  const it = b8[1];
   assert.ok(it.type === "item" && it.title === "회사와 일을 나눠 적기" && it.body && it.body[0].bold);
-  const b10 = parseBlocks(page(10).body, O);
-  assert.deepEqual(types(b10), ["p", "item", "item", "item", "p"]);
+  const b9 = parseBlocks(page(9).body, O);
+  assert.deepEqual(types(b9), ["p", "item", "item", "item", "p"]);
 });
 
-test("11쪽: 버튼 줄", () => {
-  const b = parseBlocks(page(11).body, O);
+test("10쪽: 버튼 줄", () => {
+  const b = parseBlocks(page(10).body, O);
   assert.deepEqual(b[b.length - 1], { type: "button", text: "쏘웰라 3일 무료로 시작하기" });
 });
 

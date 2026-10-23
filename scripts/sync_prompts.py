@@ -13,7 +13,8 @@ MAP = {
     "FRAME_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 1),  # A2 (v4.6)
     "C_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 2),
     "D_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 3),
-    "E_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 4),
+    "E1_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 4),  # v4.2 E1(7쪽)
+    "E2_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 5),  # v4.2 E2(8·9쪽)
 }
 
 
