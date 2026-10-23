@@ -332,7 +332,7 @@ export async function prepareResult(sessionId: string) {
       const left = deadline - Date.now();
       if (left < 2000) break;
       try {
-        const r = parse(await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C" }));
+        const r = parse(await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C", reasoningEffort: "low" }));
         // 걸린 칸만 비고 나머지는 쓴다(README_v4). 한 줄(links)까지 통과했으면 재시도하지 않음.
         if (!best || (r.links && !best.links)) best = r;
         if (r.errors.length) console.warn("C 검증 탈락 칸:", r.errors.length, "건");
