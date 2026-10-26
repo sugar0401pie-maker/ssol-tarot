@@ -1,5 +1,5 @@
 // 고민 분류(A)+고민 틀(A2) 한 번 호출이 따로 두 번 부를 때만큼 정확한지 비교(owner 2026-10-26 "합치자").
-//   OPENAI_API_KEY=… TAROT_AI_MODEL=… node scripts/eval_merged_classify.mjs [틀 문항 수=120]
+//   OPENAI_API_KEY=… [TAROT_AI_MODEL=…] node scripts/eval_merged_classify.mjs [틀 문항 수=120]
 // 비교 항목(같은 문장으로 두 방식 모두 호출):
 //   ① 안전: 판별 DB(worry_examples_v2) 중 위험·주의·폭력 정답 문장 전부 + 일상 문장 같은 수 — 키워드 결과와 합친 최종 단계가
 //      정답보다 낮으면 '놓침'(합격선: 합친 방식의 놓침이 따로 방식보다 많지 않을 것, 위험(urgent)·폭력 놓침 0)
@@ -25,8 +25,8 @@ const A = constOf("CLASSIFY_SYSTEM"), A2 = constOf("FRAME_SYSTEM");
 const { buildMergedSystem } = await import(path.join(ROOT, "lib/tarot-glue/mergedPrompt.js"));
 const MERGED = buildMergedSystem(A, A2);
 
-const MODEL = process.env.TAROT_AI_MODEL;
-if (!process.env.OPENAI_API_KEY || !MODEL) { console.error("OPENAI_API_KEY와 TAROT_AI_MODEL이 필요해요."); process.exit(1); }
+const MODEL = process.env.TAROT_AI_MODEL || "gpt-5.6-luna"; // 운영(lib/server/ai.ts)과 같은 기본 모델
+if (!process.env.OPENAI_API_KEY) { console.error("OPENAI_API_KEY가 필요해요."); process.exit(1); }
 const ai = new OpenAI({ timeout: 60000, maxRetries: 1 });
 let tokens = { sep: 0, merged: 0 };
 async function call(system, user, max, bucket) {
