@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { initialState, next, type FlowAction, type FlowStateBase } from "@/lib/tarot/flow.js";
 import { api, saveKey, ApiError, type PickResponse } from "@/lib/client/api";
 import { fill } from "@/lib/client/text";
+import { usePromo } from "@/lib/client/usePromo";
+import { PROMO_REPORT_PRICE, REPORT_LIST_PRICE, won } from "@/lib/billing/pricing";
 import { CardBack, CardFace, CardCaption, FrameCorners, Stars } from "./Cards";
 import { SceneArt } from "./SceneArt";
 import { MysticOrbit, RotatingLine } from "./Mystic";
@@ -370,6 +372,7 @@ function IntroScreen({ copy, friends }: { copy: C; friends: Friend[] }) {
   const router = useRouter();
   const [count, setCount] = useState<number | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
+  const promo = usePromo() === true;
   useEffect(() => {
     void getRealSession().then((s) => setLoggedIn(!!s));
   }, []);
@@ -398,6 +401,12 @@ function IntroScreen({ copy, friends }: { copy: C; friends: Friend[] }) {
       </div>
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
         {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
+        {/* 11월 한정 할인 띠(owner 2026-10-26) — 할인 기간에만, 금액은 lib/billing/pricing.ts에서 */}
+        {promo && (
+          <p className="rounded-full border border-gold/60 px-4 py-1.5 text-[13px] font-medium text-gold-soft">
+            {fill(copy.intro.promo_banner, { price: won(PROMO_REPORT_PRICE), list: won(REPORT_LIST_PRICE) })}
+          </p>
+        )}
         {/* 아스트로 첫 화면처럼 두 버튼(owner 2026-10-21). 로그인해야 이용할 수 있어서, 로그인 전이면 둘 다 로그인 화면을 거친다. */}
         <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={() => router.push(`/login?next=${encodeURIComponent("/?start=1")}`)}>
           {copy.intro.button}

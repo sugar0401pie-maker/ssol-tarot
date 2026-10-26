@@ -70,7 +70,8 @@ DECK = dict(
 COPY = dict(
   test_name_draft="쏠 타로 하우스 (가제)",
   intro=dict(rule="디저트 테스트 인트로와 동일 구성(제목 + 참여자 수 + 시작 버튼). 히어로 자리에 바다 친구들이 한 명씩 무작위로 지나가는 연출(디자인 가이드 5-1)",
-             participants="벌써 {count}명이 쏠 타로 하우스를 다녀갔어요", button="테스트 하기"),
+             participants="벌써 {count}명이 쏠 타로 하우스를 다녀갔어요", button="테스트 하기",
+             promo_banner="11월 한 달, 전체 리포트 {price} (정가 {list})"),
   welcome=dict(
     title="쏠 타로 하우스에 오신\n당신을 환영합니다.",
     sub="당신을 뭐라고 불러드리면 될까요?",
@@ -124,8 +125,9 @@ COPY = dict(
     headline="{nickname}님에게 온 세 장의 카드",
     paywall_title="이어지는 이야기는 리포트에서 열려요",
     paywall_body="세 장이 함께 들려주는 이야기, 마음 깊이 읽기, 웰니스 처방, 이번 주 실천 카드까지 이어서 읽을 수 있어요.",
-    paywall_price="전체 리포트 1,900원",
-    paywall_button="1,900원 결제하고 이어 읽기",
+    paywall_price="전체 리포트 {price}",
+    paywall_price_promo="11월 한정 · 전체 리포트 {price} (정가 {list})",
+    paywall_button="{price} 결제하고 이어 읽기",
     generating="바다 친구들이 리포트를 쓰고 있어요…",
     share="내 카드 공유하기", save="결과 저장하기", retry="다른 고민으로 다시 해 보기"),
   share_card=dict(title="{nickname}님의 웰니스 타로 세 장", sub="오늘 당신에게 온 카드는?", button="나도 카드 뽑기",

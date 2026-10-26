@@ -12,7 +12,7 @@ import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { parseE, mergeE, overlapWarnings, actionsOf } from "@/lib/tarot/validateV4.js";
 import { todayFromDb } from "@/lib/tarot/pagesV4.js";
-import { REPORT_ORDER_NAME, REPORT_PRICE, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
+import { REPORT_ORDER_NAME, currentReportPrice, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
@@ -451,7 +451,7 @@ export async function claim(s: SessionRow, userId: string | null) {
 }
 
 // ---------- 결제(토스) — 쏠 아스트로 하우스 결제와 같은 원칙 ----------
-// ① 금액은 서버가 정한다(REPORT_PRICE) ② 토스가 돌려준 값은 믿지 않고 시크릿 키로 승인 확인(confirm)한 뒤에만 결제 완료
+// ① 금액은 서버가 정한다(currentReportPrice — 11월 한정 990원, 그 밖 1,900원. 주문 행에 고정 저장해 결제 도중 날짜가 바뀌어도 그 주문 금액은 그대로) ② 토스가 돌려준 값은 믿지 않고 시크릿 키로 승인 확인(confirm)한 뒤에만 결제 완료
 // ③ 돈이 나갔을 수 있으면 절대 '취소'로 바꾸지 않는다(decideAfterConfirmFailure) ④ 같은 결과를 두 번 결제하면 두 번째를 토스에서 취소.
 
 type OrderRow = { id: string; user_id: string; session_id: string; amount: number; status: "pending" | "paid" | "canceled"; payment_key: string | null };
@@ -464,16 +464,17 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
   if (s.safety_level === "urgent" || s.result_status === "safety") throw new TarotError(403, "이 결과는 결제할 수 없어요.");
   if (s.picks.length < data.deck.pick_count || s.result_status !== "ready") throw new TarotError(409, "결과가 아직 준비되지 않았어요.");
   if (s.paid_at) throw Object.assign(new TarotError(409, "이미 결제한 리포트예요."), { paid: true });
+  const amount = currentReportPrice();
   const { data: row, error } = await db()
     .from("tarot_orders")
-    .insert({ user_id: userId, session_id: s.id, amount: REPORT_PRICE, withdrawal_version: WITHDRAWAL_NOTICE_VERSION })
+    .insert({ user_id: userId, session_id: s.id, amount, withdrawal_version: WITHDRAWAL_NOTICE_VERSION })
     .select("id")
     .single();
   if (error || !row) {
     console.error("tarot_orders 생성 실패:", error?.message);
     throw new TarotError(500, "주문을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
   }
-  return { orderId: row.id as string, orderName: REPORT_ORDER_NAME, amount: REPORT_PRICE, customerKey: userId };
+  return { orderId: row.id as string, orderName: REPORT_ORDER_NAME, amount, customerKey: userId };
 }
 
 async function settleOrder(orderId: string, status: "canceled") {

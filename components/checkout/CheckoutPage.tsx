@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
-import { WITHDRAWAL_CHECK_LABEL, WITHDRAWAL_NOTICE_LINES } from "@/lib/billing/pricing";
+import { REPORT_LIST_PRICE, WITHDRAWAL_CHECK_LABEL, WITHDRAWAL_NOTICE_LINES, won } from "@/lib/billing/pricing";
 import { TERMS_URL } from "@/lib/legal/urls";
 import { Stars } from "../Cards";
 import PageFoot from "../PageFoot";
@@ -98,7 +98,12 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
             {order && (
               <div className="rounded-2xl border border-gold px-4 py-3">
                 <p className="font-bold">{order.orderName}</p>
-                <p className="text-sm text-moon/80">{order.amount.toLocaleString("ko-KR")}원</p>
+                <p className="text-sm text-moon/80">
+                  {/* 금액은 서버가 정한 주문 금액 그대로. 정가보다 낮으면 11월 한정 할인 표시(lib/billing/pricing.ts) */}
+                  {order.amount < REPORT_LIST_PRICE && <span className="mr-2 text-moon/50 line-through">{won(REPORT_LIST_PRICE)}</span>}
+                  {won(order.amount)}
+                  {order.amount < REPORT_LIST_PRICE && <span className="ml-2 font-medium text-gold-soft">11월 한정 할인</span>}
+                </p>
               </div>
             )}
             {/* 결제 전 청약철회 안내(약관 제13조) — 동의해야 결제 수단이 열린다 */}
@@ -131,7 +136,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
               </p>
             )}
             <button type="button" className="btn block" disabled={!ready} onClick={pay}>
-              {order ? `${order.amount.toLocaleString("ko-KR")}원 결제하기` : ack ? "준비하는 중…" : "안내에 동의하면 결제할 수 있어요"}
+              {order ? `${won(order.amount)} 결제하기` : ack ? "준비하는 중…" : "안내에 동의하면 결제할 수 있어요"}
             </button>
           </>
         )}

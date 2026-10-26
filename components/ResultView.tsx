@@ -1,11 +1,13 @@
 "use client";
 
+import { usePromo } from "@/lib/client/usePromo";
+import { PROMO_REPORT_PRICE, REPORT_LIST_PRICE, won } from "@/lib/billing/pricing";
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, loadKey, ApiError, type ResultResponse, type ResultPage, type ResultCard } from "@/lib/client/api";
 import { getAccessToken } from "@/lib/supabase/browser";
-import { clean } from "@/lib/client/text";
+import { clean, fill } from "@/lib/client/text";
 import { cardImg } from "@/lib/client/cardImage";
 import { splitTeaser, parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
@@ -332,6 +334,8 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
 
 function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number }) {
   const c = ctx.copy.result;
+  const promo = usePromo() === true;
+  const price = promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE;
   return (
     <div className="lockwrap">
       {/* 고정 예시 문장(이 사용자의 내용 아님) — 화면 읽기 프로그램에는 숨김 */}
@@ -342,10 +346,11 @@ function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number
         {/* 결정형이면 "세 장이 고른 쪽"이 가장 큰 결제 이유 — 데이터의 _decision 문구 */}
         <b>{ctx.r.decision ? c.paywall_title_decision : c.paywall_title}</b>
         <p>{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
-        <p className="price">{c.paywall_price}</p>
+        {/* 11월 한정 990원(lib/billing/pricing.ts) — 정가·할인가 모두 같은 계산에서. 할인 중이면 정가도 함께 보여 준다. */}
+        <p className="price">{fill(promo ? c.paywall_price_promo : c.paywall_price, { price: won(price), list: won(REPORT_LIST_PRICE) })}</p>
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
-          {c.paywall_button}
+          {fill(c.paywall_button, { price: won(price) })}
         </button>
       </div>
     </div>
