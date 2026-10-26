@@ -1675,7 +1675,7 @@
    "paywall_body_decision": "왜 그쪽인지, 이번 주에 무엇부터 할지까지 이어서 읽을 수 있어요. 내 고민에 대어 본 해석과 웰니스 처방, 이번 주 실천 카드도 함께 열려요.",
    "paywall_price": "전체 리포트 {price}",
    "paywall_button": "{price} 결제하고 이어 읽기",
-   "paywall_price_rule": "2026-10-26 owner: 11월 한 달(1~30일, 한국 시간) 990원 할인. 금액은 코드(lib/billing/pricing.ts)가 {price}·{list}에 채운다 — 여기에 숫자를 쓰지 않는다.",
+   "paywall_price_rule": "2026-10-26 owner: 2026-10-26 ~ 11-30(한국 시간) 990원 할인, 할인 표시는 결제 화면에서만. 금액은 코드(lib/billing/pricing.ts)가 {price}·{list}에 채운다 — 여기에 숫자를 쓰지 않는다.",
    "generating": "바다 친구들이 리포트를 쓰고 있어요…",
    "share": "내 카드 공유하기",
    "save": "결과 저장하기",
