@@ -53,6 +53,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
   const sessionPromise = useRef<Promise<{ id: string; key: string }> | null>(null);
   const [busy, setBusy] = useState(false);
   const [netError, setNetError] = useState<string | null>(null);
+  const [needLogin, setNeedLogin] = useState(false); // 로그인 없이 볼 수 있는 하루 횟수를 다 씀
   const [shuffleId, setShuffleId] = useState<string | null>(null);
 
   const go = useCallback(
@@ -86,27 +87,24 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
     }
   }, []);
 
-  // 로그인 화면에서 [타로 보기]로 돌아온 경우(/?start=1): 로그인돼 있으면 바로 시작(주소는 아래 동기화가 /welcome으로).
+  // 로그인 화면에서 돌아온 경우(/?start=1, 예: 하루 횟수를 다 써서 로그인한 뒤): 바로 시작(주소는 아래 동기화가 /welcome으로).
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("start") !== "1") return;
-    void getRealSession().then((s) => {
-      window.history.replaceState(null, "", "/");
-      if (s) go({ type: "START" });
-    });
+    window.history.replaceState(null, "", "/");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 로그인 화면에서 돌아온 순간 한 번만 시작
+    go({ type: "START" });
   }, [go]);
 
   // ---------- 화면마다 자기 주소(owner 2026-10-21) ----------
   // 주소로 바로 들어온 경우(/welcome·/draw 새로고침 등): 고민·카드는 브라우저에 저장해 두지 않으므로 환영 화면부터 다시.
-  // 로그인 전이면 로그인 화면을 거친다(로그인해야 이용).
+  // 2026-10-26 owner: 로그인 없이도 볼 수 있다(로그인 화면을 거치지 않음).
   const [booting, setBooting] = useState(() => entryStep(initialStep) !== "intro");
   useEffect(() => {
     if (!booting) return;
-    void getRealSession().then((s) => {
-      if (!s) return router.replace(`/login?next=${encodeURIComponent(STEP_PATH.welcome)}`);
-      setState({ ...initialState(), screen: "welcome" } as FlowState);
-      setBooting(false);
-    });
-  }, [booting, router]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 주소로 바로 들어온 경우 한 번만 환영 화면으로
+    setState({ ...initialState(), screen: "welcome" } as FlowState);
+    setBooting(false);
+  }, [booting]);
   // 화면이 바뀌면 주소를 그 화면 것으로(pushState — 뒤로 가기가 이전 화면 주소로 간다). 결과 화면은 /result/{id}로 따로 이동.
   const screenRef = useRef(state.screen);
   screenRef.current = state.screen;
@@ -187,6 +185,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
       go(skip ? { type: "SKIP_WORRY" } : { type: "SUBMIT_WORRY", text, localUrgent: r.urgent });
     } catch (e) {
       setNetError(e instanceof ApiError ? e.message : "잠시 후 다시 시도해 주세요.");
+      setNeedLogin(e instanceof ApiError && e.needLogin);
     } finally {
       setBusy(false);
     }
@@ -251,7 +250,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
           className={COMPACT_SCENES.has(screen) ? "fade-up relative z-[1] mx-auto block h-[clamp(150px,26vh,240px)] w-full max-w-[480px] object-cover" : undefined}
         />
       )}
-      {screen === "intro" && <IntroScreen copy={copy} friends={friends} />}
+      {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
       {screen === "intro" && <PageFoot />}
       {screen === "welcome" && (
         <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
@@ -308,6 +307,12 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCEN
       {screen === "worry" && (
         <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} />
+          {needLogin && (
+            // 로그인 없이 볼 수 있는 하루 횟수를 다 씀 → 로그인하면 바로 다시 시작(/?start=1)
+            <Link href={`/login?next=${encodeURIComponent("/?start=1")}`} className="btn-night relative z-[1] mt-3 block w-full max-w-sm rounded-full py-3.5 text-center text-[15px] font-medium">
+              {copy.welcome.guest_limit_login}
+            </Link>
+          )}
         </Framed>
       )}
       {screen === "shuffle" && session && (
@@ -368,8 +373,7 @@ function Crescent() {
   );
 }
 
-function IntroScreen({ copy, friends }: { copy: C; friends: Friend[] }) {
-  const router = useRouter();
+function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; onStart: () => void }) {
   const [count, setCount] = useState<number | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const promo = usePromo() === true;
@@ -408,7 +412,7 @@ function IntroScreen({ copy, friends }: { copy: C; friends: Friend[] }) {
           </p>
         )}
         {/* 아스트로 첫 화면처럼 두 버튼(owner 2026-10-21). 로그인해야 이용할 수 있어서, 로그인 전이면 둘 다 로그인 화면을 거친다. */}
-        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={() => router.push(`/login?next=${encodeURIComponent("/?start=1")}`)}>
+        <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={onStart}>
           {copy.intro.button}
         </button>
         <Link href={loggedIn ? "/results" : "/login?next=/results"} className="btn-night-ghost block w-full rounded-full py-4 text-[16px] font-bold">

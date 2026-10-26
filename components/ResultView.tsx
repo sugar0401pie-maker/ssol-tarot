@@ -5,7 +5,7 @@ import { PROMO_REPORT_PRICE, REPORT_LIST_PRICE, won } from "@/lib/billing/pricin
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { api, loadKey, ApiError, type ResultResponse, type ResultPage, type ResultCard } from "@/lib/client/api";
+import { api, claimIfGuest, loadKey, ApiError, type ResultResponse, type ResultPage, type ResultCard } from "@/lib/client/api";
 import { getAccessToken } from "@/lib/supabase/browser";
 import { clean, fill } from "@/lib/client/text";
 import { cardImg } from "@/lib/client/cardImage";
@@ -117,6 +117,23 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   const [zoom, setZoom] = useState<{ src: string; alt: string; reversed: boolean } | null>(null);
   const [saved, setSaved] = useState(r.saved);
   const [msg, setMsg] = useState<string | null>(null);
+  // 로그인 없이 본 결과(2026-10-26): 로그인한 상태로 이 화면이 열리면 이 브라우저의 결과를 자동으로 계정에 붙인다(따로 누를 버튼 없음).
+  // 쏘웰라 버튼으로 로그인하러 갔다 온 경우(?go=sowella)는 붙인 뒤 바로 쏘웰라로 보낸다(쏘웰라는 계정에 붙은 결과만 읽는다).
+  const [goSowella] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("go") === "sowella");
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const ok = saved || (await claimIfGuest(id));
+      if (cancelled) return;
+      if (ok && !saved) setSaved(true);
+      if (goSowella && ok) window.location.href = sowellaUrl(id);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // 처음 한 번만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [sharing, setSharing] = useState(false);
   const closeShare = useCallback(() => setSharing(false), []);
   // 결과 쪽 맨 위 장면 그림 목록(빌드 때 만든 정적 목록). 못 받으면 그림 없이 그대로.
@@ -188,8 +205,8 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
     }
     try {
       if (!(await getAccessToken())) {
-        // 로그인 안 돼 있으면 로그인 화면으로 — 로그인 뒤 이 결과로 돌아와 다시 누르면 저장된다.
-        router.push(`/login?next=${encodeURIComponent(`/result/${id}`)}`);
+        // 로그인 안 돼 있으면 로그인 화면으로 — 로그인 뒤 이 결과로 돌아오면 자동으로 저장된다.
+        router.push(`/login?next=${encodeURIComponent(`/result/${id}/${idx + 1}`)}`);
         return;
       }
       await api(`/api/tarot/session/${id}/claim`, { key: loadKey(id), body: {} });
@@ -213,7 +230,15 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 모든 쪽을 다시 해석하지 않게.
   // [결제하고 이어 읽기] → 결제 화면(/checkout/{id}?page=쪽). 결제가 끝나면 누른 그 쪽으로 돌아온다.
   const pay = useCallback((page: number) => router.push(`/checkout/${id}?page=${page}`), [router, id]);
-  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay }), [id, r, copy, opts, pay]);
+  // [쏘웰라와 이어서 이야기하기]: 로그인 전이면 로그인 → 이 결과로 돌아와 자동 저장 → 쏘웰라(위 goSowella)
+  const chat = useCallback(
+    async (page: number) => {
+      if (await getAccessToken()) window.location.href = sowellaUrl(id);
+      else router.push(`/login?next=${encodeURIComponent(`/result/${id}/${page}?go=sowella`)}`);
+    },
+    [router, id],
+  );
+  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay, chat }), [id, r, copy, opts, pay, chat]);
 
   return (
     <div className="tv4">
@@ -297,7 +322,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   );
 }
 
-type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void };
+type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; chat: (page: number) => void };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
@@ -507,7 +532,15 @@ function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
             );
           case "button":
             return (
-              <a key={i} className="btn fill" href={sowellaUrl(ctx.id)}>
+              <a
+                key={i}
+                className="btn fill"
+                href={sowellaUrl(ctx.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  ctx.chat(ctx.r.pages.length); // 쏘웰라 쪽은 마지막 쪽
+                }}
+              >
                 {b.text}
               </a>
             );

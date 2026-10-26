@@ -77,7 +77,9 @@ COPY = dict(
     sub="당신을 뭐라고 불러드리면 될까요?",
     placeholder="닉네임", min_len=1, max_len=10,
     empty_error="불러드릴 이름을 적어 주세요.",
-    button="이렇게 불러주세요"),
+    button="이렇게 불러주세요",
+    guest_limit="오늘은 로그인 없이 볼 수 있는 횟수를 다 썼어요. 로그인하면 계속 볼 수 있어요.",
+    guest_limit_login="로그인하고 계속 보기"),
   experience=dict(
     title="{nickname}님,\n오늘은 어떤 고민을 가져오셨나요?",
     sub="타로카드는 처음이신지요?",

@@ -26,8 +26,8 @@ export async function readJson(req: Request): Promise<Record<string, unknown>> {
 export function fail(e: unknown) {
   if (e instanceof TarotError) {
     // 결제 쪽 오류는 화면이 다음 행동을 고를 수 있게 몇 가지 표시를 함께 보낸다(이미 결제됨, 결과 번호)
-    const extra = e as TarotError & { paid?: boolean; sessionId?: string };
-    return NextResponse.json({ error: e.message, ...(extra.paid ? { paid: true } : {}), ...(extra.sessionId ? { sessionId: extra.sessionId } : {}) }, { status: e.status });
+    const extra = e as TarotError & { paid?: boolean; sessionId?: string; needLogin?: boolean };
+    return NextResponse.json({ error: e.message, ...(extra.needLogin ? { needLogin: true } : {}), ...(extra.paid ? { paid: true } : {}), ...(extra.sessionId ? { sessionId: extra.sessionId } : {}) }, { status: e.status });
   }
   console.error("타로 API 오류:", e instanceof Error ? e.message : "unknown");
   return NextResponse.json({ error: "잠시 후 다시 시도해 주세요." }, { status: 500 });

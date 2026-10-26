@@ -18,6 +18,7 @@ import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
 import { frameCall, type FrameVote } from "./frameExamples";
+import { GuestLimitError, checkGuestStart } from "./guestLimit";
 import { MERGED_CLASSIFY_SYSTEM, mergedClassifyEnabled, splitMerged } from "./mergedClassify";
 import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
 
@@ -121,12 +122,20 @@ function assertNotSafety(s: SessionRow) {
 
 // ---------- 1. 세션 시작 ----------
 
-export async function createSession(input: { nickname: unknown; experience: unknown; userId: string | null }) {
-  // 2026-10-21 owner 결정: 로그인해야 테스트를 할 수 있다(예전엔 게스트도 끝까지 가능). 화면에서 막는 것과 별개로 서버에서도 막는다.
-  if (!input.userId) throw new TarotError(401, "로그인이 필요해요.");
+export async function createSession(input: { nickname: unknown; experience: unknown; userId: string | null; headers: { get(name: string): string | null } }) {
+  // 2026-10-26 owner 결정: 로그인 없이도 타로를 볼 수 있다(10-21 '로그인 필수'를 대체). 로그인은 결제·저장·쏘웰라로 갈 때 권한다.
+  // 대신 로그인 없는 시작은 같은 기기 24시간 3번·같은 IP 20번까지(고민 분류·연결 한 줄 AI 비용 — lib/tarot-glue/guestLimit.ts).
   const nickname = String(input.nickname ?? "").trim();
   if (nickname.length < copy.welcome.min_len) throw new TarotError(400, copy.welcome.empty_error);
   const experience = input.experience === "first" || input.experience === "returning" ? input.experience : null;
+  if (!input.userId) {
+    try {
+      await checkGuestStart(input.headers);
+    } catch (e) {
+      if (e instanceof GuestLimitError) throw Object.assign(new TarotError(429, copy.welcome.guest_limit), { needLogin: true });
+      throw e;
+    }
+  }
   const key = randomBytes(24).toString("hex");
   const { data: row, error } = await db()
     .from("tarot_sessions")

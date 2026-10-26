@@ -6,7 +6,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { api, ApiError } from "@/lib/client/api";
+import { api, ApiError, claimIfGuest } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
 import { REPORT_LIST_PRICE, WITHDRAWAL_CHECK_LABEL, WITHDRAWAL_NOTICE_LINES, won } from "@/lib/billing/pricing";
 import { TERMS_URL } from "@/lib/legal/urls";
@@ -29,10 +29,12 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   const widgetRef = useRef<Widget | null>(null);
 
   // 결제는 로그인한 본인만(결과도 로그인해야 만들 수 있다)
+  // 로그인 없이 본 결과(2026-10-26)면 로그인한 지금 이 브라우저의 결과를 먼저 계정에 붙인다 — 주문은 계정 결과에만 만든다.
   useEffect(() => {
-    void getRealSession().then((s) => {
-      if (!s) router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
-      else setChecked(true);
+    void getRealSession().then(async (s) => {
+      if (!s) return router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
+      await claimIfGuest(id);
+      setChecked(true);
     });
   }, [router, id, page]);
 
