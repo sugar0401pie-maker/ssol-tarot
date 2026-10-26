@@ -18,6 +18,7 @@ import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
 import { frameCall, type FrameVote } from "./frameExamples";
+import { MERGED_CLASSIFY_SYSTEM, mergedClassifyEnabled, splitMerged } from "./mergedClassify";
 import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
@@ -204,15 +205,34 @@ export async function runClassification(sessionId: string) {
   const msg = worryUserMessage(worry);
   // v4.1: A2 사용자 입력에 비슷한 고민의 정답 5개를 붙이고(few-shot), 같은 5개의 투표를 두 번째 의견용으로 저장한다.
   const fc = frameCall(worry);
-  const [cls, frame] = await Promise.all([
-    tryTwice("고민 분류(A)", async () => parseClassification(await generateText(CLASSIFY_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data)),
+  const callA = () => tryTwice("고민 분류(A)", async () => parseClassification(await generateText(CLASSIFY_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data));
+  const callA2 = () =>
     tryTwice("고민 틀(A2)", async () => {
       const r = parseFrame(await generateText(FRAME_SYSTEM, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
       // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
       if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
       return r.frame;
-    }),
-  ]);
+    });
+  let cls: Classification | null = null;
+  let frame: unknown = null;
+  if (mergedClassifyEnabled()) {
+    // A+A2 한 번 호출(owner 2026-10-26). 어느 절반이든 검증을 못 넘으면 그 절반만 예전처럼 따로 다시 부른다 —
+    // 특히 안전 판단(A)이 빠진 채로 넘어가지 않게.
+    try {
+      const parts = splitMerged(await generateText(MERGED_CLASSIFY_SYSTEM, fc.user, { timeoutMs: 20000, maxOutputTokens: 2400, label: "A+A2" }));
+      cls = parts.classification ? parseClassification(parts.classification, data) : null;
+      frame = parts.frame ? parseFrame(parts.frame).frame : null;
+    } catch (e) {
+      console.warn("A+A2 호출 실패:", e instanceof Error ? e.message : "unknown");
+    }
+    if (!cls || !frame) {
+      const [c2, f2] = await Promise.all([cls ? Promise.resolve(cls) : callA(), frame ? Promise.resolve(frame) : callA2()]);
+      cls = c2;
+      frame = f2;
+    }
+  } else {
+    [cls, frame] = await Promise.all([callA(), callA2()]);
+  }
   // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety — v4.1: none < watch < urgent, CSO 2026-10-22).
   // urgent만 카드를 멈추고, watch는 결과 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄. 분류에 실패해도 키워드 결과는 유지.
   const merged = mergeSafety(screenWorry(worry), cls);
