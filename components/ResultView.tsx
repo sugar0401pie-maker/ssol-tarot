@@ -27,6 +27,8 @@ type Ready = Extract<ResultResponse, { status: "ready" }>;
 
 // 쏘웰라 채팅(같은 계정) — 10쪽 버튼(결제 후에 열림).
 const SOWELLA_URL = "https://app.ssolwellnesshouse.com/chat";
+// 쏘웰라로 넘어갈 때 어느 타로 결과에서 왔는지 붙인다(owner 2026-10-26) — 쏘웰라가 같은 계정의 그 결과로 맞춤 인사를 하고 대화에 참고한다.
+const sowellaUrl = (id: string) => `${SOWELLA_URL}?from=tarot&result=${encodeURIComponent(id)}`;
 
 // 카드 그림을 못 받으면 깨진 그림 아이콘 대신 빈 카드 틀만 남긴다(카드명은 옆 글자로 이미 보임).
 function hideBroken(e: React.SyntheticEvent<HTMLImageElement>) {
@@ -209,7 +211,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 모든 쪽을 다시 해석하지 않게.
   // [결제하고 이어 읽기] → 결제 화면(/checkout/{id}?page=쪽). 결제가 끝나면 누른 그 쪽으로 돌아온다.
   const pay = useCallback((page: number) => router.push(`/checkout/${id}?page=${page}`), [router, id]);
-  const ctx: Ctx = useMemo(() => ({ r, copy, opts, openZoom: setZoom, pay }), [r, copy, opts, pay]);
+  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay }), [id, r, copy, opts, pay]);
 
   return (
     <div className="tv4">
@@ -293,7 +295,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   );
 }
 
-type Ctx = { r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void };
+type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
@@ -500,7 +502,7 @@ function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
             );
           case "button":
             return (
-              <a key={i} className="btn fill" href={SOWELLA_URL}>
+              <a key={i} className="btn fill" href={sowellaUrl(ctx.id)}>
                 {b.text}
               </a>
             );

@@ -9,6 +9,7 @@ import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
 import { decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
+import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { parseE, mergeE, overlapWarnings, actionsOf } from "@/lib/tarot/validateV4.js";
 import { todayFromDb } from "@/lib/tarot/pagesV4.js";
 import { REPORT_ORDER_NAME, REPORT_PRICE, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
@@ -349,6 +350,25 @@ export async function prepareResult(sessionId: string) {
     }
   }
   await update(sessionId, { links, result_status: "ready" });
+  await writeChatSummary(sessionId);
+}
+
+// 쏘웰라 채팅이 참고할 요약(tarot_sessions.chat_summary, owner 2026-10-26)을 화면에 보이는 것과 같은 걸러진 쪽으로 만든다.
+// 무료 결과가 준비됐을 때 한 번, 유료 리포트가 끝났을 때 다시 쓴다. 칸이 아직 없거나(마이그레이션 20261026000000 전) 실패해도
+// 결과 화면에는 영향이 없게 로그만 남긴다(고민 원문·요약 내용은 로그에 넣지 않는다).
+async function writeChatSummary(sessionId: string) {
+  try {
+    const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
+    const s = row as SessionRow | null;
+    if (!s) return;
+    const r = await getResult(s);
+    if (r.status !== "ready") return;
+    const chat_summary = buildChatSummary(r.pages as Parameters<typeof buildChatSummary>[0], { worryText: s.worry_text ?? null, nickname: s.nickname ?? null, createdAt: s.created_at, paid: r.paid });
+    const { error } = await db().from("tarot_sessions").update({ chat_summary }).eq("id", sessionId);
+    if (error) console.warn("chat_summary 저장 실패(마이그레이션 20261026000000 전일 수 있음):", error.message);
+  } catch (e) {
+    console.warn("chat_summary 만들기 실패:", e instanceof Error ? e.message : "unknown");
+  }
 }
 
 function expandPicks(picks: Pick[]) {
@@ -586,6 +606,7 @@ export async function generateReport(sessionId: string) {
       if (overlaps.length) console.info("행동 겹침 경고:", overlaps.map((o) => `${o.a}↔${o.b}`).join(", "));
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });
+    await writeChatSummary(sessionId);
   } catch (e) {
     console.error("유료 리포트 생성 실패:", e instanceof Error ? e.message : "unknown");
     // 실패해도 결제한 사람은 결과를 본다 — report 없이 DB 문장(대체 경로)으로 열림
