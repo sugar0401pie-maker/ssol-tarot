@@ -101,10 +101,10 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
               <div className="rounded-2xl border border-gold px-4 py-3">
                 <p className="font-bold">{order.orderName}</p>
                 <p className="text-sm text-moon/80">
-                  {/* 금액은 서버가 정한 주문 금액 그대로. 정가보다 낮으면 11월 한정 할인 표시(lib/billing/pricing.ts) */}
+                  {/* 금액은 서버가 정한 주문 금액 그대로. 정가보다 낮으면 정가 취소선 + "할인가"(owner 2026-10-26 — 할인 표시는 이 화면에서만)(lib/billing/pricing.ts) */}
                   {order.amount < REPORT_LIST_PRICE && <span className="mr-2 text-moon/50 line-through">{won(REPORT_LIST_PRICE)}</span>}
                   {won(order.amount)}
-                  {order.amount < REPORT_LIST_PRICE && <span className="ml-2 font-medium text-gold-soft">11월 한정 할인</span>}
+                  {order.amount < REPORT_LIST_PRICE && <span className="ml-2 font-medium text-gold-soft">할인가</span>}
                 </p>
               </div>
             )}

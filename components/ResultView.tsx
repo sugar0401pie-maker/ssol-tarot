@@ -371,8 +371,8 @@ function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number
         {/* 결정형이면 "세 장이 고른 쪽"이 가장 큰 결제 이유 — 데이터의 _decision 문구 */}
         <b>{ctx.r.decision ? c.paywall_title_decision : c.paywall_title}</b>
         <p>{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
-        {/* 11월 한정 990원(lib/billing/pricing.ts) — 정가·할인가 모두 같은 계산에서. 할인 중이면 정가도 함께 보여 준다. */}
-        <p className="price">{fill(promo ? c.paywall_price_promo : c.paywall_price, { price: won(price), list: won(REPORT_LIST_PRICE) })}</p>
+        {/* 지금 가격만(lib/billing/pricing.ts). 할인 표시는 결제 화면에서만(owner 2026-10-26). */}
+        <p className="price">{fill(c.paywall_price, { price: won(price) })}</p>
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
           {fill(c.paywall_button, { price: won(price) })}

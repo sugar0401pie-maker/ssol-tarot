@@ -480,7 +480,7 @@ export async function claim(s: SessionRow, userId: string | null) {
 }
 
 // ---------- 결제(토스) — 쏠 아스트로 하우스 결제와 같은 원칙 ----------
-// ① 금액은 서버가 정한다(currentReportPrice — 11월 한정 990원, 그 밖 1,900원. 주문 행에 고정 저장해 결제 도중 날짜가 바뀌어도 그 주문 금액은 그대로) ② 토스가 돌려준 값은 믿지 않고 시크릿 키로 승인 확인(confirm)한 뒤에만 결제 완료
+// ① 금액은 서버가 정한다(currentReportPrice — 할인 기간(10/26~11/30) 990원, 그 밖 1,900원. 주문 행에 고정 저장해 결제 도중 날짜가 바뀌어도 그 주문 금액은 그대로) ② 토스가 돌려준 값은 믿지 않고 시크릿 키로 승인 확인(confirm)한 뒤에만 결제 완료
 // ③ 돈이 나갔을 수 있으면 절대 '취소'로 바꾸지 않는다(decideAfterConfirmFailure) ④ 같은 결과를 두 번 결제하면 두 번째를 토스에서 취소.
 
 type OrderRow = { id: string; user_id: string; session_id: string; amount: number; status: "pending" | "paid" | "canceled"; payment_key: string | null };
