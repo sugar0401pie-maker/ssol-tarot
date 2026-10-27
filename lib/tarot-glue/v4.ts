@@ -1,6 +1,7 @@
 // v4.0 결과 파이프라인의 순수 부분(네트워크 없음 → 단위 테스트 가능). 서버(lib/server/session.ts)가 이 함수들만 부른다.
 //   ① 방향 계산(decision.js)  ② C 호출 입력 만들기  ③ 10쪽 조립(buildPages → buildPagesV4, v4.2)  ④ 결제 전 응답 거르기
 // 원본 패키지 코드(lib/tarot/*.js)는 바꾸지 않는다.
+import { applyCardGist } from "./cardGist.ts";
 import data from "../../data/tarot_data.json" with { type: "json" };
 import tables from "../../data/decision_tables.json" with { type: "json" };
 import { pickTable, isDecisionFrame, lean as leanOf, type Lean } from "../tarot/decision.js";
@@ -100,15 +101,18 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
     name, cls, picks, data, links: C?.links ?? null, safety, worryText: worryText || "", paid: true,
     story: sa?.story ?? null, apply: sa?.apply ?? null, key: sa?.key ?? null, storyHead: sa?.storyHead ?? null, applyHead: sa?.applyHead ?? null,
   });
-  return buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
+  const pages = buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
+  return applyCardGist(pages, lean, summaryTitle(), { hideSummary: false });
 }
+const summaryTitle = () => String((data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");
 
 // 10쪽 조립(결제 전). C는 parseC 결과(통과한 칸만), D·E는 결제 뒤에만 생기므로 지금은 없음.
 export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, lean, C }: {
   name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null;
 }): any[] {
   const base = buildPages({ name, cls, picks, data, links: C?.links ?? null, safety, worryText: worryText || "", paid: false });
-  const pages = buildPagesV4({ base, frame, lean, C, E: null, name, paid: false, data, safety });
+  // 5쪽 카드별 이유 목록은 결제 후에만(owner 2026-10-27) — 대신 첫 줄 뒤에 "카드 내용을 종합하면 …" 한 문장.
+  const pages = applyCardGist(buildPagesV4({ base, frame, lean, C, E: null, name, paid: false, data, safety }), lean, summaryTitle(), { hideSummary: true });
   // 7쪽(잠긴 쪽) 예고를 카드 결과의 풀리는 속도에 맞춰(owner 2026-10-21 "카드는 앞으로 {해결된다}고 말해요, 이유는 다음과 같아요").
   // 속도는 7쪽 흐름 판정과 같은 점수(comboScore) — 결정형의 '어느 쪽'은 드러내지 않는다.
   const teaser = paceTeaser(comboScore({ picks, data, cls, worryText: worryText || "" }).pace);

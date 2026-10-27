@@ -341,8 +341,9 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
   if (isLocked(p, r.paid)) {
     return (
       <>
+        {/* 6쪽 예고만 굵게(owner 2026-10-27) */}
         {p.teaser && (
-          <p className="teaser">
+          <p className={p.page === 6 ? "teaser font-bold" : "teaser"}>
             {splitTeaser(p.teaser).map((l, i) => (
               <span key={i} className="block">
                 {l}

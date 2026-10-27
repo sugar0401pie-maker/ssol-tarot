@@ -6,6 +6,7 @@ import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, 
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
+import { applyCardGist } from "./cardGist.ts";
 import { picksFromSlots, createShuffle } from "../tarot/deck.js";
 import { parseFrame, parseC } from "../tarot/validateV4.js";
 import { screenText, mergeSafety } from "../tarot/safety.js";
@@ -112,7 +113,10 @@ test("결제 후 10쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   const E = parseE(readJ("E_out.json"), { lean, frame, violence: safety.violence }).E;
   const P = buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C, sa, E });
   assert.equal(P.length, 10); // v4.2: 패키지가 처음부터 10쪽
-  assert.deepEqual(P.map((p: { body?: string }) => p.body), ref.paid.map((p: { body?: string }) => p.body));
+  // 패키지 흐름 + 우리가 5쪽 첫 줄 뒤에 붙이는 종합 한 문장(owner 2026-10-27) — 그 밖은 그대로
+  const refPaid = applyCardGist(ref.paid, lean, "세 장을 종합하면 이렇습니다", { hideSummary: false });
+  assert.match(String(P[4].body), /카드 내용을 종합하면 .+ 모양입니다\./);
+  assert.deepEqual(P.map((p: { body?: string }) => p.body), refPaid.map((p: { body?: string }) => p.body));
   // 응답에는 본문이 실리고(결론 포함) 내부 칸(combo·map·locked)은 빠진다
   const out = sanitizePaid(P);
   assert.ok(out[4].body && /세 장을 합치면 ‘현재 회사에 남기’ 쪽/.test(String(out[4].body)));
