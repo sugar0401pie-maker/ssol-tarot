@@ -116,7 +116,28 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
   // 7쪽(잠긴 쪽) 예고를 카드 결과의 풀리는 속도에 맞춰(owner 2026-10-21 "카드는 앞으로 {해결된다}고 말해요, 이유는 다음과 같아요").
   // 속도는 7쪽 흐름 판정과 같은 점수(comboScore) — 결정형의 '어느 쪽'은 드러내지 않는다.
   const teaser = paceTeaser(comboScore({ picks, data, cls, worryText: worryText || "" }).pace);
-  return teaser ? pages.map((p) => (p.page === 7 ? { ...p, teaser } : p)) : pages;
+  const withTeaser = teaser ? pages.map((p) => (p.page === 7 ? { ...p, teaser } : p)) : pages;
+  // 블러 아래 고정 예시(민준님 예시)를 이 사람의 이름·카드 이름으로 바꿔 보낸다(owner 2026-10-30: 다른 고객 리포트로 오해).
+  // 내용(해석 문장)은 여전히 고정 예시라 이 사람의 결제 본문은 보내지 않는다.
+  const names = picks.map((p) => String(p.card?.name ?? ""));
+  const locked5 = String((data.copy.result as any).blur_samples?.locked5 ?? "");
+  return withTeaser.map((p) =>
+    p.page === 5 ? { ...p, blur: personalizeBlur(locked5, name, names) || null } : p.blur ? { ...p, blur: personalizeBlur(String(p.blur), name, names) } : p,
+  );
+}
+
+/** 블러 고정 예시 속 이름(민준님)과 예시 카드 이름 세 장(자리 순서)을 이 사람의 것으로. */
+export const BLUR_SAMPLE_NAME = "민준";
+export const BLUR_SAMPLE_CARDS = ["바위 위의 쉼", "지키는 자리", "품어 주는 품"] as const;
+export function personalizeBlur(text: string, name: string, cardNames: string[]): string {
+  let out = text.replaceAll(`${BLUR_SAMPLE_NAME}님`, name ? `${name}님` : "당신");
+  BLUR_SAMPLE_CARDS.forEach((c, i) => {
+    if (cardNames[i]) out = out.replaceAll(c, `\u0000${i}\u0000`);
+  });
+  BLUR_SAMPLE_CARDS.forEach((_c, i) => {
+    if (cardNames[i]) out = out.replaceAll(`\u0000${i}\u0000`, cardNames[i]);
+  });
+  return out;
 }
 
 /** 7쪽 예고 문장(데이터 copy.result.v4.teaser7_pace + pace_phrases). 문구가 없으면 null(패키지 기본 예고 그대로). */

@@ -42,3 +42,10 @@ test("결제 전: 5쪽 카드별 목록을 빼고 첫 줄 뒤에 종합 문장, 
   const [paid] = applyCardGist([{ page: 5, body: `${free}\n\n**결론**` }], lean, T, { hideSummary: false });
   assert.match(paid.body, /모양입니다\.\n\n세 장을 종합하면 이렇습니다\n◦ 지나온 길 — a\n\n\*\*결론\*\*$/);
 });
+
+import { personalizeBlur } from "./v4.ts";
+test("블러 고정 예시: 민준님·예시 카드 이름을 이 사람 것으로(겹치는 이름도 안전하게)", () => {
+  const t = "민준님은 ‘바위 위의 쉼’ → ‘지키는 자리’ → ‘품어 주는 품’";
+  assert.equal(personalizeBlur(t, "과곽이", ["품어 주는 품", "첫 물장구", "고요히 바라보기"]), "과곽이님은 ‘품어 주는 품’ → ‘첫 물장구’ → ‘고요히 바라보기’");
+  assert.equal(personalizeBlur("민준님", "", []), "당신");
+});

@@ -5,6 +5,13 @@ import { createShuffle, pickSlot } from "@/lib/tarot/deck.js";
 import { mergeSafety } from "@/lib/tarot/safety.js";
 import { screenWorry } from "@/lib/tarot-glue/screenWorry";
 import { buildSafetyNotice } from "@/lib/tarot/assembleReport.js";
+
+// 결과 화면 안내 박스. 폭력 안내("때리거나 위협하는 일은…")는 띄우지 않는다(owner 2026-10-30 — 일상 연애 고민에
+// 잘못 뜬 사례가 있어 완전히 없애기로 결정). 폭력 판정 자체는 그대로라 다가가기 실천·처방 제외와 방향 끄기는 유지된다.
+// '관계 속 두려움' 안내는 그대로.
+function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"]): string | null {
+  return safety.violence ? null : buildSafetyNotice({ data, safety });
+}
 import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
 import { decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
@@ -448,7 +455,7 @@ export async function getResult(s: SessionRow) {
       createdAt: s.created_at,
       cards: picks.map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
       pages: sanitizePaid(pages, { other: lean?.other ?? null }),
-      notice: buildSafetyNotice({ data, safety }),
+      notice: resultNotice(safety),
       paid: true,
       decision,
       saved: Boolean(s.user_id),
@@ -462,7 +469,7 @@ export async function getResult(s: SessionRow) {
     cards: picks.map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
     pages: sanitizeUnpaid(pages),
     // v4: 안내 박스는 폭력(구체 행동)·관계 속 두려움일 때만(주의 단계 삭제). 결제와 상관없이 보임.
-    notice: buildSafetyNotice({ data, safety }),
+    notice: resultNotice(safety),
     paid: false,
     // 결정형 고민인지(세 장이 한쪽을 골랐는지)만 — 어느 쪽인지는 보내지 않는다. 결제 카드 문구를 고르는 데 쓴다.
     decision,

@@ -330,7 +330,8 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
   if (p.page === 5 && !r.paid) {
     // 5쪽: 메인 문구·첫 줄·카드별 한 줄까지 무료, 결론부터는 결제 후. 서버가 결론을 보내지 않으므로 블러 아래는
     // 데이터의 5쪽 전용 고정 예시(blur_samples.locked5 — 민준님 예시, 이 사용자 내용 아님).
-    const sample = ctx.copy.result.blur_samples.locked5;
+    // 서버가 이 사람의 이름·카드 이름으로 바꿔 보낸 예시(p.blur)를 쓰고, 없으면(예전 서버) 데이터 원문.
+    const sample = p.blur ?? ctx.copy.result.blur_samples.locked5;
     return (
       <>
         <Blocks blocks={parseBlocks(p.free, opts)} ctx={ctx} />

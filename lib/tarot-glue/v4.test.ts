@@ -86,7 +86,9 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   assert.equal(raw.length, 10);
   assert.ok(raw[4].locked, "원본 5쪽에는 locked(결론)가 들어 있음 — 그래서 거르는 함수가 필요");
   const out = sanitizeUnpaid(raw);
-  const text = JSON.stringify(out);
+  // blur = 고정 예시(민준님 예시를 이 사람 이름·카드 이름으로 바꾼 것, 2026-10-30)라 검사에서 뺀다 — 이 사람의 결론·본문이 새는지만 본다.
+  const text = JSON.stringify(out.map(({ blur: _b, ...rest }: { blur?: unknown }) => rest));
+  assert.ok(String(out[4].blur).includes(`${cs.name}님`) && !String(out[4].blur).includes("민준"), "5쪽 블러 예시는 이 사람 이름으로");
   assert.ok(!("locked" in out[4]) && !("combo" in out[4]) && !("map" in out[4]));
   assert.ok(!text.includes("세 장을 합치면"), "결론 문장이 새면 안 됨");
   assert.ok(!text.includes("C_out") && !text.includes("[[읽기 지도"), "읽기 지도(점수)는 결제 전에 안 보냄");
