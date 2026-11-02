@@ -6,6 +6,7 @@
 // 순수 함수(네트워크 없음) — 결제 전 응답에 세 번째 카드가 새지 않는지 테스트로 확인한다(secretThird.test.ts).
 import { josa } from "../tarot/josa.js";
 import { cleanOption } from "../tarot/decision.js";
+import { twoCardGist } from "./cardGist.ts";
 
 export type SecretCopy = {
   intro: string; worry_title: string; two_title: string; same: string; split: string; general: string;
@@ -54,13 +55,23 @@ export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, cop
       const p = picks[i];
       return `◦ ${p.positionName} ‘${p.card.name}’${p.reversed ? "(역방향)" : ""} — ${c.reason}`;
     });
-    out.push([`**${copy.two_title}**`, ...lines].join("\n"));
+    // 제목 → 두 장을 종합한 한 문장(먼저) → 카드별 목록(owner 2026-11-02)
+    const gist = twoCardGist(lean);
+    out.push(`**${copy.two_title}**`);
+    if (gist) out.push(gist);
+    out.push(lines.join("\n"));
     const same = two[0].option === two[1].option;
-    out.push(same && options ? fill(copy.same, { options }) : same ? copy.general : copy.split);
+    out.push(keyLine(same && options ? fill(copy.same, { options }) : same ? copy.general : copy.split));
   } else {
-    out.push(copy.general);
+    out.push(keyLine(copy.general));
   }
   return out.join("\n\n");
+}
+
+/** "세 번째 카드는 앞으로의 열쇠예요." 문장만 굵게 + 남색(owner 2026-11-02) — "!! " 문단은 굵은 글씨를 남색으로 그린다 */
+export const KEY_SENTENCE = "세 번째 카드는 앞으로의 열쇠예요.";
+export function keyLine(text: string): string {
+  return text.includes(KEY_SENTENCE) ? `!! ${text.replace(KEY_SENTENCE, `**${KEY_SENTENCE}**`)}` : text;
 }
 
 export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null }: {

@@ -80,6 +80,22 @@ export function cardGistLine(lean: { option?: string; cards?: { option?: string;
 }
 
 /**
+ * 3쪽 "지금까지 두 장이 보여 준 것" 맨 위 종합 한 문장(owner 2026-11-02) — 첫 번째·두 번째 카드의 뜻만으로(세 번째 카드는 결제 전 비밀).
+ * 두 장이 같은 쪽: "두 장을 종합하면 A고, B 모양이에요." / 다른 쪽: "두 장을 종합하면 A고, 한편으로는 B 모양이에요."
+ * 선택지 이름은 넣지 않는다(바로 아래 목록에 있음). 바꿀 수 없는 카드가 있으면 null(문장 없이 목록만).
+ */
+export function twoCardGist(lean: { cards?: { option?: string; reason?: string | null }[] } | null | undefined): string | null {
+  const two = (lean?.cards ?? []).slice(0, 2);
+  if (two.length < 2) return null;
+  const cl = two.map((c) => splitClause(clauseOfReason(c?.reason) ?? ""));
+  if (!cl[0] || !cl[1]) return null;
+  const a = piece(cl[0], false), b = piece(cl[1], true);
+  if (!a || !b) return null;
+  const split = two[0]?.option !== two[1]?.option;
+  return `두 장을 종합하면 ${a}, ${split ? "한편으로는 " : ""}${b} 모양이에요.`;
+}
+
+/**
  * 5쪽 첫 줄(lead) 뒤에 종합 한 문장을 붙인다(owner 2026-10-27). 결제 전(hideSummary)에는
  * "세 장을 종합하면 이렇습니다" 카드별 이유 목록을 응답에서 빼서 블러 아래로 보낸다(데이터를 아예 보내지 않음).
  * 결정형이 아니거나(목록·lean 없음) 문장을 만들 수 없으면 목록 숨김만 하고 문장은 붙이지 않는다.

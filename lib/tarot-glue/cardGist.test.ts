@@ -49,3 +49,20 @@ test("블러 고정 예시: 민준님·예시 카드 이름을 이 사람 것으
   assert.equal(personalizeBlur(t, "과곽이", ["품어 주는 품", "첫 물장구", "고요히 바라보기"]), "과곽이님은 ‘품어 주는 품’ → ‘첫 물장구’ → ‘고요히 바라보기’");
   assert.equal(personalizeBlur("민준님", "", []), "당신");
 });
+
+import { twoCardGist } from "./cardGist.ts";
+test("3쪽 두 장 종합 한 문장: 같은 쪽 / 다른 쪽, 세 번째 카드는 쓰지 않음", () => {
+  const R2 = (c: string, o: string) => `${c}라, ‘${o}’ 쪽을 가리켜요.`;
+  const same = { cards: [{ option: "남기", reason: R2("서두르지 않고 혼자 생각을 정리하며 기다리는 카드", "남기") }, { option: "남기", reason: R2("변화가 아직 낯설어 예전 자리를 지키고 싶은 상태", "남기") }, { option: "이직", reason: R2("새 단계를 시작할 힘이 있는 카드", "이직") }] };
+  assert.equal(twoCardGist(same), "두 장을 종합하면 서두르지 않고 혼자 생각을 정리하며 기다리고, 변화가 아직 낯설어 예전 자리를 지키고 싶은 모양이에요.");
+  const split = { cards: [{ option: "이직", reason: R2("가진 역량으로 새 자리를 직접 열 수 있는 카드", "이직") }, { option: "남기", reason: R2("지금 자리에서 받는 안정과 보살핌을 누리는 카드", "남기") }] };
+  assert.equal(twoCardGist(split), "두 장을 종합하면 가진 역량으로 새 자리를 직접 열 수 있고, 한편으로는 지금 자리에서 받는 안정과 보살핌을 누리는 모양이에요.");
+  assert.doesNotMatch(String(twoCardGist(same)), /새 단계/);
+  assert.equal(twoCardGist(null), null);
+});
+
+import { keyLine } from "./secretThird.ts";
+test("3쪽 '세 번째 카드는 앞으로의 열쇠예요.'만 굵게·남색 문단으로", () => {
+  assert.equal(keyLine("하지만 답은 아직 정해지지 않았어요. 세 번째 카드는 앞으로의 열쇠예요. 앞으로…"), "!! 하지만 답은 아직 정해지지 않았어요. **세 번째 카드는 앞으로의 열쇠예요.** 앞으로…");
+  assert.equal(keyLine("두 장이 서로 다른 쪽을 가리키고 있어요."), "두 장이 서로 다른 쪽을 가리키고 있어요.");
+});
