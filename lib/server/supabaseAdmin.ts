@@ -17,9 +17,13 @@ export function createAdminClient(): SupabaseClient {
 
 // "Authorization: Bearer <토큰>"으로 로그인한 실제 사용자 id. 없거나 익명·무효면 null(게스트로 진행).
 export async function getUserIdFromAuthHeader(header: string | null): Promise<string | null> {
+  return (await getAuthUser(header))?.id ?? null;
+}
+// 같은 확인 + 이메일(결제 없이 여는 기간 한정 계정 확인용 — lib/billing/compAccess.ts)
+export async function getAuthUser(header: string | null): Promise<{ id: string; email: string | null } | null> {
   const match = header?.match(/^Bearer\s+(.+)$/i);
   if (!match) return null;
   const { data, error } = await createAdminClient().auth.getUser(match[1]);
   if (error || !data.user || data.user.is_anonymous) return null;
-  return data.user.id;
+  return { id: data.user.id, email: data.user.email ?? null };
 }

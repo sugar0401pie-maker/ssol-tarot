@@ -44,13 +44,17 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   // 이용 약관에 동의해야 주문을 만들고 결제 수단을 연다
   useEffect(() => {
     if (!checked || !ack || order) return;
-    api<Order>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } })
-      .then(setOrder)
+    api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } })
+      .then((o) => {
+        // 기간 한정 무료 열람 계정: 결제창 없이 바로 결과로(결제 직후와 같이 세 번째 카드가 뒤집히며 열림)
+        if ("comp" in o) return router.replace(`/result/${o.sessionId}/${page}?opened=1`);
+        setOrder(o);
+      })
       .catch((e) => {
         if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) router.replace(back);
         else setError(e instanceof ApiError ? e.message : "주문을 만들지 못했어요.");
       });
-  }, [checked, ack, order, id, router, back]);
+  }, [checked, ack, order, id, router, back, page]);
 
   useEffect(() => {
     if (!order || !TOSS_CLIENT_KEY) return;

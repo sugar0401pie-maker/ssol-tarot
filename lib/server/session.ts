@@ -20,6 +20,7 @@ import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { parseE, mergeE, overlapWarnings, actionsOf } from "@/lib/tarot/validateV4.js";
 import { todayFromDb } from "@/lib/tarot/pagesV4.js";
 import { REPORT_ORDER_NAME, currentReportPrice, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
+import { hasCompAccess } from "@/lib/billing/compAccess";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
@@ -511,13 +512,21 @@ export async function claim(s: SessionRow, userId: string | null) {
 type OrderRow = { id: string; user_id: string; session_id: string; amount: number; status: "pending" | "paid" | "canceled"; payment_key: string | null };
 const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 뒤 이 화면을 새로고침해 주세요. 계속되면 contact@ssolwellness.com으로 알려 주세요.";
 
-export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }) {
+export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null }: { email?: string | null } = {}) {
   if (!userId || s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
   // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
   if (body.withdrawalAck !== true) throw new TarotError(400, "이용 관련 약관에 동의해 주세요.");
   if (s.safety_level === "urgent" || s.result_status === "safety") throw new TarotError(403, "이 결과는 결제할 수 없어요.");
   if (s.picks.length < data.deck.pick_count || s.result_status !== "ready") throw new TarotError(409, "결과가 아직 준비되지 않았어요.");
   if (s.paid_at) throw Object.assign(new TarotError(409, "이미 결제한 리포트예요."), { paid: true });
+  // 기간 한정 무료 열람 계정(owner 지정, lib/billing/compAccess.ts): 토스 없이 결제한 것처럼 열고 리포트를 만든다.
+  // 주문·결제 기록과 결제 집계(countEvent "paid")는 남기지 않는다. 위의 본인·안전·준비 확인은 그대로 거친다.
+  if (hasCompAccess(email)) {
+    const now = new Date().toISOString();
+    await update(s.id, { paid_at: now, report_status: "generating", report_started_at: now });
+    console.info("타로 무료 열람 권한으로 리포트 열림:", s.id);
+    return { comp: true as const, sessionId: s.id };
+  }
   const amount = currentReportPrice();
   const { data: row, error } = await db()
     .from("tarot_orders")
