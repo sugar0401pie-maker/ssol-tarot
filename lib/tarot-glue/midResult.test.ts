@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import db from "../../data/mid_result_db.json" with { type: "json" };
 import { midResult, type MidDb } from "./midResult.ts";
 import { worryPageBody, type SecretCopy } from "./secretThird.ts";
+import { validateBridge } from "./bridge.ts";
 
 const D = db as unknown as MidDb;
 const pick = (no: number, reversed = false, name = "카드") => ({ reversed, positionName: "자리", card: { no, name } });
@@ -11,7 +12,8 @@ test("기획 예시(직업, 11 역 → 2 정)와 같은 문장으로 조립", ()
   const out = midResult(D, "CAR", [pick(11, true), pick(2)]);
   assert.ok(out);
   assert.equal(out!.length, 2);
-  assert.ok(out![0].startsWith("그동안 프로젝트가 틀어지면 남보다 내 실수부터"));
+  assert.ok(out![0].startsWith("!! **그동안 프로젝트가 틀어지면 남보다 내 실수부터"));
+  assert.ok(out![0].includes("퇴근해 왔어요.** 지금은"), "첫 문장만 굵게");
   assert.ok(out![0].includes(" 지금은 속으로 이 회사가 나와 맞지 않다고"));
   assert.equal(out![1], D.merge["F2>C"]);
 });
@@ -27,7 +29,7 @@ test("모든 영역·두 장 조합(같은 카드 제외)에서 빠짐없이 나
 });
 
 test("영역을 모르면 고민 미작성 문장, 카드를 모르면 null", () => {
-  assert.ok(midResult(D, "XYZ", [pick(0), pick(1)])![0].startsWith(D.lines.NONE["0_up"].past!));
+  assert.ok(midResult(D, "XYZ", [pick(0), pick(1)])![0].startsWith(`!! **${D.lines.NONE["0_up"].past!}**`));
   assert.equal(midResult(D, "CAR", [{ card: {} }, pick(1)]), null);
 });
 
@@ -46,4 +48,30 @@ test("3쪽: 카드별 이유 목록(◦ … 쪽을 가리켜요) 대신 중간 �
   // DB가 없으면 예전 목록 그대로
   const old = worryPageBody({ name: "도현", oldPage1: "", reading: "읽기.", frame: null, lean, picks, copy, frameTitle: "x" });
   assert.ok(old.includes("◦ 자리 ‘첫 물장구’"));
+});
+
+test("합 문장은 과거형(owner 예시 C1>D)", () => {
+  assert.equal(D.merge["C1>D"], "답이 보이지 않으니 상상으로 나쁜 쪽부터 그리게 되고, 겁이 날수록 더 확실한 신호를 기다렸어요. 기다림과 걱정이 서로를 키워, 시간이 갈수록 오히려 더 불안해졌어요.");
+  for (const v of Object.values(D.merge)) assert.ok(!/(있어요|돼요|상태예요|없어요)\.(\s|$)/.test(v), v);
+});
+
+test("3쪽 순서: 중간 결과 → 연결 한 줄 → 두 장 종합 → 하지만…", () => {
+  const R = (c: string) => `${c}라, ‘이직하기’ 쪽을 가리켜요.`;
+  const lean = { option: "이직하기", cards: [{ option: "이직하기", reason: R("가볍게 새 자리로 첫발을 내디뎌도 좋은 때") }, { option: "이직하기", reason: R("익숙한 조건에 묶인 자리에서 풀려날 수 있는 카드") }, { option: "x", reason: "c" }] };
+  const picks = [pick(0), pick(15), pick(19)];
+  const bridge = "공고 창만 닫아 온 그 망설임도, 앞으로는 조금 달라질 가능성이 커 보여요.";
+  const body = worryPageBody({ name: "도현", oldPage1: "", reading: "읽기.", frame: { options: ["이직하기", "더 다니기"] }, lean, picks, copy, frameTitle: "x", mid: D, domain: "CAR", bridge });
+  const iMid = body.indexOf("!! **그동안"), iMerge = body.indexOf(D.merge["C1>D"]), iBridge = body.indexOf(bridge), iGist = body.indexOf("!! **두 장을 종합하면"), iKey = body.indexOf("같아요");
+  assert.ok(iMid > 0 && iMid < iMerge && iMerge < iBridge && iBridge < iGist && iGist < iKey, body);
+});
+
+test("연결 한 줄 검사: 선택지·결론 낱말·세 번째 카드 이름·형식", () => {
+  const frame = { options: ["이직하기", "더 다니기"] };
+  const ok = '{"bridge":"공고 창만 닫아 온 그 망설임도, 앞으로는 조금 달라질 가능성이 커 보여요."}';
+  assert.ok(validateBridge(ok, { frame, option: "이직하기" }));
+  assert.equal(validateBridge('{"bridge":"앞으로는 이직하기 쪽으로 조금 달라질 가능성이 커 보여요."}', { frame, option: "이직하기" }), null);
+  assert.equal(validateBridge('{"bridge":"앞으로는 ‘비밀카드’ 덕분에 조금 달라질 가능성이 커 보여요."}', { frame, hiddenNames: ["비밀카드"] }), null);
+  assert.equal(validateBridge('{"bridge":"짧아요."}', { frame }), null);
+  assert.equal(validateBridge('{"bridge":"두 문장이에요. 앞으로는 조금 달라질 가능성이 커 보여요."}', { frame }), null);
+  assert.equal(validateBridge("JSON 아님", { frame }), null);
 });

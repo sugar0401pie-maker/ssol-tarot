@@ -13,6 +13,7 @@ function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"])
   return safety.violence ? null : buildSafetyNotice({ data, safety });
 }
 import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
+import { validateBridge } from "@/lib/tarot-glue/bridge";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
 import { decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
@@ -380,8 +381,14 @@ export async function prepareResult(sessionId: string) {
     const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean });
     // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7). 무료 결과에는 검수를 하지 않는다(owner 2026-10-21 비용 — 검수는 유료 1번만).
     const deadline = Date.now() + 12000;
-    const parse = (raw: string) => parseC(raw, { decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost });
-    let best: ReturnType<typeof parseC> | null = null;
+    const hiddenNames = [String(picks[2]?.card?.name ?? "")].filter(Boolean); // 세 번째 카드는 결제 전 비공개
+    const parse = (raw: string) => {
+      const r = parseC(raw, { decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost });
+      // 3쪽 연결 한 줄(owner 2026-11-02) — 결정형일 때만, 통과 못 하면 그 줄 없이
+      const bridge = decision ? validateBridge(raw, { frame: s.frame ?? null, option: lean?.option ?? null, hiddenNames, violence: s.violence || classificationLost }) : null;
+      return { ...r, bridge };
+    };
+    let best: ReturnType<typeof parse> | null = null;
     for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
       if (left < 2000) break;

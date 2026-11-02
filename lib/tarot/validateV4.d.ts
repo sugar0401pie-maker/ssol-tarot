@@ -16,3 +16,4 @@ export function overlapWarnings(acts: { where: string; text: string }[], opts?: 
 export function actionsOf(E: any, today?: any): { where: string; text: string }[];
 export function ruleHitsV4(text: string, opts?: { violence?: boolean }): string[];
 export function v10Hits(text: string): string[];
+export function revealsConclusion(text: string, opts: { frame: unknown; option?: string | null }): string[];

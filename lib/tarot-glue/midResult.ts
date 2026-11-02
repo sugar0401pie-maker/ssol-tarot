@@ -10,7 +10,7 @@ export type MidDb = {
 const DOMAINS = new Set(["CAR", "DIR", "LOV", "FAM", "SOC", "LIF"]);
 const keyOf = (p: Pick | undefined) => (p && Number.isInteger(p.card?.no) ? `${p.card.no}_${p.reversed ? "rev" : "up"}` : null);
 
-/** 문단 배열(카드 문장 한 문단 + 합 문장 한 문단). 카드 문장을 못 찾으면 null — 부르는 쪽이 예전 표시로 돌아간다. */
+/** 문단 배열(카드 문장 한 문단 + 합 문장(과거형 — scripts/mid_merge_past.py) 한 문단). 카드 문장을 못 찾으면 null — 부르는 쪽이 예전 표시로 돌아간다. */
 export function midResult(db: MidDb, domain: string | null | undefined, picks: Pick[]): string[] | null {
   const k1 = keyOf(picks[0]), k2 = keyOf(picks[1]);
   if (!k1 || !k2) return null;
@@ -19,5 +19,7 @@ export function midResult(db: MidDb, domain: string | null | undefined, picks: P
   if (!past || !block) return null;
   const t1 = db.card_themes[k1]?.past, t2 = db.card_themes[k2]?.present;
   const merge = t1 && t2 ? db.merge[`${t1}>${t2[0]}`] : undefined;
-  return merge ? [`${past} ${block}`, merge] : [`${past} ${block}`];
+  // 첫 문장('그동안' 문장)은 굵게 + 남색(owner 2026-11-02) — pageBlocks의 "!! " 문단
+  const first = `!! **${past}** ${block}`;
+  return merge ? [first, merge] : [first];
 }

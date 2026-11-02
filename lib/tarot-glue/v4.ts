@@ -105,11 +105,11 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
     story: sa?.story ?? null, apply: sa?.apply ?? null, key: sa?.key ?? null, storyHead: sa?.storyHead ?? null, applyHead: sa?.applyHead ?? null,
   });
   const pages = buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
-  return reorderSecret(applyCardGist(pages, lean, summaryTitle(), { hideSummary: false }), { paid: true, name, cls, frame, lean, picks });
+  return reorderSecret(applyCardGist(pages, lean, summaryTitle(), { hideSummary: false }), { paid: true, name, cls, frame, lean, picks, bridge: C?.bridge ?? null });
 }
 
 // 결과 쪽 순서 바꾸기 + 세 번째 카드 시크릿(owner 2026-11-02) — lib/tarot-glue/secretThird.ts
-export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, picks }: { paid: boolean; name: string; cls: Cls | null; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[] }): any[] {
+export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, picks, bridge = null }: { paid: boolean; name: string; cls: Cls | null; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; bridge?: string | null }): any[] {
   const CR = data.copy.result as any;
   return secretThird(pages, {
     paid, name, frame: frame as any, lean: lean as any, picks,
@@ -117,7 +117,7 @@ export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, pick
     copy: CR.secret3 as SecretCopy,
     frameTitle: String(CR.v4?.frame_title ?? "**이번 고민에서 끝까지 함께 볼 것**"),
     teaser5: (CR.pages as { key: string; teaser?: string }[]).find((x) => x.key === "story")?.teaser ?? null,
-    mid: midDb as unknown as MidDb, domain: cls?.domain ?? null,
+    mid: midDb as unknown as MidDb, domain: cls?.domain ?? null, bridge: typeof bridge === "string" ? bridge : null,
   });
 }
 const summaryTitle = () => String((data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");
@@ -141,7 +141,7 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
   const personalized = withTeaser.map((p) =>
     p.page === 5 ? { ...p, blur: personalizeBlur(locked5, name, names) || null } : p.blur ? { ...p, blur: personalizeBlur(String(p.blur), name, names) } : p,
   );
-  return reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks });
+  return reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, bridge: C?.bridge ?? null });
 }
 
 /** 블러 고정 예시 속 이름(민준님)과 예시 카드 이름 세 장(자리 순서)을 이 사람의 것으로. */
