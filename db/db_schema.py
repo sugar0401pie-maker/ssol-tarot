@@ -9,6 +9,7 @@ POS = {"now": "지나온 길", "hold": "지금의 흐름", "step": "앞으로의
 STATUSES = ["초안", "검수중", "수정요청", "확정", "삭제"]
 FORBIDDEN = ["운명", "예언", "반드시", "절대", "해결될 거예요", "안 될 거예요", "게 될 거예요", "게 될 것입니다", "진단", "최악", "**", "불길", "나쁜 카드",
              "경고", "어릴 때부터", "오랫동안 당신", "회피형", "불안형", "헤어지", "참아야", "더 참아"]
+PAST_PRESENT_OK = ["경고", "나쁜 카드"]
 APPROACH = ["나-전달법", "먼저 연락", "먼저 다가가", "마음을 전해", "솔직하게 말해 보"]
 
 # 시트 정의: (시트 이름, 설명, 쓰이는 곳, 분량 기준, 행 생성 함수)
@@ -280,7 +281,10 @@ def check_text(text, original, rid="", item=""):
             return [] if -2 <= f <= 2 and (f * 2) == int(f * 2) else ["숫자 범위 — -2~2, 0.5 단위만"]
         except ValueError:
             return ["숫자 아님"]
-    warn = [] if rid.startswith("copy.") else [f"금지 표현 '{w}'" for w in FORBIDDEN if w in text]
+    # 2026-11-02 owner: 지나온 길·지금의 흐름 자리 해석은 역방향의 어려운 상태를 그대로 써도 됨('경고'·'나쁜 카드' 허용, '불길'은 그대로 금지)
+    past_present = bool(re.search(r"\.positions\.(now|hold)$", rid))
+    allowed = PAST_PRESENT_OK if past_present else []
+    warn = [] if rid.startswith("copy.") else [f"금지 표현 '{w}'" for w in FORBIDDEN if w in text and w not in allowed]
     if "다가가기형" not in item:
         warn += [f"다가가기 표현 '{w}' — 다가가기형이 아닌데 들어 있음(폭력 신호 때도 노출됨)" for w in APPROACH if w in text]
     if re.search(r"[A-Za-z]{3,}", text) and not re.search(r"[A-Za-z]{3,}", original):
