@@ -62,7 +62,7 @@ test("3쪽 순서: 중간 결과 → 전환 문장(그러는 한편…, 두 장�
   const picks = [pick(0), pick(15), pick(19)];
   const body = worryPageBody({ name: "도현", oldPage1: "", reading: "읽기.", frame: { options: ["이직하기", "더 다니기"] }, lean, picks, copy: { ...copy, change_leads: LEADS }, frameTitle: "x", mid: D, domain: "CAR" });
   assert.ok(!body.includes("두 장을 종합하면"));
-  const lead = LEADS.find((l) => body.includes(`!! **${l} 가볍게 새 자리로 첫발을 내디뎌도 좋은 때이고, 익숙한 조건에 묶인 자리에서 풀려날 수 있는 모양이에요.**`));
+  const lead = LEADS.find((l) => body.includes(`!! **${l}** 가볍게 새 자리로 첫발을 내디뎌도 좋은 때이고, 익숙한 조건에 묶인 자리에서 풀려날 수 있는 모양이에요.`)); // 전환 문장만 굵게
   assert.ok(lead, body);
   const iMid = body.indexOf("!! **그동안"), iMerge = body.indexOf(D.merge["C1>D"]), iChange = body.indexOf(lead!), iKey = body.indexOf("같아요");
   assert.ok(iMid > 0 && iMid < iMerge && iMerge < iChange && iChange < iKey, body);

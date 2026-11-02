@@ -61,8 +61,11 @@ export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, cop
     out.push(`**${copy.two_title}**`);
     if (midParas) {
       out.push(...midParas);
-      const change = twoCardChange(lean, copy.change_leads ?? []) ?? gist;
-      if (change) out.push(`!! **${change}**`); // 굵게 + 남색
+      const change = twoCardChange(lean, copy.change_leads ?? []);
+      // 전환 문장만 굵게 + 남색, 두 장의 뜻(뒤 문장)은 보통 글씨(owner 2026-11-02)
+      const lead = change ? (copy.change_leads ?? []).find((l) => change.startsWith(`${l} `)) : undefined;
+      if (change && lead) out.push(`!! **${lead}** ${change.slice(lead.length + 1)}`);
+      else if (gist) out.push(`!! **${gist}**`);
     } else {
       if (gist) out.push(`!! **${gist}**`);
       out.push(two.map((c, i) => `◦ ${picks[i].positionName} ‘${picks[i].card.name}’${picks[i].reversed ? "(역방향)" : ""} — ${c.reason}`).join("\n"));
