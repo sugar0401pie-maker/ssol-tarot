@@ -86,8 +86,9 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   assert.equal(raw.length, 10);
   const out = sanitizeUnpaid(raw);
   // 세 번째 카드 시크릿(owner 2026-11-02): 결제 전 응답 어디에도(블러 예시 포함) 세 번째 카드 이름이 없다
-  const third = picks[2].card.name;
-  assert.ok(!JSON.stringify(out).includes(third), "세 번째 카드 이름이 결제 전에 새면 안 됨");
+  const all = JSON.stringify(out);
+  for (const leak of [picks[2].card.name, picks[2].card.image.file, picks[2].card.id, picks[2].card.character])
+    assert.ok(!all.includes(leak), `세 번째 카드 정보(${leak})가 결제 전에 새면 안 됨`);
   assert.equal(out[0].card.name, picks[0].card.name, "1쪽 = 첫 번째 카드");
   assert.match(String(out[0].intro), new RegExp(`^${cs.name}님의 타로 결과를 알려드리겠습니다`));
   assert.equal(out[1].card.name, picks[1].card.name, "2쪽 = 두 번째 카드");
@@ -107,7 +108,7 @@ test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다", 
   const out = sanitizeUnpaid(buildUnpaidPages({ name: "지수", cls: null, picks, safety: { level: "none", violence: false, fear: false }, worryText: "", frame: null, lean: null, C: null }));
   assert.equal(out.length, 10);
   assert.ok(out[0].body && out[2].body && out[4].teaser);
-  assert.ok(!JSON.stringify(out).includes(picks[2].card.name));
+  for (const leak of [picks[2].card.name, picks[2].card.image.file, picks[2].card.id]) assert.ok(!JSON.stringify(out).includes(leak));
 });
 
 

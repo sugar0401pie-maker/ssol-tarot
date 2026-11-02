@@ -43,7 +43,8 @@ export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, cop
   const m = reading.match(/^(.+?[.?!])\s+([\s\S]+)$/);
   const lead = m ? `!! **${m[1]}** ${m[2]}` : `!! **${reading}**`;
   const out: string[] = [];
-  if (strip) out.push(strip.trim());
+  // 카드 줄 표시(화면은 응답의 cards로 그림) — 패키지 줄에는 카드 그림 파일 이름이 들어 있어 세 번째 카드가 새므로 표시만 남긴다
+  if (strip) out.push("[카드 이미지 3장]");
   out.push(`### ${fill(copy.worry_title, { nickname: name })}`, lead);
   if (box) out.push(box.trim());
   const two = (lean?.cards ?? []).slice(0, 2);
@@ -53,7 +54,7 @@ export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, cop
       const p = picks[i];
       return `◦ ${p.positionName} ‘${p.card.name}’${p.reversed ? "(역방향)" : ""} — ${c.reason}`;
     });
-    out.push([copy.two_title, ...lines].join("\n"));
+    out.push([`**${copy.two_title}**`, ...lines].join("\n"));
     const same = two[0].option === two[1].option;
     out.push(same && options ? fill(copy.same, { options }) : same ? copy.general : copy.split);
   } else {
