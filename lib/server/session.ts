@@ -26,6 +26,7 @@ import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
 import { frameCall, type FrameVote } from "./frameExamples";
 import { GuestLimitError, checkGuestStart } from "./guestLimit";
+import { countEvent } from "./counters";
 import { MERGED_CLASSIFY_SYSTEM, mergedClassifyEnabled, splitMerged } from "./mergedClassify";
 import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
 
@@ -158,6 +159,7 @@ export async function createSession(input: { nickname: unknown; experience: unkn
     console.error("tarot_sessions 생성 실패:", error?.message);
     throw new TarotError(500, "잠시 후 다시 시도해 주세요.");
   }
+  await countEvent("started");
   return { id: row.id as string, key };
 }
 
@@ -197,6 +199,7 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
     classification: null,
     result_status: urgent ? "safety" : "drawing",
   });
+  if (urgent) await countEvent("safety");
   return { urgent, needsClassification: !urgent && aiConfigured() };
 }
 
@@ -263,6 +266,8 @@ export async function runClassification(sessionId: string) {
   };
   if (merged.level === "urgent") patch.result_status = "safety";
   await update(sessionId, patch);
+  // 키워드로 이미 멈춘 고민은 분류를 부르지 않으므로 여기는 AI가 처음 위험으로 본 경우만 — 두 번 세지 않는다.
+  if (merged.level === "urgent") await countEvent("safety");
 }
 
 // v4.1 두 번째 의견이 A2와 다를 때의 검수 대기 기록(README_v4 '운영 로그'). owner 결정(2026-10-22): 고민 원문도 함께 저장.
@@ -386,6 +391,7 @@ export async function prepareResult(sessionId: string) {
     }
   }
   await update(sessionId, { links, result_status: "ready" });
+  await countEvent("result");
   await writeChatSummary(sessionId);
 }
 
@@ -579,6 +585,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   }
   const now = new Date().toISOString();
   await update(order.session_id, { paid_at: now, report_status: "generating", report_started_at: now });
+  await countEvent("paid");
   return { ok: true, sessionId: order.session_id, generate: true };
 }
 
