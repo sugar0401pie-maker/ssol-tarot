@@ -441,7 +441,7 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
         {c.arcana && <p className="arc">원래 타로 카드 · {c.arcana}</p>}
       </div>
       {/* 1쪽 안내 문단 — '카드는 이렇게 말해요' 위(owner 2026-11-02) */}
-      {p.intro && <p className="cardintro">{p.intro}</p>}
+      {p.intro && <CardIntro text={p.intro} />}
       {p.saysTitle && <h3 className="storyhead">{p.saysTitle}</h3>}
       {(p.says ?? []).map((s, i) =>
         c.reversed && i === 0 ? (
@@ -458,6 +458,22 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
       {p.question && <h3 className="storyhead">{p.question}</h3>}
       <Blocks blocks={parseBlocks(p.body, ctx.opts)} ctx={ctx} />
     </>
+  );
+}
+
+// 1쪽 안내 문단: 첫 문장("…님의 타로 결과를 알려드리겠습니다.")은 굵게 + 남색(owner 2026-11-02)
+function CardIntro({ text }: { text: string }) {
+  const m = text.match(/^(.+?[.?!])\s+([\s\S]+)$/);
+  return (
+    <p className="cardintro">
+      {m ? (
+        <>
+          <b>{m[1]}</b> {m[2]}
+        </>
+      ) : (
+        <b>{text}</b>
+      )}
+    </p>
   );
 }
 

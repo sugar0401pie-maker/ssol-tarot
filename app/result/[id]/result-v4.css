@@ -176,4 +176,5 @@
 .tv4 .pay.standalone { margin-top: 14px; }
 .tv4 .readlead b { color: var(--line); } /* 3쪽 고민 풀어보기 첫 문장: 굵게 + 남색 */
 .tv4 .cardintro { margin-top: 16px !important; }
+.tv4 .cardintro b { color: var(--line); }
 .tv4 .card[role="img"] { cursor: default; }
