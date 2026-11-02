@@ -70,7 +70,7 @@ test("3쪽 순서: 중간 결과 → 전환 문장(그러는 한편…, 두 장�
   assert.equal(body, worryPageBody({ name: "도현", oldPage1: "", reading: "읽기.", frame: { options: ["이직하기", "더 다니기"] }, lean, picks, copy: { ...copy, change_leads: LEADS }, frameTitle: "x", mid: D, domain: "CAR" }));
 });
 
-test("전환 문장 후보: 여러 개·'예측/예언/반드시'를 쓰지 않음", () => {
+test("전환 문장 후보: 여러 개·'예언/운명/반드시'를 쓰지 않음('예측'은 owner 허용 2026-11-02)", () => {
   assert.ok(LEADS.length >= 4);
-  for (const l of LEADS) { assert.ok(/요\.$|다\.$/.test(l), l); assert.ok(!/예측|예언|반드시|분명히|운명/.test(l), l); }
+  for (const l of LEADS) { assert.ok(/요\.$|다\.$/.test(l), l); assert.ok(!/예언|반드시|분명히|운명/.test(l), l); }
 });
