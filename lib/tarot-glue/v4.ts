@@ -5,6 +5,8 @@ import { applyCardGist } from "./cardGist.ts";
 import { secretThird, type SecretCopy } from "./secretThird.ts";
 import data from "../../data/tarot_data.json" with { type: "json" };
 import tables from "../../data/decision_tables.json" with { type: "json" };
+import midDb from "../../data/mid_result_db.json" with { type: "json" };
+import type { MidDb } from "./midResult.ts";
 import { pickTable, isDecisionFrame, lean as leanOf, type Lean } from "../tarot/decision.js";
 import { afterFrame } from "../tarot/frameInput.js";
 import { buildPages, buildLinkUserBlock, buildStoryUserBlock, comboScore, readingSentence } from "../tarot/assembleReport.js";
@@ -115,6 +117,7 @@ export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, pick
     copy: CR.secret3 as SecretCopy,
     frameTitle: String(CR.v4?.frame_title ?? "**이번 고민에서 끝까지 함께 볼 것**"),
     teaser5: (CR.pages as { key: string; teaser?: string }[]).find((x) => x.key === "story")?.teaser ?? null,
+    mid: midDb as unknown as MidDb, domain: cls?.domain ?? null,
   });
 }
 const summaryTitle = () => String((data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");
