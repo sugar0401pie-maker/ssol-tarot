@@ -514,7 +514,7 @@ const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 �
 export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }) {
   if (!userId || s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
   // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
-  if (body.withdrawalAck !== true) throw new TarotError(400, "청약철회 안내에 동의해 주세요.");
+  if (body.withdrawalAck !== true) throw new TarotError(400, "이용 관련 약관에 동의해 주세요.");
   if (s.safety_level === "urgent" || s.result_status === "safety") throw new TarotError(403, "이 결과는 결제할 수 없어요.");
   if (s.picks.length < data.deck.pick_count || s.result_status !== "ready") throw new TarotError(409, "결과가 아직 준비되지 않았어요.");
   if (s.paid_at) throw Object.assign(new TarotError(409, "이미 결제한 리포트예요."), { paid: true });

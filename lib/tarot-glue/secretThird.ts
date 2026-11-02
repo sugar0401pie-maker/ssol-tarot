@@ -58,7 +58,7 @@ export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, cop
     // 제목 → 두 장을 종합한 한 문장(먼저) → 카드별 목록(owner 2026-11-02)
     const gist = twoCardGist(lean);
     out.push(`**${copy.two_title}**`);
-    if (gist) out.push(gist);
+    if (gist) out.push(`!! **${gist}**`); // 첫 줄 굵게 + 남색(owner 2026-11-02)
     out.push(lines.join("\n"));
     const same = two[0].option === two[1].option;
     out.push(keyLine(same && options ? fill(copy.same, { options }) : same ? copy.general : copy.split));

@@ -11,11 +11,14 @@ export const isPromoActive = (now: Date = new Date()): boolean => now >= PROMO_S
 export const currentReportPrice = (now: Date = new Date()): number => (isPromoActive(now) ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE);
 export const won = (n: number): string => `${n.toLocaleString("ko-KR")}원`;
 
-// 결제 전 청약철회 제한 고지(이용약관 제13조 2항) — 쏠 아스트로 하우스 결제 화면과 같은 문구(같은 사업자·같은 약관).
-// 문구를 바꾸면 버전도 바꾼다(누가 어떤 문구에 동의했는지 주문에 남긴다).
-export const WITHDRAWAL_NOTICE_VERSION = "tarot-withdrawal-2026-10-21";
-export const WITHDRAWAL_NOTICE_LINES = [
-  "전체 리포트는 결제 직후 나만을 위해 만들어지는 디지털 콘텐츠예요. 리포트 생성이 끝난 뒤에는 청약철회(단순 변심 환불)가 제한될 수 있어요.",
-  "리포트가 안내와 다르게 제공되었거나 회사 사정으로 정상적으로 제공되지 않았다면 제공일로부터 3개월 이내, 또는 그 사실을 안 날로부터 30일 이내에 환불을 요청할 수 있어요.",
-] as const;
-export const WITHDRAWAL_CHECK_LABEL = "[필수] 위 내용을 확인했고, 리포트 생성 후 청약철회가 제한되는 것에 동의합니다.";
+// 결제 전 동의(owner 2026-11-02): 긴 청약철회 안내 상자 대신 "타로 하우스 이용 관련 약관에 동의합니다" 체크 한 줄 + 약관 링크.
+// 청약철회 제한(이용약관 제13조)은 약관 링크 안에 있다 — owner가 결정("약관 하이퍼링크 정도면 충분").
+// 문구를 바꾸면 버전도 바꾼다(누가 어떤 문구에 동의했는지 주문에 남긴다 — tarot_orders.withdrawal_version).
+export const WITHDRAWAL_NOTICE_VERSION = "tarot-terms-2026-11-02";
+export const TERMS_CHECK_BEFORE = "타로 하우스 ";
+export const TERMS_CHECK_LINK = "이용 관련 약관";
+export const TERMS_CHECK_AFTER = "에 동의합니다";
+// 보관 안내(실제 동작에 맞춘 문구 — 결제한 리포트는 지우지 않고 '내 타로 결과'에서 다시 볼 수 있게 보관)
+export const STORAGE_NOTE = "고객님의 전체 리포트 작성과 다시 보기를 위해 입력하신 정보를 보관하며, 결제한 리포트는 ‘내 타로 결과’에서 언제든 다시 볼 수 있어요.";
+// 결제 화면 할인 표시(owner 2026-11-02 "11월 한정 할인가")
+export const PROMO_LABEL = "11월 한정 할인가";
