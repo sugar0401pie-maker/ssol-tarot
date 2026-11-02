@@ -3,6 +3,7 @@
 //   빈 줄 = 블록 구분 · "## " 메인 문구(첫 쉼표 뒤 줄바꿈) · 소제목 목록에 있는 줄 = 소제목(곱씹기 질문 제목만 큰 소제목)
 //   줄 전체가 **…** = 요약 줄(sum) · "◦ " 줄이 이어지면 목록 · "▸ " 다리 문장 · "• 제목" + 다음 줄 = 처방·실천 항목
 //   "※ " 작은 글씨 · [[읽기 지도: …]] = 세 장 지도 · "[버튼 문구]" = 버튼 · 1쪽의 카드 이미지 줄·"N. 자리 · 카드" 줄·"#키워드" 줄
+//   "### " 큰 소제목(카드는 이렇게 말해요와 같은 모양) · "!! " 첫 문장 굵게(남색) 문단
 //   그 밖은 문단(줄 안의 **…**는 굵게).
 
 export type Inline = { text: string; bold: boolean }[];
@@ -14,6 +15,8 @@ export type Block =
   | { type: "headline"; lines: string[] }
   | { type: "sub"; text: string }
   | { type: "sec"; text: string }
+  | { type: "story"; text: string }
+  | { type: "lead"; inline: Inline }
   | { type: "sum"; text: string }
   | { type: "list"; items: Inline[] }
   | { type: "bridge"; text: string }
@@ -139,7 +142,10 @@ export function parseBlocks(text: string | null | undefined, o: ParseOpts): Bloc
     const lines = chunk.split("\n").map((l) => l.trim()).filter(Boolean);
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (line.startsWith("## ")) out.push({ type: "headline", lines: splitHeadline(line.slice(3).trim()) });
+      // "### " = '카드는 이렇게 말해요'와 같은 큰 소제목, "!! " = 첫 문장 굵게(남색) 문단 — 3쪽 고민 풀어보기(owner 2026-11-02)
+      if (line.startsWith("### ")) out.push({ type: "story", text: line.slice(4).trim() });
+      else if (line.startsWith("!! ")) out.push({ type: "lead", inline: parseInline(line.slice(3).trim()) });
+      else if (line.startsWith("## ")) out.push({ type: "headline", lines: splitHeadline(line.slice(3).trim()) });
       else if (o.secHeads.includes(line)) out.push({ type: "sec", text: line });
       else if (isSub(line, o)) out.push({ type: "sub", text: line });
       else if (line.startsWith("◦ ")) {

@@ -108,8 +108,8 @@ export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: st
   return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} initialPage={initialPage} />;
 }
 
-// 쪽이 잠겨 있는지(6~10쪽). 5쪽은 일부 무료라 점 표시는 열린 쪽으로 둔다.
-const isLocked = (p: ResultPage, paid: boolean) => !paid && p.page >= 6;
+// 쪽이 잠겨 있는지 — 세 번째 카드(4쪽)부터(owner 2026-11-02 시크릿). 예전 서버 응답(5쪽 일부 무료)도 그대로 그린다.
+const isLocked = (p: ResultPage, paid: boolean) => !paid && p.page >= 4 && !p.free;
 
 function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; initialPage: number }) {
   const rail = useRef<HTMLDivElement>(null);
@@ -120,6 +120,8 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   // 로그인 없이 본 결과(2026-10-26): 로그인한 상태로 이 화면이 열리면 이 브라우저의 결과를 자동으로 계정에 붙인다(따로 누를 버튼 없음).
   // 쏘웰라 버튼으로 로그인하러 갔다 온 경우(?go=sowella)는 붙인 뒤 바로 쏘웰라로 보낸다(쏘웰라는 계정에 붙은 결과만 읽는다).
   const [goSowella] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("go") === "sowella");
+  // 결제 직후 돌아온 경우(?opened=1): 4쪽 세 번째 카드를 그 자리에서 뒷면 → 앞면으로 뒤집는다(owner 2026-11-02)
+  const [opened] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("opened") === "1");
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -238,7 +240,8 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
     },
     [router, id],
   );
-  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay, chat }), [id, r, copy, opts, pay, chat]);
+  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay, chat, opened }), [id, r, copy, opts, pay, chat, opened]);
+  const thirdHidden = Boolean(r.cards[2]?.hidden);
 
   return (
     <div className="tv4">
@@ -266,10 +269,13 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
                   <>
                     <div className="sharerow">
                       {/* 아스트로 하우스와 같은 두 버튼(owner 2026-10-21): 카카오 노랑 [SNS 공유하기] + 금색 [저장하기] */}
-                      <button type="button" className="btn sns sm" onClick={() => setSharing(true)}>
-                        <KakaoTalkLogo size={24} />
-                        SNS 공유하기
-                      </button>
+                      {/* 공유 카드는 세 번째 카드 그림이라 결제 전(세 번째 카드 비밀)에는 공유 버튼을 숨긴다 */}
+                      {!thirdHidden && (
+                        <button type="button" className="btn sns sm" onClick={() => setSharing(true)}>
+                          <KakaoTalkLogo size={24} />
+                          SNS 공유하기
+                        </button>
+                      )}
                       <button type="button" className="btn gold sm" onClick={save}>
                         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                           <path d="M6 3.5h12v17l-6-4.2-6 4.2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
@@ -311,7 +317,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
         </div>
         {/* 아래 ‹ 쪽 수 › 막대는 없앴다(owner 2026-10-21) — 쪽 이동은 각 쪽의 [돌아가기][다음으로]·옆으로 넘기기·위 점 표시로 */}
       </div>
-      {r.cards[2] && (
+      {r.cards[2] && !thirdHidden && (
         <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} nickname={r.nickname} />
       )}
       <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label="크게 보기 닫기" tabIndex={zoom ? 0 : -1}>
@@ -322,12 +328,13 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   );
 }
 
-type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; chat: (page: number) => void };
+type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; chat: (page: number) => void; opened: boolean };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
   if (p.card) return <CardPage p={p} ctx={ctx} />;
-  if (p.page === 5 && !r.paid) {
+  if (p.secret && !r.paid) return <SecretCard p={p} ctx={ctx} />;
+  if (p.page === 5 && !r.paid && p.free) {
     // 5쪽: 메인 문구·첫 줄·카드별 한 줄까지 무료, 결론부터는 결제 후. 서버가 결론을 보내지 않으므로 블러 아래는
     // 데이터의 5쪽 전용 고정 예시(blur_samples.locked5 — 민준님 예시, 이 사용자 내용 아님).
     // 서버가 이 사람의 이름·카드 이름으로 바꿔 보낸 예시(p.blur)를 쓰고, 없으면(예전 서버) 데이터 원문.
@@ -360,16 +367,37 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
 });
 
 function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number }) {
-  const c = ctx.copy.result;
-  const promo = usePromo() === true;
-  const price = promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE;
   return (
     <div className="lockwrap">
       {/* 고정 예시 문장(이 사용자의 내용 아님) — 화면 읽기 프로그램에는 숨김 */}
       <div className="blurred" aria-hidden>
         <Blocks blocks={parseBlocks(blur, ctx.opts)} ctx={ctx} />
       </div>
-      <div className="pay">
+      <PayBox ctx={ctx} page={page} />
+    </div>
+  );
+}
+
+// 결제 전 4쪽: 세 번째 카드 뒷면(크게) + "앞으로 6개월과 ‘…’의 답이 이 카드에 있어요" + 결제 상자(owner 2026-11-02)
+function SecretCard({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
+  return (
+    <>
+      <div className="card xl" aria-label={ctx.copy.result.secret3.hidden_alt} role="img">
+        {/* eslint-disable-next-line @next/next/no-img-element -- 최적화 주소는 cardImg(getImageProps)로 직접 넣음 */}
+        <img {...cardImg("/images/tarot/card-back.webp", "(max-width: 400px) 92vw, 364px")} alt="" decoding="async" />
+      </div>
+      {p.teaser && <p className="teaser font-bold">{p.teaser}</p>}
+      <PayBox ctx={ctx} page={p.page} standalone />
+    </>
+  );
+}
+
+function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; standalone?: boolean }) {
+  const c = ctx.copy.result;
+  const promo = usePromo() === true;
+  const price = promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE;
+  return (
+      <div className={standalone ? "pay standalone" : "pay"}>
         {/* 결정형이면 "세 장이 고른 쪽"이 가장 큰 결제 이유 — 데이터의 _decision 문구 */}
         <b>{ctx.r.decision ? c.paywall_title_decision : c.paywall_title}</b>
         <p>{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
@@ -380,7 +408,6 @@ function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number
           {fill(c.paywall_button, { price: won(price) })}
         </button>
       </div>
-    </div>
   );
 }
 
@@ -391,9 +418,16 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   return (
     <>
       <button type="button" className="card xl" onClick={() => ctx.openZoom({ src, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
-        {/* 2~4쪽은 처음엔 옆으로 밀려 있는 쪽이라 늦게 불러온다(넘겨 갈 때 받음) */}
-        {/* eslint-disable-next-line @next/next/no-img-element -- 최적화 주소는 cardImg(getImageProps)로 직접 넣음 */}
-        <img {...cardImg(src, "(max-width: 400px) 92vw, 364px")} alt={alt} loading="lazy" decoding="async" className={c.reversed ? "rev180" : ""} onError={hideBroken} />
+        {p.page === 4 && ctx.opened ? (
+          // 결제 직후: 뒷면으로 먼저 그린 뒤 그 자리에서 앞면으로 뒤집는다(owner 2026-11-02)
+          <FlipReveal back="/images/tarot/card-back.webp" front={src} alt={alt} reversed={c.reversed} />
+        ) : (
+          <>
+            {/* 2~4쪽은 처음엔 옆으로 밀려 있는 쪽이라 늦게 불러온다(넘겨 갈 때 받음) */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- 최적화 주소는 cardImg(getImageProps)로 직접 넣음 */}
+            <img {...cardImg(src, "(max-width: 400px) 92vw, 364px")} alt={alt} loading="lazy" decoding="async" className={c.reversed ? "rev180" : ""} onError={hideBroken} />
+          </>
+        )}
       </button>
       <div className="cardinfo">
         <p className="cname">
@@ -406,6 +440,8 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
         </p>
         {c.arcana && <p className="arc">원래 타로 카드 · {c.arcana}</p>}
       </div>
+      {/* 1쪽 안내 문단 — '카드는 이렇게 말해요' 위(owner 2026-11-02) */}
+      {p.intro && <p className="cardintro">{p.intro}</p>}
       {p.saysTitle && <h3 className="storyhead">{p.saysTitle}</h3>}
       {(p.says ?? []).map((s, i) =>
         c.reversed && i === 0 ? (
@@ -422,6 +458,29 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
       {p.question && <h3 className="storyhead">{p.question}</h3>}
       <Blocks blocks={parseBlocks(p.body, ctx.opts)} ctx={ctx} />
     </>
+  );
+}
+
+const FLIP_DELAY_MS = 700;
+function FlipReveal({ back, front, alt, reversed }: { back: string; front: string; alt: string; reversed: boolean }) {
+  const [flipped, setFlipped] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setFlipped(true), FLIP_DELAY_MS);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <span className="flip-scene block w-full">
+      <span className={`flip-card block aspect-[2/3] w-full ${flipped ? "is-flipped" : ""}`}>
+        <span className="flip-face block">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img {...cardImg(back, "(max-width: 400px) 92vw, 364px")} alt="" className="h-full w-full" />
+        </span>
+        <span className="flip-face flip-front block">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img {...cardImg(front, "(max-width: 400px) 92vw, 364px")} alt={alt} className={`h-full w-full ${reversed ? "rev180" : ""}`} onError={hideBroken} />
+        </span>
+      </span>
+    </span>
   );
 }
 
@@ -454,6 +513,18 @@ function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
           case "sub":
             // 바로 앞이 굵은 요약 줄이면 구분선은 요약 줄 위에 그렸다 — 소제목에는 다시 긋지 않는다
             return <h4 key={i} className={blocks[i - 1]?.type === "sum" ? "after-sum" : undefined}>{b.text}</h4>;
+          case "story":
+            return (
+              <h3 key={i} className="storyhead">
+                {b.text}
+              </h3>
+            );
+          case "lead":
+            return (
+              <p key={i} className="readlead">
+                <Inl inline={b.inline} />
+              </p>
+            );
           case "sec":
             return (
               <h3 key={i} className="sec">
@@ -580,6 +651,13 @@ function Strip({ cards, ctx }: { cards: ResultCard[]; ctx: Ctx }) {
     <>
       <div className="strip">
         {cards.map((c) => {
+          if (c.hidden)
+            return (
+              <span key={c.id} className="card sm" role="img" aria-label={ctx.copy.result.secret3.hidden_alt}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img {...cardImg(c.image, "(max-width: 400px) 30vw, 120px")} alt="" fetchPriority="high" />
+              </span>
+            );
           const alt = `${c.name} — ${c.character}${c.reversed ? " (역방향)" : ""}`;
           return (
             <button type="button" key={c.id} className="card sm" onClick={() => ctx.openZoom({ src: c.image, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>

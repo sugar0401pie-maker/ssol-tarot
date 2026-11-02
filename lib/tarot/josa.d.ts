@@ -1,0 +1,11 @@
+export function hasBatchim(word: string): boolean;
+export function hasRieulBatchim(word: string): boolean;
+export function josa(word: string, pair: [string, string]): string;
+export const EY: (w: string) => string;
+export const EUN_NEUN: (w: string) => string;
+export const EUL_REUL: (w: string) => string;
+export const I_GA: (w: string) => string;
+export const GWA_WA: (w: string) => string;
+export const EURO_RO: (w: string) => string;
+export const IRASEO_RASEO: (w: string) => string;
+export function withParen(word: string, extra: string, josaFn: (w: string) => string): string;

@@ -2,11 +2,12 @@
 //   ① 방향 계산(decision.js)  ② C 호출 입력 만들기  ③ 10쪽 조립(buildPages → buildPagesV4, v4.2)  ④ 결제 전 응답 거르기
 // 원본 패키지 코드(lib/tarot/*.js)는 바꾸지 않는다.
 import { applyCardGist } from "./cardGist.ts";
+import { secretThird, type SecretCopy } from "./secretThird.ts";
 import data from "../../data/tarot_data.json" with { type: "json" };
 import tables from "../../data/decision_tables.json" with { type: "json" };
 import { pickTable, isDecisionFrame, lean as leanOf, type Lean } from "../tarot/decision.js";
 import { afterFrame } from "../tarot/frameInput.js";
-import { buildPages, buildLinkUserBlock, buildStoryUserBlock, comboScore } from "../tarot/assembleReport.js";
+import { buildPages, buildLinkUserBlock, buildStoryUserBlock, comboScore, readingSentence } from "../tarot/assembleReport.js";
 import { buildPagesV4, SUBHEADS, todayFromDb } from "../tarot/pagesV4.js";
 import type { ExpandedPick, Safety } from "../tarot/types";
 
@@ -102,7 +103,19 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
     story: sa?.story ?? null, apply: sa?.apply ?? null, key: sa?.key ?? null, storyHead: sa?.storyHead ?? null, applyHead: sa?.applyHead ?? null,
   });
   const pages = buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
-  return applyCardGist(pages, lean, summaryTitle(), { hideSummary: false });
+  return reorderSecret(applyCardGist(pages, lean, summaryTitle(), { hideSummary: false }), { paid: true, name, cls, frame, lean, picks });
+}
+
+// 결과 쪽 순서 바꾸기 + 세 번째 카드 시크릿(owner 2026-11-02) — lib/tarot-glue/secretThird.ts
+export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, picks }: { paid: boolean; name: string; cls: Cls | null; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[] }): any[] {
+  const CR = data.copy.result as any;
+  return secretThird(pages, {
+    paid, name, frame: frame as any, lean: lean as any, picks,
+    reading: readingSentence({ name, cls, data }),
+    copy: CR.secret3 as SecretCopy,
+    frameTitle: String(CR.v4?.frame_title ?? "**이번 고민에서 끝까지 함께 볼 것**"),
+    teaser5: (CR.pages as { key: string; teaser?: string }[]).find((x) => x.key === "story")?.teaser ?? null,
+  });
 }
 const summaryTitle = () => String((data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");
 
@@ -119,11 +132,13 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
   const withTeaser = teaser ? pages.map((p) => (p.page === 7 ? { ...p, teaser } : p)) : pages;
   // 블러 아래 고정 예시(민준님 예시)를 이 사람의 이름·카드 이름으로 바꿔 보낸다(owner 2026-10-30: 다른 고객 리포트로 오해).
   // 내용(해석 문장)은 여전히 고정 예시라 이 사람의 결제 본문은 보내지 않는다.
-  const names = picks.map((p) => String(p.card?.name ?? ""));
+  // 세 번째 카드 이름은 결제 전에는 보내지 않는다(owner 2026-11-02 시크릿) — 예시 속 세 번째 카드 자리는 "세 번째 카드"로.
+  const names = picks.map((p, i) => (i === 2 ? "세 번째 카드" : String(p.card?.name ?? "")));
   const locked5 = String((data.copy.result as any).blur_samples?.locked5 ?? "");
-  return withTeaser.map((p) =>
+  const personalized = withTeaser.map((p) =>
     p.page === 5 ? { ...p, blur: personalizeBlur(locked5, name, names) || null } : p.blur ? { ...p, blur: personalizeBlur(String(p.blur), name, names) } : p,
   );
+  return reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks });
 }
 
 /** 블러 고정 예시 속 이름(민준님)과 예시 카드 이름 세 장(자리 순서)을 이 사람의 것으로. */
@@ -152,7 +167,7 @@ export function paceTeaser(pace: "near" | "step" | "slow"): string | null {
 // combo·map(점수·읽기 지도 — 결론을 짐작할 수 있음)은 빼고, 6~10쪽은 본문 없이 제목·예고·고정 예시(blur)만.
 // 블러는 CSS로 가리는 게 아니라 데이터가 없는 상태여야 한다(스펙 11장 5번).
 // fineprint = v4.1 watch(주의) 안내 한 줄 — 마지막 쪽 맨 아래 작은 글씨, 결제 전에도 보인다(README_v4).
-const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back"] as const;
+const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back", "intro", "secret"] as const;
 // 고민 틀의 선택지에는 원문에 없던 쪽이라는 표시 "(암시)"가 붙는데, AI가 그 이름을 그대로 옮겨 쓰면 본문에
 // "소송을 하지 않는 것 (암시)보다"처럼 보인다(owner 2026-10-22 실제 결제 리포트). 화면으로 보내는 글에서만 뗀다.
 const IMPLIED = /\s*\(암시\)/g;
@@ -267,7 +282,9 @@ export function sanitizeUnpaid(pages: any[]): any[] {
     const out: Record<string, unknown> = {};
     for (const k of PAGE_KEYS) if (p[k] !== undefined) out[k] = p[k];
     // 5쪽은 무료 부분(free)만 — 결제 전 원본 body가 비어 있어도 혹시 결론이 섞여 들어오지 않게 비운다.
-    if (p.page >= 5) out.body = null;
+    // 4쪽(세 번째 카드, owner 2026-11-02 시크릿)부터는 본문을 싣지 않는다.
+    if (p.page >= 4) out.body = null;
+    if (p.page >= 4) for (const k of ["card", "free", "says", "question", "saysTitle"]) delete out[k];
     if (out.card && typeof out.card === "object") {
       const c = out.card as Record<string, unknown>;
       // arcana(원래 타로 카드 이름)는 2~4쪽 카드 정보에 보이는 공개 정보(시안 "원래 타로 카드 · 정의(Justice)").

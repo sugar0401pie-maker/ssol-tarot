@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "./v4.ts";
+import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid, reorderSecret } from "./v4.ts";
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
@@ -84,24 +84,30 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   const C = parseC(readJ("C_out.json"), { decision, strength: lean?.strength, frame, lean, violence: safety.violence });
   const raw = buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C });
   assert.equal(raw.length, 10);
-  assert.ok(raw[4].locked, "원본 5쪽에는 locked(결론)가 들어 있음 — 그래서 거르는 함수가 필요");
   const out = sanitizeUnpaid(raw);
+  // 세 번째 카드 시크릿(owner 2026-11-02): 결제 전 응답 어디에도(블러 예시 포함) 세 번째 카드 이름이 없다
+  const third = picks[2].card.name;
+  assert.ok(!JSON.stringify(out).includes(third), "세 번째 카드 이름이 결제 전에 새면 안 됨");
+  assert.equal(out[0].card.name, picks[0].card.name, "1쪽 = 첫 번째 카드");
+  assert.match(String(out[0].intro), new RegExp(`^${cs.name}님의 타로 결과를 알려드리겠습니다`));
+  assert.equal(out[1].card.name, picks[1].card.name, "2쪽 = 두 번째 카드");
+  assert.match(String(out[2].body), /### .+님의 고민 풀어보기/);
+  assert.ok(out[3].secret && !("card" in out[3]) && out[3].body === null, "4쪽 = 세 번째 카드 뒷면(결제 전)");
   // blur = 고정 예시(민준님 예시를 이 사람 이름·카드 이름으로 바꾼 것, 2026-10-30)라 검사에서 뺀다 — 이 사람의 결론·본문이 새는지만 본다.
   const text = JSON.stringify(out.map(({ blur: _b, ...rest }: { blur?: unknown }) => rest));
   assert.ok(String(out[4].blur).includes(`${cs.name}님`) && !String(out[4].blur).includes("민준"), "5쪽 블러 예시는 이 사람 이름으로");
+  assert.ok(!("free" in out[4]) && out[4].teaser, "5쪽은 결제 전 잠금(세 장을 다 보고 쓴 무료 글은 안 보냄)");
   assert.ok(!("locked" in out[4]) && !("combo" in out[4]) && !("map" in out[4]));
   assert.ok(!text.includes("세 장을 합치면"), "결론 문장이 새면 안 됨");
   assert.ok(!text.includes("C_out") && !text.includes("[[읽기 지도"), "읽기 지도(점수)는 결제 전에 안 보냄");
-  assert.equal(out[4].body, null);
-  for (const p of out.slice(5)) assert.equal(p.body, null);
-  assert.ok(out[4].free.startsWith("## "), "5쪽 무료 부분(teaser)은 남음");
-  assert.ok(out[1].body && out[1].card.name);
+  for (const p of out.slice(3)) assert.equal(p.body, null);
 });
 
 test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다", () => {
   const out = sanitizeUnpaid(buildUnpaidPages({ name: "지수", cls: null, picks, safety: { level: "none", violence: false, fear: false }, worryText: "", frame: null, lean: null, C: null }));
   assert.equal(out.length, 10);
-  assert.ok(out[0].body && out[4].free);
+  assert.ok(out[0].body && out[2].body && out[4].teaser);
+  assert.ok(!JSON.stringify(out).includes(picks[2].card.name));
 });
 
 
@@ -116,7 +122,8 @@ test("결제 후 10쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   const P = buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C, sa, E });
   assert.equal(P.length, 10); // v4.2: 패키지가 처음부터 10쪽
   // 패키지 흐름 + 우리가 5쪽 첫 줄 뒤에 붙이는 종합 한 문장(owner 2026-10-27) — 그 밖은 그대로
-  const refPaid = applyCardGist(ref.paid, lean, "세 장을 종합하면 이렇습니다", { hideSummary: false });
+  const refPaid = reorderSecret(applyCardGist(ref.paid, lean, "세 장을 종합하면 이렇습니다", { hideSummary: false }), { paid: true, name: cs.name, cls: cs.ai, frame, lean, picks });
+  assert.equal(P[3].card.name, picks[2].card.name, "결제 후 4쪽 = 세 번째 카드 앞면");
   assert.match(String(P[4].body), /카드 내용을 종합하면 .+ 모양입니다\./);
   assert.deepEqual(P.map((p: { body?: string }) => p.body), refPaid.map((p: { body?: string }) => p.body));
   // 응답에는 본문이 실리고(결론 포함) 내부 칸(combo·map·locked)은 빠진다

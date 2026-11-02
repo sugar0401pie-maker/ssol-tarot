@@ -714,7 +714,13 @@ function DrawScreen({
             <div key={label} className="flex flex-col items-center gap-1.5">
               <span className="text-[12px] text-gold">{label}</span>
               <div className="flip-scene relative w-full" data-target={i}>
-                {p ? (
+                {p && !p.card ? (
+                  // 세 번째 카드: 뒷면 그대로 칸에 들어간다(결제 뒤 결과에서 열림, owner 2026-11-02)
+                  <div className={`relative ${arrived.includes(i) ? "" : "slot-fly"}`}>
+                    <span className="dawn-glow" aria-hidden />
+                    <CardBack className="w-full" />
+                  </div>
+                ) : p && p.card ? (
                   <div className="relative">
                     <span className="dawn-glow" aria-hidden />
                     <SlotFlip arrived={arrived.includes(i)}>
@@ -735,7 +741,8 @@ function DrawScreen({
                   </div>
                 )}
               </div>
-              {p && (p.reversed ? <CardCaption name={p.card.name} reversed dark /> : <span className="fade-up text-center font-serif text-[12px] text-moon">{p.card.name}</span>)}
+              {p && !p.card && <span className="fade-up text-center text-[11px] leading-snug text-gold-soft break-keep">{copy.result.secret3.pick_note}</span>}
+              {p && p.card && (p.reversed ? <CardCaption name={p.card.name} reversed dark /> : <span className="fade-up text-center font-serif text-[12px] text-moon">{p.card.name}</span>)}
             </div>
           );
         })}

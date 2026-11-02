@@ -72,7 +72,7 @@ export default function ResultsList() {
                       <img
                         key={c.position}
                         {...cardImg(c.image, "40px")}
-                        alt={`${c.positionName}: ${c.name}${c.reversed ? " (역방향)" : ""}`}
+                        alt={c.hidden ? `${c.positionName}: 결제 후 열려요` : `${c.positionName}: ${c.name}${c.reversed ? " (역방향)" : ""}`}
                         className={`h-[60px] w-10 rounded-[4px] object-cover ${c.reversed ? "rotate-180" : ""}`}
                         loading="lazy"
                       />
@@ -82,7 +82,7 @@ export default function ResultsList() {
                     {/* 결제한 결과는 날짜 위에 둥근 표시(owner 2026-10-22) */}
                     {it.paid && <span className="mb-1 inline-block rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold text-night-deep">전체 열람 가능</span>}
                     <p className="text-[12px] text-gold">{fmtDate(it.createdAt)}</p>
-                    <p className="mt-0.5 truncate font-serif text-[15px] text-moon">{it.cards.map((c) => c.name).join(" · ")}</p>
+                    <p className="mt-0.5 truncate font-serif text-[15px] text-moon">{it.cards.map((c) => (c.hidden ? "?" : c.name)).join(" · ")}</p>
                   </div>
                   <span className="text-[13px] text-moon/70" aria-hidden>›</span>
                 </Link>

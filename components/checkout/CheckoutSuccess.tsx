@@ -29,7 +29,8 @@ export default function CheckoutSuccess() {
       return;
     }
     api<{ ok: boolean; sessionId: string }>("/api/tarot/checkout/confirm", { body: { paymentKey, orderId, amount: Number(amount) } })
-      .then((d) => router.replace(`/result/${d.sessionId}/${page}`))
+      // opened=1: 결과 화면에서 세 번째 카드를 그 자리에서 뒤집어 보여 준다(owner 2026-11-02)
+      .then((d) => router.replace(`/result/${d.sessionId}/${page}?opened=1`))
       .catch((e) => {
         setError(e instanceof ApiError ? e.message : "결제를 확인하지 못했어요.");
         if (e instanceof ApiError && e.status === 409 && e.sessionId) setGoResult(`/result/${e.sessionId}/${page}`);

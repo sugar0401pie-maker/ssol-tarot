@@ -20,7 +20,7 @@ function flat(v: unknown): string {
 export function buildChatSummary(pages: Page[], { worryText, nickname, createdAt, paid }: { worryText: string | null; nickname: string | null; createdAt: string; paid: boolean }): string {
   const head = [
     `[고민 원문] ${flat(worryText) || "(고민을 적지 않고 카드를 뽑음)"}`,
-    `[결과 정보] 쏠 타로 하우스 · ${createdAt.slice(0, 10)}${nickname ? ` · 닉네임 ${flat(nickname)}` : ""} · ${paid ? "결제한 전체 리포트" : "무료 결과(결제 전 — 5쪽 결론부터는 아직 열지 않음)"}`,
+    `[결과 정보] 쏠 타로 하우스 · ${createdAt.slice(0, 10)}${nickname ? ` · 닉네임 ${flat(nickname)}` : ""} · ${paid ? "결제한 전체 리포트" : "무료 결과(결제 전 — 세 번째 카드(앞으로의 열쇠)부터는 아직 열지 않음)"}`,
   ];
   const lines = pages
     .map((p) => {

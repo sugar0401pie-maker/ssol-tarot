@@ -112,3 +112,9 @@ test("읽기 지도 끝의 '번호 내림차순'은 화면에 쓰지 않는다",
   assert.equal(map.cells.length, 3);
   assert.ok(!JSON.stringify(map).includes("번호"));
 });
+
+test("### 큰 소제목·!! 남색 굵은 첫 문장 문단(3쪽 고민 풀어보기, 2026-11-02)", () => {
+  const b = parseBlocks("### 지수님의 고민 풀어보기\n!! **첫 문장이에요.** 나머지예요.", O);
+  assert.deepEqual(b[0], { type: "story", text: "지수님의 고민 풀어보기" });
+  assert.equal(b[1].type, "lead");
+});

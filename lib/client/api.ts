@@ -68,11 +68,13 @@ export type PickResponse = {
   position: string;
   positionName: string;
   reversed: boolean;
-  card: { id: string; no: number; name: string; character: string; image: string };
+  // 세 번째 카드는 뽑을 때 보내지 않는다(결제 뒤 공개, owner 2026-11-02) — null이면 뒷면 그대로
+  card: { id: string; no: number; name: string; character: string; image: string } | null;
   isLast: boolean;
 };
 
-export type ResultCard = PickResponse["card"] & { reversed: boolean; position: string; positionName: string };
+// hidden = 결제 전 세 번째 카드(이름·그림 없이 자리만)
+export type ResultCard = NonNullable<PickResponse["card"]> & { reversed: boolean; position: string; positionName: string; hidden?: boolean };
 
 // 결과 한 쪽(서버 sanitizeUnpaid가 고른 칸만). 결제 전 6~11쪽은 body가 null이고 blur(고정 예시 문장)만 온다.
 export type ResultPage = {
@@ -91,6 +93,10 @@ export type ResultPage = {
   fineprint?: string;
   next?: string | null;
   back?: string | null;
+  // 1쪽(첫 번째 카드) 맨 위 안내 문단 — "카드는 이렇게 말해요" 위
+  intro?: string;
+  // 결제 전 4쪽(세 번째 카드 뒷면 + 결제 상자)
+  secret?: boolean;
 };
 
 export type ResultResponse =

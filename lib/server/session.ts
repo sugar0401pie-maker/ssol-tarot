@@ -309,6 +309,17 @@ export function publicCard(c: { id: string; no: number; name: string; character:
   return { id: c.id, no: c.no, name: c.name, character: c.character, image: `/images/tarot/${c.image.file}` };
 }
 
+// 세 번째 카드(앞으로의 열쇠)는 결제 뒤에 공개(owner 2026-11-02). 결제 전 응답에는 이 자리 표시만 보낸다(카드 이름·그림·방향 없음).
+const HIDDEN_CARD = { id: "hidden", no: -1, name: "", character: "", image: "/images/tarot/card-back.webp", hidden: true } as const;
+type PickView = { card: Parameters<typeof publicCard>[0]; reversed: boolean; position: string; positionName: string };
+function cardsView(picks: PickView[], paid: boolean) {
+  return picks.map((p, i) =>
+    !paid && i === 2
+      ? { ...HIDDEN_CARD, reversed: false, position: p.position, positionName: p.positionName }
+      : { ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName },
+  );
+}
+
 export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: unknown }) {
   assertNotSafety(s);
   if (!s.current_shuffle_id || body.shuffleId !== s.current_shuffle_id) throw new TarotError(409, "카드를 다시 섞어 주세요.");
@@ -330,8 +341,9 @@ export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: un
     slot: res.slot,
     position: res.position,
     positionName: res.positionName,
-    reversed: res.reversed,
-    card: publicCard(res.card),
+    // 세 번째 카드는 뽑을 때 보여 주지 않는다(결제 뒤 공개, owner 2026-11-02) — 뒷면 그대로 칸에 들어간다.
+    reversed: res.isLast ? false : res.reversed,
+    card: res.isLast ? null : publicCard(res.card),
     isLast: res.isLast,
   };
 }
@@ -459,7 +471,7 @@ export async function getResult(s: SessionRow) {
       status: "ready" as const,
       nickname: s.nickname,
       createdAt: s.created_at,
-      cards: picks.map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
+      cards: cardsView(picks, true),
       pages: sanitizePaid(pages, { other: lean?.other ?? null }),
       notice: resultNotice(safety),
       paid: true,
@@ -472,7 +484,7 @@ export async function getResult(s: SessionRow) {
     status: "ready" as const,
     nickname: s.nickname,
     createdAt: s.created_at,
-    cards: picks.map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
+    cards: cardsView(picks, false),
     pages: sanitizeUnpaid(pages),
     // v4: 안내 박스는 폭력(구체 행동)·관계 속 두려움일 때만(주의 단계 삭제). 결제와 상관없이 보임.
     notice: resultNotice(safety),
@@ -683,7 +695,7 @@ export async function listResults(userId: string | null) {
         createdAt: r.created_at as string,
         // 유료 리포트를 결제한 결과인지 — 목록에 '전체 열람 가능' 표시(owner 2026-10-22)
         paid: Boolean((r as { paid_at?: string | null }).paid_at),
-        cards: expandPicks(r.picks as Pick[]).map((p) => ({ ...publicCard(p.card), reversed: p.reversed, position: p.position, positionName: p.positionName })),
+        cards: cardsView(expandPicks(r.picks as Pick[]), Boolean((r as { paid_at?: string | null }).paid_at)),
       })),
   };
 }

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Noto_Sans_KR, Gowun_Batang } from "next/font/google";
 import "./globals.css";
 import "./auth.css";
+import Analytics from "@/components/Analytics";
 
 // 글꼴 가볍게(쏠 아스트로 하우스 2026-10-18과 같은 방법): 한글 글꼴은 글자 범위별로 조각이 100개 가까이라
 // 미리 받기를 켜 두면 화면에 안 쓰는 조각까지 먼저 받는다 → preload: false(화면에 나온 글자 조각만 받음).
@@ -26,7 +27,10 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className={`${notoSansKr.variable} ${gowunBatang.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
