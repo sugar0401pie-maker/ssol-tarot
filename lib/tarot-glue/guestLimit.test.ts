@@ -4,11 +4,11 @@ import { GUEST_DEVICE_LIMIT, GUEST_IP_LIMIT, clientIp, deviceId, guestLimitReach
 
 const hdr = (o: Record<string, string>) => ({ get: (k: string) => o[k] ?? null });
 
-test("같은 기기 3번, 같은 IP 20번이면 막는다", () => {
-  assert.equal(GUEST_DEVICE_LIMIT, 3);
+test("같은 기기 5번, 같은 IP 20번이면 막는다", () => {
+  assert.equal(GUEST_DEVICE_LIMIT, 5);
   assert.equal(GUEST_IP_LIMIT, 20);
-  assert.equal(guestLimitReached({ device: 2, ip: 19 }), false);
-  assert.equal(guestLimitReached({ device: 3, ip: 0 }), true);
+  assert.equal(guestLimitReached({ device: 4, ip: 19 }), false);
+  assert.equal(guestLimitReached({ device: 5, ip: 0 }), true);
   assert.equal(guestLimitReached({ device: 0, ip: 20 }), true);
 });
 
