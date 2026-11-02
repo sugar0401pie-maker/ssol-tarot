@@ -96,6 +96,23 @@ export function twoCardGist(lean: { cards?: { option?: string; reason?: string |
 }
 
 /**
+ * 3쪽 전환 문장(owner 2026-11-02): 앞의 '가로막아 온 것'(과거) 뒤에 "그러는 한편, 카드는 앞으로 … 말해요." 같은 전환 한 문장을 두고
+ * 두 장의 뜻을 잇는다 — "두 장을 종합하면"을 대신함. 전환 문장은 데이터(copy.result.secret3.change_leads)에서 고르고,
+ * 같은 결과는 다시 열어도 같은 문장이 나오게 두 장의 이유 글자로 고정해 고른다(AI 호출 없음).
+ */
+export function twoCardChange(lean: { cards?: { option?: string; reason?: string | null }[] } | null | undefined, leads: string[]): string | null {
+  const two = (lean?.cards ?? []).slice(0, 2);
+  if (two.length < 2 || !leads.length) return null;
+  const cl = two.map((c) => splitClause(clauseOfReason(c?.reason) ?? ""));
+  if (!cl[0] || !cl[1]) return null;
+  const a = piece(cl[0], false), b = piece(cl[1], true);
+  if (!a || !b) return null;
+  const split = two[0]?.option !== two[1]?.option;
+  const seed = [...`${two[0]?.reason ?? ""}|${two[1]?.reason ?? ""}`].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+  return `${leads[seed % leads.length]} ${a}, ${split ? "다른 한편으로는 " : ""}${b} 모양이에요.`;
+}
+
+/**
  * 5쪽 첫 줄(lead) 뒤에 종합 한 문장을 붙인다(owner 2026-10-27). 결제 전(hideSummary)에는
  * "세 장을 종합하면 이렇습니다" 카드별 이유 목록을 응답에서 빼서 블러 아래로 보낸다(데이터를 아예 보내지 않음).
  * 결정형이 아니거나(목록·lean 없음) 문장을 만들 수 없으면 목록 숨김만 하고 문장은 붙이지 않는다.

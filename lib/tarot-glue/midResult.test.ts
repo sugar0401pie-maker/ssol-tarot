@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import db from "../../data/mid_result_db.json" with { type: "json" };
 import { midResult, type MidDb } from "./midResult.ts";
 import { worryPageBody, type SecretCopy } from "./secretThird.ts";
-import { validateBridge } from "./bridge.ts";
+import data from "../../data/tarot_data.json" with { type: "json" };
 
 const D = db as unknown as MidDb;
 const pick = (no: number, reversed = false, name = "카드") => ({ reversed, positionName: "자리", card: { no, name } });
@@ -55,23 +55,22 @@ test("합 문장은 과거형(owner 예시 C1>D)", () => {
   for (const v of Object.values(D.merge)) assert.ok(!/(있어요|돼요|상태예요|없어요)\.(\s|$)/.test(v), v);
 });
 
-test("3쪽 순서: 중간 결과 → 연결 한 줄 → 두 장 종합 → 하지만…", () => {
+const LEADS = (data.copy.result as unknown as { secret3: { change_leads: string[] } }).secret3.change_leads;
+test("3쪽 순서: 중간 결과 → 전환 문장(그러는 한편…, 두 장을 종합하면 대신) → 하지만…", () => {
   const R = (c: string) => `${c}라, ‘이직하기’ 쪽을 가리켜요.`;
   const lean = { option: "이직하기", cards: [{ option: "이직하기", reason: R("가볍게 새 자리로 첫발을 내디뎌도 좋은 때") }, { option: "이직하기", reason: R("익숙한 조건에 묶인 자리에서 풀려날 수 있는 카드") }, { option: "x", reason: "c" }] };
   const picks = [pick(0), pick(15), pick(19)];
-  const bridge = "공고 창만 닫아 온 그 망설임도, 앞으로는 조금 달라질 가능성이 커 보여요.";
-  const body = worryPageBody({ name: "도현", oldPage1: "", reading: "읽기.", frame: { options: ["이직하기", "더 다니기"] }, lean, picks, copy, frameTitle: "x", mid: D, domain: "CAR", bridge });
-  const iMid = body.indexOf("!! **그동안"), iMerge = body.indexOf(D.merge["C1>D"]), iBridge = body.indexOf(bridge), iGist = body.indexOf("!! **두 장을 종합하면"), iKey = body.indexOf("같아요");
-  assert.ok(iMid > 0 && iMid < iMerge && iMerge < iBridge && iBridge < iGist && iGist < iKey, body);
+  const body = worryPageBody({ name: "도현", oldPage1: "", reading: "읽기.", frame: { options: ["이직하기", "더 다니기"] }, lean, picks, copy: { ...copy, change_leads: LEADS }, frameTitle: "x", mid: D, domain: "CAR" });
+  assert.ok(!body.includes("두 장을 종합하면"));
+  const lead = LEADS.find((l) => body.includes(`!! **${l} 가볍게 새 자리로 첫발을 내디뎌도 좋은 때이고, 익숙한 조건에 묶인 자리에서 풀려날 수 있는 모양이에요.**`));
+  assert.ok(lead, body);
+  const iMid = body.indexOf("!! **그동안"), iMerge = body.indexOf(D.merge["C1>D"]), iChange = body.indexOf(lead!), iKey = body.indexOf("같아요");
+  assert.ok(iMid > 0 && iMid < iMerge && iMerge < iChange && iChange < iKey, body);
+  // 같은 결과는 다시 열어도 같은 전환 문장
+  assert.equal(body, worryPageBody({ name: "도현", oldPage1: "", reading: "읽기.", frame: { options: ["이직하기", "더 다니기"] }, lean, picks, copy: { ...copy, change_leads: LEADS }, frameTitle: "x", mid: D, domain: "CAR" }));
 });
 
-test("연결 한 줄 검사: 선택지·결론 낱말·세 번째 카드 이름·형식", () => {
-  const frame = { options: ["이직하기", "더 다니기"] };
-  const ok = '{"bridge":"공고 창만 닫아 온 그 망설임도, 앞으로는 조금 달라질 가능성이 커 보여요."}';
-  assert.ok(validateBridge(ok, { frame, option: "이직하기" }));
-  assert.equal(validateBridge('{"bridge":"앞으로는 이직하기 쪽으로 조금 달라질 가능성이 커 보여요."}', { frame, option: "이직하기" }), null);
-  assert.equal(validateBridge('{"bridge":"앞으로는 ‘비밀카드’ 덕분에 조금 달라질 가능성이 커 보여요."}', { frame, hiddenNames: ["비밀카드"] }), null);
-  assert.equal(validateBridge('{"bridge":"짧아요."}', { frame }), null);
-  assert.equal(validateBridge('{"bridge":"두 문장이에요. 앞으로는 조금 달라질 가능성이 커 보여요."}', { frame }), null);
-  assert.equal(validateBridge("JSON 아님", { frame }), null);
+test("전환 문장 후보: 여러 개·'예측/예언/반드시'를 쓰지 않음", () => {
+  assert.ok(LEADS.length >= 4);
+  for (const l of LEADS) { assert.ok(/요\.$|다\.$/.test(l), l); assert.ok(!/예측|예언|반드시|분명히|운명/.test(l), l); }
 });

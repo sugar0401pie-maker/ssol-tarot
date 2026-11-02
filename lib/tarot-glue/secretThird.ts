@@ -6,12 +6,12 @@
 // 순수 함수(네트워크 없음) — 결제 전 응답에 세 번째 카드가 새지 않는지 테스트로 확인한다(secretThird.test.ts).
 import { josa } from "../tarot/josa.js";
 import { cleanOption } from "../tarot/decision.js";
-import { twoCardGist } from "./cardGist.ts";
+import { twoCardGist, twoCardChange } from "./cardGist.ts";
 import { midResult, type MidDb } from "./midResult.ts";
 
 export type SecretCopy = {
   intro: string; worry_title: string; two_title: string; same: string; split: string; general: string;
-  next_button: string; p4_title: string; p4_options: string; p4_general: string;
+  next_button: string; p4_title: string; p4_options: string; p4_general: string; change_leads?: string[];
 };
 type Card = { reversed?: boolean; positionName: string; card: { name: string; no?: number } };
 type LeanLike = { option?: string; cards?: { option?: string; reason?: string | null }[] } | null | undefined;
@@ -35,9 +35,9 @@ export function optionsSlash(options: string[]): string | null {
 }
 
 /** 3쪽(고민 풀어보기) 본문 줄글 — pageBlocks 규칙: "### " 큰 소제목 · "!! " 첫 문장 굵게(남색) 문단 · "◦ " 목록 */
-export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, copy, frameTitle, mid = null, domain = null, bridge = null }: {
+export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, copy, frameTitle, mid = null, domain = null }: {
   name: string; oldPage1: string; reading: string; frame: FrameLike; lean: LeanLike; picks: Card[]; copy: SecretCopy; frameTitle: string;
-  mid?: MidDb | null; domain?: string | null; bridge?: string | null;
+  mid?: MidDb | null; domain?: string | null;
 }): string {
   const chunks = String(oldPage1 || "").split(/\n\s*\n/);
   const strip = chunks.find((c) => c.trim().startsWith("[카드 이미지")) ?? null;
@@ -55,14 +55,14 @@ export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, cop
   // 두 장 중간 결과(owner 2026-11-02 문장 DB) — 카드별 이유 목록(◦ … ‘선택지’ 쪽을 가리켜요) 대신. 고민 미작성(NONE)에도 나온다.
   const midParas = mid ? midResult(mid, domain, picks) : null;
   if (lean && two.length === 2 && two.every((c) => c?.reason)) {
-    // 제목 → 중간 결과(그동안·지금은 / 가로막아 온 것) → AI 연결 한 줄 → 두 장을 종합한 한 문장 → "하지만 답은 아직…"(owner 2026-11-02)
+    // 제목 → 중간 결과(그동안·지금은 / 가로막아 온 것) → 전환 문장("그러는 한편, 카드는 앞으로 …" + 두 장의 뜻) → "하지만 답은 아직…"(owner 2026-11-02)
     // 중간 결과를 못 찾으면 예전 순서(종합 문장 → 카드별 목록)
     const gist = twoCardGist(lean);
     out.push(`**${copy.two_title}**`);
     if (midParas) {
       out.push(...midParas);
-      if (bridge) out.push(bridge);
-      if (gist) out.push(`!! **${gist}**`); // 굵게 + 남색
+      const change = twoCardChange(lean, copy.change_leads ?? []) ?? gist;
+      if (change) out.push(`!! **${change}**`); // 굵게 + 남색
     } else {
       if (gist) out.push(`!! **${gist}**`);
       out.push(two.map((c, i) => `◦ ${picks[i].positionName} ‘${picks[i].card.name}’${picks[i].reversed ? "(역방향)" : ""} — ${c.reason}`).join("\n"));
@@ -82,9 +82,9 @@ export function keyLine(text: string): string {
   return text.includes(KEY_SENTENCE) ? `!! ${text.replace(KEY_SENTENCE, `**${KEY_SENTENCE}**`)}` : text;
 }
 
-export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null, bridge = null }: {
+export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null }: {
   paid: boolean; name: string; reading: string; frame: FrameLike; lean: LeanLike; picks: Card[]; copy: SecretCopy; frameTitle: string; teaser5?: string | null;
-  mid?: MidDb | null; domain?: string | null; bridge?: string | null;
+  mid?: MidDb | null; domain?: string | null;
 }): any[] {
   const by = (n: number) => pages.find((p) => p.page === n);
   const [p1, p2, p3, p4] = [by(1), by(2), by(3), by(4)];
@@ -96,7 +96,7 @@ export function secretThird(pages: any[], { paid, name, reading, frame, lean, pi
   const second = { ...p3, page: 2, back };
   const worry = {
     page: 3, title: p1.title, access: "무료", back, next: copy.next_button,
-    body: worryPageBody({ name, oldPage1: p1.body, reading, frame, lean, picks, copy, frameTitle, mid, domain, bridge }),
+    body: worryPageBody({ name, oldPage1: p1.body, reading, frame, lean, picks, copy, frameTitle, mid, domain }),
   };
   const slash = optionsSlash(frame?.options ?? []);
   const fourth = paid
