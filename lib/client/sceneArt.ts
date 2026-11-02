@@ -25,3 +25,19 @@ export const RESULT_PAGE_SCENE: Partial<Record<number, SceneId>> = {
   // 2026-10-22 8쪽(변화) 숨김 → 10쪽(쏘웰라 쪽은 다시 따로, owner). 예전 8쪽 그림(reveal)만 빠짐.
   5: "result_interpret", 6: "shuffle", 7: "draw", 8: "result_wellness", 9: "result_practice", 10: "result_continue",
 };
+
+// '다 뽑음'(reveal) 화면에는 그림을 띄우지 않고(owner 2026-11-02), 그 그림은 앞 단계(환영·경험 질문·처음 안내·고민 쓰기)
+// 그림 후보에 섞어 무작위로 나오게 한다.
+export const EXTRA_POOL: Partial<Record<SceneId, SceneId[]>> = {
+  welcome: ["reveal"], experience: ["reveal"], first_time: ["reveal"], worry: ["reveal"],
+};
+/** 장면별 후보에 EXTRA_POOL 그림을 더한 지도(같은 파일은 한 번만). */
+export function withExtraPool(map: SceneArtMap, extra: Partial<Record<SceneId, SceneId[]>> = EXTRA_POOL): SceneArtMap {
+  const out: SceneArtMap = { ...map };
+  for (const [id, from] of Object.entries(extra) as [SceneId, SceneId[]][]) {
+    const own = map[id] ?? [];
+    const add = from.flatMap((f) => map[f] ?? []);
+    if (add.length) out[id] = [...new Set([...own, ...add])];
+  }
+  return out;
+}

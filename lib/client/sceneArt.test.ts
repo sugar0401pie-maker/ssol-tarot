@@ -12,3 +12,14 @@ test("장면 그림: 없으면 null, 있으면 무작위 한 장(범위 밖 값�
   assert.equal(pickSceneArt(map, "welcome", 1)?.endsWith("b.webp"), true);
   assert.equal(pickSceneArt(map, "worry", 0.5), null);
 });
+
+import { withExtraPool } from "./sceneArt.ts";
+test("다 뽑음 그림은 앞 단계 후보에 섞이고, 원래 지도는 그대로", () => {
+  const map = { welcome: ["w.webp"], worry: ["k.webp"], reveal: ["r1.webp", "r2.webp"] };
+  const m = withExtraPool(map);
+  assert.deepEqual(m.welcome, ["w.webp", "r1.webp", "r2.webp"]);
+  assert.deepEqual(m.worry, ["k.webp", "r1.webp", "r2.webp"]);
+  assert.deepEqual(m.experience, ["r1.webp", "r2.webp"]);
+  assert.deepEqual(map.welcome, ["w.webp"]);
+  assert.deepEqual(withExtraPool({ welcome: ["w.webp"] }).welcome, ["w.webp"]);
+});

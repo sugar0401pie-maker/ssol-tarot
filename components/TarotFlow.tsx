@@ -12,7 +12,7 @@ import { MysticOrbit, RotatingLine } from "./Mystic";
 import PageFoot from "./PageFoot";
 import { STEP_PATH, stepFromPath, canFollow, entryStep, type Step } from "@/lib/client/steps";
 import { getRealSession } from "@/lib/supabase/browser";
-import type { SceneArtMap, SceneId } from "@/lib/client/sceneArt";
+import { withExtraPool, type SceneArtMap, type SceneId } from "@/lib/client/sceneArt";
 import { WaitNotice } from "./WaitNotice";
 import type { Friend } from "./IntroCardSpin";
 import { IntroCardSpin } from "./IntroCardSpin";
@@ -35,14 +35,15 @@ const AGAIN_KEY = "ssol_tarot_again";
 const NO_SCENE_ART: SceneArtMap = {};
 // 섞기·뽑기·다 뽑음·대기는 아래에 누를 것(버튼·22장 보드)이 많아서, 그림 높이를 화면의 약 1/4로 줄여(가운데 기준으로 위아래만 잘림)
 // 휴대폰 한 화면 안에서 스크롤 없이 진행할 수 있게 한다. 다른 장면은 그림 비율 그대로.
-const COMPACT_SCENES = new Set<string>(["reveal"]);
+const COMPACT_SCENES = new Set<string>([]);
 // 섞기·뽑기 화면에는 장면 그림을 넣지 않는다(owner 2026-10-21) — 그 그림은 결과 6~8쪽 맨 위에서 쓴다(RESULT_PAGE_SCENE).
 // 결과 대기(/loading)도 그림 없이 신비한 연출만(owner 2026-10-22).
-const NO_ART_SCENES = new Set<string>(["shuffle", "draw", "loading"]);
+const NO_ART_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"]); // reveal: owner 2026-11-02 — 그 그림은 앞 단계 후보로(EXTRA_POOL)
 // 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
 const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
 
-export default function TarotFlow({ copy, pickCount, friends, sceneArt = NO_SCENE_ART, initialStep = null }: FlowProps) {
+export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArtRaw = NO_SCENE_ART, initialStep = null }: FlowProps) {
+  const sceneArt = useMemo(() => withExtraPool(sceneArtRaw), [sceneArtRaw]);
   const router = useRouter();
   const pathname = usePathname();
   const flowData = useMemo(() => ({ copy, deck: { pick_count: pickCount } }), [copy, pickCount]);
