@@ -127,3 +127,4 @@ owner는 개발자가 아니다. 큰 변경마다 (1) 무엇을·왜 바꾸는�
 - **2026-11-02 — 위기(urgent) 안내 화면 문구·연락처 교체 + 맨 위 그림(owner 문구 그대로).** 본문에 "당신은 충분히 소중한 존재입니다." "생각을 돌려보세요." 추가, 연락처 = 자살예방상담전화 109(24시간, 전화나 문자) · 카카오톡 마들랜(앱 링크, 새 창 — `urgent_contacts[].url`) · 정신건강위기상담 1577-0199, 아래 "지금 위험하다면 119에 연락해 주세요."(`urgent_emergency`, 누르면 전화). 쏠 웰니스 하우스 상담 링크 버튼(`urgent_cta`)은 없앰. 맨 위 그림 = owner가 준 삐삐 메시지 그림(`public/images/tarot/safety/kkakdugi.jpg`, `urgent_image`). 데이터 `copy.safety` + `db/build_data.py`, 화면 `components/SafetyScreen.tsx`(로컬에서 화면 확인).
 - **2026-11-02 — 로그인 없이 타로 보기 하루 횟수: 같은 기기 3번 → 5번(owner).** `GUEST_DEVICE_LIMIT`(`lib/tarot-glue/guestLimit.ts`, 테스트). 같은 IP 20번·로그인 사용자 무제한은 그대로.
 - **2026-11-03 — 하단 사업자 정보에 통신판매업신고번호 2026-서울마포-2770 추가(owner, 사업자등록번호 옆).** `components/SiteFooter.tsx`.
+- **2026-11-03 — 빙 웹마스터 도구 소유권 확인 메타 태그(`msvalidate.01`) 추가(owner).** `app/layout.tsx` `metadata.verification.other`. 확인 뒤에도 지우지 않는다.
