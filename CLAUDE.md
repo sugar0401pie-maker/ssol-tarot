@@ -128,3 +128,4 @@ owner는 개발자가 아니다. 큰 변경마다 (1) 무엇을·왜 바꾸는�
 - **2026-11-02 — 로그인 없이 타로 보기 하루 횟수: 같은 기기 3번 → 5번(owner).** `GUEST_DEVICE_LIMIT`(`lib/tarot-glue/guestLimit.ts`, 테스트). 같은 IP 20번·로그인 사용자 무제한은 그대로.
 - **2026-11-03 — 하단 사업자 정보에 통신판매업신고번호 2026-서울마포-2770 추가(owner, 사업자등록번호 옆).** `components/SiteFooter.tsx`.
 - **2026-11-03 — 빙 웹마스터 도구 소유권 확인 메타 태그(`msvalidate.01`) 추가(owner).** `app/layout.tsx` `metadata.verification.other`. 확인 뒤에도 지우지 않는다.
+- **2026-11-03 — 네이버 서치어드바이저 소유권 확인 메타 태그(`naver-site-verification`) 추가(owner).** 빙 태그와 같은 곳(`metadata.verification.other`). 확인 뒤에도 지우지 않는다.

@@ -17,7 +17,13 @@ const DESCRIPTION = "전문 심리상담사가 만든 자기이해 웰니스 타
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshouse.com"),
   // 빙 웹마스터 도구 소유권 확인(owner 2026-11-03). 확인이 끝난 뒤에도 지우지 않는다.
-  verification: { other: { "msvalidate.01": "5F7F74F02C08FB70A6A250B0DB0A7ADF" } },
+  verification: {
+    other: {
+      "msvalidate.01": "5F7F74F02C08FB70A6A250B0DB0A7ADF",
+      // 네이버 서치어드바이저 소유권 확인(owner 2026-11-03).
+      "naver-site-verification": "777dac6d5dfbaecc8fc51af1a67ae45ef3147cd5",
+    },
+  },
   title: "쏠 타로 하우스",
   description: DESCRIPTION,
   openGraph: { title: "쏠 타로 하우스", description: DESCRIPTION, siteName: "쏠 타로 하우스", locale: "ko_KR", type: "website" },
