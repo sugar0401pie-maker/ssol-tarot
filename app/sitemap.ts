@@ -6,6 +6,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshous
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${SITE}/`, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE}/about`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE}/legal`, changeFrequency: "monthly", priority: 0.3 },
   ];
 }

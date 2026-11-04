@@ -311,6 +311,10 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
                 {p.fineprint && !(p.body ?? "").includes(p.fineprint) && <p className="fineprint">{p.fineprint}</p>}
                 {(p.page === 1 || p.page === n) && <p className="fineprint">{copy.disclaimer}</p>}
                 <AuthFooterLink tone="dark" />
+                {/* 테스트 소개 페이지(owner 2026-11-04, SEO) */}
+                <p className="pb-1 text-center text-[12px] text-[#204870]/70">
+                  <Link href="/about" className="underline">이 테스트 자세히 보기</Link>
+                </p>
               </div>
             </section>
           ))}
