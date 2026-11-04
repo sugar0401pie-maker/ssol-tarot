@@ -1,8 +1,9 @@
 "use client";
 
 // 결제 화면(/checkout/{결과}?page=쪽) — 쏠 아스트로 하우스 결제 화면과 같은 흐름:
-// 이용 약관 동의(약관 링크) → 서버가 주문을 만들고 금액을 정함 → 토스 결제 위젯 → 결제가 끝나면 토스가 /checkout/success로 보내고
-// 그 화면이 서버에 승인 확인을 요청한다. 가짜 카운트다운·"지금만 할인" 같은 문구는 쓰지 않는다.
+// 들어오자마자 토스 결제 위젯(결제 수단)을 보여 주고(owner 2026-11-04 "누르면 결제창 보이게"), 이용 약관에 동의한 뒤 [결제하기]를 누르면
+// 그때 서버가 주문을 만들고 금액을 정함 → 토스 결제 → 결제가 끝나면 토스가 /checkout/success로 보내고 그 화면이 서버에 승인 확인을 요청한다.
+// 주문은 동의한 뒤에만 만든다(주문에 약관 동의 버전을 기록하므로). 위젯 금액은 표시 가격으로 먼저 그리고, 주문 금액이 다르면 결제 직전에 맞춘다. 가짜 카운트다운·"지금만 할인" 같은 문구는 쓰지 않는다.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -18,18 +19,24 @@ const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
 type Order = { orderId: string; orderName: string; amount: number; customerKey: string };
 type Widget = Awaited<ReturnType<typeof import("@tosspayments/payment-widget-sdk")["loadPaymentWidget"]>>;
+type Methods = ReturnType<Widget["renderPaymentMethods"]>;
 
 export default function CheckoutPage({ id, page }: { id: string; page: number }) {
   const router = useRouter();
   const back = `/result/${id}/${page}`;
   const [checked, setChecked] = useState<boolean | null>(null); // 로그인 확인 중 null
+  const [customerKey, setCustomerKey] = useState<string | null>(null); // 서버 주문의 customerKey와 같은 값(로그인 사용자 id)
+  const [busy, setBusy] = useState(false);
   const [ack, setAck] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const widgetRef = useRef<Widget | null>(null);
+  const methodsRef = useRef<Methods | null>(null);
   // 주문을 만들기 전에도 상품·가격 상자를 먼저 보여 준다(owner 2026-11-02). 표시용 — 실제 청구는 서버 주문 금액.
-  const promo = usePromo() === true;
+  const promoState = usePromo();
+  const promo = promoState === true;
+  const shownAmount = order?.amount ?? (promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE);
 
   // 결제는 로그인한 본인만(결과도 로그인해야 만들 수 있다)
   // 로그인 없이 본 결과(2026-10-26)면 로그인한 지금 이 브라우저의 결과를 먼저 계정에 붙인다 — 주문은 계정 결과에만 만든다.
@@ -37,33 +44,21 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
     void getRealSession().then(async (s) => {
       if (!s) return router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
       await claimIfGuest(id);
+      setCustomerKey(s.user.id);
       setChecked(true);
     });
   }, [router, id, page]);
 
-  // 이용 약관에 동의해야 주문을 만들고 결제 수단을 연다
+  // 결제 수단은 화면에 들어오자마자 그린다(할인 여부를 알고 난 뒤 — 표시 가격으로)
   useEffect(() => {
-    if (!checked || !ack || order) return;
-    api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } })
-      .then((o) => {
-        // 기간 한정 무료 열람 계정: 결제창 없이 바로 결과로(결제 직후와 같이 세 번째 카드가 뒤집히며 열림)
-        if ("comp" in o) return router.replace(`/result/${o.sessionId}/${page}?opened=1`);
-        setOrder(o);
-      })
-      .catch((e) => {
-        if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) router.replace(back);
-        else setError(e instanceof ApiError ? e.message : "주문을 만들지 못했어요.");
-      });
-  }, [checked, ack, order, id, router, back, page]);
-
-  useEffect(() => {
-    if (!order || !TOSS_CLIENT_KEY) return;
+    if (!checked || !customerKey || promoState === null || !TOSS_CLIENT_KEY || widgetRef.current) return;
     let cancelled = false;
+    const amount = promoState ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE;
     void import("@tosspayments/payment-widget-sdk")
       .then(async ({ loadPaymentWidget }) => {
-        const widget = await loadPaymentWidget(TOSS_CLIENT_KEY, order.customerKey);
+        const widget = await loadPaymentWidget(TOSS_CLIENT_KEY, customerKey);
         if (cancelled) return;
-        widget.renderPaymentMethods("#toss-payment-methods", order.amount);
+        methodsRef.current = widget.renderPaymentMethods("#toss-payment-methods", amount);
         widget.renderAgreement("#toss-agreement");
         widgetRef.current = widget;
         setReady(true);
@@ -75,20 +70,35 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
     return () => {
       cancelled = true;
     };
-  }, [order]);
+  }, [checked, customerKey, promoState]);
 
   async function pay() {
-    if (!order || !widgetRef.current) return;
+    if (!ack || !widgetRef.current || busy) return;
     setError(null);
+    setBusy(true);
     try {
+      // 동의한 뒤에야 주문을 만든다 — 금액은 서버가 정한다
+      let o = order;
+      if (!o) {
+        const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } });
+        // 기간 한정 무료 열람 계정: 결제창 없이 바로 결과로(결제 직후와 같이 세 번째 카드가 뒤집히며 열림)
+        if ("comp" in r) return router.replace(`/result/${r.sessionId}/${page}?opened=1`);
+        o = r;
+        setOrder(r);
+      }
+      // 위젯에 먼저 그린 표시 가격과 서버 주문 금액이 다르면(할인 경계 시각 등) 실제 청구 금액으로 맞춘다
+      if (o.amount !== shownAmount) methodsRef.current?.updateAmount(o.amount);
       await widgetRef.current.requestPayment({
-        orderId: order.orderId,
-        orderName: order.orderName,
+        orderId: o.orderId,
+        orderName: o.orderName,
         successUrl: `${window.location.origin}/checkout/success?page=${page}`,
         failUrl: `${window.location.origin}/checkout/fail?id=${id}&page=${page}`,
       });
-    } catch {
-      setError("결제창을 열지 못했어요. 잠시 후 다시 시도해 주세요.");
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return router.replace(back);
+      setError(e instanceof ApiError ? e.message : "결제창을 열지 못했어요. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -106,7 +116,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
           <>
             {/* 쏠 타로 하우스 결제 상자가 먼저(owner 2026-11-02). 금액은 주문이 생기면 서버가 정한 주문 금액, 그 전에는 같은 계산(lib/billing/pricing.ts)으로 표시만 */}
             {(() => {
-              const amount = order?.amount ?? (promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE);
+              const amount = shownAmount;
               const discounted = amount < REPORT_LIST_PRICE;
               return (
                 <div className="rounded-2xl border border-gold px-4 py-3">
@@ -120,7 +130,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
                 </div>
               );
             })()}
-            {/* 이용 약관 동의 한 줄(owner 2026-11-02) — 동의해야 주문을 만들고 결제 수단이 열린다. 청약철회 제한은 약관 제13조(링크) */}
+            {/* 이용 약관 동의 한 줄(owner 2026-11-02) — 동의해야 [결제하기]가 눌린다(결제 수단은 먼저 보임). 청약철회 제한은 약관 제13조(링크) */}
             <div className="px-1 text-sm text-moon/90">
               <label className="flex items-start gap-2">
                 <input type="checkbox" className="mt-1" checked={ack} disabled={!!order} onChange={(e) => setAck(e.target.checked)} />
@@ -145,8 +155,8 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
                 {error}
               </p>
             )}
-            <button type="button" className="btn block" disabled={!ready} onClick={pay}>
-              {order ? `${won(order.amount)} 결제하기` : ack ? "준비하는 중…" : "약관에 동의하면 결제할 수 있어요"}
+            <button type="button" className="btn block" disabled={!ready || !ack || busy} onClick={pay}>
+              {!ready && TOSS_CLIENT_KEY ? "결제창을 불러오는 중…" : busy ? "결제창을 여는 중…" : ack ? `${won(shownAmount)} 결제하기` : "약관에 동의하면 결제할 수 있어요"}
             </button>
           </>
         )}
