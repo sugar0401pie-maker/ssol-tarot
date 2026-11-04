@@ -19,5 +19,5 @@ test("JSON-LD FAQ는 화면 FAQ와 글자까지 같다", () => {
 
 test("가격은 넘겨준 값으로 바뀐다(할인 종료 대비)", () => {
   assert.ok(aboutDescription("1,900원").includes("전체 리포트(1,900원)"));
-  assert.ok(faqGroups("1,900원")[0].items[0].a.includes("1,900원이에요"));
+  assert.ok(faqGroups("1,900원")[0].items.find((f) => f.q === "어떻게 이용하나요?")!.a.includes("1,900원이에요"));
 });

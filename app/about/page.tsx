@@ -11,6 +11,8 @@ import {
   HOW,
   HOW_TITLE,
   INTRO,
+  MAKERS,
+  MAKERS_TITLE,
   aboutDescription,
   aboutJsonLd,
   aboutTitle,
@@ -97,7 +99,8 @@ export default function AboutPage() {
         <H2>{HOW_TITLE}</H2>
         <p className="mt-3 text-[14px] leading-6 text-navy/85">{HOW}</p>
 
-        {/* 만든 사람: 원문 "quiz와 같은 문단" — 문단을 받으면 여기에 h2 '만든 사람'으로 넣는다. */}
+        <H2>{MAKERS_TITLE}</H2>
+        <p className="mt-3 text-[14px] leading-6 text-navy/85">{MAKERS}</p>
 
         <H2>자주 묻는 질문</H2>
         {faqGroups(price).map((g) => (
