@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { aboutDescription, aboutJsonLd, faqGroups, INTRO, H1, AT_A_GLANCE, steps } from "./content.ts";
+import { aboutDescription, aboutJsonLd, faqGroups, INTRO, H1, atAGlance, steps } from "./content.ts";
 
-const all = () => [H1, INTRO, aboutDescription("990원"), ...AT_A_GLANCE.flat(), ...steps("990원").map((s) => `${s.before ?? ""}${s.strong}${s.rest}`), ...faqGroups("990원").flatMap((g) => g.items.flatMap((f) => [f.q, f.a]))].join("\n");
+const all = () => [H1, INTRO, aboutDescription("990원"), ...atAGlance("990원").flat(), ...steps("990원").map((s) => `${s.before ?? ""}${s.strong}${s.rest}`), ...faqGroups("990원").flatMap((g) => g.items.flatMap((f) => [f.q, f.a]))].join("\n");
 
 test("공개 소개 문구에 근거 표시·확인 표시가 남지 않는다", () => {
   const t = all();

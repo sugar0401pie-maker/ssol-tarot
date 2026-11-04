@@ -5,7 +5,6 @@ import { currentReportPrice, won } from "@/lib/billing/pricing";
 import { DISPLAY_PARTICIPANTS, asOfDots } from "@/lib/stats/participants";
 import {
   ABOUT_PATH,
-  AT_A_GLANCE,
   CTA,
   DISCLAIMER,
   H1,
@@ -15,6 +14,7 @@ import {
   aboutDescription,
   aboutJsonLd,
   aboutTitle,
+  atAGlance,
   faqGroups,
   participantsLine,
   steps,
@@ -72,7 +72,7 @@ export default function AboutPage() {
         <h2 className="font-serif text-[19px] font-bold text-navy">한눈에 보기</h2>
         <table className="mt-3 w-full border-collapse text-[14px] leading-6">
           <tbody>
-            {AT_A_GLANCE.map(([k, v]) => (
+            {atAGlance(price).map(([k, v]) => (
               <tr key={k} className="border-b border-navy/10 last:border-0">
                 <th scope="row" className="w-[30%] py-2.5 pr-3 text-left align-top font-semibold">
                   {k}
