@@ -7,8 +7,8 @@ export async function POST(req: Request) {
   try {
     const body = await readJson(req);
     const { userId } = await authFrom(req);
-    return NextResponse.json(await createSession({ nickname: body.nickname, experience: body.experience, userId, headers: req.headers }));
+    return NextResponse.json(await createSession({ nickname: body.nickname, experience: body.experience, userId, headers: req.headers, locale: body.locale, termsConsent: body.termsConsent }));
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

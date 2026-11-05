@@ -15,6 +15,6 @@ export async function POST(req: Request) {
     if (r.generate) after(() => generateReport(r.sessionId));
     return NextResponse.json({ ok: true, sessionId: r.sessionId });
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

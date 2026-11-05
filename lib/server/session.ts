@@ -1,6 +1,9 @@
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
-import data from "@/data/tarot_data.json";
+import { bundleFor } from "@/lib/i18n/bundle";
+import { toLocale, type Locale } from "@/lib/i18n/locale";
+import { screenTextEn } from "@/lib/tarot-glue/screenWorryEn";
+import { CONSENT_EN, CONSENT_EN_VERSION } from "@/lib/i18n/consentEn";
 import { createShuffle, pickSlot } from "@/lib/tarot/deck.js";
 import { mergeSafety } from "@/lib/tarot/safety.js";
 import { screenWorry } from "@/lib/tarot-glue/screenWorry";
@@ -9,8 +12,8 @@ import { buildSafetyNotice } from "@/lib/tarot/assembleReport.js";
 // 결과 화면 안내 박스. 폭력 안내("때리거나 위협하는 일은…")는 띄우지 않는다(owner 2026-10-30 — 일상 연애 고민에
 // 잘못 뜬 사례가 있어 완전히 없애기로 결정). 폭력 판정 자체는 그대로라 다가가기 실천·처방 제외와 방향 끄기는 유지된다.
 // '관계 속 두려움' 안내는 그대로.
-function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"]): string | null {
-  return safety.violence ? null : buildSafetyNotice({ data, safety });
+function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"], locale: Locale): string | null {
+  return safety.violence ? null : buildSafetyNotice({ data: bundleFor(locale).data, safety });
 }
 import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
@@ -30,6 +33,7 @@ import { GuestLimitError, checkGuestStart } from "./guestLimit";
 import { countEvent } from "./counters";
 import { MERGED_CLASSIFY_SYSTEM, mergedClassifyEnabled, splitMerged } from "./mergedClassify";
 import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
+import { CLASSIFY_SYSTEM_EN, FRAME_SYSTEM_EN, C_SYSTEM_EN, D_SYSTEM_EN, E1_SYSTEM_EN, E2_SYSTEM_EN } from "./prompts_en";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
 // v4.0(2026-10-20): 결과 11쪽. 고민 제출 → A 분류 + A2 고민 틀 / 3장째 → 방향 계산(코드) + C / 결제 후 → D·E(결제 연동 때).
@@ -69,6 +73,9 @@ type SessionRow = {
   report?: { sa: unknown; E: unknown } | null;
   report_status?: "none" | "generating" | "ready" | "failed";
   report_started_at?: string | null;
+  // 영문판(2026-11-05) — 마이그레이션 20261105000100 전에는 없음(= 한국어). 결과는 만든 언어로 고정.
+  locale?: string | null;
+  worry_consent_at?: string | null;
 };
 
 export class TarotError extends Error {
@@ -79,7 +86,16 @@ export class TarotError extends Error {
 
 const hashKey = (key: string) => createHash("sha256").update(key).digest("hex");
 const db = () => createAdminClient();
-const copy = data.copy;
+const localeOf = (s: { locale?: string | null }): Locale => toLocale(s.locale);
+const B = (s: { locale?: string | null }) => bundleFor(localeOf(s));
+/** 언어별 서버 키워드 확인 — 영어는 정규식 사전·제외 목록(lib/tarot-glue/screenWorryEn.ts). */
+const screenFor = (locale: Locale, text: string) => (locale === "en" ? screenTextEn(text) : screenWorry(text));
+/** 언어별 프롬프트(영어는 docs/spec/en 원문 → prompts_en.ts). */
+function promptsFor(locale: Locale) {
+  return locale === "en"
+    ? { A: CLASSIFY_SYSTEM_EN, A2: FRAME_SYSTEM_EN, C: C_SYSTEM_EN, D: D_SYSTEM_EN, E1: E1_SYSTEM_EN, E2: E2_SYSTEM_EN }
+    : { A: CLASSIFY_SYSTEM, A2: FRAME_SYSTEM, C: C_SYSTEM, D: D_SYSTEM, E1: E1_SYSTEM, E2: E2_SYSTEM };
+}
 
 // ---------- 접근 확인 ----------
 
@@ -131,7 +147,11 @@ function assertNotSafety(s: SessionRow) {
 
 // ---------- 1. 세션 시작 ----------
 
-export async function createSession(input: { nickname: unknown; experience: unknown; userId: string | null; headers: { get(name: string): string | null } }) {
+export async function createSession(input: { nickname: unknown; experience: unknown; userId: string | null; headers: { get(name: string): string | null }; locale?: unknown; termsConsent?: unknown }) {
+  const locale = toLocale(input.locale);
+  const copy = bundleFor(locale).data.copy;
+  // 영문판: 18세 이상·이용약관·개인정보처리방침 동의(정책 문서 08 ①) — 화면에서 체크해도 서버가 한 번 더 확인한다.
+  if (locale === "en" && input.termsConsent !== true) throw new TarotError(400, CONSENT_EN.termsMissing);
   // 2026-10-26 owner 결정: 로그인 없이도 타로를 볼 수 있다(10-21 '로그인 필수'를 대체). 로그인은 결제·저장·쏘웰라로 갈 때 권한다.
   // 대신 로그인 없는 시작은 같은 기기 24시간 3번·같은 IP 20번까지(고민 분류·연결 한 줄 AI 비용 — lib/tarot-glue/guestLimit.ts).
   const nickname = String(input.nickname ?? "").trim();
@@ -146,16 +166,25 @@ export async function createSession(input: { nickname: unknown; experience: unkn
     }
   }
   const key = randomBytes(24).toString("hex");
-  const { data: row, error } = await db()
-    .from("tarot_sessions")
-    .insert({
-      access_key_hash: hashKey(key),
-      user_id: input.userId,
-      nickname: nickname.slice(0, copy.welcome.max_len),
-      experience,
-    })
-    .select("id")
-    .single();
+  const insert = (withLocale: boolean) =>
+    db()
+      .from("tarot_sessions")
+      .insert({
+        access_key_hash: hashKey(key),
+        user_id: input.userId,
+        nickname: nickname.slice(0, copy.welcome.max_len),
+        experience,
+        ...(withLocale ? { locale, terms_consent_at: new Date().toISOString(), consent_version: CONSENT_EN_VERSION } : {}),
+      })
+      .select("id")
+      .single();
+  // 한국어 세션은 locale 칸을 쓰지 않는다(칸 기본값 'ko' — 마이그레이션 전에도 그대로 동작).
+  // 영문 세션은 칸이 없으면 만들지 않는다 — 언어가 빠진 채 저장되면 뒤 단계가 한국어로 돌아가므로(fail closed).
+  const { data: row, error } = await insert(locale === "en");
+  if (error && locale === "en" && /locale|consent/.test(error.message)) {
+    console.error("tarot_sessions.locale 칸 없음(마이그레이션 20261105000100 실행 필요) — 영문 세션을 만들지 않음");
+    throw new TarotError(503, "잠시 후 다시 시도해 주세요.");
+  }
   if (error || !row) {
     console.error("tarot_sessions 생성 실패:", error?.message);
     throw new TarotError(500, "잠시 후 다시 시도해 주세요.");
@@ -167,7 +196,9 @@ export async function createSession(input: { nickname: unknown; experience: unkn
 // ---------- 2. 고민 제출 / 건너뛰기 ----------
 
 // 반환값 urgent=true면 화면은 안전 안내로. AI 분류는 호출한 라우트가 after()로 백그라운드 실행한다.
-export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: unknown }) {
+export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: unknown; consent?: unknown }) {
+  const copy = B(s).data.copy;
+  const en = localeOf(s) === "en";
   if (s.picks.length > 0 || s.current_shuffle_id) throw new TarotError(409, "이미 카드를 섞기 시작했어요.");
   if (body.skip === true) {
     await update(s.id, {
@@ -185,12 +216,15 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
   }
   const text = String(body.text ?? "").trim();
   if (text.length < copy.worry.min_len) throw new TarotError(400, copy.worry.too_short);
+  // 영문판: 고민 글 이용 별도 동의(정책 문서 08 ②) — 고민을 쓸 때만. 건너뛰기에는 필요 없다.
+  if (en && body.consent !== true) throw new TarotError(400, CONSENT_EN.worryMissing);
   const worry = text.slice(0, copy.worry.max_len);
-  const local = screenWorry(worry);
+  const local = screenFor(localeOf(s), worry);
   const urgent = local.level === "urgent";
   await update(s.id, {
     worry_text: worry,
     worry_skipped: false,
+    ...(en ? { worry_consent_at: new Date().toISOString() } : {}),
     safety_level: local.level,
     violence: local.violence,
     fear: local.fear,
@@ -219,23 +253,27 @@ async function tryTwice<T>(label: string, fn: () => Promise<T | null>): Promise<
 }
 
 export async function runClassification(sessionId: string) {
-  const { data: row } = await db().from("tarot_sessions").select("worry_text").eq("id", sessionId).maybeSingle();
+  const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const worry = row?.worry_text as string | null;
   if (!worry) return;
+  const locale = localeOf(row as SessionRow);
+  const { data } = bundleFor(locale);
+  const P = promptsFor(locale);
   const msg = worryUserMessage(worry);
   // v4.1: A2 사용자 입력에 비슷한 고민의 정답 5개를 붙이고(few-shot), 같은 5개의 투표를 두 번째 의견용으로 저장한다.
-  const fc = frameCall(worry);
-  const callA = () => tryTwice("고민 분류(A)", async () => parseClassification(await generateText(CLASSIFY_SYSTEM, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data));
+  const fc = frameCall(worry, locale);
+  const callA = () => tryTwice("고민 분류(A)", async () => parseClassification(await generateText(P.A, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data));
   const callA2 = () =>
     tryTwice("고민 틀(A2)", async () => {
-      const r = parseFrame(await generateText(FRAME_SYSTEM, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
+      const r = parseFrame(await generateText(P.A2, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
       // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
       if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
       return r.frame;
     });
   let cls: Classification | null = null;
   let frame: unknown = null;
-  if (mergedClassifyEnabled()) {
+  // 합친 호출은 한국어 프롬프트로만 평가했으므로 영문판은 따로 부른다.
+  if (mergedClassifyEnabled() && locale === "ko") {
     // A+A2 한 번 호출(owner 2026-10-26). 어느 절반이든 검증을 못 넘으면 그 절반만 예전처럼 따로 다시 부른다 —
     // 특히 안전 판단(A)이 빠진 채로 넘어가지 않게.
     try {
@@ -255,7 +293,7 @@ export async function runClassification(sessionId: string) {
   }
   // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety — v4.1: none < watch < urgent, CSO 2026-10-22).
   // urgent만 카드를 멈추고, watch는 결과 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄. 분류에 실패해도 키워드 결과는 유지.
-  const merged = mergeSafety(screenWorry(worry), cls);
+  const merged = mergeSafety(screenFor(locale, worry), cls);
   const patch: Partial<SessionRow> = {
     classification: cls,
     classification_status: cls ? "done" : "failed",
@@ -288,7 +326,7 @@ export async function shuffle(s: SessionRow) {
   assertNotSafety(s);
   if (s.result_status === "started") throw new TarotError(409, "고민 쓰기부터 해 주세요.");
   if (s.picks.length > 0) throw new TarotError(409, "이미 카드를 뽑기 시작했어요.");
-  const sh = createShuffle(data);
+  const sh = createShuffle(B(s).data);
   const { error } = await db()
     .from("tarot_shuffles")
     .insert({ id: sh.shuffleId, session_id: s.id, card_order: sh.order, reversed: sh.reversed });
@@ -328,7 +366,7 @@ export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: un
   if (error || !sh) throw new TarotError(500, "잠시 후 다시 시도해 주세요.");
   let res;
   try {
-    res = pickSlot({ order: sh.card_order, reversed: sh.reversed }, s.picked_slots, body.slot, data);
+    res = pickSlot({ order: sh.card_order, reversed: sh.reversed }, s.picked_slots, body.slot, B(s).data);
   } catch (e) {
     throw new TarotError(400, e instanceof Error ? e.message : "카드를 고를 수 없어요.");
   }
@@ -375,10 +413,11 @@ export async function prepareResult(sessionId: string) {
   let links: Record<string, unknown> | null = null;
   const cls = classificationForReport(s.classification);
   if (s.worry_text && aiConfigured()) {
-    const picks = expandPicks(s.picks);
-    const { decision, lean, review_log, lowered } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null });
+    const locale = localeOf(s);
+    const picks = expandPicks(s.picks, locale);
+    const { decision, lean, review_log, lowered } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
     if (review_log) await saveFrameReview(s, review_log, lowered);
-    const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean });
+    const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean, locale });
     // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7). 무료 결과에는 검수를 하지 않는다(owner 2026-10-21 비용 — 검수는 유료 1번만).
     const deadline = Date.now() + 12000;
     const parse = (raw: string) => parseC(raw, { decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost });
@@ -387,7 +426,7 @@ export async function prepareResult(sessionId: string) {
       const left = deadline - Date.now();
       if (left < 2000) break;
       try {
-        const r = parse(await generateText(C_SYSTEM, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C", reasoningEffort: "low" }));
+        const r = parse(await generateText(promptsFor(locale).C, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C", reasoningEffort: "low" }));
         // 걸린 칸만 비고 나머지는 쓴다(README_v4). 한 줄(links)까지 통과했으면 재시도하지 않음.
         if (!best || (r.links && !best.links)) best = r;
         if (r.errors.length) console.warn("C 검증 탈락 칸:", r.errors.length, "건");
@@ -426,7 +465,8 @@ async function writeChatSummary(sessionId: string) {
   }
 }
 
-function expandPicks(picks: Pick[]) {
+function expandPicks(picks: Pick[], locale: Locale = "ko") {
+  const { data } = bundleFor(locale);
   const positions = data.positions;
   return picks.map((p) => {
     const card = data.cards.find((c) => c.id === p.id)!;
@@ -443,7 +483,7 @@ export async function getStatus(s: SessionRow) {
 
 export async function getResult(s: SessionRow) {
   if (s.safety_level === "urgent" || s.result_status === "safety") return { status: "safety" as const };
-  if (s.picks.length < data.deck.pick_count) return { status: "drawing" as const };
+  if (s.picks.length < B(s).data.deck.pick_count) return { status: "drawing" as const };
   if (s.result_status !== "ready") {
     // 백그라운드 작업이 어떤 이유로 끊겼을 때(배포 중 재시작 등) 영원히 기다리지 않도록,
     // 마지막 갱신 후 70초가 지나면 연결 한 줄 없이(스펙의 실패 대체 동작과 같음) 결과를 연다(분류 대기 최대 40초 + C 12초).
@@ -459,36 +499,39 @@ export async function getResult(s: SessionRow) {
   if (paid && s.report_status === "generating" && Date.now() - new Date(s.report_started_at ?? s.updated_at).getTime() < 280000) {
     return { status: "preparing" as const };
   }
-  const picks = expandPicks(s.picks);
+  const locale = localeOf(s);
+  const picks = expandPicks(s.picks, locale);
   const cls = classificationForReport(s.classification);
   const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
   const frame = s.frame ?? null;
   // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
-  const { lean, decision } = decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null });
+  const { lean, decision } = decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null, locale });
   if (paid) {
     const rep = (s.report ?? null) as { sa?: unknown; E?: unknown } | null;
-    const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null });
+    const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null, locale });
     return {
       status: "ready" as const,
       nickname: s.nickname,
       createdAt: s.created_at,
       cards: cardsView(picks, true),
-      pages: sanitizePaid(pages, { other: lean?.other ?? null }),
-      notice: resultNotice(safety),
+      pages: sanitizePaid(pages, { other: lean?.other ?? null, locale }),
+      notice: resultNotice(safety, locale),
+      locale,
       paid: true,
       decision,
       saved: Boolean(s.user_id),
     };
   }
-  const pages = buildUnpaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links });
+  const pages = buildUnpaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, locale });
   return {
     status: "ready" as const,
     nickname: s.nickname,
     createdAt: s.created_at,
     cards: cardsView(picks, false),
-    pages: sanitizeUnpaid(pages),
+    pages: sanitizeUnpaid(pages, locale),
     // v4: 안내 박스는 폭력(구체 행동)·관계 속 두려움일 때만(주의 단계 삭제). 결제와 상관없이 보임.
-    notice: resultNotice(safety),
+    notice: resultNotice(safety, locale),
+    locale,
     paid: false,
     // 결정형 고민인지(세 장이 한쪽을 골랐는지)만 — 어느 쪽인지는 보내지 않는다. 결제 카드 문구를 고르는 데 쓴다.
     decision,
@@ -517,7 +560,7 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
   // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
   if (body.withdrawalAck !== true) throw new TarotError(400, "이용 관련 약관에 동의해 주세요.");
   if (s.safety_level === "urgent" || s.result_status === "safety") throw new TarotError(403, "이 결과는 결제할 수 없어요.");
-  if (s.picks.length < data.deck.pick_count || s.result_status !== "ready") throw new TarotError(409, "결과가 아직 준비되지 않았어요.");
+  if (s.picks.length < B(s).data.deck.pick_count || s.result_status !== "ready") throw new TarotError(409, "결과가 아직 준비되지 않았어요.");
   if (s.paid_at) throw Object.assign(new TarotError(409, "이미 결제한 리포트예요."), { paid: true });
   // 기간 한정 무료 열람 계정(owner 지정, lib/billing/compAccess.ts): 토스 없이 결제한 것처럼 열고 리포트를 만든다.
   // 주문·결제 기록과 결제 집계(countEvent "paid")는 남기지 않는다. 위의 본인·안전·준비 확인은 그대로 거친다.
@@ -623,13 +666,15 @@ export async function generateReport(sessionId: string) {
   try {
     const cls = classificationForReport(s.classification);
     if (s.worry_text && cls && aiConfigured()) {
-      const picks = expandPicks(s.picks);
+      const locale = localeOf(s);
+      const P = promptsFor(locale);
+      const picks = expandPicks(s.picks, locale);
       const frame = s.frame ?? null;
-      const { lean } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null });
+      const { lean } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
       // 분류가 실패했으면 폭력 여부를 모르므로 더 조심스러운 쪽(violence=true)으로(스펙 6장 fail safe)
       const violence = s.violence || s.classification_status === "failed";
       const safety = { level: s.safety_level, violence, fear: Boolean(s.fear) };
-      const args = { name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean };
+      const args = { name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, locale };
       const dBlock = buildDUserBlock({ ...args, safety });
       const e1Block = buildE1UserBlock(args);
       const e2Block = buildE2UserBlock(args);
@@ -638,7 +683,7 @@ export async function generateReport(sessionId: string) {
         let best: ReturnType<typeof parseStoryApply> | null = null;
         for (let i = 0; i < 2 && dBlock; i++) {
           try {
-            const r = parseStoryApply(await generateText(D_SYSTEM, dBlock, { timeoutMs: 50000, maxOutputTokens: 6000, label: "D" }), { violence });
+            const r = parseStoryApply(await generateText(P.D, dBlock, { timeoutMs: 50000, maxOutputTokens: 6000, label: "D" }), { violence });
             if (!best || (r.story && r.apply)) best = r;
             if (r.story && r.apply) break;
             console.warn("D 검증 탈락 — 다시 시도");
@@ -662,12 +707,12 @@ export async function generateReport(sessionId: string) {
         }
         return null;
       };
-      const [d, e1, e2] = await Promise.all([runD(), runE("E1", E1_SYSTEM, e1Block), runE("E2", E2_SYSTEM, e2Block)]);
+      const [d, e1, e2] = await Promise.all([runD(), runE("E1", P.E1, e1Block), runE("E2", P.E2, e2Block)]);
       sa = d;
       E = mergeE(e1, e2);
       // 행동 겹침(7쪽 계획·8쪽 처방·9쪽 실천) 경고 — 운영에서 E2 재호출 기준을 정하려고 건수만 남긴다(README_v4 ①).
       const key = picks[2];
-      const overlaps = overlapWarnings(actionsOf(E, key ? todayFromDb(data, { no: key.card.no, reversed: Boolean(key.reversed) }, lean) : null));
+      const overlaps = overlapWarnings(actionsOf(E, key ? todayFromDb(bundleFor(locale).data, { no: key.card.no, reversed: Boolean(key.reversed) }, lean) : null));
       if (overlaps.length) console.info("행동 겹침 경고:", overlaps.map((o) => `${o.a}↔${o.b}`).join(", "));
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });
@@ -687,7 +732,7 @@ export async function listResults(userId: string | null) {
   if (!userId) throw new TarotError(401, "로그인이 필요해요.");
   const { data: rows, error } = await db()
     .from("tarot_sessions")
-    .select("id, nickname, picks, result_status, safety_level, created_at, paid_at")
+    .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -697,14 +742,15 @@ export async function listResults(userId: string | null) {
   }
   return {
     results: (rows ?? [])
-      .filter((r) => Array.isArray(r.picks) && r.picks.length >= data.deck.pick_count && r.result_status !== "safety" && r.safety_level !== "urgent")
+      .filter((r) => Array.isArray(r.picks) && r.picks.length >= 3 && r.result_status !== "safety" && r.safety_level !== "urgent")
       .map((r) => ({
         id: r.id as string,
         nickname: r.nickname as string,
         createdAt: r.created_at as string,
         // 유료 리포트를 결제한 결과인지 — 목록에 '전체 열람 가능' 표시(owner 2026-10-22)
         paid: Boolean((r as { paid_at?: string | null }).paid_at),
-        cards: cardsView(expandPicks(r.picks as Pick[]), Boolean((r as { paid_at?: string | null }).paid_at)),
+        locale: localeOf(r as SessionRow),
+        cards: cardsView(expandPicks(r.picks as Pick[], localeOf(r as SessionRow)), Boolean((r as { paid_at?: string | null }).paid_at)),
       })),
   };
 }

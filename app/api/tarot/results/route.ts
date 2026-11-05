@@ -8,6 +8,6 @@ export async function GET(req: Request) {
     const { userId } = await authFrom(req);
     return NextResponse.json(await listResults(userId), { headers: { "cache-control": "no-store" } });
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

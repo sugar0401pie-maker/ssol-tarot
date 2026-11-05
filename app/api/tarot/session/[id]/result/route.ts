@@ -9,6 +9,6 @@ export async function GET(req: Request, ctx: RouteContext<"/api/tarot/session/[i
     const { id } = await ctx.params;
     return NextResponse.json(await getResult(await sessionFrom(req, id)), { headers: { "Cache-Control": "no-store" } });
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

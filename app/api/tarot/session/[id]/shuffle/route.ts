@@ -8,6 +8,6 @@ export async function POST(req: Request, ctx: RouteContext<"/api/tarot/session/[
     const { id } = await ctx.params;
     return NextResponse.json(await shuffle(await sessionFrom(req, id)));
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

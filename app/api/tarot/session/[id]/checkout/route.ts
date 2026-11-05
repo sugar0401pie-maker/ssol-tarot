@@ -20,6 +20,6 @@ export async function POST(req: Request, ctx: RouteContext<"/api/tarot/session/[
     if ("comp" in r) after(() => generateReport(s.id));
     return NextResponse.json(r);
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

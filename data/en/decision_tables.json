@@ -1,0 +1,2585 @@
+{
+  "version": "v4 (2026-10-23)",
+  "about": "10 score tables that compute the direction for decision-type worries (v4.6 worry frames). + = the move side, − = the stay side. No zeros. Each table has poles (fixed meaning of + and −) and implicit (2 default options [+, −] used when the worry names no options). v3: removed the generic 'act' table → split into express and boundary; renamed start to 'Starting (Do / Don't)'. mode axis: options_ranked=[+ side, − side] → if sum ≥ 0 use [0], else [1]. mode rank: options_ranked = recommendation order → if sum ≥ 0 the 1st choice [0], else the 2nd choice [1] (3rd and below never become the conclusion).",
+  "rule": {
+    "weights": [
+      1,
+      1,
+      2
+    ],
+    "positions": [
+      "The Road So Far",
+      "The Current Now",
+      "The Key Ahead"
+    ],
+    "move_if_sum_gte": 0,
+    "strong_abs_gte": 3,
+    "clear_abs_gte": 1.5,
+    "note": "No average (baseline) is subtracted. A sum of 0 goes to the move side."
+  },
+  "types": {
+    "approach": {
+      "label": "Reaching out",
+      "covers": "Whether to text or show your feelings first to someone you're seeing or dating",
+      "move": "Reach out first",
+      "stay": "Wait and see",
+      "scores": {
+        "0_up": [
+          2,
+          "a card saying to start the conversation lightly"
+        ],
+        "0_rev": [
+          1,
+          "a sign that one light message, with less pressure, can ease things"
+        ],
+        "1_up": [
+          2,
+          "a card saying you can put your words across well"
+        ],
+        "1_rev": [
+          1,
+          "a state where you can still say it briefly, even after hesitating"
+        ],
+        "2_up": [
+          -2,
+          "a card saying to keep your feelings close and watch their signals"
+        ],
+        "2_rev": [
+          1,
+          "a card saying it's okay to bring out the feelings you've hidden"
+        ],
+        "3_up": [
+          1,
+          "a card for warm attention and kind words that land well"
+        ],
+        "3_rev": [
+          -1,
+          "a state where caring too much can feel like pressure to them"
+        ],
+        "4_up": [
+          1,
+          "a card saying you can take the lead with a clear stance"
+        ],
+        "4_rev": [
+          -1,
+          "a state where stubbornness and stiffness make reaching out hard"
+        ],
+        "5_up": [
+          1,
+          "a card that's good for a polite first check-in"
+        ],
+        "5_rev": [
+          1,
+          "a card saying you can drop the formality and be relaxed"
+        ],
+        "6_up": [
+          2,
+          "a card saying you can be honest about a mutual pull"
+        ],
+        "6_rev": [
+          1,
+          "a state where mixed signals can clear up with honesty"
+        ],
+        "7_up": [
+          2,
+          "a card saying to step forward first with confidence"
+        ],
+        "7_rev": [
+          -1,
+          "a state where rushing can make your message miss the mark"
+        ],
+        "8_up": [
+          1,
+          "a card about reaching out carefully with gentle courage"
+        ],
+        "8_rev": [
+          1,
+          "a state where a little courage is worth a first step"
+        ],
+        "9_up": [
+          -2,
+          "a card saying to sort out your feelings alone and wait"
+        ],
+        "9_rev": [
+          1,
+          "a card saying you can leave your shell and reach out"
+        ],
+        "10_up": [
+          1,
+          "a card that says a small message can open doors as things shift"
+        ],
+        "10_rev": [
+          -1,
+          "a state where bad timing makes messages fall flat"
+        ],
+        "11_up": [
+          -1,
+          "a card saying to calmly read their attitude without rushing"
+        ],
+        "11_rev": [
+          -1,
+          "a state where shaky judgment tilts how you express yourself"
+        ],
+        "12_up": [
+          -2,
+          "a card saying to pause and watch instead of moving"
+        ],
+        "12_rev": [
+          1,
+          "a card that says feelings stuck for a long time can finally move"
+        ],
+        "13_up": [
+          -1,
+          "a card saying the old way is over, so change your approach"
+        ],
+        "13_rev": [
+          -1,
+          "a state of holding on and repeating the same approach"
+        ],
+        "14_up": [
+          1,
+          "a card saying to pace yourself and reach out in balance"
+        ],
+        "14_rev": [
+          1,
+          "a sign that reaching out is worth a try if you adjust how much you say"
+        ],
+        "15_up": [
+          1,
+          "a card for a strong attraction that keeps showing in what you say"
+        ],
+        "15_rev": [
+          -1,
+          "a sign that the pull has you texting in a clingy way"
+        ],
+        "16_up": [
+          -2,
+          "a card saying to stop, since impulsive words can cause a clash"
+        ],
+        "16_rev": [
+          -1,
+          "a state of swallowing your words to avoid conflict"
+        ],
+        "17_up": [
+          2,
+          "a card saying you can reach out first with sincere hope"
+        ],
+        "17_rev": [
+          -1,
+          "a state where lack of confidence keeps your feelings unsaid"
+        ],
+        "18_up": [
+          -2,
+          "a card that says their feelings are still too unclear to make a move"
+        ],
+        "18_rev": [
+          1,
+          "a card that says the worry is clearing and their feelings are starting to show"
+        ],
+        "19_up": [
+          2,
+          "a card that says the more cheerfully and honestly you share, the better"
+        ],
+        "19_rev": [
+          1,
+          "a card saying it's fine to reach out first, even if clumsy"
+        ],
+        "20_up": [
+          2,
+          "a card saying it's time to bravely say what you've put off"
+        ],
+        "20_rev": [
+          -1,
+          "a state where self-doubt keeps you from answering the call"
+        ],
+        "21_up": [
+          1,
+          "a card that says you're close enough now to say how you feel naturally"
+        ],
+        "21_rev": [
+          -1,
+          "a sign that things feel unfinished and you keep putting it off"
+        ]
+      },
+      "flipped_v2": [
+        "0_rev",
+        "1_rev",
+        "5_up",
+        "6_rev",
+        "8_rev",
+        "14_rev"
+      ],
+      "poles": {
+        "plus": "Texting first, saying how you feel, asking, reaching out",
+        "minus": "Holding off on texting, or waiting"
+      },
+      "implicit": [
+        "Text them first",
+        "Wait for them to text"
+      ],
+      "reasons": {
+        "0_up": "a card saying it's fine to start lightly",
+        "0_rev": "a sign that things ease once you take some pressure off",
+        "1_up": "a card that says you have the skill to say what you mean",
+        "1_rev": "a sign that you held back to find the right words but can still say it briefly",
+        "2_up": "a time to keep your feelings close and read their signals",
+        "2_rev": "a time when it's okay to show the feelings you've hidden",
+        "3_up": "a card that says your warm attention lands well",
+        "3_rev": "a state where caring a lot may feel like pressure to them",
+        "4_up": "a card saying you can take the lead with a clear stance",
+        "4_rev": "a state where stubbornness makes talks stiff right now",
+        "5_up": "a card that's good for a polite, light check-in",
+        "5_rev": "a card saying you can drop the formality",
+        "6_up": "a sign that the attraction is mutual and getting through",
+        "6_rev": "a state where one honest word can clear mixed signals",
+        "7_up": "a time when it's fine to step ahead with confidence",
+        "7_rev": "a state where rushing easily sends things off course",
+        "8_up": "a card that gives you gentle courage to make a careful move",
+        "8_rev": "a sign that even with shaky confidence, a little courage is enough",
+        "9_up": "a card that says you need time alone to sort out your feelings and read the timing",
+        "9_rev": "a time when you can leave your shell and reach out",
+        "10_up": "a time when things shift and a small chance becomes an opening",
+        "10_rev": "a time when bad timing makes words fall flat",
+        "11_up": "a time to calmly read their attitude without rushing",
+        "11_rev": "a state where shaky judgment tips your feelings one way",
+        "12_up": "a time to pause and look at the situation instead of moving",
+        "12_rev": "a time when long-stuck feelings start to move",
+        "13_up": "a time when the old way is over and your approach needs rethinking",
+        "13_rev": "a sign you keep trying the same thing when your approach needs to change",
+        "14_up": "a card that lets you reach out at a balanced pace",
+        "14_rev": "a state where adjusting how much you say helps it land",
+        "15_up": "a card for a strong attraction that shows itself naturally",
+        "15_rev": "a sign that the pull you feel could push you into clingy moves",
+        "16_up": "a time when impulsive words can turn into a clash",
+        "16_rev": "a state of swallowing what you want to say to avoid conflict",
+        "17_up": "a card that says your sincere hope can reach them",
+        "17_rev": "a state where you're not yet sure enough to share how you feel",
+        "18_up": "a time when their feelings are still too unclear to move",
+        "18_rev": "a time when worry clears and their feelings start to show",
+        "19_up": "a card that says being cheerful and honest works best",
+        "19_rev": "a card that says your sincerity comes through, even if you're a little clumsy",
+        "20_up": "a time to bravely say what you've put off",
+        "20_rev": "a state where self-doubt makes answering the call hard",
+        "21_up": "a card that says the relationship has grown close enough for you to speak up naturally",
+        "21_rev": "a state that still needs a bit more time to settle"
+      }
+    },
+    "reunion": {
+      "label": "Getting back together",
+      "covers": "A relationship that has ended — should you reach out again, will you get back together",
+      "move": "Reach out again",
+      "stay": "Let it go without reaching out",
+      "scores": {
+        "0_up": [
+          1,
+          "a card for meeting someone from your past again as a fresh start"
+        ],
+        "0_rev": [
+          -1,
+          "a sign that starting is delayed and it's not time to move yet"
+        ],
+        "1_up": [
+          1,
+          "a card saying you can make a way if you move first"
+        ],
+        "1_rev": [
+          1,
+          "a state that can reconnect if you fix mismatched words and actions"
+        ],
+        "2_up": [
+          -1,
+          "a card of hiding feelings and watching, not showing them yet"
+        ],
+        "2_rev": [
+          1,
+          "a time when hidden feelings surface and the door to contact opens"
+        ],
+        "3_up": [
+          1,
+          "a card saying affection and care still remain"
+        ],
+        "3_rev": [
+          -1,
+          "a sign that your energy to care has run out and taking the relationship back on is hard"
+        ],
+        "4_up": [
+          -1,
+          "a card of closing yourself off tightly and staying guarded"
+        ],
+        "4_rev": [
+          1,
+          "a sign that control is loosening and a hardened stance is slowly opening up"
+        ],
+        "5_up": [
+          1,
+          "a card about rebuilding promises and the shape of the relationship"
+        ],
+        "5_rev": [
+          1,
+          "a state where breaking the old mold lets things start fresh"
+        ],
+        "6_up": [
+          2,
+          "a card about choosing each other again"
+        ],
+        "6_rev": [
+          -2,
+          "a card that says what you each feel is out of step"
+        ],
+        "7_up": [
+          1,
+          "a card saying you can reach them if you actively move first"
+        ],
+        "7_rev": [
+          -2,
+          "a sign that you've lost direction and reaching out now could easily go wrong"
+        ],
+        "8_up": [
+          1,
+          "a card saying patience and gentleness can reconnect you"
+        ],
+        "8_rev": [
+          1,
+          "a state where you can try again once you steady your feelings"
+        ],
+        "9_up": [
+          -2,
+          "a card saying you each need your own time"
+        ],
+        "9_rev": [
+          -1,
+          "a state of being shut in alone, without energy to reach out"
+        ],
+        "10_up": [
+          2,
+          "a card saying the bond is coming back around"
+        ],
+        "10_rev": [
+          -1,
+          "a time when things are crossed and the timing is off"
+        ],
+        "11_up": [
+          -1,
+          "a card saying to close the past relationship fairly"
+        ],
+        "11_rev": [
+          -1,
+          "a state where past rights and wrongs are still unresolved"
+        ],
+        "12_up": [
+          -1,
+          "a card saying to pause and wait"
+        ],
+        "12_rev": [
+          1,
+          "a time when what was stuck starts to loosen"
+        ],
+        "13_up": [
+          -2,
+          "a card saying to accept the relationship has ended"
+        ],
+        "13_rev": [
+          1,
+          "a card saying feelings that haven't ended still remain"
+        ],
+        "14_up": [
+          2,
+          "a card of reconciliation and healing"
+        ],
+        "14_rev": [
+          1,
+          "a state where getting back in sync lets you try again"
+        ],
+        "15_up": [
+          1,
+          "a card of a strong pull and lingering feelings (watch for clinging)"
+        ],
+        "15_rev": [
+          -1,
+          "a time of getting free of lingering feelings, which leans toward letting go"
+        ],
+        "16_up": [
+          -2,
+          "a card saying the relationship's foundation has collapsed"
+        ],
+        "16_rev": [
+          1,
+          "a state where confusion settles after the collapse and you can rebuild"
+        ],
+        "17_up": [
+          1,
+          "a card for hurt that heals and hope that appears"
+        ],
+        "17_rev": [
+          -1,
+          "a state where hope is hard to hold onto"
+        ],
+        "18_up": [
+          -1,
+          "a sign that misunderstanding and uncertainty are big"
+        ],
+        "18_rev": [
+          1,
+          "a card saying misunderstandings are clearing"
+        ],
+        "19_up": [
+          2,
+          "a card of meeting again brightly"
+        ],
+        "19_rev": [
+          1,
+          "weak, but still on the bright side"
+        ],
+        "20_up": [
+          2,
+          "the classic reunion card about answering the call again"
+        ],
+        "20_rev": [
+          -1,
+          "a card saying you may repeat the same problems"
+        ],
+        "21_up": [
+          1,
+          "a card that says you can meet again at the next stage after a full cycle"
+        ],
+        "21_rev": [
+          1,
+          "a card saying an unfinished relationship remains"
+        ]
+      },
+      "flipped_v2": [
+        "0_up",
+        "1_rev",
+        "4_rev",
+        "5_rev",
+        "8_rev",
+        "14_rev",
+        "16_rev",
+        "21_up"
+      ],
+      "poles": {
+        "plus": "Reaching out again, taking them back, trying to reunite",
+        "minus": "Letting it go without reaching out"
+      },
+      "implicit": [
+        "Reach out again",
+        "Let it go without reaching out"
+      ],
+      "reasons": {
+        "0_up": "a card that says you can meet them again as a fresh start",
+        "0_rev": "a state where starting is delayed and it's not time yet",
+        "1_up": "a card saying you can make a way if you move first",
+        "1_rev": "a state that can reconnect if you fix mismatched words and actions",
+        "2_up": "a time when it's still early to show your true feelings",
+        "2_rev": "a time when hidden feelings start to surface",
+        "3_up": "a card that says affection and care still remain between you",
+        "3_rev": "a sign that your energy to care has run out and taking them back in is hard",
+        "4_up": "a card saying someone is tightly closed off",
+        "4_rev": "a sign that a hardened stance is slowly starting to soften",
+        "5_up": "a card that says you can rebuild your promises and the shape of the relationship",
+        "5_rev": "a state where breaking the old mold lets it start fresh",
+        "6_up": "a card for the two of you choosing each other again",
+        "6_rev": "a card saying what you each want is out of step now",
+        "7_up": "a card that says you can reach them if you take active steps",
+        "7_rev": "a state of lost direction where moving now easily goes wrong",
+        "8_up": "a card that says patience and gentleness can bring you back together",
+        "8_rev": "a state where you can reach out again once you steady yourself",
+        "9_up": "a card that says you both need your own time",
+        "9_rev": "a state of being shut in alone without energy to reach out",
+        "10_up": "a time when a broken bond comes back around",
+        "10_rev": "a time when things cross and the timing is off",
+        "11_up": "a time to weigh the past relationship fairly and close it",
+        "11_rev": "a state where past rights and wrongs are still unresolved",
+        "12_up": "a time to pause and give it time",
+        "12_rev": "a time when what was stuck starts to loosen",
+        "13_up": "a time to accept the relationship with them has ended",
+        "13_rev": "a card about feelings that haven't ended yet",
+        "14_up": "a card with a strong pull toward making up and healing",
+        "14_rev": "a state where getting back in sync lets you try again",
+        "15_up": "a sign that the pull and lingering feelings are still strong",
+        "15_rev": "a time of slowly getting free of lingering feelings",
+        "16_up": "a card saying the relationship's foundation has collapsed",
+        "16_rev": "a state where confusion settles and you can rebuild",
+        "17_up": "a card that says the hurt is healing and hope is starting to show",
+        "17_rev": "a state where hope of reconnecting is hard to hold onto",
+        "18_up": "a sign that misunderstanding and uncertainty are still big",
+        "18_rev": "a time when built-up misunderstandings start to clear",
+        "19_up": "a card for the two of you meeting again on a bright note",
+        "19_rev": "a card that says some brightness remains, even if it's faint",
+        "20_up": "a reunion card about answering the call again",
+        "20_rev": "a card saying you may repeat the same problems",
+        "21_up": "a card that says you can meet again at the next stage, once this one is done",
+        "21_rev": "a card that says an unfinished story remains between you"
+      }
+    },
+    "progress": {
+      "label": "Taking the next step",
+      "covers": "Whether to confess, define the relationship, go public, or get married",
+      "move": "Take the next step",
+      "stay": "Stay at this stage and keep watching",
+      "scores": {
+        "0_up": [
+          1,
+          "a card about lightly taking the first step into a new stage"
+        ],
+        "0_rev": [
+          1,
+          "a state where a little preparation makes a step worth taking"
+        ],
+        "1_up": [
+          2,
+          "a card for opening the next stage with will and words"
+        ],
+        "1_rev": [
+          -1,
+          "a state of more talk than real preparation"
+        ],
+        "2_up": [
+          -1,
+          "a card saying to slow down and know each other better"
+        ],
+        "2_rev": [
+          1,
+          "a card for hidden feelings coming out so you can feel sure"
+        ],
+        "3_up": [
+          1,
+          "a card that says affection is growing deeper and the relationship can grow with it"
+        ],
+        "3_rev": [
+          -1,
+          "a state where one side bends too much and both are tired"
+        ],
+        "4_up": [
+          2,
+          "a card about building the relationship firmly with a real commitment"
+        ],
+        "4_rev": [
+          -2,
+          "a state where control and stubbornness make defining it hard"
+        ],
+        "5_up": [
+          2,
+          "a card about making it official and having it recognized"
+        ],
+        "5_rev": [
+          -1,
+          "a sign that form and expectations are running ahead of your feelings"
+        ],
+        "6_up": [
+          2,
+          "a card about choosing each other and settling your feelings"
+        ],
+        "6_rev": [
+          -2,
+          "a state of wavering over the choice without feeling sure"
+        ],
+        "7_up": [
+          2,
+          "a card saying to move forward boldly with confidence"
+        ],
+        "7_rev": [
+          -1,
+          "a sign that your directions don't match and rushing will throw things off"
+        ],
+        "8_up": [
+          1,
+          "a card about stepping forward with patience and gentle courage"
+        ],
+        "8_rev": [
+          1,
+          "a sign that a confession starts to come easier once you find the courage you've held back"
+        ],
+        "9_up": [
+          -2,
+          "a card that says you need time alone to think and it's too early to decide"
+        ],
+        "9_rev": [
+          -1,
+          "a sign that isolation and not opening up are blocking progress"
+        ],
+        "10_up": [
+          1,
+          "a card that says the relationship is shifting and you can seize the chance"
+        ],
+        "10_rev": [
+          1,
+          "a state where crossed timing untangles and a path opens"
+        ],
+        "11_up": [
+          1,
+          "a card about both owning your part and defining the relationship"
+        ],
+        "11_rev": [
+          -2,
+          "a sign that unfair parts remain and things are hard to settle"
+        ],
+        "12_up": [
+          -2,
+          "a card saying to hold off on deciding and watch more"
+        ],
+        "12_rev": [
+          1,
+          "a card for a long-stuck situation loosening so you can decide"
+        ],
+        "13_up": [
+          1,
+          "a card of change that ends the current form and steps forward"
+        ],
+        "13_rev": [
+          -1,
+          "a state of staying in place out of fear of change"
+        ],
+        "14_up": [
+          1,
+          "a card about moving forward calmly at a shared pace"
+        ],
+        "14_rev": [
+          1,
+          "a state where matching your pace makes progress smoother"
+        ],
+        "15_up": [
+          -2,
+          "a card that says clinging and ties are making progress unhealthy"
+        ],
+        "15_rev": [
+          1,
+          "a card for getting free of ties and deciding anew"
+        ],
+        "16_up": [
+          -2,
+          "a card that says a sudden clash is a real risk and decisions should wait"
+        ],
+        "16_rev": [
+          -1,
+          "a state where avoiding a collapse makes the problem bigger"
+        ],
+        "17_up": [
+          2,
+          "a card that says hope and trust are growing into confidence to keep going"
+        ],
+        "17_rev": [
+          -1,
+          "a state where confidence fades and the future feels unclear"
+        ],
+        "18_up": [
+          -2,
+          "a card that says uncertainty and misunderstanding call for checking first"
+        ],
+        "18_rev": [
+          1,
+          "a card for misunderstandings clearing and feelings becoming plain"
+        ],
+        "19_up": [
+          2,
+          "a card of great joy that says it's fine to make it public"
+        ],
+        "19_rev": [
+          1,
+          "a card saying it's fine to take a step, even if clumsy"
+        ],
+        "20_up": [
+          2,
+          "a card saying to make the call and enter a new stage"
+        ],
+        "20_rev": [
+          -1,
+          "a state of putting off the decision and doubting yourself"
+        ],
+        "21_up": [
+          2,
+          "a card that says the relationship is reaching completion and bearing fruit"
+        ],
+        "21_rev": [
+          1,
+          "a state where a bit more wrapping up opens the next stage"
+        ]
+      },
+      "flipped_v2": [
+        "0_rev",
+        "8_rev",
+        "10_rev",
+        "13_up",
+        "14_rev",
+        "21_rev"
+      ],
+      "poles": {
+        "plus": "Taking the next step",
+        "minus": "Staying at this stage, watching longer"
+      },
+      "implicit": [
+        "Say how you feel and take the next step",
+        "Keep watching at this stage"
+      ],
+      "reasons": {
+        "0_up": "a card with the energy to lightly start a new stage",
+        "0_rev": "a state where a little preparation makes it worth trying",
+        "1_up": "a card that says your will and words can open the next door",
+        "1_rev": "a state of more talk than real preparation so far",
+        "2_up": "a time to slow down and get to know each other more",
+        "2_rev": "a card that says hidden feelings are coming out and you can feel sure",
+        "3_up": "a card for affection that's growing deeper",
+        "3_rev": "a state where one side bends too much and both are tired",
+        "4_up": "a card that says a real commitment can make the relationship solid",
+        "4_rev": "a state where control and stubbornness make defining it hard",
+        "5_up": "a card about making it official and having it recognized",
+        "5_rev": "a sign that form and expectations are moving faster than your feelings",
+        "6_up": "a card about choosing each other and settling your feelings",
+        "6_rev": "a state of wavering over the choice without feeling sure",
+        "7_up": "a card that lets you move forward boldly with confidence",
+        "7_rev": "a state where directions don't match and rushing goes wrong",
+        "8_up": "a card that holds both patience and gentle courage",
+        "8_rev": "a state that opens up once you find your held-back courage",
+        "9_up": "a time when you need to think alone before deciding",
+        "9_rev": "a sign that not opening up is blocking progress",
+        "10_up": "a time when the relationship is shifting and you can seize the chance",
+        "10_rev": "a state where crossed timing untangles and a path opens",
+        "11_up": "a card about both owning your part and defining things clearly",
+        "11_rev": "a state where unfair parts remain and it's hard to settle",
+        "12_up": "a time to hold off on deciding and look more closely",
+        "12_rev": "a time when a long-stuck situation loosens and you can decide",
+        "13_up": "a card for change that takes the relationship past its current form",
+        "13_rev": "a state of standing in place out of fear of change",
+        "14_up": "a card that says you can move calmly at a pace you share",
+        "14_rev": "a state where just matching your pace makes progress smoother",
+        "15_up": "a sign that clinging and ties are making progress unhealthy",
+        "15_rev": "a card that says you're getting free of what tied you and can decide anew",
+        "16_up": "a time when a sudden clash is likely and decisions should wait",
+        "16_rev": "a state where avoiding the shake-up is making the problem bigger",
+        "17_up": "a card for hope and trust that give you confidence in the relationship",
+        "17_rev": "a state where confidence fades and the future is hard to see",
+        "18_up": "a time when uncertainty and misunderstanding call for checking first",
+        "18_rev": "a card that says misunderstandings are clearing and feelings are becoming plain",
+        "19_up": "a card of great joy that says it's fine to go public",
+        "19_rev": "a card saying clumsy is still okay",
+        "20_up": "a time to make the call and move to a new stage",
+        "20_rev": "a state of putting off the decision and doubting yourself",
+        "21_up": "a card for a relationship that's ripening and bearing fruit",
+        "21_rev": "a state where a bit more wrapping up opens the next stage"
+      }
+    },
+    "continue": {
+      "label": "Staying together",
+      "covers": "Whether to keep seeing them; a shaky relationship (boredom, doubt)",
+      "move": "Keep going and repair it",
+      "stay": "Rethink this relationship",
+      "scores": {
+        "0_up": [
+          1,
+          "a card for starting over with a fresh outlook"
+        ],
+        "0_rev": [
+          -1,
+          "a sign that routine feels stifling and you're starting to pull away"
+        ],
+        "1_up": [
+          1,
+          "a card for setting things right through effort from both of you"
+        ],
+        "1_rev": [
+          -2,
+          "a state where words and actions don't match and trust wears down"
+        ],
+        "2_up": [
+          -1,
+          "a card that says hidden feelings have put distance between you"
+        ],
+        "2_rev": [
+          1,
+          "a card for sharing what you've kept hidden and closing the distance"
+        ],
+        "3_up": [
+          2,
+          "a card with enough love and care to grow the relationship"
+        ],
+        "3_rev": [
+          1,
+          "a state where caring for each other's tiredness can revive things"
+        ],
+        "4_up": [
+          1,
+          "a card with the stability and responsibility to hold the relationship up"
+        ],
+        "4_rev": [
+          1,
+          "a state where letting go of control and stubbornness lets you breathe"
+        ],
+        "5_up": [
+          1,
+          "a card that says shared promises and trust are holding the relationship up"
+        ],
+        "5_rev": [
+          1,
+          "a sign that changing old patterns lets you carry on in a fresh way"
+        ],
+        "6_up": [
+          2,
+          "a card that says choosing each other again keeps you connected"
+        ],
+        "6_rev": [
+          -2,
+          "a sign that you've grown apart and are looking toward different paths"
+        ],
+        "7_up": [
+          1,
+          "a card for pooling your strength to get through hard times"
+        ],
+        "7_rev": [
+          1,
+          "a state that recovers if you gather your strength in one direction"
+        ],
+        "8_up": [
+          2,
+          "a card for getting through conflict with patience and gentleness"
+        ],
+        "8_rev": [
+          1,
+          "a sign that resting when you're worn out gives you the strength to keep going"
+        ],
+        "9_up": [
+          -1,
+          "a card saying it's time to reflect alone and rethink the relationship"
+        ],
+        "9_rev": [
+          -1,
+          "a sign that you've both shut down, pulled away, and stopped talking"
+        ],
+        "10_up": [
+          1,
+          "a card that says a bad stretch is turning and a chance to repair things is coming"
+        ],
+        "10_rev": [
+          1,
+          "a state where repeated bad luck is ending and things are turning"
+        ],
+        "11_up": [
+          -1,
+          "a card saying it's time to weigh the relationship coolly"
+        ],
+        "11_rev": [
+          -2,
+          "a state where unfairness and looking away hide who's responsible"
+        ],
+        "12_up": [
+          -1,
+          "a card about stepping back to look at a stalled relationship"
+        ],
+        "12_rev": [
+          1,
+          "a card for a long-stuck relationship that's starting to loosen"
+        ],
+        "13_up": [
+          -2,
+          "a card saying to accept this relationship has reached its end"
+        ],
+        "13_rev": [
+          -1,
+          "a state where not ending what should end keeps things stuck"
+        ],
+        "14_up": [
+          2,
+          "a card that says you can work things out together and regain balance"
+        ],
+        "14_rev": [
+          1,
+          "a state of getting back in sync and easing conflict"
+        ],
+        "15_up": [
+          -2,
+          "a card of an unhealthy relationship built on clinging and dependence"
+        ],
+        "15_rev": [
+          -2,
+          "a state of seeing the ties but not getting free"
+        ],
+        "16_up": [
+          -2,
+          "a sign that the foundation is shaking and giving way"
+        ],
+        "16_rev": [
+          1,
+          "a state of slowly recovering after a shock and rebuilding"
+        ],
+        "17_up": [
+          2,
+          "a card for hurt that's healing and hope that's coming back"
+        ],
+        "17_rev": [
+          -1,
+          "a state where hope fades and recovery is hard to believe in"
+        ],
+        "18_up": [
+          -1,
+          "a sign that misunderstanding and unease keep you from seeing each other's feelings"
+        ],
+        "18_rev": [
+          1,
+          "a card for misunderstandings clearing up so you can see each other again"
+        ],
+        "19_up": [
+          2,
+          "a card that says joy and trust are coming back and things are brightening"
+        ],
+        "19_rev": [
+          1,
+          "a card that says some brightness remains, even if things are moving slowly"
+        ],
+        "20_up": [
+          1,
+          "a card that says you can look back on what happened and carry on in a new way"
+        ],
+        "20_rev": [
+          -1,
+          "a state where not looking back makes the same things repeat"
+        ],
+        "21_up": [
+          2,
+          "a card that says your relationship is steady and you're building it together"
+        ],
+        "21_rev": [
+          -1,
+          "a state where things feel unfinished and unsatisfying"
+        ]
+      },
+      "flipped_v2": [
+        "3_rev",
+        "4_rev",
+        "5_rev",
+        "7_rev",
+        "8_rev",
+        "10_rev",
+        "14_rev",
+        "16_rev"
+      ],
+      "poles": {
+        "plus": "Keeping it going and repairing it",
+        "minus": "Ending it, breaking up, letting your feelings go"
+      },
+      "implicit": [
+        "Keep going and bring the relationship back to life",
+        "Rethink this relationship"
+      ],
+      "reasons": {
+        "0_up": "a card that says you can start again with fresh eyes",
+        "0_rev": "a sign that routine feels stifling and part of you wants out",
+        "1_up": "a card that says effort from both of you can set things right",
+        "1_rev": "a state where words and actions don't match and trust wears down",
+        "2_up": "a sign that hidden feelings have put distance between you",
+        "2_rev": "a card that says sharing what you've kept hidden can close the distance",
+        "3_up": "a card with enough love and care to grow the relationship",
+        "3_rev": "a state where caring for each other's tiredness can revive things",
+        "4_up": "a card with the stability and sense of responsibility to hold the relationship up",
+        "4_rev": "a state where letting go of control and stubbornness lets you breathe",
+        "5_up": "a card for the shared promises and trust that hold you up",
+        "5_rev": "a sign that just changing old patterns can make the relationship feel new",
+        "6_up": "a card for choosing each other again and staying connected",
+        "6_rev": "a sign that you've drifted apart and are looking down different paths",
+        "7_up": "a card that says you can join forces to get through hard times",
+        "7_rev": "a state that improves if you join forces in one direction",
+        "8_up": "a card that says patience and gentleness can carry you through conflict",
+        "8_rev": "a sign that rest will bring your strength back",
+        "9_up": "a time when you need to step back and reflect alone",
+        "9_rev": "a sign that you've both shut down and stopped talking",
+        "10_up": "a time when a blocked stretch turns and a chance comes again",
+        "10_rev": "a state where repeated hardship is coming to an end",
+        "11_up": "a time to take a clear-eyed look at the relationship and decide",
+        "11_rev": "a state where unfairness and looking away hide who's responsible",
+        "12_up": "a time to step back and look at a stalled relationship",
+        "12_rev": "a card that says a relationship stuck for a long time is starting to loosen",
+        "13_up": "a time to accept this relationship has reached its end",
+        "13_rev": "a state where not ending what should end keeps things stalled",
+        "14_up": "a card for working things out together and getting your balance back",
+        "14_rev": "a state of getting back in sync as the conflict eases",
+        "15_up": "a sign that clinging and dependence have made things unhealthy",
+        "15_rev": "a state of seeing the ties but still not getting free",
+        "16_up": "a sign that the relationship's foundation is badly shaken",
+        "16_rev": "a state of slowly rebuilding the relationship after a shock",
+        "17_up": "a card that says the hurt is healing and hope is showing again",
+        "17_rev": "a state where hope fades and improvement is hard to believe in",
+        "18_up": "a sign that misunderstanding and unease are hiding your feelings from each other",
+        "18_rev": "a card that says misunderstandings are clearing and you can see each other again",
+        "19_up": "a card for joy and trust coming back and things brightening",
+        "19_rev": "a card that says some brightness is left in the relationship, even if things are slow",
+        "20_up": "a card for looking back at the past and opening a new chapter",
+        "20_rev": "a state where not looking back makes the same things repeat",
+        "21_up": "a card for a steady relationship you keep building together",
+        "21_rev": "a state where things feel unfinished and unsatisfying"
+      }
+    },
+    "newlove": {
+      "label": "New love",
+      "covers": "Whether to start dating, or open up to someone new",
+      "move": "Meet someone and open up",
+      "stay": "Focus on yourself for now",
+      "scores": {
+        "0_up": [
+          2,
+          "a card about taking a first step into new love with excitement"
+        ],
+        "0_rev": [
+          1,
+          "a state where setting down some fear lets you start meeting people"
+        ],
+        "1_up": [
+          2,
+          "a card that says you can create chances to meet someone new"
+        ],
+        "1_rev": [
+          -1,
+          "a state where you're easily swayed by matches that only look good"
+        ],
+        "2_up": [
+          -1,
+          "a card saying to trust your gut and wait a little longer"
+        ],
+        "2_rev": [
+          1,
+          "a card that says you've been closed off but can slowly open up"
+        ],
+        "3_up": [
+          1,
+          "a card overflowing with warmth that draws good matches"
+        ],
+        "3_rev": [
+          -1,
+          "a state of pouring into others before caring for yourself"
+        ],
+        "4_up": [
+          -1,
+          "a card with high, firm standards that make opening up hard"
+        ],
+        "4_rev": [
+          -1,
+          "a state where walls are too rigid and keep new people out"
+        ],
+        "5_up": [
+          1,
+          "a card that says trustworthy ways to meet people are opening up, like introductions or groups"
+        ],
+        "5_rev": [
+          -1,
+          "a sign that custom and expectations have shut you off"
+        ],
+        "6_up": [
+          2,
+          "a card saying it's fine to open up to someone you like"
+        ],
+        "6_rev": [
+          1,
+          "a sign that after thinking it over, you can go with the one you feel drawn to"
+        ],
+        "7_up": [
+          1,
+          "a card for taking the initiative so a connection comes sooner"
+        ],
+        "7_rev": [
+          -1,
+          "a state where rushing draws you to the wrong person"
+        ],
+        "8_up": [
+          1,
+          "a card about meeting people with gentle courage and an open heart"
+        ],
+        "8_rev": [
+          1,
+          "a state where a little more confidence makes casual dates worth trying"
+        ],
+        "9_up": [
+          -2,
+          "a card saying you need more time to look at yourself now"
+        ],
+        "9_rev": [
+          1,
+          "a card about ending time alone and heading out"
+        ],
+        "10_up": [
+          2,
+          "a card that says things are shifting and new love is coming your way"
+        ],
+        "10_rev": [
+          1,
+          "a state where crossed timing untangles and a meeting gets closer"
+        ],
+        "11_up": [
+          -1,
+          "a card about checking without rushing whether someone suits you"
+        ],
+        "11_rev": [
+          -1,
+          "a state where clouded judgment makes you misread people"
+        ],
+        "12_up": [
+          -2,
+          "a card that says you're on pause and need rest more than dating"
+        ],
+        "12_rev": [
+          1,
+          "a card for the pause ending and moving on with fresh eyes"
+        ],
+        "13_up": [
+          1,
+          "a card about closing a past bond and opening to someone new"
+        ],
+        "13_rev": [
+          -2,
+          "a state where holding onto a past bond blocks new love"
+        ],
+        "14_up": [
+          1,
+          "a card about welcoming new love naturally, without strain"
+        ],
+        "14_rev": [
+          1,
+          "a state that can connect if you ease the awkwardness"
+        ],
+        "15_up": [
+          -1,
+          "a sign that getting swept up by attraction could lead you to the wrong person"
+        ],
+        "15_rev": [
+          1,
+          "a card about getting out of an attraction trap and thinking clearly"
+        ],
+        "16_up": [
+          -2,
+          "a sign that old hurt remains and new love feels scary"
+        ],
+        "16_rev": [
+          -1,
+          "a sign that you're ignoring a shock and quickly shutting yourself off"
+        ],
+        "17_up": [
+          2,
+          "a card that says hope for new love is lighting up"
+        ],
+        "17_rev": [
+          -1,
+          "a state where lost hope makes new people hard to trust"
+        ],
+        "18_up": [
+          -2,
+          "a sign that shaky feelings make it hard to see people clearly"
+        ],
+        "18_rev": [
+          1,
+          "a card for unease clearing and a new person coming into focus"
+        ],
+        "19_up": [
+          2,
+          "a card that says you can meet a good person in a joyful time"
+        ],
+        "19_rev": [
+          1,
+          "a card that's open to meeting people, even if clumsy"
+        ],
+        "20_up": [
+          1,
+          "a card for waking up again and making room for new love"
+        ],
+        "20_rev": [
+          -1,
+          "a state where self-doubt keeps you from answering new chances"
+        ],
+        "21_up": [
+          2,
+          "a card for finishing one stage and being ready for new love"
+        ],
+        "21_rev": [
+          1,
+          "a state where tidying up the past opens you to someone new"
+        ]
+      },
+      "flipped_v2": [
+        "0_rev",
+        "8_rev",
+        "10_rev",
+        "6_rev",
+        "21_rev",
+        "14_rev"
+      ],
+      "poles": {
+        "plus": "Meeting someone, opening up",
+        "minus": "Not dating, focusing on yourself"
+      },
+      "implicit": [
+        "Put yourself out there",
+        "Focus on yourself for now"
+      ],
+      "reasons": {
+        "0_up": "a card about taking a first step into new love with excitement",
+        "0_rev": "a state where setting down some fear lets you start",
+        "1_up": "a card that says you can create chances that bring someone new into your life",
+        "1_rev": "a state where you're easily swayed by matches that only look good",
+        "2_up": "a time to trust your gut and take a little longer to check what you feel",
+        "2_rev": "a card for opening up slowly after being closed off",
+        "3_up": "a card overflowing with warmth that draws good people",
+        "3_rev": "a state of pouring into others before caring for yourself",
+        "4_up": "a card for high, firm standards that keep you from jumping in yet",
+        "4_rev": "a state where walls are too rigid and keep new people out",
+        "5_up": "a card for trustworthy ways to meet people, like introductions or groups",
+        "5_rev": "a sign that custom and expectations have closed you off",
+        "6_up": "a card that says you can meet someone you're drawn to and click",
+        "6_rev": "a state where, after thinking, you can pick who draws you",
+        "7_up": "a card that says taking the initiative helps a connection come sooner",
+        "7_rev": "a state where rushing easily draws you to the wrong person",
+        "8_up": "a card that lets you welcome new people with gentle courage",
+        "8_rev": "a state where a bit more confidence makes a light start worthwhile",
+        "9_up": "a time when you still need to focus on looking at yourself",
+        "9_rev": "a time to come out of your alone time and head out",
+        "10_up": "a time when things shift and new love comes your way",
+        "10_rev": "a state where crossed timing untangles and a meeting gets closer",
+        "11_up": "a time to check without rushing whether someone suits you",
+        "11_rev": "a state where clouded judgment makes you misread people",
+        "12_up": "a time when you're on pause and need more rest",
+        "12_rev": "a card that says the pause is over and you can see people with fresh eyes",
+        "13_up": "a card that says a past relationship is ending and you can open up to someone new",
+        "13_rev": "a state where holding onto a past bond is blocking new love",
+        "14_up": "a card about welcoming new love naturally, without strain",
+        "14_rev": "a sign that things can connect if you ease the awkwardness and find a balance",
+        "15_up": "a time when being swept up by attraction leads to wrong picks",
+        "15_rev": "a card about getting out of an attraction trap and calming down",
+        "16_up": "a state where old hurt remains and new love feels scary",
+        "16_rev": "a sign that you've ignored a shock and quickly shut yourself off",
+        "17_up": "a card for hope about new love lighting up",
+        "17_rev": "a state where hope fades and new people are hard to trust",
+        "18_up": "a time when shaky feelings make it hard to see people clearly",
+        "18_rev": "a card that says your unease is clearing and a new person is coming into focus",
+        "19_up": "a card for connecting happily with a good person",
+        "19_rev": "a card that says you're open to new love, even if you're a bit clumsy",
+        "20_up": "a card that says you're waking up again and ready for new love",
+        "20_rev": "a state where self-doubt makes answering new chances hard",
+        "21_up": "a card that says one stage is done and you're ready for new love",
+        "21_rev": "a state where a little wrapping up opens you to someone new"
+      }
+    },
+    "job": {
+      "label": "Changing jobs",
+      "covers": "Taking a job offer, quitting, transferring teams, a promotion or move offer",
+      "move": "Move on or quit",
+      "stay": "Stay where you are",
+      "scores": {
+        "0_up": [
+          2,
+          "a card saying it's fine to lightly step into a new role"
+        ],
+        "0_rev": [
+          1,
+          "a state where moving is worth trying once you set fear aside"
+        ],
+        "1_up": [
+          2,
+          "a card about using your skills to open a new role yourself"
+        ],
+        "1_rev": [
+          -1,
+          "a state of too many things started, needing focus where you are"
+        ],
+        "2_up": [
+          -1,
+          "a card about staying and quietly watching until your feelings settle"
+        ],
+        "2_rev": [
+          -1,
+          "a sign that too much information is clouding the decision and it's better not to rush"
+        ],
+        "3_up": [
+          -1,
+          "a card about enjoying the care and stability your current job gives"
+        ],
+        "3_rev": [
+          1,
+          "a state of burnout where you need a new place to refill"
+        ],
+        "4_up": [
+          -2,
+          "a card about keeping order and responsibility to secure your place"
+        ],
+        "4_rev": [
+          1,
+          "a state of being worn out by control and rigidity, needing air"
+        ],
+        "5_up": [
+          -1,
+          "a card for learning from and leaning on senior colleagues and systems at work"
+        ],
+        "5_rev": [
+          1,
+          "a state of not fitting the way your workplace runs"
+        ],
+        "6_up": [
+          1,
+          "a card about choosing what fits your values and going where you feel drawn"
+        ],
+        "6_rev": [
+          -1,
+          "a state of hesitating between two paths, unsure what you want"
+        ],
+        "7_up": [
+          2,
+          "a card with a clear direction to boldly take a new role"
+        ],
+        "7_rev": [
+          -2,
+          "a sign that rushing has cost you your direction and you need to stop for now"
+        ],
+        "8_up": [
+          -1,
+          "a card about enduring hard times and building strength where you are"
+        ],
+        "8_rev": [
+          1,
+          "a sign that holding it in alone has become too much and your surroundings need to change"
+        ],
+        "9_up": [
+          -1,
+          "a card about staying and sorting your thoughts alone without rushing"
+        ],
+        "9_rev": [
+          1,
+          "a state of isolation and heaviness that makes you want to move"
+        ],
+        "10_up": [
+          2,
+          "a card at a turning point where it's time to move"
+        ],
+        "10_rev": [
+          -1,
+          "a state of resisting change and holding onto the old place"
+        ],
+        "11_up": [
+          -1,
+          "a card saying to weigh the terms fairly and decide carefully"
+        ],
+        "11_rev": [
+          -1,
+          "a state where rushing or pushing yourself has skewed your judgment"
+        ],
+        "12_up": [
+          -2,
+          "a card saying not to move now, but to stop and wait"
+        ],
+        "12_rev": [
+          1,
+          "a state where you're growing resolved to leave a stuck place"
+        ],
+        "13_up": [
+          2,
+          "a card about ending one chapter and moving to a fresh start"
+        ],
+        "13_rev": [
+          -2,
+          "a state of clinging to the familiar and putting off change"
+        ],
+        "14_up": [
+          -1,
+          "a card about balancing work and life and adjusting where you are"
+        ],
+        "14_rev": [
+          1,
+          "a state where balance has tipped one way and things must change"
+        ],
+        "15_up": [
+          1,
+          "a card that says you can get free of a job held in place by familiar terms"
+        ],
+        "15_rev": [
+          2,
+          "a state where you're loosening from a place that held you"
+        ],
+        "16_up": [
+          2,
+          "a card saying to leave an already shaky place and build anew"
+        ],
+        "16_rev": [
+          1,
+          "a state where you can try moving once the fear settles"
+        ],
+        "17_up": [
+          1,
+          "a card for hope showing up and a new path opening"
+        ],
+        "17_rev": [
+          1,
+          "a sign that a faint light is showing and it's worth preparing to move"
+        ],
+        "18_up": [
+          -2,
+          "a card that says things are too unclear to decide yet"
+        ],
+        "18_rev": [
+          1,
+          "a state where the fog lifts and you see your job clearly"
+        ],
+        "19_up": [
+          1,
+          "a card that says a new place full of energy and joy is within reach"
+        ],
+        "19_rev": [
+          1,
+          "a state where joy at work is hidden and energy is gone"
+        ],
+        "20_up": [
+          2,
+          "a card saying to answer the call inside you and move"
+        ],
+        "20_rev": [
+          -1,
+          "a state of high standards and a blurry direction blocking a decision"
+        ],
+        "21_up": [
+          1,
+          "a card saying a full cycle is done and the next awaits"
+        ],
+        "21_rev": [
+          1,
+          "a state where you can move once you wrap things up"
+        ]
+      },
+      "flipped_v2": [
+        "0_rev",
+        "12_rev",
+        "15_up",
+        "16_rev",
+        "17_rev",
+        "21_rev"
+      ],
+      "poles": {
+        "plus": "Moving on, quitting, accepting the offer",
+        "minus": "Staying where you are"
+      },
+      "implicit": [
+        "Get ready to move on",
+        "Stick it out where you are"
+      ],
+      "reasons": {
+        "0_up": "a time when it's fine to take a light first step into a new role",
+        "0_rev": "a state where moving is worth trying once you set fear aside",
+        "1_up": "a card that says your skills can open up a new role",
+        "1_rev": "a state where work is scattered and sorting it out comes first",
+        "2_up": "a card about quietly watching until your feelings settle",
+        "2_rev": "a sign there's too much information to rush the decision",
+        "3_up": "a card about enjoying the stability and care your job gives",
+        "3_rev": "a state of being drained, needing a new place to refill",
+        "4_up": "a card about keeping your responsibilities and securing your place",
+        "4_rev": "a state of being worn out by control and stiffness, needing air",
+        "5_up": "a card that says you can learn from and lean on senior colleagues and systems at work",
+        "5_rev": "a state where your workplace's way of running doesn't fit you",
+        "6_up": "a card that says you can choose a place that fits your values",
+        "6_rev": "a state of not yet knowing what you want between two paths",
+        "7_up": "a time when your direction is clear and you can move boldly into a new role",
+        "7_rev": "a sign that impatience has cost you your direction and it's better to pause",
+        "8_up": "a card about enduring hard times and building strength where you are",
+        "8_rev": "a sign that carrying it alone has become too heavy and your surroundings need to change",
+        "9_up": "a card about waiting and sorting your thoughts alone without rushing",
+        "9_rev": "a state where feeling isolated makes you want a change",
+        "10_up": "a turning point that says it's time to move",
+        "10_rev": "a sign that change still feels strange and part of you wants to stay put",
+        "11_up": "a card saying to weigh the terms fairly and decide carefully",
+        "11_rev": "a sign that your judgment is leaning one way and it's better to hold off on deciding",
+        "12_up": "a card saying to stop and wait for now",
+        "12_rev": "a state where you're growing resolved to leave a stuck place",
+        "13_up": "a time to end one chapter and move to a fresh start",
+        "13_rev": "a sign that the familiar is still hard to let go of and you want to put off change",
+        "14_up": "a card about balancing work and life and adjusting where you are",
+        "14_rev": "a state where balance has tipped and things need to change",
+        "15_up": "a card that says you can break free of a job you've stayed in out of habit",
+        "15_rev": "a state where you're loosening from a place that held you",
+        "16_up": "a time to leave an already shaky place and build anew",
+        "16_rev": "a state where the fear of collapse settles and moving is possible",
+        "17_up": "a card that says hope is showing and a new path is open",
+        "17_rev": "a sign that a small opening is showing and it's worth preparing to move",
+        "18_up": "a time when too much is still unclear to decide",
+        "18_rev": "a state where the fog lifts and reasons to leave are clear",
+        "19_up": "a card for heading to a new place with more energy and joy",
+        "19_rev": "a state where joy and energy at your job have faded",
+        "20_up": "a time to answer the call inside you and move",
+        "20_rev": "a state where high standards and a blurry direction call for waiting",
+        "21_up": "a time when a full cycle is done and the next begins",
+        "21_rev": "a state where you can move once you wrap up current work"
+      }
+    },
+    "start": {
+      "label": "Starting (do / don't)",
+      "covers": "Starting a business, a side gig, studying, exams, school, a career switch, job applications, starting exercise or a habit, money, investing, big purchases, how you manage money, a challenge ahead, luck with work, jobs, or passing",
+      "move": "Start now",
+      "stay": "Prepare and wait for the right time",
+      "scores": {
+        "0_up": [
+          2,
+          "a card saying to take a light first step, even if imperfect"
+        ],
+        "0_rev": [
+          1,
+          "a state where starting small, with less pressure, is enough"
+        ],
+        "1_up": [
+          2,
+          "a card for having the resources in place to act right away"
+        ],
+        "1_rev": [
+          -1,
+          "a sign that you've started too many things and sorting them out comes first"
+        ],
+        "2_up": [
+          -2,
+          "a card saying to follow your gut, watch quietly, and prepare"
+        ],
+        "2_rev": [
+          -1,
+          "a state where piling up information clouds the decision"
+        ],
+        "3_up": [
+          1,
+          "a card that's good for growing on a solid, well-stocked foundation"
+        ],
+        "3_rev": [
+          1,
+          "a state where a little more slack makes a small start worthwhile"
+        ],
+        "4_up": [
+          2,
+          "a card about setting a structure and plan and pushing it through"
+        ],
+        "4_rev": [
+          1,
+          "a state where you can start once you ease up and plan"
+        ],
+        "5_up": [
+          -1,
+          "a card saying to learn, ask for advice, and build the basics"
+        ],
+        "5_rev": [
+          -1,
+          "a sign that going it alone has hit a wall and you need to check first"
+        ],
+        "6_up": [
+          1,
+          "a card saying it's fine to pick what draws you and start"
+        ],
+        "6_rev": [
+          1,
+          "a state where, even unsure, picking one thing is worth trying"
+        ],
+        "7_up": [
+          2,
+          "a card with a clear direction to push forward hard"
+        ],
+        "7_rev": [
+          -2,
+          "a state of spinning your wheels in a rush, needing a reset"
+        ],
+        "8_up": [
+          1,
+          "a card that says steady patience can carry what you start through to the end"
+        ],
+        "8_rev": [
+          1,
+          "a state where getting help adds strength and makes starting worth it"
+        ],
+        "9_up": [
+          -2,
+          "a card about preparing alone a little longer and waiting, without rushing"
+        ],
+        "9_rev": [
+          -1,
+          "a state where loneliness has closed you off and moving feels heavy"
+        ],
+        "10_up": [
+          2,
+          "a card saying to ride a good stretch while it lasts"
+        ],
+        "10_rev": [
+          -1,
+          "a state of bad timing, wavering in old ways of doing things"
+        ],
+        "11_up": [
+          -1,
+          "a card saying to weigh costs and gains honestly, then decide"
+        ],
+        "11_rev": [
+          -1,
+          "a state where rushing or self-blame has skewed your judgment"
+        ],
+        "12_up": [
+          -2,
+          "a card saying to pause, change your angle, and wait"
+        ],
+        "12_rev": [
+          1,
+          "a state where a standstill breaks and a reason to move appears"
+        ],
+        "13_up": [
+          1,
+          "a card saying to put down the old way and start fresh"
+        ],
+        "13_rev": [
+          1,
+          "a state where loosening your grip on the familiar lets you start"
+        ],
+        "14_up": [
+          1,
+          "a card about starting in small parts at the right pace"
+        ],
+        "14_rev": [
+          -1,
+          "a sign that you tend to overdo one side and should slow down"
+        ],
+        "15_up": [
+          -2,
+          "a sign that habits and fear make a forced start risky"
+        ],
+        "15_rev": [
+          1,
+          "a state where you're free of old habits and ready to start"
+        ],
+        "16_up": [
+          -2,
+          "a card that says starting without preparation risks a collapse"
+        ],
+        "16_rev": [
+          -1,
+          "a state where fear of another collapse makes it hard to begin"
+        ],
+        "17_up": [
+          1,
+          "a card that says hope is in sight and starting now is worth it"
+        ],
+        "17_rev": [
+          1,
+          "a state where a faint light shows and some prep pays off"
+        ],
+        "18_up": [
+          -2,
+          "a card that says things are unclear and need more checking"
+        ],
+        "18_rev": [
+          1,
+          "a state where the fog lifts and the way to start shows"
+        ],
+        "19_up": [
+          2,
+          "a card full of energy and joy, good for starting right away"
+        ],
+        "19_rev": [
+          1,
+          "a sign that worn-out motivation is coming back and a light try is worth it"
+        ],
+        "20_up": [
+          2,
+          "a card saying to answer the call inside you and start"
+        ],
+        "20_rev": [
+          -1,
+          "a state where high standards and a blurry direction block starting"
+        ],
+        "21_up": [
+          1,
+          "a card with a solid enough foundation to see it through"
+        ],
+        "21_rev": [
+          1,
+          "a state where you can start after a final check"
+        ]
+      },
+      "flipped_v2": [
+        "0_rev",
+        "3_rev",
+        "4_rev",
+        "6_rev",
+        "8_rev",
+        "12_rev",
+        "13_rev",
+        "17_rev",
+        "19_rev",
+        "21_rev"
+      ],
+      "poles": {
+        "plus": "Starting now, taking on the challenge, doing it",
+        "minus": "Putting it off, quitting, waiting"
+      },
+      "implicit": [
+        "Start preparing for what's next",
+        "Rest a while and wait for the right time"
+      ],
+      "reasons": {
+        "0_up": "a card saying a light first step is fine, even if imperfect",
+        "0_rev": "a state where trying small, with less pressure, is enough",
+        "1_up": "a card that says the resources are in place to act right away",
+        "1_rev": "a sign that you have many open tasks and sorting them out comes first",
+        "2_up": "a time to follow your gut, watch quietly, and prepare",
+        "2_rev": "a state where piled-up information clouds the decision",
+        "3_up": "a card that's good for growing on a solid foundation",
+        "3_rev": "a state where a little more slack makes a small try worthwhile",
+        "4_up": "a card about setting a plan and structure and pushing it through",
+        "4_rev": "a state where you can begin once you ease up and plan",
+        "5_up": "a time to learn, ask for advice, and build the basics",
+        "5_rev": "a sign that going it alone has hit a wall and checking comes first",
+        "6_up": "a card saying it's fine to pick what draws you and try",
+        "6_rev": "a state where, even unsure, picking one thing is worth trying",
+        "7_up": "a card with a clear direction to push forward hard",
+        "7_rev": "a state of spinning your wheels in a rush, needing a reset",
+        "8_up": "a card with the steady patience to see it through",
+        "8_rev": "a state where getting help adds strength and makes it worth trying",
+        "9_up": "a card about preparing alone a little longer and waiting, without rushing",
+        "9_rev": "a state where loneliness has closed you off and moving feels heavy",
+        "10_up": "a time when a good chance is coming back around and you can ride it",
+        "10_rev": "a sign that the timing is off and it's better to stick with the old way and watch",
+        "11_up": "a card saying to weigh costs and gains honestly, then decide",
+        "11_rev": "a sign that rushing or self-blame has skewed your judgment and it's worth looking again",
+        "12_up": "a time to pause, change your angle, and wait",
+        "12_rev": "a state where a standstill breaks and a reason to move appears",
+        "13_up": "a time to put down the old way and start fresh",
+        "13_rev": "a state where loosening your grip on the familiar lets you begin",
+        "14_up": "a card that's good for going step by step, steadily",
+        "14_rev": "a sign that you tend to overdo it in one direction and need to slow down",
+        "15_up": "a sign that habits and fear make forcing a start hard",
+        "15_rev": "a state where you're free of old habits and ready to try",
+        "16_up": "a card that says going in unprepared is shaky and groundwork comes first",
+        "16_rev": "a state where fear of another collapse makes you careful to begin",
+        "17_up": "a card that says hope is showing and it's worth trying now",
+        "17_rev": "a state where a small chance shows and some prep pays off",
+        "18_up": "a time when much is unclear and needs more checking",
+        "18_rev": "a state where the fog lifts and the way forward shows",
+        "19_up": "a time full of energy and joy, good for going right away",
+        "19_rev": "a sign that your motivation is coming back and a light try is worth it",
+        "20_up": "a time to answer your inner call and take the first step",
+        "20_rev": "a state of high standards and a blurry direction needing more prep",
+        "21_up": "a card with a solid enough foundation to see it through",
+        "21_rev": "a state where you can go right after a final check"
+      }
+    },
+    "move": {
+      "label": "Moving out",
+      "covers": "Moving, leaving your parents' home, relocating to another city or abroad",
+      "move": "Move or live on your own",
+      "stay": "Stay where you live now",
+      "scores": {
+        "0_up": [
+          2,
+          "a card saying to lightly try a new place"
+        ],
+        "0_rev": [
+          1,
+          "a state where you can go once fear of the unfamiliar eases"
+        ],
+        "1_up": [
+          2,
+          "a card for gathering what you need and making the move"
+        ],
+        "1_rev": [
+          -1,
+          "a state where tasks are scattered and preparation is tangled"
+        ],
+        "2_up": [
+          -1,
+          "a card about looking deeper inside and quietly staying put"
+        ],
+        "2_rev": [
+          -1,
+          "a state where too much information blurs where to go"
+        ],
+        "3_up": [
+          -2,
+          "a card about enjoying the comfort and stability of your home now"
+        ],
+        "3_rev": [
+          1,
+          "a state of being drained at home, needing a change of setting"
+        ],
+        "4_up": [
+          1,
+          "a card about living on your own and running your own space"
+        ],
+        "4_rev": [
+          1,
+          "a state where you can move once you share the load"
+        ],
+        "5_up": [
+          -1,
+          "a card for leaning on advice from family and familiar places"
+        ],
+        "5_rev": [
+          1,
+          "a sign that you want out of a mold that doesn't fit and are ready to live on your own"
+        ],
+        "6_up": [
+          1,
+          "a card that's good for choosing a place that fits your values"
+        ],
+        "6_rev": [
+          1,
+          "a state where, after mixed feelings, you can pick where to go"
+        ],
+        "7_up": [
+          2,
+          "a card with a clear direction to push the move forward"
+        ],
+        "7_rev": [
+          -2,
+          "a state where rushing to move without direction wears you out"
+        ],
+        "8_up": [
+          -1,
+          "a card about enduring where you live and building strength"
+        ],
+        "8_rev": [
+          1,
+          "a sign that holding on alone is too much and you want a change of setting"
+        ],
+        "9_up": [
+          -2,
+          "a card about staying on your own and quietly caring for yourself"
+        ],
+        "9_rev": [
+          1,
+          "a state of wanting out of the loneliness of a closed setting"
+        ],
+        "10_up": [
+          2,
+          "a card that says life is turning and it's time to move"
+        ],
+        "10_rev": [
+          -1,
+          "a state of resisting change and staying in the old place"
+        ],
+        "11_up": [
+          -1,
+          "a card saying to compare the terms fairly and decide carefully"
+        ],
+        "11_rev": [
+          -1,
+          "a state where rushing to a conclusion skewed your judgment"
+        ],
+        "12_up": [
+          -2,
+          "a card saying not to move now, but to wait"
+        ],
+        "12_rev": [
+          1,
+          "a state of getting free of feeling stuck and starting to decide"
+        ],
+        "13_up": [
+          2,
+          "a card about ending your time here and heading somewhere new"
+        ],
+        "13_rev": [
+          -2,
+          "a state of clinging to a familiar place and putting off moving"
+        ],
+        "14_up": [
+          -1,
+          "a card about slowly balancing your current place and a new one"
+        ],
+        "14_rev": [
+          -1,
+          "a state that leans one way, making a forced move hard"
+        ],
+        "15_up": [
+          -1,
+          "a card about staying put, tied to familiar settings and habits"
+        ],
+        "15_rev": [
+          2,
+          "a state where you're loosening from a place that held you"
+        ],
+        "16_up": [
+          1,
+          "a card for leaving a shaken home and building anew"
+        ],
+        "16_rev": [
+          1,
+          "a state where moving is worth trying once the shake-up settles"
+        ],
+        "17_up": [
+          1,
+          "a card saying it's fine to move where hope shows"
+        ],
+        "17_rev": [
+          1,
+          "a state where faint certainty grows and you can prepare to move"
+        ],
+        "18_up": [
+          -2,
+          "a card that says things are unclear and you need to check first"
+        ],
+        "18_rev": [
+          1,
+          "a state where the fog lifts and where to go becomes clear"
+        ],
+        "19_up": [
+          1,
+          "a card that says a bright, lively new home is waiting"
+        ],
+        "19_rev": [
+          1,
+          "a state of losing joy where you live and needing a change"
+        ],
+        "20_up": [
+          2,
+          "a card about answering your inner call and finding a new home"
+        ],
+        "20_rev": [
+          -1,
+          "a state of high standards and a blurry direction blocking a decision"
+        ],
+        "21_up": [
+          2,
+          "a card about closing a chapter and moving to a distant home"
+        ],
+        "21_rev": [
+          1,
+          "a state where you can leave once you finish wrapping up"
+        ]
+      },
+      "flipped_v2": [
+        "0_rev",
+        "4_rev",
+        "6_rev",
+        "12_rev",
+        "16_rev",
+        "17_rev",
+        "21_rev"
+      ],
+      "poles": {
+        "plus": "Moving, living on your own",
+        "minus": "Staying where you live now"
+      },
+      "implicit": [
+        "Get ready to move",
+        "Stay where you live now"
+      ],
+      "reasons": {
+        "0_up": "a card saying it's fine to lightly try a new place",
+        "0_rev": "a state where you can go once fear of the unfamiliar eases",
+        "1_up": "a card that says you can gather what you need and act now",
+        "1_rev": "a state where tasks are scattered and preparation is still tangled",
+        "2_up": "a card about looking deeper inside and quietly watching",
+        "2_rev": "a state where so much information leaves where to go unclear",
+        "3_up": "a card about enjoying the comfort and stability of your home now",
+        "3_rev": "a state of being worn out at home, needing a new setting",
+        "4_up": "a card with the strength to run your own space",
+        "4_rev": "a state where you can move once you share the load",
+        "5_up": "a card that says you can lean on family and familiar places",
+        "5_rev": "a state of wanting your own space, out of an ill-fitting mold",
+        "6_up": "a card for choosing a new place that fits who you are",
+        "6_rev": "a state where, after mixed thoughts, you can pick where to go",
+        "7_up": "a time when your direction is clear and you can push the move forward",
+        "7_rev": "a sign that rushing without a direction will wear you out and you should slow down",
+        "8_up": "a card about holding on where you live and building strength",
+        "8_rev": "a sign that holding on alone is too much and you want a change of scene",
+        "9_up": "a card about living quietly on your own and caring for yourself",
+        "9_rev": "a state of wanting out of the loneliness of a closed setting",
+        "10_up": "a card that says life is shifting and it's time to move",
+        "10_rev": "a sign that change still feels strange and you'd rather keep the familiar",
+        "11_up": "a card saying to compare the terms fairly and decide carefully",
+        "11_rev": "a sign that rushing has skewed your judgment and it's worth weighing things again",
+        "12_up": "a card saying not to move now, but to wait",
+        "12_rev": "a state of getting free of feeling stuck and starting to decide",
+        "13_up": "a time to end your time in this home and move on",
+        "13_rev": "a state where a familiar place is still hard to leave",
+        "14_up": "a card about slowly finding balance between here and a new place",
+        "14_rev": "a state that leans one way, making a forced move hard",
+        "15_up": "a sign that you're still tied to familiar surroundings and habits",
+        "15_rev": "a state where you're loosening from a place that held you",
+        "16_up": "a card that says you can leave a shaken home and build anew",
+        "16_rev": "a state where the shake-up settles and moving is worth trying",
+        "17_up": "a card saying it's fine to head where hope shows",
+        "17_rev": "a state where certainty slowly grows and you can prepare to move",
+        "18_up": "a time when much is unclear and checking comes first",
+        "18_rev": "a state where the fog lifts and where to go becomes clear",
+        "19_up": "a card for a bright, lively new home that's waiting",
+        "19_rev": "a state where joy at home has faded and you need change",
+        "20_up": "a time to answer your inner call and find a new home",
+        "20_rev": "a state where high standards and a blurry direction call for waiting",
+        "21_up": "a time to close a chapter and move to a new home",
+        "21_rev": "a state where you can leave once you just finish wrapping up"
+      }
+    },
+    "express": {
+      "label": "Speaking up",
+      "covers": "Whether to speak first, ask, reach out, approach, or share your opinion with someone outside dating (friends, family, coworkers, neighbors)",
+      "move": "Speak up first",
+      "stay": "Hold back and watch",
+      "scores": {
+        "0_up": [
+          2,
+          "a card saying to start the conversation lightly"
+        ],
+        "0_rev": [
+          1,
+          "a sign that one light word, without the pressure, can clear things up"
+        ],
+        "1_up": [
+          2,
+          "a card saying you can put your words across well"
+        ],
+        "1_rev": [
+          1,
+          "a state where you can still say it briefly, even after hesitating"
+        ],
+        "2_up": [
+          -2,
+          "a card saying to keep your thoughts close and watch their signals"
+        ],
+        "2_rev": [
+          1,
+          "a card saying it's okay to bring out what you've kept hidden"
+        ],
+        "3_up": [
+          1,
+          "a card that says warm attention and a kind word land well now"
+        ],
+        "3_rev": [
+          -1,
+          "a state where caring too much can actually feel like pressure"
+        ],
+        "4_up": [
+          1,
+          "a card saying you can take the lead with a clear stance"
+        ],
+        "4_rev": [
+          -1,
+          "a state where stubbornness and stiffness make approaching hard"
+        ],
+        "5_up": [
+          1,
+          "a card that's good for a polite first check-in"
+        ],
+        "5_rev": [
+          1,
+          "a card saying you can drop the formality and be relaxed"
+        ],
+        "6_up": [
+          2,
+          "a card saying it's fine to share honestly and go first"
+        ],
+        "6_rev": [
+          1,
+          "a state where even mixed feelings can clear up with honest words"
+        ],
+        "7_up": [
+          2,
+          "a card saying to step forward first with confidence"
+        ],
+        "7_rev": [
+          -1,
+          "a state where rushing can make your message miss the mark"
+        ],
+        "8_up": [
+          1,
+          "a card about approaching carefully with gentle courage"
+        ],
+        "8_rev": [
+          1,
+          "a state where a little courage is worth a first step"
+        ],
+        "9_up": [
+          -2,
+          "a card saying to sort out your thoughts alone and wait"
+        ],
+        "9_rev": [
+          1,
+          "a card saying you can leave your shell and reach out"
+        ],
+        "10_up": [
+          1,
+          "a card for a time of change, when a small message can open doors"
+        ],
+        "10_rev": [
+          -1,
+          "a state where bad timing makes messages fall flat"
+        ],
+        "11_up": [
+          1,
+          "a card saying it's fine to state your view honestly and fairly"
+        ],
+        "11_rev": [
+          -1,
+          "a state where shaky judgment tilts how you express yourself"
+        ],
+        "12_up": [
+          -2,
+          "a card saying to pause and watch instead of moving"
+        ],
+        "12_rev": [
+          1,
+          "a card for thoughts that were stuck for a long time and can move now"
+        ],
+        "13_up": [
+          -1,
+          "a card saying the old way is over, so change your approach"
+        ],
+        "13_rev": [
+          -1,
+          "a state of holding on and repeating the same approach"
+        ],
+        "14_up": [
+          1,
+          "a card saying to pace yourself and approach in balance"
+        ],
+        "14_rev": [
+          -1,
+          "a state where your words lean one way and balance comes first"
+        ],
+        "15_up": [
+          -1,
+          "a state where old habits and defenses make speaking first hard"
+        ],
+        "15_rev": [
+          1,
+          "a card for a guard that's coming down so you can share what you really think"
+        ],
+        "16_up": [
+          -2,
+          "a card saying to stop, since impulsive words can cause a clash"
+        ],
+        "16_rev": [
+          -1,
+          "a state of swallowing your words to avoid conflict"
+        ],
+        "17_up": [
+          2,
+          "a card saying you can reach out first with sincere hope"
+        ],
+        "17_rev": [
+          -1,
+          "a state where lack of confidence keeps your thoughts unsaid"
+        ],
+        "18_up": [
+          -2,
+          "a card that says their feelings are still too unclear to act on"
+        ],
+        "18_rev": [
+          1,
+          "a card that says your unease is lifting and you can start to see how they feel"
+        ],
+        "19_up": [
+          2,
+          "a card that says the brighter and more honest you are about your feelings, the better"
+        ],
+        "19_rev": [
+          1,
+          "a card saying it's fine to approach first, even if clumsy"
+        ],
+        "20_up": [
+          2,
+          "a card saying it's time to bravely say what you've put off"
+        ],
+        "20_rev": [
+          -1,
+          "a state where self-doubt keeps you from answering the call"
+        ],
+        "21_up": [
+          1,
+          "a card that says you're close enough now for what you want to say to come out naturally"
+        ],
+        "21_rev": [
+          -1,
+          "a sign things feel unfinished and you keep holding off on saying it"
+        ]
+      },
+      "poles": {
+        "plus": "Speaking first, asking, reaching out, approaching",
+        "minus": "Holding back and watching"
+      },
+      "implicit": [
+        "Speak up first",
+        "Hold back and watch"
+      ],
+      "reasons": {
+        "0_up": "a card saying it's fine to break the ice with something light",
+        "0_rev": "a sign that saying one short thing, without the pressure, can ease things",
+        "1_up": "a card that says you can put what you mean into words well",
+        "1_rev": "a state where you hesitated but can still say it briefly now",
+        "2_up": "a time to keep your thoughts close and read their signals",
+        "2_rev": "a card saying it's okay to show what you've kept hidden",
+        "3_up": "a card for kind attention and a warm word that land well",
+        "3_rev": "a state where caring a lot may feel like pressure to them",
+        "4_up": "a card saying you can take the lead with a clear stance",
+        "4_rev": "a state where a stiff attitude makes a gentle approach hard",
+        "5_up": "a card that's good for a polite first check-in",
+        "5_rev": "a card saying you can drop the formality and be relaxed",
+        "6_up": "a card saying it's fine to share honestly and go first",
+        "6_rev": "a state where even mixed views can clear up with honest words",
+        "7_up": "a time to step out first with confidence",
+        "7_rev": "a state where rushing makes messages miss the mark",
+        "8_up": "a card about approaching carefully with gentle courage",
+        "8_rev": "a sign that even with shaky confidence, a little courage is worth finding",
+        "9_up": "a card about sorting your thoughts alone and waiting",
+        "9_rev": "a card saying you can leave your shell and reach out",
+        "10_up": "a card that says a small message can open doors as things change",
+        "10_rev": "a state where bad timing makes messages fall flat",
+        "11_up": "a card saying it's fine to state your view honestly and fairly",
+        "11_rev": "a state where shaky judgment tips your words one way",
+        "12_up": "a time to pause and watch instead of moving",
+        "12_rev": "a card that says thoughts stuck for a long time can finally move",
+        "13_up": "a time when, with the old way over, your approach must change",
+        "13_rev": "a sign you keep repeating the same approach and should pause to look back",
+        "14_up": "a card that's good for approaching at a balanced pace",
+        "14_rev": "a state where your words lean one way and balance comes first",
+        "15_up": "a state where habits and defenses make speaking first hard",
+        "15_rev": "a card that says your guard is coming down and you can share what you really think",
+        "16_up": "a time to pause, since hasty words can cause a clash",
+        "16_rev": "a state of still choosing your words out of worry about conflict",
+        "17_up": "a card saying you can reach out first with sincere hope",
+        "17_rev": "a state where you're not yet sure enough to share your thoughts",
+        "18_up": "a time when their feelings are too unclear to move",
+        "18_rev": "a card that says the unease is lifting and their feelings are starting to show",
+        "19_up": "a card that says the brighter and more honest you are, the better it lands",
+        "19_rev": "a card saying it's fine to approach first, even if clumsy",
+        "20_up": "a time to bravely say what you've put off",
+        "20_rev": "a state where self-doubt makes answering hard for now",
+        "21_up": "a card that says the relationship has grown close enough for words to come naturally",
+        "21_rev": "a sign things aren't settled yet and it's fine to wait a little longer"
+      }
+    },
+    "boundary": {
+      "label": "Setting boundaries",
+      "covers": "Whether to say no, draw a line, step back, cut ties, let go, or take a break (incl. leave or time off) with people, groups, or roles; drawing a line after always going along with a partner",
+      "move": "Say no and draw a line",
+      "stay": "Keep going along as you have",
+      "scores": {
+        "0_up": [
+          -1,
+          "a card about lightly saying yes for now with an open mind"
+        ],
+        "0_rev": [
+          1,
+          "a sign you're not ready and are better off stepping back than taking it on"
+        ],
+        "1_up": [
+          -1,
+          "a card with enough strength to keep handling what you've taken on"
+        ],
+        "1_rev": [
+          1,
+          "a state where your energy is scattered and some tasks must go"
+        ],
+        "2_up": [
+          1,
+          "a card that says stepping back from the noise and keeping your distance is the right call"
+        ],
+        "2_rev": [
+          -1,
+          "a state of going along with others, your own view drowned out"
+        ],
+        "3_up": [
+          -2,
+          "a card about giving generously and caring for those near you"
+        ],
+        "3_rev": [
+          2,
+          "a sign that caring for others has drained you and it's time to stop and rest"
+        ],
+        "4_up": [
+          1,
+          "a card about setting your lines and principles clearly and firmly"
+        ],
+        "4_rev": [
+          1,
+          "a state where the load you carry alone needs loosening and sharing"
+        ],
+        "5_up": [
+          -2,
+          "a card about following old customs and others' expectations"
+        ],
+        "5_rev": [
+          1,
+          "a card saying it's fine to step out of old rules and expectations that don't suit you"
+        ],
+        "6_up": [
+          -1,
+          "a card about valuing the relationship and adjusting out of care"
+        ],
+        "6_rev": [
+          -1,
+          "a state of mixed feelings, unable to say no, getting pulled along"
+        ],
+        "7_up": [
+          1,
+          "a card about setting your direction with drive and stepping up firmly"
+        ],
+        "7_rev": [
+          1,
+          "a state where it's fine to step out of a stalled task"
+        ],
+        "8_up": [
+          -2,
+          "a card about bearing discomfort gently and holding on to the end"
+        ],
+        "8_rev": [
+          2,
+          "a state where you've held it in too long and should stop"
+        ],
+        "9_up": [
+          2,
+          "a card about stepping back from people to protect time alone"
+        ],
+        "9_rev": [
+          1,
+          "a state of readjusting distance before alone time turns into isolation"
+        ],
+        "10_up": [
+          -1,
+          "a card about going along with things as the situation shifts"
+        ],
+        "10_rev": [
+          1,
+          "a sign you need to push back and stand firm instead of being swept along"
+        ],
+        "11_up": [
+          1,
+          "a card about drawing a line that's fair to both of you"
+        ],
+        "11_rev": [
+          -1,
+          "a state where the scale tips their way and only you yield"
+        ],
+        "12_up": [
+          2,
+          "a card about stopping, setting down your duties, and resting a while"
+        ],
+        "12_rev": [
+          -1,
+          "a state of freezing, reading the room, and getting dragged along"
+        ],
+        "13_up": [
+          2,
+          "a card saying it's time to drop ill-fitting roles and ties"
+        ],
+        "13_rev": [
+          -1,
+          "a state of holding on to what has already ended"
+        ],
+        "14_up": [
+          -1,
+          "a card about working out both sides and adjusting to each other"
+        ],
+        "14_rev": [
+          1,
+          "a sign the load has tipped onto you and your share needs cutting back"
+        ],
+        "15_up": [
+          -1,
+          "a card about being stuck in old habits and duty"
+        ],
+        "15_rev": [
+          2,
+          "a card that says the chains are loosening and you can get free of a relationship that binds you"
+        ],
+        "16_up": [
+          1,
+          "a card saying it's fine to cut ties, not force them together"
+        ],
+        "16_rev": [
+          1,
+          "a sign that holding it all together has worn you out and it's okay to let go"
+        ],
+        "17_up": [
+          1,
+          "a card about letting yourself rest first so you can slowly recover"
+        ],
+        "17_rev": [
+          1,
+          "a sign your energy is still low and rest matters more than pushing"
+        ],
+        "18_up": [
+          -1,
+          "a card where, unsure, you end up going along with the mood"
+        ],
+        "18_rev": [
+          1,
+          "a sign the fog is lifting and what you want is coming into view"
+        ],
+        "19_up": [
+          -1,
+          "a card for enjoying being together so much that you gladly stick around"
+        ],
+        "19_rev": [
+          1,
+          "a sign you're too tired to feel much joy and can take a short rest"
+        ],
+        "20_up": [
+          1,
+          "a card about choosing what you truly want and answering firmly"
+        ],
+        "20_rev": [
+          -1,
+          "a sign self-doubt keeps you quiet and going along with others"
+        ],
+        "21_up": [
+          1,
+          "a card saying it's fine to finish a stage and move on"
+        ],
+        "21_rev": [
+          -1,
+          "a sign things aren't wrapped up yet and you need to stay in your role a bit longer"
+        ]
+      },
+      "poles": {
+        "plus": "Saying no, drawing a line, stepping back, cutting ties, letting go, looking after your own needs",
+        "minus": "Going along as you have, saying yes, keeping the role, putting up with it"
+      },
+      "implicit": [
+        "Say no and draw a line",
+        "Keep going along as you have"
+      ],
+      "reasons": {
+        "0_up": "a card about saying yes for now with an open mind",
+        "0_rev": "a sign you're not ready yet and should step back instead of taking it on",
+        "1_up": "a card with enough strength to keep handling what you've taken on",
+        "1_rev": "a state where your energy is scattered and some tasks must go",
+        "2_up": "a card that's good for stepping back from the noise",
+        "2_rev": "a sign that the noise around you is drowning out your own wishes and you're following others'",
+        "3_up": "a card about giving generously and caring for those near you",
+        "3_rev": "a time to rest for yourself after wearing out caring for others",
+        "4_up": "a card about setting your lines and principles firmly",
+        "4_rev": "a state where the load you carry alone needs sharing",
+        "5_up": "a card about following old customs and others' expectations",
+        "5_rev": "a card saying it's fine to break out of old rules and expectations that don't fit you",
+        "6_up": "a card about valuing the relationship and showing care",
+        "6_rev": "a state of mixed thoughts that make a clear no hard",
+        "7_up": "a card about setting your direction and stepping up firmly",
+        "7_rev": "a state where it's fine to step out of a stalled task",
+        "8_up": "a card about bearing discomfort gently to the end",
+        "8_rev": "a time to stop after holding it in alone too long",
+        "9_up": "a card about stepping back from people and protecting time alone",
+        "9_rev": "a time to rebalance your alone time and your distance from people",
+        "10_up": "a card about adjusting to things as the situation shifts",
+        "10_rev": "a state where you should stand firm instead of being swept along",
+        "11_up": "a card about finding a line that's fair to both of you",
+        "11_rev": "a state where the scale tips their way and you give in",
+        "12_up": "a time when it's fine to set down your duties and rest",
+        "12_rev": "a state of reading the room and putting off deciding",
+        "13_up": "a time to let go of roles and ties that don't fit",
+        "13_rev": "a state of still holding on to what has ended",
+        "14_up": "a card about weighing both sides and working it out together",
+        "14_rev": "a sign that the load is lopsided and your share needs to shrink",
+        "15_up": "a sign that you're still tied to old habits and a sense of duty",
+        "15_rev": "a card that says the chains are coming off, so you can step out of a relationship that ties you down",
+        "16_up": "a card saying you don't have to force a broken thing back together",
+        "16_rev": "a sign you're worn out from holding on and can let go now",
+        "17_up": "a card about letting yourself rest first so you can slowly recover",
+        "17_rev": "a sign your energy is still low and you need rest, not more pushing",
+        "18_up": "a card for when you're unsure and end up going with the mood",
+        "18_rev": "a sign that the fog is lifting and you can start to see what you want",
+        "19_up": "a card for enjoying company so much that joining in comes easily",
+        "19_rev": "a sign you're so tired the joy has faded and a short rest is fine",
+        "20_up": "a card about following what you truly want and answering firmly",
+        "20_rev": "a state where self-doubt makes saying what you want hard",
+        "21_up": "a card saying it's fine to finish a stage and move on",
+        "21_rev": "a sign things aren't finished and you'll carry on with your role a while longer"
+      }
+    }
+  },
+  "stance": {
+    "0_up": "move",
+    "0_rev": "wait",
+    "1_up": "move",
+    "1_rev": "reshape",
+    "2_up": "wait",
+    "2_rev": "self_first",
+    "3_up": "stay",
+    "3_rev": "self_first",
+    "4_up": "stay",
+    "4_rev": "reshape",
+    "5_up": "stay",
+    "5_rev": "move",
+    "6_up": "move",
+    "6_rev": "wait",
+    "7_up": "move",
+    "7_rev": "wait",
+    "8_up": "stay",
+    "8_rev": "self_first",
+    "9_up": "wait",
+    "9_rev": "self_first",
+    "10_up": "move",
+    "10_rev": "wait",
+    "11_up": "wait",
+    "11_rev": "self_first",
+    "12_up": "wait",
+    "12_rev": "move",
+    "13_up": "release",
+    "13_rev": "wait",
+    "14_up": "reshape",
+    "14_rev": "reshape",
+    "15_up": "release",
+    "15_rev": "move",
+    "16_up": "release",
+    "16_rev": "wait",
+    "17_up": "move",
+    "17_rev": "wait",
+    "18_up": "wait",
+    "18_rev": "move",
+    "19_up": "stay",
+    "19_rev": "self_first",
+    "20_up": "move",
+    "20_rev": "reshape",
+    "21_up": "release",
+    "21_rev": "stay"
+  },
+  "stance_note": "If The Key Ahead card's stance is reshape (change the conditions), append '— provided that ○○' to the conclusion (with_condition).",
+  "qsub_map": {
+    "YN-TEXT": "approach",
+    "YN-STOP": "approach",
+    "OM-REPLY": "approach",
+    "OM-SSUM": "approach",
+    "OM-HOTCOLD": "approach",
+    "OM-QUIET": "approach",
+    "OM-ANGRY": "approach",
+    "TM-REPLY": "approach",
+    "YN-EXCONTACT": "reunion",
+    "YN-REUNION": "reunion",
+    "TM-EXBACK": "reunion",
+    "OM-EXMSG": "reunion",
+    "OM-EXMIND": "reunion",
+    "OM-GHOST": "reunion",
+    "FT-REUNION": "reunion",
+    "YN-CONFESS": "progress",
+    "YN-PUBLIC": "progress",
+    "YN-MARRY": "progress",
+    "TM-OFFICIAL": "progress",
+    "TM-MARRY": "progress",
+    "OM-DTR": "progress",
+    "OM-FUTURE": "progress",
+    "OM-SINCERE": "progress",
+    "YN-BREAKUP": "continue",
+    "YN-CUT": "continue",
+    "OM-CHEAT": "continue",
+    "OM-COOLING": "continue",
+    "TM-SPARK": "continue",
+    "TM-TRIANGLE": "continue",
+    "YN-TRY": "newlove",
+    "OM-FIRSTDATE": "newlove",
+    "TM-NEWLOVE": "newlove",
+    "FT-DESTINY": "newlove",
+    "FT-PERIOD": "newlove",
+    "FT-MATCH": "newlove",
+    "OM-MYFEEL": "continue",
+    "OM-EXWHY": "reunion",
+    "TM-HEAL": "newlove"
+  },
+  "qsub_note": "Love sub-types (qsub) → score table. 2026-10-22 CSO: love worries must always get a direction — looking back on a past relationship (OM-EXWHY) → reunion; timing of healing after a breakup (TM-HEAL) → newlove (if you still want that person, the frame becomes reunion); checking your own feelings (OM-MYFEEL) → continue. If the AI worry frame (A2) gives a table value, use that first.",
+  "career_map": {
+    "Changing jobs / quitting": "job",
+    "Relationships at work (boss, coworkers)": null,
+    "Workload / burnout": null,
+    "Reviews, performance, promotion": "job",
+    "Career change / new role": "start",
+    "Starting a business / side gig": "start",
+    "Job hunting": "start",
+    "Moving / living on your own": "move",
+    "Money, investing, big purchases": "start"
+  },
+  "career_note": "Even with a null topic, asking 'should I quit / switch' → job. Workload and burnout only when it's a decision question. v3: for relationships at work (boss, coworkers), the A2 worry frame picks between express (speaking up) and boundary (saying no, drawing a line, resting).",
+  "money": {
+    "table": "start",
+    "note": "The final call is yours, {name}. The cards can't see details like amounts or terms, so they don't give grounds or a basis for real money decisions. Please decide carefully.",
+    "where": "Bottom of the direction paragraph on page 7, in small print (fineprint). Added by code; the AI doesn't write it."
+  },
+  "second_opinion": {
+    "min_share": 0.6,
+    "note": "Based on text similarity. If switched to embeddings, re-measure and adjust."
+  },
+  "reasons_note": "v4.2: types.<table>.reasons = per-card reason clause DB (440). The same clauses are used in 'Putting the three cards together' on page 5 and on page 7 (E1) → free and paid readings never disagree. Assembly: '{reason}, so it points toward ‘{that card's option}’.'"
+}

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_KR, Gowun_Batang } from "next/font/google";
-import "./globals.css";
-import "./auth.css";
+import "../globals.css";
+import "../auth.css";
 import Analytics from "@/components/Analytics";
 
 // 글꼴 가볍게(쏠 아스트로 하우스 2026-10-18과 같은 방법): 한글 글꼴은 글자 범위별로 조각이 100개 가까이라

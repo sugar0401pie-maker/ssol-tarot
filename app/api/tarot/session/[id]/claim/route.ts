@@ -12,6 +12,6 @@ export async function POST(req: Request, ctx: RouteContext<"/api/tarot/session/[
     const s = await loadSession(id, { key: auth.key, userId: null });
     return NextResponse.json(await claim(s, auth.userId));
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

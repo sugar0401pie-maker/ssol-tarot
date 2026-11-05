@@ -8,6 +8,6 @@ export async function GET(req: Request, ctx: RouteContext<"/api/tarot/session/[i
     const { id } = await ctx.params;
     return NextResponse.json(await getStatus(await sessionFrom(req, id)));
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

@@ -44,6 +44,8 @@ export class ApiError extends Error {
 
 export async function api<T>(path: string, opts: { method?: string; body?: unknown; key?: string | null } = {}): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
+  // 영문 화면(/en…)이면 서버가 오류 문구를 영어로 보낸다(lib/server/errorsEn.ts).
+  if (typeof location !== "undefined" && (location.pathname === "/en" || location.pathname.startsWith("/en/"))) headers["x-tarot-locale"] = "en";
   if (opts.key) headers["x-tarot-key"] = opts.key;
   const device = deviceIdOf();
   if (device) headers["x-tarot-device"] = device;
@@ -58,7 +60,7 @@ export async function api<T>(path: string, opts: { method?: string; body?: unkno
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
     const j = json as { error?: string; sessionId?: string; needLogin?: boolean };
-    throw new ApiError(res.status, j.error ?? "잠시 후 다시 시도해 주세요.", j.sessionId, j.needLogin === true);
+    throw new ApiError(res.status, j.error ?? (headers["x-tarot-locale"] === "en" ? "Something went wrong. Please try again in a moment." : "잠시 후 다시 시도해 주세요."), j.sessionId, j.needLogin === true);
   }
   return json as T;
 }

@@ -12,6 +12,13 @@ import { SceneArt } from "./SceneArt";
 import { MysticOrbit, RotatingLine } from "./Mystic";
 import PageFoot from "./PageFoot";
 import { STEP_PATH, stepFromPath, canFollow, entryStep, type Step } from "@/lib/client/steps";
+import { localePath, splitLocale, type Locale } from "@/lib/i18n/locale";
+import { uiText } from "@/lib/i18n/ui";
+import { CONSENT_EN } from "@/lib/i18n/consentEn";
+import { createContext, useContext } from "react";
+
+// 화면 조각(IntroScreen 등)이 언어를 알도록 — TarotFlow가 넣어 준다.
+const LocaleCtx = createContext<Locale>("ko");
 import { getRealSession } from "@/lib/supabase/browser";
 import { withExtraPool, type SceneArtMap, type SceneId } from "@/lib/client/sceneArt";
 import { WaitNotice } from "./WaitNotice";
@@ -24,7 +31,7 @@ import { SafetyScreen } from "./SafetyScreen";
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
 
 export type Copy = (typeof import("@/data/tarot_data.json"))["copy"];
-export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap; initialStep?: Step | null };
+export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap; initialStep?: Step | null; locale?: Locale };
 
 type FlowState = FlowStateBase;
 type Action = FlowAction;
@@ -43,7 +50,10 @@ const NO_ART_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"]);
 // 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
 const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
 
-export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArtRaw = NO_SCENE_ART, initialStep = null }: FlowProps) {
+export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArtRaw = NO_SCENE_ART, initialStep = null, locale = "ko" }: FlowProps) {
+  // 영문판(/en…)은 같은 화면에 영어 문구·/en 주소(2026-11-05).
+  const L = (path: string) => localePath(path, locale);
+  const ui = uiText(locale);
   const sceneArt = useMemo(() => withExtraPool(sceneArtRaw), [sceneArtRaw]);
   const router = useRouter();
   const pathname = usePathname();
@@ -90,7 +100,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   // 로그인 화면에서 돌아온 경우(/?start=1, 예: 하루 횟수를 다 써서 로그인한 뒤): 바로 시작(주소는 아래 동기화가 /welcome으로).
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("start") !== "1") return;
-    window.history.replaceState(null, "", "/");
+    window.history.replaceState(null, "", L("/"));
     // eslint-disable-next-line react-hooks/set-state-in-effect -- 로그인 화면에서 돌아온 순간 한 번만 시작
     go({ type: "START" });
   }, [go]);
@@ -110,23 +120,24 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   screenRef.current = state.screen;
   useEffect(() => {
     if (booting) return;
-    const path = STEP_PATH[state.screen as Step];
+    const raw = STEP_PATH[state.screen as Step];
+    const path = raw ? localePath(raw, locale) : null;
     if (path && window.location.pathname !== path) window.history.pushState(null, "", path);
-  }, [state.screen, booting]);
+  }, [state.screen, booting, locale]);
   // 뒤로/앞으로 가기로 주소가 바뀐 경우: 고민을 내기 전 단계 안에서 뒤로 가는 것만 따라가고, 그 밖에는 지금 화면 주소로 되돌린다.
   useEffect(() => {
     if (booting) return;
     const cur = screenRef.current as Step;
-    const to = stepFromPath(pathname);
+    const to = stepFromPath(splitLocale(pathname).path);
     if (!to || to === cur || !STEP_PATH[cur]) return;
     if (canFollow(cur, to)) setState((st) => (to === "intro" ? initialState() : { ...st, screen: to }) as FlowState);
-    else window.history.pushState(null, "", STEP_PATH[cur]);
+    else window.history.pushState(null, "", L(STEP_PATH[cur]));
     // 주소가 바뀔 때만 본다(화면 상태가 먼저 바뀐 경우까지 보면 방금 누른 이동을 되돌려 버린다)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   function startSession(nickname: string, experience: string) {
-    const p = api<{ id: string; key: string }>("/api/tarot/session", { body: { nickname, experience } }).then((s) => {
+    const p = api<{ id: string; key: string }>("/api/tarot/session", { body: { nickname, experience, locale, termsConsent: locale === "en" ? true : undefined } }).then((s) => {
       saveKey(s.id, s.key);
       setSession(s);
       try {
@@ -168,7 +179,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
 
   const nickname = state.nickname ?? "";
 
-  async function submitWorry(text: string, skip: boolean) {
+  async function submitWorry(text: string, skip: boolean, consent = false) {
     if (!skip) {
       // 길이 검사는 flow.js 규칙을 먼저 적용(10자 미만이면 인라인 안내).
       const probe = next(state, { type: "SUBMIT_WORRY", text, localUrgent: false }, flowData) as FlowState;
@@ -181,10 +192,10 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     setNetError(null);
     try {
       const s = await ensureSession();
-      const r = await api<{ urgent: boolean }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text } });
+      const r = await api<{ urgent: boolean }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
       go(skip ? { type: "SKIP_WORRY" } : { type: "SUBMIT_WORRY", text, localUrgent: r.urgent });
     } catch (e) {
-      setNetError(e instanceof ApiError ? e.message : "잠시 후 다시 시도해 주세요.");
+      setNetError(e instanceof ApiError ? e.message : ui.retryLater);
       setNeedLogin(e instanceof ApiError && e.needLogin);
     } finally {
       setBusy(false);
@@ -216,7 +227,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
         if (r.status === "ready") {
           stop = true;
           const left = MIN_WAIT_MS - (Date.now() - loadingSince.current);
-          setTimeout(() => router.push(`/result/${session.id}`), Math.max(0, left));
+          setTimeout(() => router.push(localePath(`/result/${session.id}`, locale)), Math.max(0, left));
         }
       } catch {
         /* 다음 주기 */
@@ -230,15 +241,16 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
       stop = true;
       clearInterval(t);
     };
-  }, [state.screen, session, go, router]);
+  }, [state.screen, session, go, router, locale]);
 
   const screen = state.screen;
 
   // 주소로 바로 들어와 로그인 확인 중 — 첫 화면이 잠깐 보였다 바뀌지 않게 빈 밤 화면만
   if (booting) return <main className="night-bg min-h-dvh" />;
-  if (screen === "safety") return <SafetyScreen copy={copy} />;
+  if (screen === "safety") return <SafetyScreen copy={copy} locale={locale} />;
 
   return (
+    <LocaleCtx.Provider value={locale}>
     <main className="night-bg relative flex min-h-dvh flex-col overflow-x-hidden">
       <Stars />
       {/* 장면 맨 위 그림(그림 파일이 있는 장면만). 장면이 바뀔 때마다 다시 고름 */}
@@ -251,7 +263,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
         />
       )}
       {screen === "intro" && <IntroScreen copy={copy} friends={friends} onStart={() => go({ type: "START" })} />}
-      {screen === "intro" && <PageFoot />}
+      {screen === "intro" && <PageFoot locale={locale} />}
       {screen === "welcome" && (
         <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           <WelcomeScreen
@@ -309,7 +321,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
           <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} />
           {needLogin && (
             // 로그인 없이 볼 수 있는 하루 횟수를 다 씀 → 로그인하면 바로 다시 시작(/?start=1)
-            <Link href={`/login?next=${encodeURIComponent("/?start=1")}`} className="btn-night relative z-[1] mt-3 block w-full max-w-sm rounded-full py-3.5 text-center text-[15px] font-medium">
+            <Link href={L(`/login?next=${encodeURIComponent(L("/?start=1"))}`)} className="btn-night relative z-[1] mt-3 block w-full max-w-sm rounded-full py-3.5 text-center text-[15px] font-medium">
               {copy.welcome.guest_limit_login}
             </Link>
           )}
@@ -338,10 +350,21 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
         </div>
       )}
     </main>
+    </LocaleCtx.Provider>
   );
 }
 
 // ---------------- 화면 조각 ----------------
+
+// 영문판 동의 체크(정책 문서 08). 한국어판에는 나오지 않는다.
+function ConsentBox({ checked, onChange, children }: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode }) {
+  return (
+    <label className="flex w-full items-start gap-2.5 text-left text-[13px] leading-relaxed text-moon/90">
+      <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#E7C873]" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span>{children}</span>
+    </label>
+  );
+}
 
 type C = FlowProps["copy"];
 
@@ -374,6 +397,8 @@ function Crescent() {
 }
 
 function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; onStart: () => void }) {
+  const locale = useContext(LocaleCtx);
+  const L = (path: string) => localePath(path, locale);
   const [count, setCount] = useState<number | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
@@ -398,7 +423,7 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
       <FrameCorners />
       {/* 로그인한 사람에게는 '로그인' 링크를 보이지 않는다(하단에 '내 결과 · 로그아웃'이 있음) */}
       {!loggedIn && (
-        <Link href="/login" className="absolute right-7 top-7 z-[2] text-[13px] text-moon/80 underline">
+        <Link href={L("/login")} className="absolute right-7 top-7 z-[2] text-[13px] text-moon/80 underline">
           {copy.intro.login}
         </Link>
       )}
@@ -411,12 +436,12 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
         <IntroCardSpin cards={friends} />
       </div>
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
-        {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString("ko-KR") })}</p>}
+        {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString(uiText(locale).numberLocale) })}</p>}
         {/* 아스트로 첫 화면처럼 두 버튼(owner 2026-10-21). 로그인해야 이용할 수 있어서, 로그인 전이면 둘 다 로그인 화면을 거친다. */}
         <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={onStart}>
           {copy.intro.button}
         </button>
-        <Link href={loggedIn ? "/results" : "/login?next=/results"} className="btn-night-ghost block w-full rounded-full py-4 text-[16px] font-bold">
+        <Link href={loggedIn ? L("/results") : L(`/login?next=${L("/results")}`)} className="btn-night-ghost block w-full rounded-full py-4 text-[16px] font-bold">
           {copy.intro.button_results}
         </Link>
       </div>
@@ -425,12 +450,16 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
 }
 
 function WelcomeScreen({ copy, error, onSubmit }: { copy: C; error: string | null; onSubmit: (n: string) => void }) {
+  const en = useContext(LocaleCtx) === "en";
   const [name, setName] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [consentErr, setConsentErr] = useState(false);
   return (
     <form
       className="fade-up flex flex-col items-center gap-3 text-center"
       onSubmit={(e) => {
         e.preventDefault();
+        if (en && !agreed) return setConsentErr(true);
         onSubmit(name);
       }}
     >
@@ -446,8 +475,17 @@ function WelcomeScreen({ copy, error, onSubmit }: { copy: C; error: string | nul
         aria-label={copy.welcome.placeholder}
         aria-invalid={Boolean(error)}
       />
-      <p className="min-h-5 text-[13px] text-gold-soft" role="alert">{error ?? ""}</p>
-      <button type="submit" className="btn-night w-full rounded-full py-3.5 text-[15px] font-medium">
+      {en && (
+        <ConsentBox checked={agreed} onChange={(v) => { setAgreed(v); setConsentErr(false); }}>
+          {CONSENT_EN.terms.before}
+          <Link href="/en/legal#terms" target="_blank" className="underline">{CONSENT_EN.terms.terms}</Link>
+          {CONSENT_EN.terms.mid}
+          <Link href="/en/legal#privacy" target="_blank" className="underline">{CONSENT_EN.terms.privacy}</Link>
+          {CONSENT_EN.terms.after}
+        </ConsentBox>
+      )}
+      <p className="min-h-5 text-[13px] text-gold-soft" role="alert">{consentErr ? CONSENT_EN.termsMissing : error ?? ""}</p>
+      <button type="submit" disabled={en && !agreed} className="btn-night w-full rounded-full py-3.5 text-[15px] font-medium disabled:opacity-60">
         {copy.welcome.button}
       </button>
     </form>
@@ -465,8 +503,13 @@ function WorryScreen({
   nickname: string;
   error: string | null;
   busy: boolean;
-  onSubmit: (text: string, skip: boolean) => void;
+  onSubmit: (text: string, skip: boolean, consent?: boolean) => void;
 }) {
+  const locale = useContext(LocaleCtx);
+  const en = locale === "en";
+  const worryAria = uiText(locale).worryAria;
+  const [consent, setConsent] = useState(false);
+  const [consentErr, setConsentErr] = useState(false);
   const [text, setText] = useState("");
   const [ph, setPh] = useState(0);
   const examples = copy.worry.placeholder_examples;
@@ -486,15 +529,30 @@ function WorryScreen({
           maxLength={copy.worry.max_len}
           placeholder={examples[ph]}
           onChange={(e) => setText(e.target.value)}
-          aria-label="고민 쓰기"
+          aria-label={worryAria}
           aria-invalid={Boolean(error)}
         />
         <span className="absolute bottom-2 right-3 text-[12px] text-ink/50">
           {text.length} / {copy.worry.max_len}
         </span>
       </div>
-      <p className="min-h-5 text-[13px] text-gold-soft" role="alert">{error ?? ""}</p>
-      <button type="button" disabled={busy} className="btn-night w-full rounded-full py-3.5 text-[15px] font-medium disabled:opacity-60" onClick={() => onSubmit(text, false)}>
+      {en && <p className="text-[12px] leading-relaxed text-moon/70">{CONSENT_EN.worryNames}</p>}
+      {/* 영문판 ② 고민 글 이용 동의 — 쓰기 시작하면 나타나고, 체크해야 제출(정책 문서 08 2장) */}
+      {en && text.trim().length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <ConsentBox checked={consent} onChange={(v) => { setConsent(v); setConsentErr(false); }}>
+            {CONSENT_EN.worry}{" "}
+            <Link href="/en/legal#worry-consent" target="_blank" className="underline">{CONSENT_EN.worryDetails}</Link>
+          </ConsentBox>
+          <p className="pl-6 text-[11.5px] leading-relaxed text-moon/65">{CONSENT_EN.worrySmall}</p>
+          <p className="pl-6 text-[11.5px] leading-relaxed text-moon/65">{CONSENT_EN.worryAi}</p>
+        </div>
+      )}
+      <p className="min-h-5 text-[13px] text-gold-soft" role="alert">{consentErr ? CONSENT_EN.worryMissing : error ?? ""}</p>
+      <button type="button" disabled={busy || (en && text.trim().length > 0 && !consent)} className="btn-night w-full rounded-full py-3.5 text-[15px] font-medium disabled:opacity-60" onClick={() => {
+        if (en && !consent) return setConsentErr(true);
+        onSubmit(text, false, consent);
+      }}>
         {copy.worry.button_submit}
       </button>
       <button type="button" disabled={busy} className="btn-night-ghost w-full rounded-full py-3.5 text-[14px] disabled:opacity-60" onClick={() => onSubmit("", true)}>
@@ -661,6 +719,7 @@ function DrawScreen({
   onPicked: () => void;
   onSeeResult: () => void;
 }) {
+  const locale = useContext(LocaleCtx);
   const [picks, setPicks] = useState<PickResponse[]>([]);
   const [pending, setPending] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -696,7 +755,7 @@ function DrawScreen({
       await new Promise((res) => setTimeout(res, (flew ? ARRIVED_FLIP_DELAY_MS : SLOT_FLIP_DELAY_MS) + 650)); // 뒤집기 0.6초
     } catch (e) {
       setFlight(null);
-      setErr(e instanceof ApiError ? e.message : "잠시 후 다시 눌러 주세요.");
+      setErr(e instanceof ApiError ? e.message : uiText(locale).tapAgain);
     } finally {
       setPending(null);
     }

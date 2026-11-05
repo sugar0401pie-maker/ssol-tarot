@@ -14,6 +14,6 @@ export async function POST(req: Request, ctx: RouteContext<"/api/tarot/session/[
     if (r.needsClassification) after(() => runClassification(id));
     return NextResponse.json({ urgent: r.urgent });
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

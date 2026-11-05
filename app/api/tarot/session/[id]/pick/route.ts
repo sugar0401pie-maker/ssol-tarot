@@ -12,6 +12,6 @@ export async function POST(req: Request, ctx: RouteContext<"/api/tarot/session/[
     if (r.isLast) after(() => prepareResult(id));
     return NextResponse.json(r);
   } catch (e) {
-    return fail(e);
+    return fail(e, req);
   }
 }

@@ -117,8 +117,9 @@ export function twoCardChange(lean: { cards?: { option?: string; reason?: string
  * "세 장을 종합하면 이렇습니다" 카드별 이유 목록을 응답에서 빼서 블러 아래로 보낸다(데이터를 아예 보내지 않음).
  * 결정형이 아니거나(목록·lean 없음) 문장을 만들 수 없으면 목록 숨김만 하고 문장은 붙이지 않는다.
  */
-export function applyCardGist(pages: any[], lean: any, summaryTitle: string, { hideSummary }: { hideSummary: boolean }): any[] {
-  const gist = cardGistLine(lean);
+export function applyCardGist(pages: any[], lean: any, summaryTitle: string, { hideSummary, noGist = false }: { hideSummary: boolean; noGist?: boolean }): any[] {
+  // noGist: 영문판 — 종합 문장은 한국어 활용형 바꾸기라 붙이지 않고 목록 숨김만.
+  const gist = noGist ? null : cardGistLine(lean);
   const edit = (text: string | null | undefined): string | null | undefined => {
     if (typeof text !== "string") return text;
     const chunks = text.split(/\n\s*\n/);

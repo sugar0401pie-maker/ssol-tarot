@@ -29,3 +29,5 @@
 .site-foot .ln { margin-bottom: 4px; }
 .page-foot { padding: 20px 24px calc(28px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(252, 239, 212, 0.12); }
 .page-foot .site-foot { margin: 0; color: rgba(252, 239, 212, 0.72); }
+/* 영문판 구글 버튼(2026-11-05) — 구글 브랜드 가이드의 흰 바탕 버튼 */
+.auth .btn.google { background: #fff; border-color: #dadce0; color: #1f1f1f; }
