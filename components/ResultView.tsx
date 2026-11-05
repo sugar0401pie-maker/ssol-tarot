@@ -412,8 +412,9 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
         {/* 지금 가격만(lib/billing/pricing.ts). 할인 표시는 결제 화면에서만(owner 2026-10-26). */}
         <p className="price">{fill(c.paywall_price, { price: won(price) })}</p>
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
+        {/* 4쪽(세 번째 카드 뒷면) 결제 버튼은 '카드 뒤집고 결과 보기'(v2.3.4 secret3.p4_cta, owner 2026-11-05 승인). 가격은 위 줄에 그대로. */}
         <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
-          {fill(c.paywall_button, { price: won(price) })}
+          {standalone && (c.secret3 as { p4_cta?: string }).p4_cta ? (c.secret3 as { p4_cta?: string }).p4_cta : fill(c.paywall_button, { price: won(price) })}
         </button>
       </div>
   );
