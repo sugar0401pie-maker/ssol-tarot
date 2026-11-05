@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { guestYearRetentionActive } from "@/lib/tarot-glue/guestLimit";
 
 // 2026-10-21 owner 요청: astro.ssolwellnesshouse.com/legal 내용을 그대로 가져와 이 사이트의 별도 페이지로 두고
 // 사이트 이름을 '쏠 타로 하우스'로. 원문(쏠 아스트로 하우스 저장소 app/legal/page.tsx)은 같은 사업자 전체 서비스의 약관이라
@@ -8,6 +9,8 @@ import Link from "next/link";
 // 타로 고유 항목(고민 글·뽑은 카드 등)을 추가할지는 owner·법률 검토 후 결정.
 // 어두운 배경 위 흰 긴 글 금지(디자인 가이드) → 본문은 크림 상자 위 남색 글자. 색 이름만 이 사이트 것으로(cream → moon/card-cream).
 export const metadata: Metadata = { title: "쏠 타로 하우스 — 약관 및 정책" };
+// 2-3항 보관 기간이 시행일(2026-12-06)에 저절로 바뀌도록 1시간마다 다시 만든다.
+export const revalidate = 3600;
 
 function P({ children }: { children: React.ReactNode }) {
   return <p className="text-[14px] leading-6 text-navy/85">{children}</p>;
@@ -400,14 +403,30 @@ export default function LegalPage() {
             ]}
           />
 
-          {/* 2026-10-26 owner 결정: 로그인 없이 타로 보기 + 하루 횟수 제한(IP·기기 값은 바꾼 값만, 7일 보관). Claude 초안, 법률 검토 전. */}
+          {/* 2026-10-26 owner 결정: 로그인 없이 타로 보기 + 하루 횟수 제한(IP·기기 값은 바꾼 값만, 7일 보관). Claude 초안, 법률 검토 전.
+              2026-11-05 owner A안: 로그인 없는 결과 보관 7일 → 1년. 2026-11-05 공지, 2026-12-06 시행(30일 전 공지 — 12항), 시행일부터 만든 결과에 적용.
+              코드의 실제 삭제 기준(lib/tarot-glue/guestLimit.ts GUEST_RESULT_YEAR_FROM)과 같은 날짜로 문구가 바뀐다. */}
+          {!guestYearRetentionActive() && (
+            <div className="mt-4 rounded-xl border border-navy/20 bg-white/60 px-4 py-3 text-[13px] leading-6 text-navy/85">
+              <p className="font-semibold text-navy">[개정 예고] 로그인 없이 본 타로 결과의 보관 기간 변경</p>
+              <p className="mt-1">공고일자: 2026년 11월 5일 · 시행일자: 2026년 12월 6일</p>
+              <p className="mt-1">
+                아래 2-3항 두 번째 문장을 &ldquo;로그인 없이 만든 결과(닉네임·고민 글·뽑은 카드·결과)는 계정에 저장되지 않은 경우 만든
+                날부터 1년이 지나면 삭제합니다.&rdquo;로 바꿉니다. 지난 결과를 다시 보고 서비스를 개선하기 위해 보관 기간을 늘리며,
+                시행일 이후에 만든 결과부터 적용합니다. 시행일 전에 만든 결과는 지금처럼 7일이 지나면 삭제합니다. 접속 IP·브라우저
+                식별 값의 보관 기간(7일)은 바뀌지 않습니다.
+              </p>
+            </div>
+          )}
           <div id="tarot-guest" className="scroll-mt-6">
             <H3>2-3. 로그인 없이 본 타로 결과와 이용 횟수 확인</H3>
           </div>
           <UL
             items={[
               "쏠 타로 하우스는 로그인 없이도 이용할 수 있습니다. 이때 작성한 닉네임·고민 글·뽑은 카드와 결과는 이용한 브라우저에서만 다시 열 수 있고, 로그인하면 그 계정에 저장됩니다.",
-              "로그인 없이 만든 결과는 계정에 저장되지 않은 경우 만든 날부터 7일이 지나면 삭제합니다.",
+              guestYearRetentionActive()
+                ? "로그인 없이 만든 결과(닉네임·고민 글·뽑은 카드·결과)는 계정에 저장되지 않은 경우 만든 날부터 1년이 지나면 삭제합니다. 다만 2026년 12월 6일 전에 만든 결과는 만든 날부터 7일이 지나면 삭제합니다."
+                : "로그인 없이 만든 결과는 계정에 저장되지 않은 경우 만든 날부터 7일이 지나면 삭제합니다.",
               "부정 이용(자동 프로그램을 통한 반복 이용 등)을 막기 위해 로그인 없이 이용을 시작할 때 접속 IP와 브라우저 식별 값을 원래 값을 알아볼 수 없게 바꾼 값(암호화된 요약값)으로만 저장하고, 7일이 지나면 삭제합니다.",
             ]}
           />

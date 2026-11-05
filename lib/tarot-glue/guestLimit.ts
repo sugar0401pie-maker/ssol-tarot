@@ -6,8 +6,23 @@
 export const GUEST_DEVICE_LIMIT = 5; // owner 2026-11-02: 3 → 5
 export const GUEST_IP_LIMIT = 20;
 export const GUEST_WINDOW_MS = 24 * 60 * 60 * 1000;
-/** 로그인 없이 만든 결과와 횟수 기록의 보관 기간(owner 결정 7일). */
+/** 횟수 기록(IP·기기 요약값)과, 2026-12-06 전에 만든 로그인 없는 결과의 보관 기간(owner 결정 7일). */
 export const GUEST_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+// owner 2026-11-05 A안: 로그인 없는 결과 보관을 1년으로 늘리되, 개인정보처리방침 개정을 30일 전에 공지하고 그 시행일부터 만든 결과에만 적용.
+// 시행일 전에 만든 결과는 "7일 보관"으로 안내받았으므로 계속 7일 뒤 지운다. 방침 문구(app/legal/page.tsx 2-3항)도 이 날짜로 함께 바뀐다.
+export const GUEST_RESULT_YEAR_FROM = new Date("2026-12-06T00:00:00+09:00");
+export const GUEST_RESULT_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
+/** 로그인 없는 결과를 지울 기준 두 개: shortBefore 이전(=시행일 전에 만든 것 중 7일 지난 것), longBefore 이전(=1년 지난 것). */
+export function guestResultCutoffs(now: Date = new Date()): { shortBefore: Date; longBefore: Date } {
+  const sevenAgo = now.getTime() - GUEST_RETENTION_MS;
+  return {
+    shortBefore: new Date(Math.min(sevenAgo, GUEST_RESULT_YEAR_FROM.getTime())),
+    longBefore: new Date(now.getTime() - GUEST_RESULT_YEAR_MS),
+  };
+}
+/** 방침에 1년 보관 문구를 보일 때인지(시행일부터). */
+export const guestYearRetentionActive = (now: Date = new Date()): boolean => now >= GUEST_RESULT_YEAR_FROM;
 
 export type GuestCounts = { device: number | null; ip: number | null };
 

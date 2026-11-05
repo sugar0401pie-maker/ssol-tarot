@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { GUEST_DEVICE_LIMIT, GUEST_IP_LIMIT, clientIp, deviceId, guestLimitReached } from "./guestLimit.ts";
+import { GUEST_DEVICE_LIMIT, GUEST_IP_LIMIT, GUEST_RESULT_YEAR_FROM, clientIp, deviceId, guestLimitReached, guestResultCutoffs, guestYearRetentionActive } from "./guestLimit.ts";
 
 const hdr = (o: Record<string, string>) => ({ get: (k: string) => o[k] ?? null });
 
@@ -25,3 +25,19 @@ test("IP는 x-forwarded-for의 첫 값, 기기 값은 형식이 맞을 때만", 
   assert.equal(deviceId(hdr({ "x-tarot-device": "abcdef0123456789abcd" })), "abcdef0123456789abcd");
   assert.equal(deviceId(hdr({ "x-tarot-device": "짧음" })), null);
 });
+
+test("결과 보관: 시행일 전에 만든 결과는 7일, 시행일부터 만든 결과는 1년", () => {
+  const day = 24 * 60 * 60 * 1000;
+  // 시행일 전: 지금과 같은 7일 기준
+  const before = new Date("2026-11-20T12:00:00+09:00");
+  const a = guestResultCutoffs(before);
+  assert.equal(a.shortBefore.getTime(), before.getTime() - 7 * day);
+  // 시행일 한참 뒤: 7일 기준은 시행일에서 멈춤(시행일 뒤에 만든 결과는 7일로 지우지 않음), 1년 기준이 따로
+  const after = new Date("2027-03-01T00:00:00+09:00");
+  const b = guestResultCutoffs(after);
+  assert.equal(b.shortBefore.getTime(), GUEST_RESULT_YEAR_FROM.getTime());
+  assert.equal(b.longBefore.getTime(), after.getTime() - 365 * day);
+  assert.equal(guestYearRetentionActive(before), false);
+  assert.equal(guestYearRetentionActive(after), true);
+});
+

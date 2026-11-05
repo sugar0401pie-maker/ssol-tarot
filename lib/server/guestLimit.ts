@@ -1,7 +1,7 @@
 import "server-only";
 import { createHmac } from "node:crypto";
 import { createAdminClient } from "./supabaseAdmin";
-import { GUEST_RETENTION_MS, GUEST_WINDOW_MS, clientIp, deviceId, guestLimitReached } from "@/lib/tarot-glue/guestLimit";
+import { GUEST_RETENTION_MS, GUEST_WINDOW_MS, clientIp, deviceId, guestLimitReached, guestResultCutoffs } from "@/lib/tarot-glue/guestLimit";
 
 // 로그인 없이 타로 보기(owner 2026-10-26): 시작 횟수 제한 + 7일 지난 기록·결과 정리.
 // IP·기기 값은 서버 비밀값을 섞은 HMAC으로만 저장한다(원래 값을 남기지 않음). 로그에도 남기지 않는다.
@@ -39,12 +39,16 @@ export async function checkGuestStart(headers: { get(name: string): string | nul
   void purgeOldGuestData();
 }
 
-/** 7일 지난 횟수 기록과, 계정에 붙지 않은(그리고 결제되지 않은) 결과를 지운다. 실패해도 시작은 막지 않는다. */
+/** 7일 지난 횟수 기록과, 보관 기간이 지난 계정에 붙지 않은(그리고 결제되지 않은) 결과를 지운다. 실패해도 시작은 막지 않는다.
+ *  결과: 2026-12-06 전에 만든 것은 7일, 그 뒤에 만든 것은 1년(owner 2026-11-05, 방침 개정과 같은 날짜 — guestResultCutoffs). */
 async function purgeOldGuestData() {
   const db = createAdminClient();
   const before = new Date(Date.now() - GUEST_RETENTION_MS).toISOString();
   const r1 = await db.from("tarot_guest_starts").delete().lt("created_at", before);
   if (r1.error) console.warn("게스트 기록 정리 실패:", r1.error.message);
-  const r2 = await db.from("tarot_sessions").delete().is("user_id", null).is("paid_at", null).lt("created_at", before);
-  if (r2.error) console.warn("로그인 없는 결과 정리 실패:", r2.error.message);
+  const { shortBefore, longBefore } = guestResultCutoffs();
+  for (const cut of [shortBefore, longBefore]) {
+    const r2 = await db.from("tarot_sessions").delete().is("user_id", null).is("paid_at", null).lt("created_at", cut.toISOString());
+    if (r2.error) console.warn("로그인 없는 결과 정리 실패:", r2.error.message);
+  }
 }
