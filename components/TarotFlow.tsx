@@ -1,5 +1,6 @@
 "use client";
 
+import { claimVisit } from "@/lib/client/visit";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -377,6 +378,14 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
     void getRealSession().then((s) => setLoggedIn(!!s));
+  }, []);
+  useEffect(() => {
+    // 첫 화면 방문 수(owner 2026-11-05) — 탭 묶음당 한 번, 숫자만
+    let storage: Storage | null = null;
+    try {
+      storage = window.sessionStorage;
+    } catch {}
+    if (claimVisit(storage)) void fetch("/api/tarot/visit", { method: "POST", keepalive: true }).catch(() => {});
   }, []);
   useEffect(() => {
     fetch("/api/tarot/stats")
