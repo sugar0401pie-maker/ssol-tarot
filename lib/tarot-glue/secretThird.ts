@@ -12,12 +12,18 @@ import { midResult, type MidDb } from "./midResult.ts";
 export type SecretCopy = {
   intro: string; worry_title: string; two_title: string; same: string; split: string; general: string;
   next_button: string; p4_title: string; p4_options: string; p4_general: string; change_leads?: string[];
+  // v2.3.4(v4.3): 원문 질문만 있을 때 4쪽 예고, 4쪽 결제 버튼, 결제하면 뒤집힌다는 안내
+  p4_question?: string; p4_cta?: string; p4_after_pay_note?: string;
 };
 type Card = { reversed?: boolean; positionName: string; card: { name: string; no?: number } };
 type LeanLike = { option?: string; cards?: { option?: string; reason?: string | null }[] } | null | undefined;
-type FrameLike = { options?: string[] | null } | null | undefined;
+type FrameLike = { options?: string[] | null; options_ranked?: string[] | null; core_question?: string | null; forecast?: boolean; area?: string | null } | null | undefined;
 
-const fill = (t: string, v: Record<string, string>) => t.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+// 이름 자리는 {name}(패키지 v2.3.2부터)과 예전 {nickname} 둘 다 받는다.
+const fill = (t: string, v: Record<string, string>) => {
+  const vv = "name" in v && !("nickname" in v) ? { ...v, nickname: v.name } : v;
+  return t.replace(/\{(\w+)\}/g, (m, k) => (k in vv ? vv[k] : m));
+};
 
 /** ‘A’와 ‘B’ / ‘A’, ‘B’와 ‘C’ — 선택지가 2개 이상일 때만, 아니면 null */
 export function optionsAnd(options: string[]): string | null {
@@ -35,23 +41,35 @@ export function optionsSlash(options: string[]): string | null {
 }
 
 /** 3쪽(고민 풀어보기) 본문 줄글 — pageBlocks 규칙: "### " 큰 소제목 · "!! " 첫 문장 굵게(남색) 문단 · "◦ " 목록 */
-export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, copy, frameTitle, mid = null, domain = null }: {
+export function worryPageBody({ name, oldPage1, reading: reading0, frame, lean, picks, copy, frameTitle, mid = null, domain = null, teaser = null, areaPhrase = null, pageTitle = null }: {
   name: string; oldPage1: string; reading: string; frame: FrameLike; lean: LeanLike; picks: Card[]; copy: SecretCopy; frameTitle: string;
-  mid?: MidDb | null; domain?: string | null;
+  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null; pageTitle?: string | null;
 }): string {
   const chunks = String(oldPage1 || "").split(/\n\s*\n/);
   const strip = chunks.find((c) => c.trim().startsWith("[카드 이미지")) ?? null;
   // 고민 틀 상자("이번 고민에서 끝까지 함께 볼 것" + ◦ 선택지·결국 묻는 것·기한) — 패키지가 1쪽에 넣은 것을 그대로 옮긴다
-  const box = chunks.find((c) => c.trim().startsWith(frameTitle)) ?? null;
+  let box = chunks.find((c) => c.trim().startsWith(frameTitle)) ?? null;
+  // v4.3 예측 질문이면 '될 흐름 / 어려운 흐름' 선택지 줄은 보이지 않는다(패키지 buildPagesV43과 같음)
+  if (box && frame?.forecast) box = box.split("\n").filter((x) => !x.trim().startsWith("◦ 선택지")).join("\n");
+  // v4.3: 취업·시험 등 세부 영역이면 고민 읽기 문장의 영역 이름을 바꾼다(data copy.result.v43.area_phrases — 패키지와 같은 바꾸기)
+  const reading = areaPhrase
+    ? reading0.replace(/진로와 자기계발에 대한 고민|직업과 커리어에 대한 고민|나 자신과 삶의 방향에 대한 고민/, areaPhrase).replace(/고민(으로|로) 읽혔/, "고민으로 읽혔")
+    : reading0;
   const m = reading.match(/^(.+?[.?!])\s+([\s\S]+)$/);
   const lead = m ? `!! **${m[1]}** ${m[2]}` : `!! **${reading}**`;
   const out: string[] = [];
   // 카드 줄 표시(화면은 응답의 cards로 그림) — 패키지 줄에는 카드 그림 파일 이름이 들어 있어 세 번째 카드가 새므로 표시만 남긴다
   if (strip) out.push("[카드 이미지 3장]");
-  out.push(`### ${fill(copy.worry_title, { nickname: name })}`, lead);
+  // v2.3.2부터 쪽 제목(h1)이 곧 '{name}님의 고민 풀어보기'라 같은 말이면 본문 소제목은 겹쳐 쓰지 않는다.
+  const heading = fill(copy.worry_title, { name });
+  if (heading !== pageTitle) out.push(`### ${heading}`);
+  out.push(lead);
   if (box) out.push(box.trim());
   const two = (lean?.cards ?? []).slice(0, 2);
-  const options = optionsAnd(frame?.options ?? []);
+  // v4.3 예측 질문(선택지가 '될 흐름 / 어려운 흐름')이면 선택지를 화면에 보이지 않는다(패키지 buildPagesV43과 같음).
+  const options = frame?.forecast ? null : optionsAnd(frame?.options ?? []);
+  // 선택지 문단(same·split)이 아닌 '답은 아직…' 문단 뒤에는 듣고 싶은 답에 맞춘 예고 한 문장(v43.teaserLine)
+  const generalLine = teaser ? `${copy.general} ${teaser}` : copy.general;
   // 두 장 중간 결과(owner 2026-11-02 문장 DB) — 카드별 이유 목록(◦ … ‘선택지’ 쪽을 가리켜요) 대신. 고민 미작성(NONE)에도 나온다.
   const midParas = mid ? midResult(mid, domain, picks) : null;
   if (lean && two.length === 2 && two.every((c) => c?.reason)) {
@@ -71,10 +89,10 @@ export function worryPageBody({ name, oldPage1, reading, frame, lean, picks, cop
       out.push(two.map((c, i) => `◦ ${picks[i].positionName} ‘${picks[i].card.name}’${picks[i].reversed ? "(역방향)" : ""} — ${c.reason}`).join("\n"));
     }
     const same = two[0].option === two[1].option;
-    out.push(keyLine(same && options ? fill(copy.same, { options }) : same ? copy.general : copy.split));
+    out.push(keyLine(same && options ? fill(copy.same, { options }) : same ? generalLine : copy.split));
   } else {
     if (midParas) out.push(`**${copy.two_title}**`, ...midParas);
-    out.push(keyLine(copy.general));
+    out.push(keyLine(generalLine));
   }
   return out.join("\n\n");
 }
@@ -85,9 +103,9 @@ export function keyLine(text: string): string {
   return text.includes(KEY_SENTENCE) ? `!! ${text.replace(KEY_SENTENCE, `**${KEY_SENTENCE}**`)}` : text;
 }
 
-export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null }: {
+export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null, teaser = null, areaPhrase = null }: {
   paid: boolean; name: string; reading: string; frame: FrameLike; lean: LeanLike; picks: Card[]; copy: SecretCopy; frameTitle: string; teaser5?: string | null;
-  mid?: MidDb | null; domain?: string | null;
+  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null;
 }): any[] {
   const by = (n: number) => pages.find((p) => p.page === n);
   const [p1, p2, p3, p4] = [by(1), by(2), by(3), by(4)];
@@ -95,18 +113,24 @@ export function secretThird(pages: any[], { paid, name, reading, frame, lean, pi
   const rest = pages.filter((p) => p.page >= 5);
   const back = p2.back ?? p3.back;
   const next = p2.next;
-  const first = { ...p2, page: 1, back: null, intro: fill(copy.intro, { nickname: name }) };
+  const first = { ...p2, page: 1, back: null, intro: fill(copy.intro, { name }) };
   const second = { ...p3, page: 2, back };
   const worry = {
     page: 3, title: p1.title, access: "무료", back, next: copy.next_button,
-    body: worryPageBody({ name, oldPage1: p1.body, reading, frame, lean, picks, copy, frameTitle, mid, domain }),
+    body: worryPageBody({ name, oldPage1: p1.body, reading, frame, lean, picks, copy, frameTitle, mid, domain, teaser, areaPhrase, pageTitle: p1.title }),
   };
-  const slash = optionsSlash(frame?.options ?? []);
+  const slash = frame?.forecast ? null : optionsSlash(frame?.options ?? []);
+  const opts = (frame?.options ?? []).map(cleanOption).filter(Boolean);
+  const q = String(frame?.core_question ?? "").trim();
+  // 4쪽 예고(v2.3.2): 선택지 → p4_options, 원문 질문만 → p4_question, 둘 다 없음 → p4_general
+  const teaser4 = slash
+    ? fill(copy.p4_options, { name, options: slash, a: opts[0] ?? "", b: opts[1] ?? "" })
+    : q && copy.p4_question ? fill(copy.p4_question, { name, q }) : fill(copy.p4_general, { name });
   const fourth = paid
     ? { ...p4, page: 4, back }
     : {
         page: 4, title: p4.title, access: "유료", back, next: p4.next ?? next, secret: true,
-        teaser: slash ? fill(copy.p4_options, { nickname: name, options: slash }) : fill(copy.p4_general, { nickname: name }),
+        teaser: teaser4, note: copy.p4_after_pay_note ?? null,
       };
   const five = rest.map((p) =>
     // 5쪽 무료 글(메인 문구·첫 줄·종합 문장)은 세 장을 다 보고 쓴 글이라 결제 전에는 다른 잠긴 쪽처럼 예고만 보낸다

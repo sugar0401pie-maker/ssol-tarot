@@ -342,7 +342,8 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
     // 5쪽: 메인 문구·첫 줄·카드별 한 줄까지 무료, 결론부터는 결제 후. 서버가 결론을 보내지 않으므로 블러 아래는
     // 데이터의 5쪽 전용 고정 예시(blur_samples.locked5 — 민준님 예시, 이 사용자 내용 아님).
     // 서버가 이 사람의 이름·카드 이름으로 바꿔 보낸 예시(p.blur)를 쓰고, 없으면(예전 서버) 데이터 원문.
-    const sample = p.blur ?? ctx.copy.result.blur_samples.locked5;
+    const l5 = ctx.copy.result.blur_samples.locked5 as unknown;
+    const sample = p.blur ?? (l5 && typeof l5 === "object" ? (l5 as { text: string }).text : (l5 as string | null)); // v2.3.2: {note, text}
     return (
       <>
         <Blocks blocks={parseBlocks(p.free, opts)} ctx={ctx} />
@@ -391,6 +392,8 @@ function SecretCard({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
         <img {...cardImg("/images/tarot/card-back.webp", "(max-width: 400px) 92vw, 364px")} alt="" decoding="async" />
       </div>
       {p.teaser && <p className="teaser font-bold">{p.teaser}</p>}
+      {/* v2.3.2 "결제하면 이 자리에서 카드가 뒤집혀요." */}
+      {p.note && <p className="teaser">{p.note}</p>}
       <PayBox ctx={ctx} page={p.page} standalone />
     </>
   );

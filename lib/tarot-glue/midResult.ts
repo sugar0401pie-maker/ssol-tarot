@@ -7,14 +7,14 @@ export type MidDb = {
   lines: Record<string, Record<string, { past?: string; block?: string }>>;
   merge: Record<string, string>;
 };
-const DOMAINS = new Set(["CAR", "DIR", "LOV", "FAM", "SOC", "LIF"]);
+// v2.3.4(v4.3): 영역 키는 v43.midAreaKey가 고른다(취업 JOB·시험 EDU·연애 단계 LOV_SINGLE·LOV_CRUSH·LOV_EX 포함). DB에 있는 묶음이면 그대로 쓴다.
 const keyOf = (p: Pick | undefined) => (p && Number.isInteger(p.card?.no) ? `${p.card.no}_${p.reversed ? "rev" : "up"}` : null);
 
 /** 문단 배열(카드 문장 한 문단 + 합 문장(과거형 — scripts/mid_merge_past.py) 한 문단). 카드 문장을 못 찾으면 null — 부르는 쪽이 예전 표시로 돌아간다. */
 export function midResult(db: MidDb, domain: string | null | undefined, picks: Pick[]): string[] | null {
   const k1 = keyOf(picks[0]), k2 = keyOf(picks[1]);
   if (!k1 || !k2) return null;
-  const lines = db.lines[domain && DOMAINS.has(domain) ? domain : "NONE"];
+  const lines = db.lines[domain && db.lines[domain] ? domain : "NONE"];
   const past = lines?.[k1]?.past, block = lines?.[k2]?.block;
   if (!past || !block) return null;
   const t1 = db.card_themes[k1]?.past, t2 = db.card_themes[k2]?.present;

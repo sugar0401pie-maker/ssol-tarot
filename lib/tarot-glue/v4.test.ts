@@ -92,11 +92,14 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   assert.equal(out[0].card.name, picks[0].card.name, "1쪽 = 첫 번째 카드");
   assert.match(String(out[0].intro), new RegExp(`^${cs.name}님의 타로 결과를 알려드리겠습니다`));
   assert.equal(out[1].card.name, picks[1].card.name, "2쪽 = 두 번째 카드");
-  assert.match(String(out[2].body), /### .+님의 고민 풀어보기/);
+  // v2.3.2: 3쪽 제목(h1)이 '…님의 고민 풀어보기' — 본문 소제목은 겹쳐 쓰지 않는다
+  assert.match(String(out[2].title), /님의 고민 풀어보기$/);
+  assert.ok(!String(out[2].body).includes("### "));
   assert.ok(out[3].secret && !("card" in out[3]) && out[3].body === null, "4쪽 = 세 번째 카드 뒷면(결제 전)");
   // blur = 고정 예시(민준님 예시를 이 사람 이름·카드 이름으로 바꾼 것, 2026-10-30)라 검사에서 뺀다 — 이 사람의 결론·본문이 새는지만 본다.
   const text = JSON.stringify(out.map(({ blur: _b, ...rest }: { blur?: unknown }) => rest));
-  assert.ok(String(out[4].blur).includes(`${cs.name}님`) && !String(out[4].blur).includes("민준"), "5쪽 블러 예시는 이 사람 이름으로");
+  // v2.3.2(2026-11-05): 5쪽 블러 예시는 이름·카드 이름이 없는 가상 예시(data blur_samples.locked5.text)
+  assert.ok(String(out[4].blur).length > 20 && !String(out[4].blur).includes("민준") && !String(out[4].blur).includes("[object"), "5쪽 블러 예시");
   assert.ok(!("free" in out[4]) && out[4].teaser, "5쪽은 결제 전 잠금(세 장을 다 보고 쓴 무료 글은 안 보냄)");
   assert.ok(!("locked" in out[4]) && !("combo" in out[4]) && !("map" in out[4]));
   assert.ok(!text.includes("세 장을 합치면"), "결론 문장이 새면 안 됨");
@@ -229,4 +232,34 @@ test("v4.2 재회 예시(E1+E2): 7쪽 맨 위 흐름, 계획은 9쪽 맨 위로,
   assert.ok(p9.indexOf(PLAN_MOVED_HEAD) >= 0 && p9.indexOf(PLAN_MOVED_HEAD) < p9.indexOf("• 오늘"));
   assert.ok(p9.includes("• 오늘: 버거운 정도 점수 매기기"), "오늘 = DB(앞으로의 열쇠 카드)");
   assert.ok(String(out[7].body).startsWith("▸ "), "8쪽은 처방부터(머리말 없음)");
+});
+
+// ════════ v2.3.4(v4.3) 연결 — 2026-11-05 ════════
+import { prepareFrame, answerFirstFor, withAnswerFirst } from "./v4.ts";
+
+test("v4.3 예측 질문(취업 합격, 선택지 미기재): 3쪽 예고·4쪽 원문 질문·7쪽 답 먼저(실제 달)", () => {
+  const raw = { ...frame, table: "start", decision_source: "implicit", options_ranked: ["지원하기", "지원하지 않기"], want: "when", area: "JOB", stage: "before", core_question: "올해 안에 취업할 수 있을까요?", deadline: null, money: false };
+  const f = prepareFrame(raw, cs.ai);
+  assert.ok(f.forecast, "예측 선택지로 바뀜");
+  const d = decide({ frame: f, cls: cs.ai, picks, name: cs.name });
+  const U = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame: f, lean: d.lean, C: null }));
+  assert.ok(!/될 흐름|어려운 흐름|결과에 닿는 흐름|늦어지는 흐름/.test(String(U[2].body).split("**지금까지")[0] ?? ""), "예측형 선택지는 3쪽에 보이지 않음");
+  assert.ok(U[3].teaser.includes("‘올해 안에 취업할 수 있을까요?’"), U[3].teaser);
+  const now = new Date("2026-11-06T10:00:00+09:00");
+  const af = answerFirstFor({ frame: f, lean: d.lean, picks, now });
+  assert.ok(af && af.kind === "timing" && /\d+월/.test(af.text) && !af.text.includes("{when}"), af?.text);
+  const P = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame: f, lean: d.lean, C: null, sa: null, E: null, now }));
+  assert.ok(String(P[6].body).startsWith(`**${af.text}**`), String(P[6].body).slice(0, 120));
+  // 결제 전에는 답 먼저가 어디에도 없다
+  assert.ok(!JSON.stringify(U).includes(af.text));
+  const e1 = buildE1UserBlock({ name: cs.name, worryText: cs.worry, cls: cs.ai, picks, frame: f, lean: d.lean, now });
+  assert.ok(e1 && e1.includes(`answer_first=${JSON.stringify(af.text)}`));
+});
+
+test("v4.3 돈 고민이면 답 먼저 아래 ※ 보장하지 않는다는 한 줄 · 예전 결과(새 칸 없음)는 그대로", () => {
+  const pages = [{ page: 7, body: "**세 장은 ‘남기’ 쪽이에요.**\n◦ 선택지\n본문" }];
+  const out = withAnswerFirst(pages, { kind: "forecast", text: "카드로 보면 원하는 결과에 닿는 흐름이에요." }, { money: true });
+  assert.ok(out[0].body.startsWith("**카드로 보면") && out[0].body.split("\n")[1].startsWith("※ ") && !out[0].body.includes("세 장은 ‘남기’"));
+  assert.deepEqual(prepareFrame(frame, cs.ai)?.options_ranked ?? prepareFrame(frame, cs.ai)?.options, frame.options_ranked ?? frame.options);
+  assert.equal(answerFirstFor({ frame: null, lean: null, picks, now: new Date() }), null);
 });

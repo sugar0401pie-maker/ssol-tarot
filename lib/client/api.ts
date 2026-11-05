@@ -95,6 +95,8 @@ export type ResultPage = {
   fineprint?: string;
   next?: string | null;
   back?: string | null;
+  // 결제 전 4쪽 예고 아래 한 줄(v2.3.2 p4_after_pay_note)
+  note?: string | null;
   // 1쪽(첫 번째 카드) 맨 위 안내 문단 — "카드는 이렇게 말해요" 위
   intro?: string;
   // 결제 전 4쪽(세 번째 카드 뒷면 + 결제 상자)

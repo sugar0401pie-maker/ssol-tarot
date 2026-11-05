@@ -10,6 +10,8 @@ import { pickTable, isDecisionFrame, lean as leanOf, type Lean } from "../tarot/
 import { afterFrame } from "../tarot/frameInput.js";
 import { buildPages, buildLinkUserBlock, buildStoryUserBlock, comboScore, readingSentence } from "../tarot/assembleReport.js";
 import { buildPagesV4, SUBHEADS, todayFromDb } from "../tarot/pagesV4.js";
+import { normalizeFrameV43, applyForecastOptions, midAreaKey, teaserLine, answerFirst } from "../tarot/v43.js";
+import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -17,6 +19,41 @@ type Frame = any;
 type Cls = any;
 // 언어별 데이터(영문판 2026-11-05). locale을 안 주면 한국어 — 기존 호출은 그대로 같은 결과.
 const bd = (locale?: Locale) => bundleFor(locale ?? "ko");
+
+// v2.3.4(v4.3): 저장된 고민 틀(A2 v4.7)을 쓰기 전에 새 칸 검사 + 예측 질문이면 선택지를 '될 흐름 / 어려운 흐름'으로.
+// 패키지 순서(v43.js 머리말) 그대로: normalizeFrameV43 → applyForecastOptions → lean. 예전 결과(새 칸 없음)는 그대로 지나간다.
+// 영문판은 아직 v4.3 데이터가 없어 손대지 않는다.
+export function prepareFrame(frame: Frame | null, cls: Cls | null, locale?: Locale): Frame | null {
+  if (!frame || locale === "en") return frame;
+  return applyForecastOptions(normalizeFrameV43(frame, cls), bd(locale).tables);
+}
+
+/** 7쪽 '답 먼저' 한 줄(v4.3 — 예측·시기·상대 마음, DB 문장). now = 테스트를 본 시각(시기 달 계산 — 다시 열어도 같은 달). 영문판·고민 없음이면 null. */
+export function answerFirstFor({ frame, lean, picks, now, locale }: { frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; now: Date; locale?: Locale }): any | null {
+  if (locale === "en" || !frame) return null;
+  try {
+    return answerFirst({ frame, lean, picks, db: answerDbKo, data: bd(locale).data, now });
+  } catch (e) {
+    console.warn("답 먼저 문장 고르기 실패 — 그 줄 없이:", e instanceof Error ? e.message : "unknown");
+    return null;
+  }
+}
+
+/** 결제 후 7쪽 맨 위에 '답 먼저'를 붙인다(패키지 buildPagesV43과 같은 규칙: 예측 답이면 같은 뜻의 방향 제목 줄을 빼고, 돈 고민이면 보장하지 않는다는 ※ 한 줄). */
+export function withAnswerFirst(pages: any[], af: any | null, frame: Frame | null): any[] {
+  if (!af) return pages;
+  return pages.map((p) => {
+    if (p.page !== 7 || !p.body) return p;
+    const L7 = String(p.body).split("\n");
+    if (af.kind === "forecast") {
+      const i = L7.findIndex((x, k) => k < 8 && /^\*\*세 장은 .*쪽(이에요|입니다)\.\*\*$/.test(x));
+      if (i >= 0) L7.splice(i, L7[i + 1] && L7[i + 1].startsWith("◦ ") ? 2 : 1);
+    }
+    const isMoney = !!(frame && (frame.money === true || frame.area === "FORT"));
+    const mn = isMoney && (answerDbKo as any).money_note ? `\n※ ${(answerDbKo as any).money_note.text}` : "";
+    return { ...p, body: `**${af.text}**${mn}\n\n${L7.join("\n")}` };
+  });
+}
 
 // 결정형 고민이면 카드 점수로 방향을 정한다(AI는 결론을 바꾸지 못함 — README_v4 R1·R2).
 // frame이 없거나(미작성·A2 탈락) 점수표가 없으면 비결정형(null). 폭력 확인(violence)이면 방향을 끈다(v4.1 pickTable).
@@ -82,14 +119,18 @@ export function buildDUserBlock({ name, worryText, cls, picks, frame, lean, safe
 // v4.2: E를 둘로 나눠 D와 함께 동시에 부른다(속도). E1 = 7쪽(방향·흐름·이번 주 계획), E2 = 8쪽 처방 2 + 9쪽 '3일 안에'·'이번 주'.
 // [입력] worry_text, worry_frame, direction_lean, card_reasons, cards, already_shown(5·6쪽 글 — D와 동시라 아직 없어서 넣지 않음),
 // E2만 db_today(9쪽 '오늘' 실천 — 코드가 앞으로의 열쇠 카드로 DB에서 고른 것: title·how — 같은 행동을 쓰지 않게).
-type EArgs = { name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null; locale?: Locale };
+type EArgs = { name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null; locale?: Locale; now?: Date };
 function eBase(args: EArgs): string | null {
   const { lean } = args;
   const base = buildCUserBlock(args);
   return base ? withReasons(base, lean) : null;
 }
 export function buildE1UserBlock(args: EArgs): string | null {
-  return eBase(args);
+  const base = eBase(args);
+  // v4.3: E1 입력 answer_first(7쪽 맨 위 코드 문장 — 반대되는 말을 쓰지 않게). 없으면 null.
+  if (!base || args.locale === "en") return base;
+  const af = answerFirstFor({ frame: args.frame, lean: args.lean, picks: args.picks, now: args.now ?? new Date(), locale: args.locale });
+  return base.replace("</user_data>", `answer_first=${JSON.stringify(af ? af.text : null)}\n</user_data>`);
 }
 export function buildE2UserBlock(args: EArgs): string | null {
   const { data } = bd(args.locale);
@@ -102,8 +143,8 @@ export function buildE2UserBlock(args: EArgs): string | null {
 
 // 10쪽 조립(결제 후, v4.2 — 패키지가 처음부터 10쪽). sa = parseStoryApply 결과(D, 탈락 칸은 null → DB 문장), E = mergeE(E1, E2)(둘 다 탈락이면 null → 대체 경로).
 // 순서·인자는 패키지 fixtures/runCase.mjs와 같다.
-export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lean, C, sa, E, locale }: {
-  name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; sa: any | null; E: any | null; locale?: Locale;
+export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lean, C, sa, E, locale, now }: {
+  name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; sa: any | null; E: any | null; locale?: Locale; now?: Date;
 }): any[] {
   const { data } = bd(locale);
   const base = buildPages({
@@ -113,7 +154,8 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
   const pages = buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
   // 3쪽·5쪽 "카드 내용을 종합하면" 한 문장은 한국어 활용형을 바꾸는 코드라 영문판에는 쓰지 않는다.
   const gisted = locale === "en" ? pages : applyCardGist(pages, lean, summaryTitle(locale), { hideSummary: false });
-  return reorderSecret(gisted, { paid: true, name, cls, frame, lean, picks, locale });
+  const af = answerFirstFor({ frame, lean, picks, now: now ?? new Date(), locale });
+  return reorderSecret(withAnswerFirst(gisted, af, frame), { paid: true, name, cls, frame, lean, picks, locale });
 }
 
 // 결과 쪽 순서 바꾸기 + 세 번째 카드 시크릿(owner 2026-11-02) — lib/tarot-glue/secretThird.ts
@@ -126,7 +168,12 @@ export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, pick
     copy: CR.secret3 as SecretCopy,
     frameTitle: String(CR.v4?.frame_title ?? "**이번 고민에서 끝까지 함께 볼 것**"),
     teaser5: (CR.pages as { key: string; teaser?: string }[]).find((x) => x.key === "story")?.teaser ?? null,
-    mid: midDb as unknown as MidDb, domain: cls?.domain ?? null,
+    mid: midDb as unknown as MidDb,
+    // v4.3: 중간 결과 묶음은 세부 영역·연애 단계로(v43.midAreaKey — 취업·시험·솔로·짝사랑/썸·이별 뒤)
+    domain: locale === "en" ? cls?.domain ?? null : midAreaKey(frame, cls, midDb),
+    // v4.3: '답은 아직…' 문단 뒤 듣고 싶은 답에 맞춘 예고(v43.teaserLine). 영문판은 문구가 없어 빼둔다.
+    teaser: locale === "en" || !CR.v43 ? null : teaserLine({ frame, lean, name, data }),
+    areaPhrase: locale === "en" ? null : (frame?.area && CR.v43?.area_phrases?.[frame.area]) || null,
   });
 }
 const summaryTitle = (locale?: Locale) => String((bd(locale).data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");
@@ -149,7 +196,9 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
   // 내용(해석 문장)은 여전히 고정 예시라 이 사람의 결제 본문은 보내지 않는다.
   // 세 번째 카드 이름은 결제 전에는 보내지 않는다(owner 2026-11-02 시크릿) — 예시 속 세 번째 카드 자리는 "세 번째 카드"로.
   const names = picks.map((p, i) => (i === 2 ? (locale === "en" ? "the third card" : "세 번째 카드") : String(p.card?.name ?? "")));
-  const locked5 = String((data.copy.result as any).blur_samples?.locked5 ?? "");
+  // v2.3.2부터 locked5는 {note, text}(가상 인물·카드 이름 없음). 예전 문자열 형식도 받는다.
+  const l5 = (data.copy.result as any).blur_samples?.locked5;
+  const locked5 = String((l5 && typeof l5 === "object" ? l5.text : l5) ?? "");
   const personalized = withTeaser.map((p) =>
     p.page === 5 ? { ...p, blur: personalizeBlur(locked5, name, names, locale) || null } : p.blur ? { ...p, blur: personalizeBlur(String(p.blur), name, names, locale) } : p,
   );
@@ -186,7 +235,7 @@ export function paceTeaser(pace: "near" | "step" | "slow", locale?: Locale): str
 // combo·map(점수·읽기 지도 — 결론을 짐작할 수 있음)은 빼고, 6~10쪽은 본문 없이 제목·예고·고정 예시(blur)만.
 // 블러는 CSS로 가리는 게 아니라 데이터가 없는 상태여야 한다(스펙 11장 5번).
 // fineprint = v4.1 watch(주의) 안내 한 줄 — 마지막 쪽 맨 아래 작은 글씨, 결제 전에도 보인다(README_v4).
-const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back", "intro", "secret"] as const;
+const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back", "intro", "secret", "note"] as const;
 // 고민 틀의 선택지에는 원문에 없던 쪽이라는 표시 "(암시)"가 붙는데, AI가 그 이름을 그대로 옮겨 쓰면 본문에
 // "소송을 하지 않는 것 (암시)보다"처럼 보인다(owner 2026-10-22 실제 결제 리포트). 화면으로 보내는 글에서만 뗀다.
 const IMPLIED = /\s*\((?:암시|implied)\)/g;

@@ -1,5 +1,26 @@
 # 쏠 타로 v4.1 코드 — 개발자용
 
+> **v2.3.4:** 시기 `{when}` = `whenMonths(bucket, timing_rule, now)` — 본 날(Asia/Seoul)의 달 + early 1~2 / mid 3~4 / late 5~6 / beyond 6달, 해가 바뀌면 처음 한 번만 "내년". `buildPagesV43({..., now})`·`answerFirst({..., now})`, 결과 `timing.when`. 처음 본 시각을 저장해 재열람에도 같은 달.
+>
+> **v2.3.3 (2026-11-05, CSO 결정):** 돈 고민(`frame.money` 또는 area FORT)이면 7쪽 답 먼저 바로 아래 `※ answer_first_db.money_note.text` · `secret3.intro` 끝 문장 변경 · `timing_rule.labels`를 개월 수로(초반·중반·후반 안 씀) · validateV4 시점 검사에 'N개월' 추가.
+>
+> **v2.3.2 (2026-11-05, 개발 현행 쪽 구성) — 가장 먼저 읽기.** 패키지 번호를 개발 기준 2 계열로 바꿈(바로 앞 = v4.3.1). 파일 이름(`pagesV4.js`, `v43.js` 등)은 import가 깨지지 않게 그대로 둠.
+> - `copy.result.pages` = 현행 10쪽 순서·무료(1~3)/유료(4~10). 옛 buildPages는 key로 제목을 찾으므로 그대로 돌아감(3쪽 제목의 `{name}`은 buildPages가 채움).
+> - `copy.result.secret3` = 3·4쪽 고정 문구(개발 `lib/tarot-glue/secretThird.ts`와 같은 키, `_source`에 원문/제안/초안). `buildPagesV43`가 secret3를 읽음: 3쪽 `end_key` same/split/general(첫 두 카드 `lean.cards[i].option` 비교), `change_leads`는 이름+카드 번호 해시로 하나 고름, 세 번째 카드 `alt` = `hidden_alt`. 4쪽 `p4_options`/`p4_question`/`p4_general`, 버튼 `p4_cta`.
+> - 결제 전 5쪽 `blur` = `blur_samples.locked5.text`. 7·8쪽 제목은 데이터에서.
+
+> **v4.3 (2026-11-05, 실제 고민 975건 · 결제 49건 분석) — 먼저 읽기**
+> - **결과 순서(10쪽):** 1 첫 번째 카드(맨 위 안내 문단) · 2 두 번째 카드 · 3 두 장 중간 결과(무료, 세 번째 카드는 뒷면 + 예고) · 4 세 번째 카드(결제 전 뒷면·잠금, 결제하면 그 자리에서 뒤집힘 `flip_on_open`) · 5~10 그대로. 5쪽은 결제 전 무료 부분 없음. 진입점 `v43.buildPagesV43(args)`(buildPagesV4 인자 + `midDb`, `answerDb`, `cls`, `picks`).
+> - **고민 틀 A2 v4.7:** 새 칸 want·love_status·stage·control·area(`08_판별DB/A2_고민틀_프롬프트_v4.7.txt`). `normalizeFrameV43(frame, cls)`로 검사 → `applyForecastOptions(frame, tables)`(예측 질문 + 선택지 미기재면 '될 흐름/어려운 흐름') → `lean()`.
+> - **3쪽:** `midParagraph` — `02_데이터/mid_result_db.json` v2(영역 7 + 취업 JOB·시험 EDU + 연애 단계 LOV_SINGLE·LOV_CRUSH·LOV_EX, 각 44) + 합 문장 191. 예고 `teaserLine` — want·점수표·연애 단계별 틀(`copy.result.v43.teasers`), 원문 질문·기한을 넣음.
+> - **7쪽 맨 위 답 먼저:** `answerFirst` — `02_데이터/answer_first_db.json`(예측 60 · 시기 20 · 상대 마음 132). 조건 문장은 붙이지 않음(CSO: 조건은 결과 하단에 따로). 시기 규칙은 `timing_rule`(+쪽 강도 strong→초반·clear→중반·slight→후반, −쪽→6개월 이후) — 데이터에서 바꿀 수 있음.
+> - **입력창 A/B:** `copy.worry.placeholder_ab`(A 지금 / B 자세한 예시 + 안내 한 줄), 배정 `variantOf(id)`.
+> - **측정:** `eventFields(...)` — 결제 기록에 글자 수·want·연애 단계·예고 종류·답 먼저 종류·A/B를 함께 남김(고민 원문 제외). 항목 설명은 `EVENTS_v43.md`.
+> - **판별 DB:** 실제 고민 정답 `08_판별DB/data/frame_gold_v2.jsonl`(합성 490 + 실제 963, 위기 글 제외)로 색인을 바꿔요. 근거 `08_판별DB/eval/real_v43_eval.txt`(`node run_eval_real.mjs`).
+> - 예시: `01_설계/example-reports/v43-예시1.md`(썸 끊김·상대 마음), `v43-예시2.md`(올해 안 취업). `node demo_v43.mjs`.
+> - **v4.3.1:** `teaserLine` — their_mind 예고는 관계 표(approach·reunion·continue·progress)에서만, 아니면 yesno 쪽으로. start 표는 stage에 따라 `yesno_result_waiting`/`yesno_result_after_fail`, want how·comfort·why, 재물(FORT)은 `fortune`. `answerFirst` — lean이 없으면 `forecast_general`(셋째 카드 `forceOf` up·flat·down, 시기는 `timing_bucket`), start 표는 `forecast_by_area.start[frame.area]` 먼저. `buildPagesV43` — 7쪽에 예측 답이 들어가면 첫 8줄 안의 `**세 장은 … 쪽이에요.**` 줄과 바로 다음 '◦ ' 줄을 뺌. 4쪽 잠금 `next` = `copy.result.v43.card3_cta`. E2 프롬프트에 예측 모드 안내 추가. 테스트 82개 통과.
+
+
 > **v4.2 (2026-10-23, CSO 유료 ①~⑧) — 먼저 읽기**
 > - 결과는 **10쪽**: 1 세 장 · 2~4 카드 · 5 세 장이 함께 · 6 내 고민에 대어 보면 · 7 해결의 흐름 · **8 처방 · 9 이번 주 실천 · 10 쏘웰라**. 옛 8쪽(앞으로 이렇게 바뀔 거예요)은 뺌. `copy.result.pages`·`blur_samples`도 10쪽 번호. 아래 본문의 '11쪽'·'9·10쪽'은 v4.1 기준 설명이니 한 칸씩 당겨 읽기.
 > - **E 호출을 둘로**: E1(7쪽 direction{head, lean, flow{head, body}, body, if_then, decide_by, plan}) + E2(8쪽 rx 2 + 9쪽 practices.three·week). 결제 직후 D·E1·E2를 동시에. 검증 `parseE(raw, {lean, frame, part:"E1"|"E2", worryText})` → `mergeE(E1, E2)` → `buildPagesV4({E})`. 옛 한 번 호출 E도 `part:"all"`로 계속 받음(change는 무시).

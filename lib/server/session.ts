@@ -17,7 +17,7 @@ function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"],
 }
 import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
-import { decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
+import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { parseE, mergeE, overlapWarnings, actionsOf } from "@/lib/tarot/validateV4.js";
@@ -86,6 +86,8 @@ export class TarotError extends Error {
 
 const hashKey = (key: string) => createHash("sha256").update(key).digest("hex");
 const db = () => createAdminClient();
+// v2.3.4: 7쪽 시기 답은 '테스트를 본 날'의 달에서 센다. 다시 열어도 같은 달이 나오게 세션을 만든 시각을 쓴다(새 칸 없음).
+const viewedAt = (s: { created_at?: string }) => (s.created_at ? new Date(s.created_at) : new Date());
 const localeOf = (s: { locale?: string | null }): Locale => toLocale(s.locale);
 const B = (s: { locale?: string | null }) => bundleFor(localeOf(s));
 /** 언어별 서버 키워드 확인 — 영어는 정규식 사전·제외 목록(lib/tarot-glue/screenWorryEn.ts). */
@@ -415,12 +417,13 @@ export async function prepareResult(sessionId: string) {
   if (s.worry_text && aiConfigured()) {
     const locale = localeOf(s);
     const picks = expandPicks(s.picks, locale);
-    const { decision, lean, review_log, lowered } = decide({ frame: s.frame ?? null, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
+    const frame = prepareFrame(s.frame ?? null, cls, locale);
+    const { decision, lean, review_log, lowered } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
     if (review_log) await saveFrameReview(s, review_log, lowered);
-    const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame: s.frame ?? null, lean, locale });
+    const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, locale });
     // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7). 무료 결과에는 검수를 하지 않는다(owner 2026-10-21 비용 — 검수는 유료 1번만).
     const deadline = Date.now() + 12000;
-    const parse = (raw: string) => parseC(raw, { decision, strength: lean?.strength ?? null, frame: s.frame ?? null, lean, violence: s.violence || classificationLost });
+    const parse = (raw: string) => parseC(raw, { decision, strength: lean?.strength ?? null, frame, lean, violence: s.violence || classificationLost });
     let best: ReturnType<typeof parse> | null = null;
     for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
@@ -503,12 +506,12 @@ export async function getResult(s: SessionRow) {
   const picks = expandPicks(s.picks, locale);
   const cls = classificationForReport(s.classification);
   const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
-  const frame = s.frame ?? null;
+  const frame = prepareFrame(s.frame ?? null, cls, locale);
   // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
   const { lean, decision } = decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null, locale });
   if (paid) {
     const rep = (s.report ?? null) as { sa?: unknown; E?: unknown } | null;
-    const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null, locale });
+    const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null, locale, now: viewedAt(s) });
     return {
       status: "ready" as const,
       nickname: s.nickname,
@@ -669,12 +672,12 @@ export async function generateReport(sessionId: string) {
       const locale = localeOf(s);
       const P = promptsFor(locale);
       const picks = expandPicks(s.picks, locale);
-      const frame = s.frame ?? null;
+      const frame = prepareFrame(s.frame ?? null, cls, locale);
       const { lean } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
       // 분류가 실패했으면 폭력 여부를 모르므로 더 조심스러운 쪽(violence=true)으로(스펙 6장 fail safe)
       const violence = s.violence || s.classification_status === "failed";
       const safety = { level: s.safety_level, violence, fear: Boolean(s.fear) };
-      const args = { name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, locale };
+      const args = { name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, locale, now: viewedAt(s) };
       const dBlock = buildDUserBlock({ ...args, safety });
       const e1Block = buildE1UserBlock(args);
       const e2Block = buildE2UserBlock(args);
