@@ -11,6 +11,8 @@ import {
   HOW,
   HOW_TITLE,
   INTRO,
+  SOWELLA_CTA,
+  SOWELLA_URL,
   MAKERS,
   MAKERS_TITLE,
   aboutDescription,
@@ -120,6 +122,10 @@ export default function AboutPage() {
       </div>
 
       <CtaButton />
+      {/* 맨 아래 쏘웰라 연결(owner 2026-11-05) — 보조 버튼 모양 */}
+      <a href={SOWELLA_URL} className="btn-night-ghost mt-3 block w-full rounded-full py-4 text-center text-[16px] font-bold">
+        {SOWELLA_CTA}
+      </a>
       <p className="mt-5 break-keep text-center text-[12px] leading-5 text-moon/70">{DISCLAIMER}</p>
       <div className="mt-6">
         <SiteFooter />

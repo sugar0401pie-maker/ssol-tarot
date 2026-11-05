@@ -21,3 +21,13 @@ test("가격은 넘겨준 값으로 바뀐다(할인 종료 대비)", () => {
   assert.ok(aboutDescription("1,900원").includes("전체 리포트(1,900원)"));
   assert.ok(faqGroups("1,900원")[0].items.find((f) => f.q === "어떻게 이용하나요?")!.a.includes("1,900원이에요"));
 });
+
+test("v2.1 정정 반영(112·메이저 카드·개인정보·환불 FAQ)", () => {
+  const t = all();
+  assert.ok(t.includes("112·119"));
+  assert.ok(t.includes("타로 메이저 카드 22장"));
+  assert.ok(!t.includes("대어 본 해석"));
+  const qs = faqGroups("990원").flatMap((g) => g.items.map((f) => f.q));
+  assert.ok(qs.includes("내가 쓴 고민은 어떻게 쓰이나요?") && qs.includes("환불이 되나요?"));
+});
+
