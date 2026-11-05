@@ -28,6 +28,8 @@ export async function generateText(
         { role: "user", content: user },
       ],
       max_output_tokens: maxOutputTokens,
+      // OpenAI 서버에 응답 기록을 남기지 않는다(owner 2026-11-05). 이전 응답을 이어 쓰는 기능(previous_response_id)은 쓰지 않아 영향 없음.
+      store: false,
       ...(effort ? { reasoning: { effort } } : {}),
     });
   let response;

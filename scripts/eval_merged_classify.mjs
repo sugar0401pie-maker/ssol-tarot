@@ -30,7 +30,7 @@ if (!process.env.OPENAI_API_KEY) { console.error("OPENAI_API_KEY가 필요해요
 const ai = new OpenAI({ timeout: 60000, maxRetries: 1 });
 let tokens = { sep: 0, merged: 0 };
 async function call(system, user, max, bucket) {
-  const r = await ai.responses.create({ model: MODEL, input: [{ role: "system", content: system }, { role: "user", content: user }], max_output_tokens: max });
+  const r = await ai.responses.create({ model: MODEL, input: [{ role: "system", content: system }, { role: "user", content: user }], max_output_tokens: max, store: false });
   tokens[bucket] += (r.usage?.input_tokens ?? 0) + (r.usage?.output_tokens ?? 0);
   return r.output_text?.trim() ?? "";
 }
