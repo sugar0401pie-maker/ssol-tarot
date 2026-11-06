@@ -4,10 +4,15 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Stars } from "../Cards";
+import { CHECKOUT_EN } from "@/lib/i18n/checkoutEn";
+
+const KO = { cancelTitle: "결제를 멈췄어요", failTitle: "결제가 완료되지 않았어요", cancelBody: "지금까지 본 결과는 그대로 남아 있어요.", failBody: "결제 금액은 청구되지 않았어요. 다시 시도하실 수 있어요.", tryAgain: "다시 결제하기", backToReading: "결과로 돌아가기" };
 
 const CANCEL_CODES = new Set(["PAY_PROCESS_CANCELED", "USER_CANCEL"]);
 
-export default function CheckoutFail() {
+export default function CheckoutFail({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const T = locale === "en" ? CHECKOUT_EN : KO;
+  const P = locale === "en" ? "/en" : "";
   const params = useSearchParams();
   const id = params.get("id");
   const page = Math.min(11, Math.max(1, Number.parseInt(params.get("page") ?? "5", 10) || 5));
@@ -17,15 +22,15 @@ export default function CheckoutFail() {
     <main className="night-bg relative flex min-h-dvh flex-col justify-center overflow-x-hidden px-6">
       <Stars />
       <div className="auth relative z-[1] mx-auto flex w-full max-w-md flex-col gap-4">
-        <h1 className="big">{cancel ? "결제를 멈췄어요" : "결제가 완료되지 않았어요"}</h1>
-        <p className="small">{cancel ? "지금까지 본 결과는 그대로 남아 있어요." : "결제 금액은 청구되지 않았어요. 다시 시도하실 수 있어요."}</p>
+        <h1 className="big">{cancel ? T.cancelTitle : T.failTitle}</h1>
+        <p className="small">{cancel ? T.cancelBody : T.failBody}</p>
         {valid && (
-          <Link href={`/checkout/${id}?page=${page}`} className={cancel ? "linkish text-center" : "btn block"}>
-            다시 결제하기
+          <Link href={`${P}/checkout/${id}?page=${page}`} className={cancel ? "linkish text-center" : "btn block"}>
+            {T.tryAgain}
           </Link>
         )}
-        <Link href={valid ? `/result/${id}/${page}` : "/results"} className={cancel ? "btn block" : "linkish text-center"}>
-          결과로 돌아가기
+        <Link href={valid ? `${P}/result/${id}/${page}` : locale === "en" ? "/en" : "/results"} className={cancel ? "btn block" : "linkish text-center"}>
+          {T.backToReading}
         </Link>
       </div>
     </main>

@@ -4,6 +4,7 @@ import { bundleFor } from "@/lib/i18n/bundle";
 import { toLocale, type Locale } from "@/lib/i18n/locale";
 import { screenTextEn } from "@/lib/tarot-glue/screenWorryEn";
 import { CONSENT_EN, CONSENT_EN_VERSION } from "@/lib/i18n/consentEn";
+import { CHECKOUT_EN_VERSION } from "@/lib/i18n/checkoutEn";
 import { createShuffle, pickSlot } from "@/lib/tarot/deck.js";
 import { mergeSafety } from "@/lib/tarot/safety.js";
 import { screenWorry } from "@/lib/tarot-glue/screenWorry";
@@ -21,7 +22,7 @@ import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBloc
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { mergeE } from "@/lib/tarot/validateV4.js";
-import { REPORT_ORDER_NAME, currentReportPrice, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
+import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currentReportPrice, reportPriceFor, toMajor, toMinor, usdCheckoutEnabled, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
 import { hasCompAccess } from "@/lib/billing/compAccess";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
@@ -554,7 +555,8 @@ export async function claim(s: SessionRow, userId: string | null) {
 // ① 금액은 서버가 정한다(currentReportPrice — 할인 기간(10/26~11/30) 990원, 그 밖 1,900원. 주문 행에 고정 저장해 결제 도중 날짜가 바뀌어도 그 주문 금액은 그대로) ② 토스가 돌려준 값은 믿지 않고 시크릿 키로 승인 확인(confirm)한 뒤에만 결제 완료
 // ③ 돈이 나갔을 수 있으면 절대 '취소'로 바꾸지 않는다(decideAfterConfirmFailure) ④ 같은 결과를 두 번 결제하면 두 번째를 토스에서 취소.
 
-type OrderRow = { id: string; user_id: string; session_id: string; amount: number; status: "pending" | "paid" | "canceled"; payment_key: string | null };
+// amount: 원화는 원, 달러는 센트(정수 칸). currency 칸은 영문 결제 마이그레이션(20261106000000) 전에는 없다 → 원화로 본다.
+type OrderRow = { id: string; user_id: string; session_id: string; amount: number; currency?: "KRW" | "USD" | null; status: "pending" | "paid" | "canceled"; payment_key: string | null };
 const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 뒤 이 화면을 새로고침해 주세요. 계속되면 contact@ssolwellness.com으로 알려 주세요.";
 
 export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null }: { email?: string | null } = {}) {
@@ -572,17 +574,19 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
     console.info("타로 무료 열람 권한으로 리포트 열림:", s.id);
     return { comp: true as const, sessionId: s.id };
   }
-  const amount = currentReportPrice();
-  const { data: row, error } = await db()
-    .from("tarot_orders")
-    .insert({ user_id: userId, session_id: s.id, amount, withdrawal_version: WITHDRAWAL_NOTICE_VERSION })
-    .select("id")
-    .single();
+  // 영문 결과는 US$1.99(할인 없음, owner 2026-11-05) — 토스 해외 결제를 켜고 확인하기 전에는 주문을 만들지 않는다.
+  const en = localeOf(s) === "en";
+  if (en && !usdCheckoutEnabled()) throw new TarotError(503, "영문 결제는 아직 준비 중이에요.");
+  const price = en ? reportPriceFor("en") : { currency: "KRW" as const, amount: currentReportPrice() };
+  const insert: Record<string, unknown> = { user_id: userId, session_id: s.id, amount: toMinor(price.currency, price.amount), withdrawal_version: en ? CHECKOUT_EN_VERSION : WITHDRAWAL_NOTICE_VERSION };
+  if (price.currency === "USD") insert.currency = "USD"; // 원화 주문은 기본값(KRW) — 마이그레이션 전에도 한국어 결제는 그대로 동작
+  const { data: row, error } = await db().from("tarot_orders").insert(insert).select("id").single();
+  const amount = price.amount;
   if (error || !row) {
     console.error("tarot_orders 생성 실패:", error?.message);
     throw new TarotError(500, "주문을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
   }
-  return { orderId: row.id as string, orderName: REPORT_ORDER_NAME, amount, customerKey: userId };
+  return { orderId: row.id as string, orderName: en ? REPORT_ORDER_NAME_EN : REPORT_ORDER_NAME, amount, currency: price.currency, customerKey: userId };
 }
 
 async function settleOrder(orderId: string, status: "canceled") {
@@ -604,14 +608,18 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   if (!userId) throw new TarotError(401, "로그인이 필요해요.");
   const paymentKey = typeof body.paymentKey === "string" ? body.paymentKey : "";
   const orderId = typeof body.orderId === "string" ? body.orderId : "";
-  const amount = Number(body.amount);
+  let amount = Number(body.amount);
   if (!paymentKey || !/^[0-9a-f-]{36}$/i.test(orderId) || !Number.isFinite(amount)) throw new TarotError(400, "결제 정보가 올바르지 않아요.");
 
-  const { data: o } = await db().from("tarot_orders").select("id, user_id, session_id, amount, status, payment_key").eq("id", orderId).maybeSingle();
+  // select("*"): currency 칸이 아직 없는 DB(마이그레이션 전)에서도 한국어 주문 조회가 깨지지 않게
+  const { data: o } = await db().from("tarot_orders").select("*").eq("id", orderId).maybeSingle();
   const order = o as OrderRow | null;
   if (!order || order.user_id !== userId) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
   if (order.status === "paid") return { ok: true, sessionId: order.session_id, generate: false }; // 새로고침 등으로 다시 온 경우
-  if (order.amount !== amount) throw new TarotError(400, "결제 금액이 일치하지 않아요.");
+  const currency = order.currency === "USD" ? "USD" : "KRW";
+  // 토스가 돌려준 금액(달러면 1.99)을 센트로 바꿔 주문 금액(정수)과 비교한다
+  if (toMinor(currency, amount) !== order.amount) throw new TarotError(400, "결제 금액이 일치하지 않아요.");
+  amount = toMajor(currency, order.amount);
 
   let method: string | null = null;
   if (order.status === "pending") {

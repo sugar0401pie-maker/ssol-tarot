@@ -6,10 +6,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/client/api";
 import { Stars } from "../Cards";
+import { CHECKOUT_EN } from "@/lib/i18n/checkoutEn";
+
+const KO = { missingInfo: "결제 정보를 확인하지 못했어요.", confirmFailed: "결제를 확인하지 못했어요.", backToReading: "결과로 돌아가기", checkAgain: "결제 다시 확인하기", stuck: "이미 결제가 됐는데 이 화면이 보이면, 결제한 기기·브라우저에서 다시 열어 보시거나 contact@ssolwellness.com으로 알려 주세요.", confirming: "결제를 확인하고 있어요…" };
 
 const clampPage = (v: string | null) => Math.min(11, Math.max(1, Number.parseInt(v ?? "5", 10) || 5));
 
-export default function CheckoutSuccess() {
+export default function CheckoutSuccess({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const T = locale === "en" ? CHECKOUT_EN : KO;
+  const P = locale === "en" ? "/en" : "";
   const params = useSearchParams();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -25,17 +30,18 @@ export default function CheckoutSuccess() {
     const amount = params.get("amount");
     const page = clampPage(params.get("page"));
     if (!paymentKey || !orderId || !amount) {
-      queueMicrotask(() => setError("결제 정보를 확인하지 못했어요."));
+      queueMicrotask(() => setError(T.missingInfo));
       return;
     }
     api<{ ok: boolean; sessionId: string }>("/api/tarot/checkout/confirm", { body: { paymentKey, orderId, amount: Number(amount) } })
       // opened=1: 결과 화면에서 세 번째 카드를 그 자리에서 뒤집어 보여 준다(owner 2026-11-02)
-      .then((d) => router.replace(`/result/${d.sessionId}/${page}?opened=1`))
+      .then((d) => router.replace(`${P}/result/${d.sessionId}/${page}?opened=1`))
       .catch((e) => {
-        setError(e instanceof ApiError ? e.message : "결제를 확인하지 못했어요.");
-        if (e instanceof ApiError && e.status === 409 && e.sessionId) setGoResult(`/result/${e.sessionId}/${page}`);
+        setError(e instanceof ApiError ? e.message : T.confirmFailed);
+        if (e instanceof ApiError && e.status === 409 && e.sessionId) setGoResult(`${P}/result/${e.sessionId}/${page}`);
         setCanRetry(e instanceof ApiError && e.status === 503);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 한 번만 확인(문구·주소 접두는 언어별 고정)
   }, [params, router]);
 
   return (
@@ -49,18 +55,18 @@ export default function CheckoutSuccess() {
             </p>
             {goResult && (
               <button type="button" className="btn block" onClick={() => router.replace(goResult)}>
-                결과로 돌아가기
+                {T.backToReading}
               </button>
             )}
             {canRetry && (
               <button type="button" className="btn block" onClick={() => window.location.reload()}>
-                결제 다시 확인하기
+                {T.checkAgain}
               </button>
             )}
-            <p className="small break-keep">이미 결제가 됐는데 이 화면이 보이면, 결제한 기기·브라우저에서 다시 열어 보시거나 contact@ssolwellness.com으로 알려 주세요.</p>
+            <p className="small break-keep">{T.stuck}</p>
           </>
         ) : (
-          <p className="small mystic-line">결제를 확인하고 있어요…</p>
+          <p className="small mystic-line">{T.confirming}</p>
         )}
       </div>
     </main>

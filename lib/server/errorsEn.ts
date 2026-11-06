@@ -21,6 +21,7 @@ const MAP: Record<string, string> = {
   "이용 관련 약관에 동의해 주세요.": "Please agree to the terms to continue.",
   "잠시 후 다시 시도해 주세요.": GENERIC_EN,
   "주문 정보를 찾을 수 없어요.": "We couldn't find this order.",
+  "영문 결제는 아직 준비 중이에요.": "Payment isn't available yet. We're getting it ready.",
   "주문을 만들지 못했어요. 잠시 후 다시 시도해 주세요.": "We couldn't create your order. Please try again in a moment.",
   "카드를 다시 섞어 주세요.": "Please shuffle the cards again.",
   "카드를 고를 수 없어요.": "That card can't be picked.",

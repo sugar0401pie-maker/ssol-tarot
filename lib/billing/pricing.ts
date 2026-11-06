@@ -14,6 +14,12 @@ export const won = (n: number): string => `${n.toLocaleString("ko-KR")}원`;
 // 영문판(owner 2026-11-05): US$1.99, 할인 없음. 토스 해외 결제(Visa·Mastercard·JCB·PayPal)로 받는다.
 export const REPORT_PRICE_USD = 1.99;
 export const usd = (n: number): string => `US$${n.toFixed(2)}`;
+export const REPORT_ORDER_NAME_EN = "Ssol Tarot House Full Reading";
+// 주문 표(tarot_orders.amount)는 정수 칸이라 달러는 센트로 저장한다(1.99달러 = 199). 토스 승인·조회에는 달러 금액(1.99)을 쓴다.
+export const toMinor = (currency: "KRW" | "USD", major: number): number => (currency === "USD" ? Math.round(major * 100) : major);
+export const toMajor = (currency: "KRW" | "USD", minor: number): number => (currency === "USD" ? minor / 100 : minor);
+// 영문 결제는 owner가 토스 해외 결제를 켜고 확인한 뒤에만 연다(TAROT_USD_CHECKOUT=1). 그 전에는 주문을 만들지 않는다.
+export const usdCheckoutEnabled = (env: Record<string, string | undefined> = process.env): boolean => env.TAROT_USD_CHECKOUT === "1";
 export type ReportPrice = { currency: "KRW" | "USD"; amount: number; label: string };
 export function reportPriceFor(locale: "ko" | "en", now: Date = new Date()): ReportPrice {
   if (locale === "en") return { currency: "USD", amount: REPORT_PRICE_USD, label: usd(REPORT_PRICE_USD) };
