@@ -1,37 +1,27 @@
-// 영문판 위기·폭력 안내 연락처(2026-11-05 개발 초안 — **출시 전 기획·임상 전문가가 번호를 확인해야 함**).
+// 영문판 위기·폭력 안내 연락처 — 기획 전달 data/en/safety_resources.json(v1.2.3, 2026-11-03 웹 검색으로 번호 확인, 6개월마다 재확인)
 // 영어 데이터 문구의 자리 표시({crisis_line}·{crisis_text}·{emergency}·{dv_line}·{youth_line})를 접속 국가로 채운다.
-// 국가를 모르거나 표에 없으면 국제 안내(findahelpline.com — 나라별 무료 상담 전화 목록)와 "지역 응급 번호"로 —
-// 번호가 빠져 아무것도 안 보이는 일이 없게(fail safe).
+// 규칙(파일 _fallback_rule): 표에 없는 나라·국가를 모르면 GLOBAL(findahelpline.com) — 다른 나라 번호는 절대 보여 주지 않는다.
+// 출시 전 영어권 임상 전문가 검토 필요(docs/spec/en/safety/SAFETY_EN_NOTES.md).
+import res from "../../data/en/safety_resources.json" with { type: "json" };
+
 export type Helplines = { crisis_line: string; crisis_text: string; emergency: string; dv_line: string; youth_line: string };
+type Market = Partial<Helplines> & Record<string, unknown>;
+const MARKETS = (res as { markets: Record<string, Market> }).markets;
+// 접속 국가 코드(ISO, Vercel 헤더) → 파일의 시장 이름
+const ALIAS: Record<string, string> = { GB: "UK", UK: "UK", US: "US", CA: "CA", AU: "AU" };
 
-const INTL: Helplines = {
-  crisis_line: "a free helpline listed at findahelpline.com",
-  crisis_text: "a text or chat line at findahelpline.com",
-  emergency: "your local emergency number",
-  dv_line: "a local domestic abuse helpline (findahelpline.com)",
-  youth_line: "a youth line at findahelpline.com",
-};
-
-const BY_COUNTRY: Record<string, Partial<Helplines>> = {
-  US: { crisis_line: "988 (Suicide & Crisis Lifeline, call or text)", crisis_text: "text 988", emergency: "911", dv_line: "the National Domestic Violence Hotline, 1-800-799-7233", youth_line: "988" },
-  CA: { crisis_line: "988 (call or text)", crisis_text: "text 988", emergency: "911", dv_line: "a local shelter or 911", youth_line: "Kids Help Phone, 1-800-668-6868 (text 686868)" },
-  GB: { crisis_line: "Samaritans, 116 123", crisis_text: "text SHOUT to 85258", emergency: "999", dv_line: "the National Domestic Abuse Helpline, 0808 2000 247", youth_line: "Childline, 0800 1111" },
-  IE: { crisis_line: "Samaritans, 116 123", crisis_text: "text HELLO to 50808", emergency: "112 or 999", dv_line: "Women's Aid, 1800 341 900", youth_line: "Childline, 1800 66 66 66" },
-  AU: { crisis_line: "Lifeline, 13 11 14", crisis_text: "text Lifeline on 0477 13 11 14", emergency: "000", dv_line: "1800RESPECT, 1800 737 732", youth_line: "Kids Helpline, 1800 55 1800" },
-  NZ: { crisis_line: "1737 (call or text)", crisis_text: "text 1737", emergency: "111", dv_line: "Women's Refuge, 0800 733 843", youth_line: "Youthline, 0800 376 633" },
-  IN: { crisis_line: "Tele-MANAS, 14416", crisis_text: "Tele-MANAS, 14416", emergency: "112", dv_line: "the Women Helpline, 181", youth_line: "Childline, 1098" },
-  SG: { crisis_line: "SOS, 1767", crisis_text: "SOS CareText via sos.org.sg", emergency: "995", dv_line: "the National Anti-Violence Helpline, 1800 777 0000", youth_line: "Tinkle Friend, 1800 274 4788" },
-  FR: { crisis_line: "3114", crisis_text: "3114", emergency: "112", dv_line: "3919", youth_line: "119" },
-  AE: { crisis_line: "800 4673 (800 HOPE)", crisis_text: "800 4673", emergency: "999", dv_line: "the Dubai Foundation for Women and Children, 800 111", youth_line: "800 4673" },
-  DE: { crisis_line: "TelefonSeelsorge, 0800 111 0 111", crisis_text: "online chat at telefonseelsorge.de", emergency: "112", dv_line: "Hilfetelefon, 116 016", youth_line: "Nummer gegen Kummer, 116 111" },
+const pick = (m: Market | undefined): Helplines => {
+  const g = MARKETS.GLOBAL;
+  const v = (k: keyof Helplines) => String((m && m[k]) || g[k] || "");
+  return { crisis_line: v("crisis_line"), crisis_text: v("crisis_text"), emergency: v("emergency"), dv_line: v("dv_line"), youth_line: v("youth_line") };
 };
 
 export function helplinesFor(country: string | null | undefined): Helplines {
-  const c = String(country || "").toUpperCase();
-  return { ...INTL, ...(BY_COUNTRY[c] ?? {}) };
+  const key = ALIAS[String(country || "").toUpperCase()];
+  return pick(key ? MARKETS[key] : undefined);
 }
 
-/** 문구 속 {crisis_line} 같은 자리를 채운다. 다른 자리({nickname} 등)는 그대로 둔다. */
+/** 문구 속 {crisis_line} 같은 자리를 채운다. 다른 자리({nickname} 등)는 그대로 둔다. 빈 값(GLOBAL의 crisis_text)이면 그 자리만 빈다. */
 export function fillHelplines(text: string, h: Helplines): string {
   return text.replace(/\{(crisis_line|crisis_text|emergency|dv_line|youth_line)\}/g, (_m, k: keyof Helplines) => h[k]);
 }

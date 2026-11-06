@@ -1,0 +1,32 @@
+{
+ "_note": "EN draft v0.1 (2026-11-03) of copy.safety (KO v4.2). Tokens are filled per market from safety_resources_en.json: {crisis_line} {crisis_text} {dv_line} {emergency} {youth_line}. Wording needs clinician review before launch. Hours (24/7 etc.) live in the resource strings, not in the copy, because they differ by market (e.g. AU Lifeline text is not 24/7).",
+ "safety": {
+  "urgent_title": "Right now, a real person's voice matters more than the cards",
+  "urgent_body": "What you wrote sounds really heavy. You don't have to carry this alone. There are people you can talk to right now.",
+  "urgent_contacts": [
+   {
+    "name": "Crisis line",
+    "number": "{crisis_line}",
+    "note": "free, confidential"
+   },
+   {
+    "name": "Text support",
+    "number": "{crisis_text}",
+    "note": "if talking feels hard"
+   },
+   {
+    "name": "Emergency",
+    "number": "{emergency}",
+    "note": "If you are in danger right now"
+   }
+  ],
+  "urgent_cta": "Find professional counseling at Ssol Wellness House",
+  "watch_box": "It sounds like things have felt really heavy lately. Along with your reading, here's a place you can lean on whenever you need it.",
+  "violence_box": "Being hit or threatened isn't something you should have to handle on your own. Please reach out to a counseling service or the police near you. You can get help through {dv_line}, and in an emergency, call {emergency} right away.",
+  "fear_box": "If you're scared of how the other person will react and it's hard to say what you want to say, feeling safe comes first, before anything else. When it's too much to handle alone, you can talk it through with {dv_line}.",
+  "watch_note": "When things feel this hard, you don't have to hold on alone. {crisis_line} is there to listen.",
+  "youth_note": "Under 18? You can also reach {youth_line}.",
+  "watch_note_where": "Small print (fineprint) at the very bottom of the last result page. Result and direction stay the same. Same rule as KO (CSO 2026-10-22)."
+ },
+ "_new_keys": "youth_note and crisis_text are EN additions (KO has no equivalent key). urgent_contacts is built from the market's resources; drop a row whose token is empty for that market."
+}

@@ -1,0 +1,74 @@
+{
+ "_note": "EN draft v0.1 (2026-11-03). Numbers checked by web search on 2026-11-03 (sources listed per market). verify:true = not confirmed this session or source conflict; check before launch. Re-check every number every 6 months. Market choice pending CSO decision.",
+ "markets": {
+  "US": {
+   "crisis_line": "988 Suicide & Crisis Lifeline: call or text 988",
+   "crisis_text": "Crisis Text Line: text HOME to 741741",
+   "dv_line": "National Domestic Violence Hotline: 1-800-799-7233 (or text START to 88788)",
+   "emergency": "911",
+   "youth_line": "988 (call or text, any age)",
+   "verify": false,
+   "verify_notes": "Crisis Text Line keyword: most sources say HOME; one source (UMN) lists HELLO. Any keyword reaches a counselor, but confirm the wording on crisistextline.org.",
+   "sources": [
+    "https://threatassessment.umn.edu/resources/national-crisis-and-support-hotlines",
+    "https://livewell.uw.edu/resource/crisis-text-line"
+   ]
+  },
+  "UK": {
+   "crisis_line": "Samaritans: call 116 123",
+   "crisis_text": "Shout: text SHOUT to 85258",
+   "dv_line": "National Domestic Abuse Helpline: 0808 2000 247",
+   "emergency": "999",
+   "youth_line": "Childline: 0800 1111",
+   "verify": false,
+   "verify_notes": "gov.uk page lists Shout 85258 in text but 85285 in one heading (typo on their side); 85258 is the number used by Shout. National Domestic Abuse Helpline covers England; Scotland/Wales/NI have separate lines.",
+   "sources": [
+    "https://www.gov.uk/cost-of-living/finding-things-difficult",
+    "https://hideaway.helpshift.com/hc/en/3-hotel-hideaway/faq/319-teen-helplines"
+   ]
+  },
+  "CA": {
+   "crisis_line": "988 Suicide Crisis Helpline: call or text 988",
+   "crisis_text": "988 (text)",
+   "dv_line": "find a shelter or helpline near you at sheltersafe.ca",
+   "emergency": "911",
+   "youth_line": "Kids Help Phone: 1-800-668-6868 (or text CONNECT to 686868)",
+   "verify": false,
+   "verify_notes": "Brief said 'Talk Suicide Canada 988'. Talk Suicide Canada was the earlier line; since Nov 2023 the national service is the '988 Suicide Crisis Helpline' (CBC). Use the 988 name. Canada has no single national DV phone line; ShelterSafe lists shelters by province. 911 is not available everywhere in Nunavut (ShelterSafe).",
+   "sources": [
+    "https://amp.cbc.ca/lite/story/1.7043603",
+    "https://sheltersafe.ca/about/",
+    "https://hideaway.helpshift.com/hc/en/3-hotel-hideaway/faq/319-teen-helplines"
+   ]
+  },
+  "AU": {
+   "crisis_line": "Lifeline: 13 11 14",
+   "crisis_text": "Lifeline: text 0477 131 114 (12pm to midnight)",
+   "dv_line": "1800RESPECT: 1800 737 732",
+   "emergency": "000",
+   "youth_line": "Kids Helpline: 1800 55 1800",
+   "verify": false,
+   "verify_notes": "Lifeline text is not 24/7 (12pm-midnight, local time not stated in source - confirm time zone on lifeline.org.au). Kids Helpline is for ages 5-25.",
+   "sources": [
+    "https://www.whiteribbon.org.au/helplines/",
+    "https://wollongong.nsw.gov.au/community/safety/child-safe-organisation/accordions/counselling-and-support-services"
+   ]
+  },
+  "GLOBAL": {
+   "crisis_line": "find a free helpline in your country at findahelpline.com",
+   "crisis_text": "",
+   "dv_line": "findahelpline.com (choose 'Abuse & domestic violence')",
+   "emergency": "your local emergency number",
+   "youth_line": "findahelpline.com",
+   "verify": false,
+   "sources": [
+    "https://findahelpline.com/",
+    "https://findahelpline.com/topics/abuse-domestic-violence"
+   ]
+  }
+ },
+ "emergency_sources": [
+  "https://learn.microsoft.com/en-NZ/microsoftteams/emergency-numbers-reference"
+ ],
+ "_fallback_rule": "Unknown or unsupported country -> GLOBAL. Never show another country's number."
+}

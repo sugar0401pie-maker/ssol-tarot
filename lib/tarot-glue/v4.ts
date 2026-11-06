@@ -6,10 +6,9 @@ import { secretThird, type SecretCopy } from "./secretThird.ts";
 import { bundleFor } from "../i18n/bundle.ts";
 import type { Locale } from "../i18n/locale.ts";
 import type { MidDb } from "./midResult.ts";
-import { pickTable, isDecisionFrame, lean as leanOf, type Lean } from "../tarot/decision.js";
+import { type Lean } from "../tarot/decision.js";
+import { pkg } from "./pkg.ts";
 import { afterFrame } from "../tarot/frameInput.js";
-import { buildPages, buildLinkUserBlock, buildStoryUserBlock, comboScore, readingSentence } from "../tarot/assembleReport.js";
-import { buildPagesV4, SUBHEADS, todayFromDb } from "../tarot/pagesV4.js";
 import { normalizeFrameV43, applyForecastOptions, midAreaKey, teaserLine, answerFirst } from "../tarot/v43.js";
 import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
@@ -64,9 +63,9 @@ export function decide({ frame, cls, picks, name, safety = null, vote = null, lo
   frame: Frame | null; cls: Cls | null; picks: ExpandedPick[]; name: string; safety?: Partial<Safety> | null; vote?: Vote; locale?: Locale;
 }): { decision: boolean; lean: Lean | null; review_log: Record<string, unknown> | null; lowered: boolean } {
   const { tables } = bd(locale);
-  const table = frame ? pickTable({ frame, cls, tables, safety }) : null;
-  const decision = Boolean(table && isDecisionFrame(frame));
-  let lean = decision && table ? leanOf({ picks, type: table, tables, name, frame }) : null;
+  const table = frame ? pkg(locale).decision.pickTable({ frame, cls, tables, safety }) : null;
+  const decision = Boolean(table && pkg(locale).decision.isDecisionFrame(frame));
+  let lean = decision && table ? pkg(locale).decision.lean({ picks, type: table, tables, name, frame }) : null;
   let review_log: Record<string, unknown> | null = null;
   let lowered = false;
   if (vote) {
@@ -84,7 +83,7 @@ export function buildCUserBlock({ name, worryText, cls, picks, frame, lean, loca
   name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null; locale?: Locale;
 }): string | null {
   const { data } = bd(locale);
-  const base = buildLinkUserBlock({ name, worryText, cls, picks, data });
+  const base = pkg(locale).assemble.buildLinkUserBlock({ name, worryText, cls, picks, data });
   if (!base) return null;
   return base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(leanInput(lean))}\n</user_data>`);
 }
@@ -111,7 +110,7 @@ export function buildDUserBlock({ name, worryText, cls, picks, frame, lean, safe
   name: string; worryText: string | null; cls: Cls | null; picks: ExpandedPick[]; frame: Frame | null; lean: Lean | null; safety: Safety; locale?: Locale;
 }): string | null {
   const { data } = bd(locale);
-  const base = buildStoryUserBlock({ name, worryText, cls, picks, data, safety });
+  const base = pkg(locale).assemble.buildStoryUserBlock({ name, worryText, cls, picks, data, safety });
   if (!base) return null;
   return withReasons(base.replace("</user_data>", `worry_frame=${JSON.stringify(frame ?? null)}\ndirection_lean=${JSON.stringify(leanInput(lean))}\n</user_data>`), lean);
 }
@@ -137,7 +136,7 @@ export function buildE2UserBlock(args: EArgs): string | null {
   const base = eBase(args);
   if (!base) return null;
   const key = args.picks[2];
-  const today = key ? todayFromDb(data, { no: key.card.no, reversed: Boolean(key.reversed) }, args.lean) : null;
+  const today = key ? pkg(args.locale).pages.todayFromDb(data, { no: key.card.no, reversed: Boolean(key.reversed) }, args.lean) : null;
   return today ? base.replace("</user_data>", `db_today=${JSON.stringify({ title: today.title, how: today.how })}\n</user_data>`) : base;
 }
 
@@ -147,11 +146,11 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
   name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; sa: any | null; E: any | null; locale?: Locale; now?: Date;
 }): any[] {
   const { data } = bd(locale);
-  const base = buildPages({
+  const base = pkg(locale).assemble.buildPages({
     name, cls, picks, data, links: C?.links ?? null, safety, worryText: worryText || "", paid: true,
     story: sa?.story ?? null, apply: sa?.apply ?? null, key: sa?.key ?? null, storyHead: sa?.storyHead ?? null, applyHead: sa?.applyHead ?? null,
   });
-  const pages = buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
+  const pages = pkg(locale).pages.buildPagesV4({ base, frame, lean, C, E: E ?? null, name, paid: true, data, safety });
   // 3쪽·5쪽 "카드 내용을 종합하면" 한 문장은 한국어 활용형을 바꾸는 코드라 영문판에는 쓰지 않는다.
   const gisted = locale === "en" ? pages : applyCardGist(pages, lean, summaryTitle(locale), { hideSummary: false });
   const af = answerFirstFor({ frame, lean, picks, now: now ?? new Date(), locale });
@@ -164,7 +163,7 @@ export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, pick
   const CR = data.copy.result as any;
   return secretThird(pages, {
     paid, name, frame: frame as any, lean: lean as any, picks,
-    reading: readingSentence({ name, cls, data }),
+    reading: pkg(locale).assemble.readingSentence({ name, cls, data }),
     copy: CR.secret3 as SecretCopy,
     frameTitle: String(CR.v4?.frame_title ?? "**이번 고민에서 끝까지 함께 볼 것**"),
     teaser5: (CR.pages as { key: string; teaser?: string }[]).find((x) => x.key === "story")?.teaser ?? null,
@@ -183,14 +182,14 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
   name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; locale?: Locale;
 }): any[] {
   const { data } = bd(locale);
-  const base = buildPages({ name, cls, picks, data, links: C?.links ?? null, safety, worryText: worryText || "", paid: false });
+  const base = pkg(locale).assemble.buildPages({ name, cls, picks, data, links: C?.links ?? null, safety, worryText: worryText || "", paid: false });
   // 5쪽 카드별 이유 목록은 결제 후에만(owner 2026-10-27) — 대신 첫 줄 뒤에 "카드 내용을 종합하면 …" 한 문장.
-  const v4pages = buildPagesV4({ base, frame, lean, C, E: null, name, paid: false, data, safety });
+  const v4pages = pkg(locale).pages.buildPagesV4({ base, frame, lean, C, E: null, name, paid: false, data, safety });
   // 5쪽 카드별 이유 목록은 결제 후에만 — 영문판도 목록은 숨기되, 한국어 활용형 한 문장(applyCardGist)은 쓰지 않는다.
   const pages = applyCardGist(v4pages, lean, summaryTitle(locale), { hideSummary: true, noGist: locale === "en" });
   // 7쪽(잠긴 쪽) 예고를 카드 결과의 풀리는 속도에 맞춰(owner 2026-10-21 "카드는 앞으로 {해결된다}고 말해요, 이유는 다음과 같아요").
   // 속도는 7쪽 흐름 판정과 같은 점수(comboScore) — 결정형의 '어느 쪽'은 드러내지 않는다.
-  const teaser = paceTeaser(comboScore({ picks, data, cls, worryText: worryText || "" }).pace, locale);
+  const teaser = paceTeaser(pkg(locale).assemble.comboScore({ picks, data, cls, worryText: worryText || "" }).pace, locale);
   const withTeaser = teaser ? pages.map((p) => (p.page === 7 ? { ...p, teaser } : p)) : pages;
   // 블러 아래 고정 예시(민준님 예시)를 이 사람의 이름·카드 이름으로 바꿔 보낸다(owner 2026-10-30: 다른 고객 리포트로 오해).
   // 내용(해석 문장)은 여전히 고정 예시라 이 사람의 결제 본문은 보내지 않는다.
@@ -384,9 +383,10 @@ export function resultParseOpts(locale?: Locale) {
     ...Object.values(r.flow_titles ?? {}), r.tendency_title].filter((x): x is string => typeof x === "string");
   const sec = [r.reflect_title].filter((x): x is string => typeof x === "string");
   return {
-    subheads: [...new Set([...SUBHEADS, ...fromData, PLAN_MOVED_HEAD])].filter((x) => !sec.includes(x)),
+    subheads: [...new Set([...pkg(locale).pages.SUBHEADS, ...fromData, PLAN_MOVED_HEAD])].filter((x) => !sec.includes(x)),
     secHeads: sec,
-    planHeadSuffix: "이번 주에 이것부터",
+    subMaxLen: locale === "en" ? 110 : 40,
+    planHeadSuffix: locale === "en" ? "where to start this week" : "이번 주에 이것부터",
     positions: data.positions.map((p) => p.name),
     forceLabels: r.force_labels as { up: string[]; flat: string[]; down: string[] },
   };

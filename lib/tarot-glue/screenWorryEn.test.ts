@@ -31,3 +31,16 @@ test("violence / fear", () => {
 test("정리: 곧은 따옴표·gonna", () => {
   assert.equal(normEn("I’m  GONNA   go"), "i'm going to go");
 });
+
+// 기획 시험 문장 60개(docs/spec/en/safety/test_cases_en.json — run_test.py와 같은 기대값). 실패하면 사전이 느슨해진 것인지 먼저 본다.
+import fs from "node:fs";
+test("기획 영어 안전 시험 60문장", () => {
+  const cases = JSON.parse(fs.readFileSync(new URL("../../docs/spec/en/safety/test_cases_en.json", import.meta.url), "utf8")).cases as { id: string; text: string; expected: string }[];
+  const bad: string[] = [];
+  for (const c of cases) {
+    const r = screenTextEn(c.text);
+    const got = r.level !== "none" ? r.level : r.violence ? "violence" : r.fear ? "fear" : "none";
+    if (got !== c.expected) bad.push(`${c.id}: ${c.expected} → ${got}`);
+  }
+  assert.deepEqual(bad, []);
+});

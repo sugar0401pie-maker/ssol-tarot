@@ -8,20 +8,19 @@ import { createShuffle, pickSlot } from "@/lib/tarot/deck.js";
 import { mergeSafety } from "@/lib/tarot/safety.js";
 import { screenWorry } from "@/lib/tarot-glue/screenWorry";
 import { buildSafetyNotice } from "@/lib/tarot/assembleReport.js";
+import { pkg } from "@/lib/tarot-glue/pkg";
 
 // 결과 화면 안내 박스. 폭력 안내("때리거나 위협하는 일은…")는 띄우지 않는다(owner 2026-10-30 — 일상 연애 고민에
 // 잘못 뜬 사례가 있어 완전히 없애기로 결정). 폭력 판정 자체는 그대로라 다가가기 실천·처방 제외와 방향 끄기는 유지된다.
 // '관계 속 두려움' 안내는 그대로.
 function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"], locale: Locale): string | null {
-  return safety.violence ? null : buildSafetyNotice({ data: bundleFor(locale).data, safety });
+  return safety.violence ? null : pkg(locale).assemble.buildSafetyNotice({ data: bundleFor(locale).data, safety });
 }
-import { parseFrame, parseC } from "@/lib/tarot/validateV4.js";
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
 import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
-import { parseE, mergeE, overlapWarnings, actionsOf } from "@/lib/tarot/validateV4.js";
-import { todayFromDb } from "@/lib/tarot/pagesV4.js";
+import { mergeE } from "@/lib/tarot/validateV4.js";
 import { REPORT_ORDER_NAME, currentReportPrice, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
 import { hasCompAccess } from "@/lib/billing/compAccess";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
@@ -267,7 +266,7 @@ export async function runClassification(sessionId: string) {
   const callA = () => tryTwice("고민 분류(A)", async () => parseClassification(await generateText(P.A, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data));
   const callA2 = () =>
     tryTwice("고민 틀(A2)", async () => {
-      const r = parseFrame(await generateText(P.A2, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
+      const r = pkg(locale).validate.parseFrame(await generateText(P.A2, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
       // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
       if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
       return r.frame;
@@ -281,7 +280,7 @@ export async function runClassification(sessionId: string) {
     try {
       const parts = splitMerged(await generateText(MERGED_CLASSIFY_SYSTEM, fc.user, { timeoutMs: 20000, maxOutputTokens: 2400, label: "A+A2" }));
       cls = parts.classification ? parseClassification(parts.classification, data) : null;
-      frame = parts.frame ? parseFrame(parts.frame).frame : null;
+      frame = parts.frame ? pkg(locale).validate.parseFrame(parts.frame).frame : null;
     } catch (e) {
       console.warn("A+A2 호출 실패:", e instanceof Error ? e.message : "unknown");
     }
@@ -423,7 +422,7 @@ export async function prepareResult(sessionId: string) {
     const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, locale });
     // 연결 한 줄(C)은 최대 12초, 넘으면 그 줄 없이(스펙 7.7). 무료 결과에는 검수를 하지 않는다(owner 2026-10-21 비용 — 검수는 유료 1번만).
     const deadline = Date.now() + 12000;
-    const parse = (raw: string) => parseC(raw, { decision, strength: lean?.strength ?? null, frame, lean, violence: s.violence || classificationLost });
+    const parse = (raw: string) => pkg(locale).validate.parseC(raw, { decision, strength: lean?.strength ?? null, frame, lean, violence: s.violence || classificationLost });
     let best: ReturnType<typeof parse> | null = null;
     for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
@@ -686,7 +685,7 @@ export async function generateReport(sessionId: string) {
         let best: ReturnType<typeof parseStoryApply> | null = null;
         for (let i = 0; i < 2 && dBlock; i++) {
           try {
-            const r = parseStoryApply(await generateText(P.D, dBlock, { timeoutMs: 50000, maxOutputTokens: 6000, label: "D" }), { violence });
+            const r = pkg(locale).assemble.parseStoryApply(await generateText(P.D, dBlock, { timeoutMs: 50000, maxOutputTokens: 6000, label: "D" }), { violence });
             if (!best || (r.story && r.apply)) best = r;
             if (r.story && r.apply) break;
             console.warn("D 검증 탈락 — 다시 시도");
@@ -700,7 +699,7 @@ export async function generateReport(sessionId: string) {
       const runE = async (part: "E1" | "E2", system: string, block: string | null) => {
         for (let i = 0; i < 2 && block; i++) {
           try {
-            const r = parseE(await generateText(system, block, { timeoutMs: 50000, maxOutputTokens: 6000, label: part }), { lean, frame, violence, part, worryText: s.worry_text ?? "" });
+            const r = pkg(locale).validate.parseE(await generateText(system, block, { timeoutMs: 50000, maxOutputTokens: 6000, label: part }), { lean, frame, violence, part, worryText: s.worry_text ?? "" });
             if (r.warnings.length) console.info(`${part} 경고:`, r.warnings.length, "건");
             if (r.E) return r.E;
             console.warn(`${part} 검증 탈락 칸:`, r.errors.length, "건");
@@ -715,7 +714,7 @@ export async function generateReport(sessionId: string) {
       E = mergeE(e1, e2);
       // 행동 겹침(7쪽 계획·8쪽 처방·9쪽 실천) 경고 — 운영에서 E2 재호출 기준을 정하려고 건수만 남긴다(README_v4 ①).
       const key = picks[2];
-      const overlaps = overlapWarnings(actionsOf(E, key ? todayFromDb(bundleFor(locale).data, { no: key.card.no, reversed: Boolean(key.reversed) }, lean) : null));
+      const overlaps = pkg(locale).validate.overlapWarnings(pkg(locale).validate.actionsOf(E, key ? pkg(locale).pages.todayFromDb(bundleFor(locale).data, { no: key.card.no, reversed: Boolean(key.reversed) }, lean) : null));
       if (overlaps.length) console.info("행동 겹침 경고:", overlaps.map((o) => `${o.a}↔${o.b}`).join(", "));
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });

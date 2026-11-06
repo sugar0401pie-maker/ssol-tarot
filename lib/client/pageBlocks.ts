@@ -32,6 +32,7 @@ export type Block =
 export type ParseOpts = {
   subheads: string[]; // 작은 소제목(h4)으로 그릴 고정 줄
   secHeads: string[]; // 큰 소제목(h3.sec)으로 그릴 고정 줄 — "이 질문들을 곱씹어 볼까요?"
+  subMaxLen?: number; // 소제목으로 볼 최대 글자 수(한국어 40, 영문 110)
   planHeadSuffix?: string; // 관계형 계획 머리말("‘{선택지}’ 쪽으로 정했다면, 이번 주에 이것부터")처럼 목록에 없는 소제목의 끝말
   positions: string[]; // 자리 이름(지나온 길·지금의 흐름·앞으로의 열쇠) — 읽기 지도에서 자리와 카드명을 가름
   forceLabels: Record<ForceDir, string[]>;
@@ -99,7 +100,7 @@ function mapCells(src: string, o: ParseOpts): MapCell[] {
 }
 
 function isSub(line: string, o: ParseOpts) {
-  return o.subheads.includes(line) || Boolean(o.planHeadSuffix && line.endsWith(o.planHeadSuffix) && line.length <= 40 && !line.includes("**"));
+  return o.subheads.includes(line) || Boolean(o.planHeadSuffix && line.endsWith(o.planHeadSuffix) && line.length <= (o.subMaxLen ?? 40) && !line.includes("**"));
 }
 
 /** 문단을 문장으로 나눈다(마침표·물음표·느낌표 + 띄어쓰기). 굵게(**…**)와 따옴표 안은 끊지 않는다. */
