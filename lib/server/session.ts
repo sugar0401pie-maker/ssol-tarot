@@ -25,7 +25,7 @@ import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBloc
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { mergeE } from "@/lib/tarot/validateV4.js";
-import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
+import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, variantKeyFor, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
 import { hasCompAccess } from "@/lib/billing/compAccess";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
@@ -569,7 +569,8 @@ const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 �
 export function payConfig(s: SessionRow) {
   const currency = currencyForLocale(localeOf(s));
   const clientKey = tossKeysFor(currency).clientKey;
-  return { currency, clientKey, keyKind: tossKeyKind(clientKey) };
+  // variantKey: 같은 결제위젯 키로 어느 MID(원화 DEFAULT / 달러 dollar.only)를 쓸지
+  return { currency, clientKey, keyKind: tossKeyKind(clientKey), variantKey: variantKeyFor(currency) };
 }
 
 export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null, country = null }: { email?: string | null; country?: string | null } = {}) {

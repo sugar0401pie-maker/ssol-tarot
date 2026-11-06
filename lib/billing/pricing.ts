@@ -18,21 +18,24 @@ export const REPORT_ORDER_NAME_EN = "Ssol Tarot House Full Reading";
 // 주문 표(tarot_orders.amount)는 정수 칸이라 달러는 센트로 저장한다(1.99달러 = 199). 토스 승인·조회에는 달러 금액(1.99)을 쓴다.
 export const toMinor = (currency: "KRW" | "USD", major: number): number => (currency === "USD" ? Math.round(major * 100) : major);
 export const toMajor = (currency: "KRW" | "USD", minor: number): number => (currency === "USD" ? minor / 100 : minor);
-// ---- 토스 키는 통화별로(owner 개발 전달 2026-11-06) ----
-// 원화(KRW) 상점 = TOSS_CLIENT_KEY_KRW / TOSS_SECRET_KEY_KRW, 달러(USD) 상점 = TOSS_CLIENT_KEY_USD / TOSS_SECRET_KEY_USD.
-// Vercel에서 테스트(Preview)와 라이브(Production)를 따로 넣는다. 새 이름이 없으면 **같은 통화**의 예전 이름만 읽는다
-// (원화: NEXT_PUBLIC_TOSS_CLIENT_KEY·TOSS_SECRET_KEY, 달러: NEXT_PUBLIC_TOSS_EN_CLIENT_KEY·TOSS_EN_SECRET_KEY) — 지금 라이브 한국어 결제가 끊기지 않게.
-// **다른 통화의 키로는 절대 넘어가지 않는다**(원화 상점으로 달러를 요청하면 토스 2003).
-// 키는 서버가 주문 통화(tarot_orders.currency)로 고른다 — 클라이언트 키도 서버가 결제 화면에 넘긴다(브라우저 언어·주소로 고르지 않음).
+// ---- 토스 키·결제 UI 고르기(owner 정정 2026-11-06) ----
+// 결제위젯 키 **한 벌**(live_gck_ / live_gsk_)로 상점(MID) 두 개를 쓰고, 어느 MID로 갈지는 variantKey가 정한다:
+//   기본 UI "DEFAULT" → q_ssolwenlor(원화, 국내 결제) · 추가 UI "dollar.only" → sastroaib3(달러, 해외카드·PayPal)
+// 그래서 원화·달러 모두 같은 키 세트(NEXT_PUBLIC_TOSS_CLIENT_KEY / TOSS_SECRET_KEY 또는 TOSS_CLIENT_KEY_KRW / TOSS_SECRET_KEY_KRW)를 쓴다.
+// 달러만 따로 넣고 싶을 때만 TOSS_CLIENT_KEY_USD / TOSS_SECRET_KEY_USD(**둘 다** 있을 때만 씀 — 짝이 어긋나지 않게).
+// 예전 달러 전용 이름(NEXT_PUBLIC_TOSS_EN_CLIENT_KEY / TOSS_EN_SECRET_KEY)은 읽지 않는다 — 거기 남은 예전 API 개별 연동 키(live_ck_/live_sk_)가
+// 결제위젯 키와 엇갈리지 않게. 통화는 서버가 주문(tarot_orders.currency)으로 정하고, 클라이언트 키도 서버가 결제 화면에 넘긴다.
 export type Currency = "KRW" | "USD";
 export type TossStore = Currency;
 type Env = Record<string, string | undefined>;
 export function tossKeysFor(currency: Currency, env: Env = process.env): { clientKey: string | null; secretKey: string | null } {
-  const usd = currency === "USD";
-  const clientKey = (usd ? env.TOSS_CLIENT_KEY_USD || env.NEXT_PUBLIC_TOSS_EN_CLIENT_KEY : env.TOSS_CLIENT_KEY_KRW || env.NEXT_PUBLIC_TOSS_CLIENT_KEY) || null;
-  const secretKey = (usd ? env.TOSS_SECRET_KEY_USD || env.TOSS_EN_SECRET_KEY : env.TOSS_SECRET_KEY_KRW || env.TOSS_SECRET_KEY) || null;
-  return { clientKey, secretKey };
+  const shared = { clientKey: env.TOSS_CLIENT_KEY_KRW || env.NEXT_PUBLIC_TOSS_CLIENT_KEY || null, secretKey: env.TOSS_SECRET_KEY_KRW || env.TOSS_SECRET_KEY || null };
+  if (currency === "USD" && env.TOSS_CLIENT_KEY_USD && env.TOSS_SECRET_KEY_USD) return { clientKey: env.TOSS_CLIENT_KEY_USD, secretKey: env.TOSS_SECRET_KEY_USD };
+  return shared;
 }
+/** 주문 통화 → 결제위젯 UI(variantKey). 원화 = DEFAULT(국내 MID), 달러 = dollar.only(해외 MID). */
+export const variantKeyFor = (currency: Currency, env: Env = process.env): string =>
+  currency === "USD" ? env.NEXT_PUBLIC_TOSS_EN_VARIANT || "dollar.only" : "DEFAULT";
 export const tossSecretFor = (currency: Currency, env: Env = process.env): string | null => tossKeysFor(currency, env).secretKey;
 /** 세션 언어 → 주문 통화(서버가 정함): 영문 결과 = USD, 한국어 결과 = KRW */
 export const currencyForLocale = (locale: "ko" | "en"): Currency => (locale === "en" ? "USD" : "KRW");

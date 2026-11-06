@@ -1,9 +1,9 @@
 "use client";
 
 // 영문 결제 화면(/en/checkout/{결과}?page=쪽). 쏠 아스트로 하우스 영문 결제(components/en/CheckoutEn.tsx·lib/billing/enPayClient.ts)와 같은 방식.
-// **해외결제 상점 키만 쓴다**(NEXT_PUBLIC_TOSS_EN_CLIENT_KEY) — 한국어(원화) 상점 키로 대신하지 않는다(원화 상점으로 달러 결제를 요청하면
-// 토스가 2003 '계약된 결제수단이 아닙니다'로 거절 — 아스트로 2026-11-06). 키가 없으면 결제를 열지 않는다.
-//   결제위젯 키(…_gck_…): 토스 결제위젯 v2를 외화결제 UI(variantKey, 기본 'dollar.only' — 점 포함)로 그리고 [결제하기]로 결제
+// 결제위젯 키 한 벌로 MID 두 개(owner 정정 2026-11-06): 키는 한국어와 같고, 서버가 알려 준 variantKey 'dollar.only'(달러 MID)로
+// 위젯을 한 번만 그린다(DEFAULT로 그리지 않음). 금액은 그리기 전에 setAmount({currency:"USD", value:1.99}).
+//   결제위젯 키(…_gck_…): 위 방식으로 그리고 [결제하기]로 결제
 //   API 개별 연동 키(…_ck_…): [카드 결제]·[PayPal] 버튼이 토스 결제창을 바로 연다(카드 = 해외카드 전용·영어 결제창)
 // 주문(금액 US$1.99)은 서버가 정하고, 승인은 /en/checkout/success → 서버가 해외결제 상점 비밀 키로 확인한다.
 // 문구는 lib/i18n/checkoutEn.ts(기획 정책 문서 08 그대로).
@@ -17,9 +17,7 @@ import { CHECKOUT_EN as T } from "@/lib/i18n/checkoutEn";
 import { Stars } from "../Cards";
 
 // 결제창 키는 서버가 주문 통화(달러)로 골라 준다(/api/tarot/session/{id}/pay-config, owner 개발 전달 2026-11-06).
-type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null };
-/** 토스 관리자(해외결제 상점)의 외화결제 UI 이름 — 점이 들어간 "dollar.only"(owner 확인 2026-11-06, 아스트로와 같음) */
-const EN_VARIANT = process.env.NEXT_PUBLIC_TOSS_EN_VARIANT || "dollar.only";
+type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null; variantKey: string };
 const USD = { currency: "USD" as const, value: REPORT_PRICE_USD };
 
 type Order = { orderId: string; orderName: string; amount: number; currency?: "KRW" | "USD"; clientKey?: string | null; customerKey: string; country?: string };
@@ -73,7 +71,7 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
         const widgets = toss.widgets({ customerKey });
         await widgets.setAmount(USD);
         // 외화결제 UI만 쓴다 — 기본 UI(DEFAULT)는 국내 일반결제라 달러로 열면 2003으로 거절된다(DEFAULT로 되돌아가지 않음)
-        await widgets.renderPaymentMethods({ selector: "#toss-en-methods", variantKey: EN_VARIANT });
+        await widgets.renderPaymentMethods({ selector: "#toss-en-methods", variantKey: cfg?.variantKey ?? "dollar.only" });
         if (cancelled) return;
         widgetsRef.current = widgets;
         setReady(true);

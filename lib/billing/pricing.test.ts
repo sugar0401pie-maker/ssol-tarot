@@ -27,7 +27,7 @@ test("화면 문구는 금액을 직접 쓰지 않고 {price}/{list} 자리로 �
 });
 
 // 영문판 결제(2026-11-06): US$1.99, 할인 없음, 주문 표에는 센트로
-import { REPORT_PRICE_USD, currencyForLocale, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, tossSecretFor, usd, usdCheckoutEnabled } from "./pricing.ts";
+import { REPORT_PRICE_USD, currencyForLocale, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, tossSecretFor, usd, usdCheckoutEnabled, variantKeyFor } from "./pricing.ts";
 test("영문 가격은 US$1.99이고 할인 기간에도 그대로", () => {
   assert.deepEqual(reportPriceFor("en", new Date("2026-11-10T12:00:00+09:00")), { currency: "USD", amount: REPORT_PRICE_USD, label: "US$1.99" });
   assert.equal(reportPriceFor("ko", new Date("2026-11-10T12:00:00+09:00")).label, "990원");
@@ -40,21 +40,25 @@ test("달러는 센트로 저장하고 토스 금액과 맞춰 본다(원화는 
   assert.equal(toMinor("KRW", 990), 990);
   assert.equal(toMajor("KRW", 990), 990);
 });
-test("달러 결제는 달러 상점의 두 키가 다 있을 때만 열린다(원화 키로 대신하지 않음)", () => {
+test("결제위젯 키 한 벌로 두 MID: 원화·달러 모두 같은 키 세트, MID는 variantKey로(owner 정정 2026-11-06)", () => {
+  const env = { NEXT_PUBLIC_TOSS_CLIENT_KEY: "live_gck_x", TOSS_SECRET_KEY: "live_gsk_x" };
+  assert.deepEqual(tossKeysFor("KRW", env), { clientKey: "live_gck_x", secretKey: "live_gsk_x" });
+  assert.deepEqual(tossKeysFor("USD", env), { clientKey: "live_gck_x", secretKey: "live_gsk_x" });
+  assert.equal(variantKeyFor("KRW", env), "DEFAULT");
+  assert.equal(variantKeyFor("USD", env), "dollar.only");
+  assert.equal(usdCheckoutEnabled(env), true);
   assert.equal(usdCheckoutEnabled({}), false);
-  assert.equal(usdCheckoutEnabled({ TOSS_SECRET_KEY: "ko", NEXT_PUBLIC_TOSS_CLIENT_KEY: "kc" }), false);
-  assert.equal(usdCheckoutEnabled({ TOSS_SECRET_KEY_USD: "us" }), false);
-  assert.equal(usdCheckoutEnabled({ TOSS_SECRET_KEY_USD: "us", TOSS_CLIENT_KEY_USD: "uc" }), true);
-  assert.equal(usdCheckoutEnabled({ TOSS_EN_SECRET_KEY: "es", NEXT_PUBLIC_TOSS_EN_CLIENT_KEY: "ec" }), true); // 예전 이름(같은 통화)
 });
-test("통화별 키: 새 이름 우선, 없으면 같은 통화의 예전 이름만 — 다른 통화로는 절대 안 넘어감(2003 방지)", () => {
-  const env = { TOSS_CLIENT_KEY_KRW: "kc", TOSS_SECRET_KEY_KRW: "ks", NEXT_PUBLIC_TOSS_CLIENT_KEY: "old-kc", TOSS_SECRET_KEY: "old-ks" };
-  assert.deepEqual(tossKeysFor("KRW", env), { clientKey: "kc", secretKey: "ks" });
-  assert.deepEqual(tossKeysFor("USD", env), { clientKey: null, secretKey: null });
-  assert.deepEqual(tossKeysFor("KRW", { NEXT_PUBLIC_TOSS_CLIENT_KEY: "old-kc", TOSS_SECRET_KEY: "old-ks" }), { clientKey: "old-kc", secretKey: "old-ks" });
-  assert.deepEqual(tossKeysFor("USD", { TOSS_CLIENT_KEY_USD: "uc", TOSS_SECRET_KEY_USD: "us", NEXT_PUBLIC_TOSS_EN_CLIENT_KEY: "ec", TOSS_EN_SECRET_KEY: "es" }), { clientKey: "uc", secretKey: "us" });
-  assert.equal(tossSecretFor("USD", { TOSS_SECRET_KEY: "ko" }), null);
-  assert.equal(tossSecretFor("KRW", { TOSS_SECRET_KEY_USD: "us" }), null);
+test("예전 달러 전용 이름(API 개별 연동 키가 남아 있던 곳)은 읽지 않는다 — 결제위젯 키와 엇갈림 방지", () => {
+  const env = { NEXT_PUBLIC_TOSS_CLIENT_KEY: "live_gck_x", TOSS_SECRET_KEY: "live_gsk_x", NEXT_PUBLIC_TOSS_EN_CLIENT_KEY: "live_ck_old", TOSS_EN_SECRET_KEY: "live_sk_old" };
+  assert.deepEqual(tossKeysFor("USD", env), { clientKey: "live_gck_x", secretKey: "live_gsk_x" });
+});
+test("달러 전용 키는 두 개가 다 있을 때만 쓴다(짝이 어긋나지 않게)", () => {
+  const base = { TOSS_CLIENT_KEY_KRW: "kc", TOSS_SECRET_KEY_KRW: "ks" };
+  assert.deepEqual(tossKeysFor("USD", { ...base, TOSS_CLIENT_KEY_USD: "uc" }), { clientKey: "kc", secretKey: "ks" });
+  assert.deepEqual(tossKeysFor("USD", { ...base, TOSS_CLIENT_KEY_USD: "uc", TOSS_SECRET_KEY_USD: "us" }), { clientKey: "uc", secretKey: "us" });
+  assert.deepEqual(tossKeysFor("KRW", { ...base, TOSS_CLIENT_KEY_USD: "uc", TOSS_SECRET_KEY_USD: "us" }), { clientKey: "kc", secretKey: "ks" });
+  assert.equal(tossSecretFor("USD", { TOSS_SECRET_KEY: "ks" }), "ks");
   assert.equal(currencyForLocale("en"), "USD");
   assert.equal(currencyForLocale("ko"), "KRW");
 });
