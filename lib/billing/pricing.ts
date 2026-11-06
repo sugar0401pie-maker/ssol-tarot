@@ -18,9 +18,9 @@ export const REPORT_ORDER_NAME_EN = "Ssol Tarot House Full Reading";
 // 주문 표(tarot_orders.amount)는 정수 칸이라 달러는 센트로 저장한다(1.99달러 = 199). 토스 승인·조회에는 달러 금액(1.99)을 쓴다.
 export const toMinor = (currency: "KRW" | "USD", major: number): number => (currency === "USD" ? Math.round(major * 100) : major);
 export const toMajor = (currency: "KRW" | "USD", minor: number): number => (currency === "USD" ? minor / 100 : minor);
-// 영문 결제는 owner가 켜고(TAROT_USD_CHECKOUT=1) **해외결제 상점 키**(TOSS_EN_SECRET_KEY)가 있을 때만 연다.
-// 한국어(원화) 상점 키로 대신하지 않는다(2026-11-06 — 원화 상점으로 달러를 요청하면 토스 2003).
-export const usdCheckoutEnabled = (env: Record<string, string | undefined> = process.env): boolean => env.TAROT_USD_CHECKOUT === "1" && Boolean(env.TOSS_EN_SECRET_KEY);
+// 영문 결제는 **해외결제 상점 키**(TOSS_EN_SECRET_KEY)가 있으면 열린다(owner 2026-11-06: 따로 켜는 스위치 없이 키만).
+// 한국어(원화) 상점 키로 대신하지 않는다(원화 상점으로 달러를 요청하면 토스 2003).
+export const usdCheckoutEnabled = (env: Record<string, string | undefined> = process.env): boolean => Boolean(env.TOSS_EN_SECRET_KEY);
 export type TossStore = "ko" | "en";
 /** 상점별 비밀 키 — 한국어(원화) = TOSS_SECRET_KEY, 영문(달러) = TOSS_EN_SECRET_KEY. 없으면 null(서로 대신 쓰지 않는다). */
 export const tossSecretFor = (store: TossStore, env: Record<string, string | undefined> = process.env): string | null =>

@@ -40,12 +40,10 @@ test("달러는 센트로 저장하고 토스 금액과 맞춰 본다(원화는 
   assert.equal(toMinor("KRW", 990), 990);
   assert.equal(toMajor("KRW", 990), 990);
 });
-test("영문 결제는 TAROT_USD_CHECKOUT=1이고 해외결제 상점 비밀 키가 있을 때만 열린다(원화 키로 대신하지 않음)", () => {
+test("영문 결제는 해외결제 상점 비밀 키가 있을 때만 열린다(원화 키로 대신하지 않음)", () => {
   assert.equal(usdCheckoutEnabled({}), false);
-  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "1" }), false);
-  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "1", TOSS_SECRET_KEY: "ko" }), false);
-  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "true", TOSS_EN_SECRET_KEY: "en" }), false);
-  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "1", TOSS_EN_SECRET_KEY: "en" }), true);
+  assert.equal(usdCheckoutEnabled({ TOSS_SECRET_KEY: "ko" }), false);
+  assert.equal(usdCheckoutEnabled({ TOSS_EN_SECRET_KEY: "en" }), true);
 });
 test("상점별 비밀 키: 영문은 TOSS_EN_SECRET_KEY만, 한국어는 TOSS_SECRET_KEY만(2003 방지)", () => {
   assert.equal(tossSecretFor("en", { TOSS_SECRET_KEY: "ko" }), null);
