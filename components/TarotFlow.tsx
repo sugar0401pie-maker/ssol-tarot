@@ -806,7 +806,7 @@ function DrawScreen({
                         <CardBack className="w-full" />
                       </div>
                       <div className="flip-face flip-front">
-                        <CardFace image={p.card.image} name={p.card.name} character={p.card.character} reversed={p.reversed} className="w-full" />
+                        <CardFace image={p.card.image} name={p.card.name} character={p.card.character} reversed={p.reversed} className="w-full" revLabel={uiText(locale).result.reversed} />
                       </div>
                     </SlotFlip>
                   </div>
@@ -820,7 +820,7 @@ function DrawScreen({
                 )}
               </div>
               {p && !p.card && <span className="fade-up text-center text-[11px] leading-snug text-gold-soft break-keep">{copy.result.secret3.pick_note}</span>}
-              {p && p.card && (p.reversed ? <CardCaption name={p.card.name} reversed dark /> : <span className="fade-up text-center font-serif text-[12px] text-moon">{p.card.name}</span>)}
+              {p && p.card && (p.reversed ? <CardCaption name={p.card.name} reversed dark revLabel={uiText(locale).result.reversed} /> : <span className="fade-up text-center font-serif text-[12px] text-moon">{p.card.name}</span>)}
             </div>
           );
         })}
@@ -828,7 +828,7 @@ function DrawScreen({
       {!revealed && (
         <>
           <p className="mt-4 text-[13px] text-moon/80">{fill(copy.pick.counter, { picked: picks.length })}</p>
-          <DrawBoard count={22} taken={takenSlots} pending={pending} onChoose={choose} />
+          <DrawBoard count={22} taken={takenSlots} pending={pending} onChoose={choose} slotLabel={uiText(locale).slot} />
           <p className="min-h-5 text-[13px] text-gold-soft" role="alert">{err ?? ""}</p>
         </>
       )}

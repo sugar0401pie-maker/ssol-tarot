@@ -10,13 +10,19 @@ import { cardImg } from "@/lib/client/cardImage";
 import { getRealSession } from "@/lib/supabase/browser";
 import { Stars } from "./Cards";
 import PageFoot from "./PageFoot";
+import { localePath, type Locale } from "@/lib/i18n/locale";
+import { uiText } from "@/lib/i18n/ui";
 
-type Item = { id: string; nickname: string; createdAt: string; paid?: boolean; cards: ResultCard[] };
+type Item = { id: string; nickname: string; createdAt: string; paid?: boolean; locale?: Locale; cards: ResultCard[] };
 
-const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul", year: "numeric", month: "long", day: "numeric" });
+const fmtDate = (iso: string, dateLocale: string) =>
+  new Date(iso).toLocaleDateString(dateLocale, { timeZone: "Asia/Seoul", year: "numeric", month: "long", day: "numeric" });
 
-export default function ResultsList() {
+// 영문판(/en/results, 2026-11-06)은 같은 목록에 영어 문구. 각 결과는 만든 언어의 결과 주소로 연다.
+export default function ResultsList({ locale = "ko" }: { locale?: Locale }) {
+  const T = uiText(locale).results;
+  const rev = uiText(locale).result.reversed;
+  const L = (path: string) => localePath(path, locale);
   const router = useRouter();
   const [items, setItems] = useState<Item[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -25,39 +31,40 @@ export default function ResultsList() {
     let alive = true;
     void (async () => {
       if (!(await getRealSession())) {
-        router.replace("/login?next=/results");
+        router.replace(`${L("/login")}?next=${L("/results")}`);
         return;
       }
       try {
         const r = await api<{ results: Item[] }>("/api/tarot/results");
         if (alive) setItems(r.results);
       } catch (e) {
-        if (e instanceof ApiError && e.status === 401) return router.replace("/login?next=/results");
-        if (alive) setErr(e instanceof ApiError ? e.message : "잠시 후 다시 시도해 주세요.");
+        if (e instanceof ApiError && e.status === 401) return router.replace(`${L("/login")}?next=${L("/results")}`);
+        if (alive) setErr(e instanceof ApiError ? e.message : uiText(locale).retryLater);
       }
     })();
     return () => {
       alive = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 언어는 화면마다 고정
   }, [router]);
 
   return (
     <main className="night-bg relative flex min-h-dvh flex-col overflow-x-hidden">
       <Stars />
       <div className="relative z-[1] mx-auto w-full max-w-md flex-1 px-6 pb-10 pt-7">
-        <Link href="/" className="text-[13px] text-moon/80">
-          ← 처음으로
+        <Link href={L("/")} className="text-[13px] text-moon/80">
+          {T.home}
         </Link>
-        <h1 className="mt-6 font-serif text-[24px] font-bold text-gold-soft">내 타로 결과</h1>
-        <p className="mt-1 text-[14px] text-moon/80">지금까지 뽑은 카드를 다시 볼 수 있어요.</p>
+        <h1 className="mt-6 font-serif text-[24px] font-bold text-gold-soft">{T.title}</h1>
+        <p className="mt-1 text-[14px] text-moon/80">{T.sub}</p>
 
         {err && <p className="mt-8 text-[14px] text-gold-soft" role="alert">{err}</p>}
-        {!err && items === null && <p className="mt-8 text-[14px] text-moon/70">불러오는 중…</p>}
+        {!err && items === null && <p className="mt-8 text-[14px] text-moon/70">{T.loading}</p>}
         {items && items.length === 0 && (
           <div className="mt-10 flex flex-col items-center gap-5 text-center">
-            <p className="text-[15px] text-moon/85">아직 저장된 결과가 없어요.</p>
-            <Link href="/?start=1" className="btn-night block w-full rounded-full py-3.5 text-center text-[15px] font-medium">
-              지금 보러 갈까요?
+            <p className="text-[15px] text-moon/85">{T.empty}</p>
+            <Link href={`${L("/")}?start=1`} className="btn-night block w-full rounded-full py-3.5 text-center text-[15px] font-medium">
+              {T.start}
             </Link>
           </div>
         )}
@@ -65,14 +72,14 @@ export default function ResultsList() {
           <ul className="mt-6 flex flex-col gap-3">
             {items.map((it) => (
               <li key={it.id}>
-                <Link href={`/result/${it.id}`} className="flex items-center gap-4 rounded-2xl border border-gold/40 bg-night-deep/60 p-3">
+                <Link href={localePath(`/result/${it.id}`, it.locale === "en" ? "en" : "ko")} className="flex items-center gap-4 rounded-2xl border border-gold/40 bg-night-deep/60 p-3">
                   <div className="flex shrink-0 gap-1">
                     {it.cards.map((c) => (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         key={c.position}
                         {...cardImg(c.image, "40px")}
-                        alt={c.hidden ? `${c.positionName}: 결제 후 열려요` : `${c.positionName}: ${c.name}${c.reversed ? " (역방향)" : ""}`}
+                        alt={c.hidden ? `${c.positionName}: ${T.hidden}` : `${c.positionName}: ${c.name}${c.reversed ? ` (${rev})` : ""}`}
                         className={`h-[60px] w-10 rounded-[4px] object-cover ${c.reversed ? "rotate-180" : ""}`}
                         loading="lazy"
                       />
@@ -80,8 +87,8 @@ export default function ResultsList() {
                   </div>
                   <div className="min-w-0 flex-1 text-left">
                     {/* 결제한 결과는 날짜 위에 둥근 표시(owner 2026-10-22) */}
-                    {it.paid && <span className="mb-1 inline-block rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold text-night-deep">전체 열람 가능</span>}
-                    <p className="text-[12px] text-gold">{fmtDate(it.createdAt)}</p>
+                    {it.paid && <span className="mb-1 inline-block rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-bold text-night-deep">{T.paid}</span>}
+                    <p className="text-[12px] text-gold">{fmtDate(it.createdAt, T.dateLocale)}</p>
                     <p className="mt-0.5 truncate font-serif text-[15px] text-moon">{it.cards.map((c) => (c.hidden ? "?" : c.name)).join(" · ")}</p>
                   </div>
                   <span className="text-[13px] text-moon/70" aria-hidden>›</span>
@@ -91,7 +98,7 @@ export default function ResultsList() {
           </ul>
         )}
       </div>
-      <PageFoot />
+      <PageFoot locale={locale} />
     </main>
   );
 }

@@ -36,6 +36,7 @@ export function CardFace({
   reversed,
   className = "",
   sizes = "(max-width: 384px) 30vw, 120px",
+  revLabel = "역방향",
 }: {
   image: string;
   name: string;
@@ -43,9 +44,10 @@ export function CardFace({
   reversed: boolean;
   className?: string;
   sizes?: string; // 화면에서 차지하는 너비(기본: 뽑기 화면 3칸)
+  revLabel?: string; // '역방향' 표시 문구(영문판은 "Reversed")
 }) {
   const [broken, setBroken] = useState(false);
-  const alt = `${name} — ${character}${reversed ? " (역방향)" : ""}`;
+  const alt = `${name} — ${character}${reversed ? ` (${revLabel})` : ""}`;
   if (broken) {
     return (
       <div role="img" aria-label={alt} className={`flex aspect-[2/3] items-center justify-center rounded-[6%] border-2 border-card-line bg-card-cream p-2 text-center ${className}`}>
@@ -78,12 +80,12 @@ export function CardFace({
 }
 
 // 역방향일 때 카드 아래에 붙는 이름 + 칩
-export function CardCaption({ name, reversed, dark = false }: { name: string; reversed: boolean; dark?: boolean }) {
+export function CardCaption({ name, reversed, dark = false, revLabel = "역방향" }: { name: string; reversed: boolean; dark?: boolean; revLabel?: string }) {
   if (!reversed) return null;
   return (
     <div className={`mt-1 flex flex-col items-center gap-0.5 text-center ${dark ? "text-moon" : "text-card-line"}`}>
       <span className="font-serif text-[12px] font-bold leading-tight">{name}</span>
-      <span className={`rounded-full border border-gold px-1.5 text-[10px] ${dark ? "text-moon" : "text-card-line"}`}>역방향</span>
+      <span className={`rounded-full border border-gold px-1.5 text-[10px] ${dark ? "text-moon" : "text-card-line"}`}>{revLabel}</span>
     </div>
   );
 }

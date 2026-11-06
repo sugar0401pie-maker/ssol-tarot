@@ -11,11 +11,13 @@ export function DrawBoard({
   taken,
   pending,
   onChoose,
+  slotLabel = (n: number) => `${n}번째 카드`,
 }: {
   count: number;
   taken: number[];
   pending: number | null;
   onChoose: (slot: number) => void;
+  slotLabel?: (n: number) => string; // 화면 읽기 프로그램용 카드 이름(영문판은 "Card N")
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const dragging = useRef(false);
@@ -57,12 +59,12 @@ export function DrawBoard({
       {/* 모바일: 두 줄 */}
       <div className="flex flex-col gap-2 md:hidden">
         {rows.map((row, r) => (
-          <Fan key={r} slots={row} taken={taken} hover={hover} pending={pending} onKey={onChoose} />
+          <Fan key={r} slots={row} taken={taken} hover={hover} pending={pending} onKey={onChoose} slotLabel={slotLabel} />
         ))}
       </div>
       {/* 태블릿·데스크톱: 한 줄 */}
       <div className="hidden md:block">
-        <Fan slots={[...rows[0], ...rows[1]]} taken={taken} hover={hover} pending={pending} onKey={onChoose} />
+        <Fan slots={[...rows[0], ...rows[1]]} taken={taken} hover={hover} pending={pending} onKey={onChoose} slotLabel={slotLabel} />
       </div>
     </div>
   );
@@ -74,12 +76,14 @@ function Fan({
   hover,
   pending,
   onKey,
+  slotLabel,
 }: {
   slots: number[];
   taken: number[];
   hover: number | null;
   pending: number | null;
   onKey: (slot: number) => void;
+  slotLabel: (n: number) => string;
 }) {
   const n = slots.length;
   return (
@@ -93,7 +97,7 @@ function Fan({
             key={slot}
             type="button"
             data-slot={slot}
-            aria-label={`${slot + 1}번째 카드`}
+            aria-label={slotLabel(slot + 1)}
             disabled={isTaken}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {

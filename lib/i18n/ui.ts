@@ -21,6 +21,20 @@ const KO = {
     upright: "정방향",
     arcana: "원래 타로 카드",
   },
+  // 뽑기 판 카드 버튼(화면 읽기 프로그램용)
+  slot: (n: number) => `${n}번째 카드`,
+  // 내 결과 목록(/results)
+  results: {
+    home: "← 처음으로",
+    title: "내 타로 결과",
+    sub: "지금까지 뽑은 카드를 다시 볼 수 있어요.",
+    loading: "불러오는 중…",
+    empty: "아직 저장된 결과가 없어요.",
+    start: "지금 보러 갈까요?",
+    hidden: "결제 후 열려요",
+    paid: "전체 열람 가능",
+    dateLocale: "ko-KR",
+  },
 };
 const EN: typeof KO = {
   retryLater: "Something went wrong. Please try again in a moment.",
@@ -41,6 +55,18 @@ const EN: typeof KO = {
     reversed: "Reversed",
     upright: "Upright",
     arcana: "Original tarot card",
+  },
+  slot: (n: number) => `Card ${n}`,
+  results: {
+    home: "← Back to start",
+    title: "My tarot readings",
+    sub: "See the cards you've drawn so far.",
+    loading: "Loading…",
+    empty: "You don't have any saved readings yet.",
+    start: "Draw your cards now",
+    hidden: "opens after payment",
+    paid: "Full report unlocked",
+    dateLocale: "en-US",
   },
 };
 export const uiText = (l: Locale) => (l === "en" ? EN : KO);
