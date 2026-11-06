@@ -24,6 +24,13 @@ export default function CheckoutFail({ locale = "ko" }: { locale?: "ko" | "en" }
       <div className="auth relative z-[1] mx-auto flex w-full max-w-md flex-col gap-4">
         <h1 className="big">{cancel ? T.cancelTitle : T.failTitle}</h1>
         <p className="small">{cancel ? T.cancelBody : T.failBody}</p>
+        {/* 토스가 돌려준 실패 이유·주문 번호를 그대로(설정 문제를 바로 찾고 토스 문의에 쓰려고 — 아스트로와 같음). 사용자 취소면 숨김 */}
+        {!cancel && (params.get("code") || params.get("orderId")) && (
+          <p className="break-all text-[12px] leading-relaxed text-moon/60">
+            {params.get("code") && <>{params.get("code")}{params.get("message") ? `: ${params.get("message")}` : ""}<br /></>}
+            {params.get("orderId") && <>{locale === "en" ? "Order no." : "주문 번호"} {params.get("orderId")}</>}
+          </p>
+        )}
         {valid && (
           <Link href={`${P}/checkout/${id}?page=${page}`} className={cancel ? "linkish text-center" : "btn block"}>
             {T.tryAgain}
