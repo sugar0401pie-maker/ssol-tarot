@@ -11,6 +11,16 @@ export const isPromoActive = (now: Date = new Date()): boolean => now >= PROMO_S
 export const currentReportPrice = (now: Date = new Date()): number => (isPromoActive(now) ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE);
 export const won = (n: number): string => `${n.toLocaleString("ko-KR")}원`;
 
+// 영문판(owner 2026-11-05): US$1.99, 할인 없음. 토스 해외 결제(Visa·Mastercard·JCB·PayPal)로 받는다.
+export const REPORT_PRICE_USD = 1.99;
+export const usd = (n: number): string => `US$${n.toFixed(2)}`;
+export type ReportPrice = { currency: "KRW" | "USD"; amount: number; label: string };
+export function reportPriceFor(locale: "ko" | "en", now: Date = new Date()): ReportPrice {
+  if (locale === "en") return { currency: "USD", amount: REPORT_PRICE_USD, label: usd(REPORT_PRICE_USD) };
+  const a = currentReportPrice(now);
+  return { currency: "KRW", amount: a, label: won(a) };
+}
+
 // 결제 전 동의(owner 2026-11-02): 긴 청약철회 안내 상자 대신 "타로 하우스 이용 관련 약관에 동의합니다" 체크 한 줄 + 약관 링크.
 // 청약철회 제한(이용약관 제13조)은 약관 링크 안에 있다 — owner가 결정("약관 하이퍼링크 정도면 충분").
 // 문구를 바꾸면 버전도 바꾼다(누가 어떤 문구에 동의했는지 주문에 남긴다 — tarot_orders.withdrawal_version).

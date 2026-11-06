@@ -1,7 +1,9 @@
 "use client";
 
 import { usePromo } from "@/lib/client/usePromo";
-import { PROMO_REPORT_PRICE, REPORT_LIST_PRICE, won } from "@/lib/billing/pricing";
+import { PROMO_REPORT_PRICE, REPORT_LIST_PRICE, won, usd, REPORT_PRICE_USD } from "@/lib/billing/pricing";
+import { localePath, type Locale } from "@/lib/i18n/locale";
+import { uiText } from "@/lib/i18n/ui";
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,14 +32,16 @@ type Ready = Extract<ResultResponse, { status: "ready" }>;
 // 쏘웰라 채팅(같은 계정) — 10쪽 버튼(결제 후에 열림).
 const SOWELLA_URL = "https://app.ssolwellnesshouse.com/chat";
 // 쏘웰라로 넘어갈 때 어느 타로 결과에서 왔는지 붙인다(owner 2026-10-26) — 쏘웰라가 같은 계정의 그 결과로 맞춤 인사를 하고 대화에 참고한다.
-const sowellaUrl = (id: string) => `${SOWELLA_URL}?from=tarot&result=${encodeURIComponent(id)}`;
+// 영문판(owner 2026-11-05): 영어 쏘웰라 = 쏘웰라 주소 + /en
+const sowellaUrl = (id: string, locale: Locale = "ko") => `${locale === "en" ? "https://app.ssolwellnesshouse.com/en/chat" : SOWELLA_URL}?from=tarot&result=${encodeURIComponent(id)}`;
 
 // 카드 그림을 못 받으면 깨진 그림 아이콘 대신 빈 카드 틀만 남긴다(카드명은 옆 글자로 이미 보임).
 function hideBroken(e: React.SyntheticEvent<HTMLImageElement>) {
   e.currentTarget.style.visibility = "hidden";
 }
 
-export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: string; copy: ViewCopy; opts: ParseOpts; initialPage?: number }) {
+export default function ResultView({ id, copy, opts, initialPage = 1, locale = "ko" }: { id: string; copy: ViewCopy; opts: ParseOpts; initialPage?: number; locale?: Locale }) {
+  const U = uiText(locale).result;
   const [res, setRes] = useState<ResultResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nickname, setNickname] = useState("");
@@ -62,10 +66,10 @@ export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: st
         if (stop) return;
         setError(
           e instanceof ApiError && e.status === 403
-            ? "이 결과는 카드를 뽑은 브라우저나, 결과를 저장한 계정으로 로그인해야 볼 수 있어요."
+            ? U.noAccess
             : e instanceof ApiError
               ? e.message
-              : "잠시 후 다시 시도해 주세요.",
+              : uiText(locale).retryLater,
         );
       }
     };
@@ -74,14 +78,15 @@ export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: st
       stop = true;
       clearTimeout(timer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 문구는 언어가 바뀌지 않는 한 같음
   }, [id]);
 
   if (error) {
     return (
       <main className="dawn-bg flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
         <p className="text-[15px] leading-relaxed">{error}</p>
-        <Link href="/" className="rounded-full bg-navy px-6 py-3 text-[15px] text-white">
-          처음으로
+        <Link href={localePath("/", locale)} className="rounded-full bg-navy px-6 py-3 text-[15px] text-white">
+          {U.home}
         </Link>
       </main>
     );
@@ -94,24 +99,26 @@ export default function ResultView({ id, copy, opts, initialPage = 1 }: { id: st
       </main>
     );
   }
-  if (res.status === "safety") return <SafetyScreen copy={copy} />;
+  if (res.status === "safety") return <SafetyScreen copy={copy} locale={locale} />;
   if (res.status === "drawing") {
     return (
       <main className="dawn-bg flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
-        <p className="text-[15px]">아직 카드를 다 뽑지 않았어요.</p>
-        <Link href="/" className="rounded-full bg-navy px-6 py-3 text-[15px] text-white">
-          처음으로
+        <p className="text-[15px]">{U.notDrawn}</p>
+        <Link href={localePath("/", locale)} className="rounded-full bg-navy px-6 py-3 text-[15px] text-white">
+          {U.home}
         </Link>
       </main>
     );
   }
-  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} initialPage={initialPage} />;
+  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} initialPage={initialPage} locale={locale} />;
 }
 
 // 쪽이 잠겨 있는지 — 세 번째 카드(4쪽)부터(owner 2026-11-02 시크릿). 예전 서버 응답(5쪽 일부 무료)도 그대로 그린다.
 const isLocked = (p: ResultPage, paid: boolean) => !paid && p.page >= 4 && !p.free;
 
-function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; initialPage: number }) {
+function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; initialPage: number; locale: Locale }) {
+  const U = uiText(locale).result;
+  const L = useCallback((path: string) => localePath(path, locale), [locale]);
   const rail = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
   const [zoom, setZoom] = useState<{ src: string; alt: string; reversed: boolean } | null>(null);
@@ -128,7 +135,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
       const ok = saved || (await claimIfGuest(id));
       if (cancelled) return;
       if (ok && !saved) setSaved(true);
-      if (goSowella && ok) window.location.href = sowellaUrl(id);
+      if (goSowella && ok) window.location.href = sowellaUrl(id, locale);
     })();
     return () => {
       cancelled = true;
@@ -183,9 +190,9 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    const path = `/result/${id}/${idx + 1}`;
+    const path = L(`/result/${id}/${idx + 1}`);
     if (window.location.pathname !== path) window.history.replaceState(null, "", path);
-  }, [id, idx]);
+  }, [id, idx, L]);
 
   // 스크롤 이벤트는 1초에 수십 번 온다 — 한 화면 그리기에 한 번만 계산(쪽 번호가 같으면 React가 다시 그리지 않음).
   const ticking = useRef(false);
@@ -202,20 +209,20 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   async function save() {
     setMsg(null);
     if (saved) {
-      setMsg("내 계정에 저장된 결과예요. 쏘웰라 마이페이지에서 다시 볼 수 있어요.");
+      setMsg(U.savedAlready);
       return;
     }
     try {
       if (!(await getAccessToken())) {
         // 로그인 안 돼 있으면 로그인 화면으로 — 로그인 뒤 이 결과로 돌아오면 자동으로 저장된다.
-        router.push(`/login?next=${encodeURIComponent(`/result/${id}/${idx + 1}`)}`);
+        router.push(`${L("/login")}?next=${encodeURIComponent(L(`/result/${id}/${idx + 1}`))}`);
         return;
       }
       await api(`/api/tarot/session/${id}/claim`, { key: loadKey(id), body: {} });
       setSaved(true);
-      setMsg("내 계정에 저장했어요. 쏘웰라 마이페이지에서 다시 볼 수 있어요.");
+      setMsg(U.savedNow);
     } catch (e) {
-      setMsg(e instanceof ApiError ? e.message : "잠시 후 다시 시도해 주세요.");
+      setMsg(e instanceof ApiError ? e.message : uiText(locale).retryLater);
     }
   }
 
@@ -226,21 +233,21 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
     } catch {
       /* 무시 — 처음부터 시작 */
     }
-    router.push("/");
+    router.push(L("/"));
   }
 
   // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 모든 쪽을 다시 해석하지 않게.
   // [결제하고 이어 읽기] → 결제 화면(/checkout/{id}?page=쪽). 결제가 끝나면 누른 그 쪽으로 돌아온다.
-  const pay = useCallback((page: number) => router.push(`/checkout/${id}?page=${page}`), [router, id]);
+  const pay = useCallback((page: number) => router.push(`${L(`/checkout/${id}`)}?page=${page}`), [router, id, L]);
   // [쏘웰라와 이어서 이야기하기]: 로그인 전이면 로그인 → 이 결과로 돌아와 자동 저장 → 쏘웰라(위 goSowella)
   const chat = useCallback(
     async (page: number) => {
-      if (await getAccessToken()) window.location.href = sowellaUrl(id);
-      else router.push(`/login?next=${encodeURIComponent(`/result/${id}/${page}?go=sowella`)}`);
+      if (await getAccessToken()) window.location.href = sowellaUrl(id, locale);
+      else router.push(`${L("/login")}?next=${encodeURIComponent(`${L(`/result/${id}/${page}`)}?go=sowella`)}`);
     },
-    [router, id],
+    [router, id, L, locale],
   );
-  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay, chat, opened }), [id, r, copy, opts, pay, chat, opened]);
+  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay, chat, opened, locale }), [id, r, copy, opts, pay, chat, opened, locale]);
   const thirdHidden = Boolean(r.cards[2]?.hidden);
 
   return (
@@ -270,17 +277,18 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
                     <div className="sharerow">
                       {/* 아스트로 하우스와 같은 두 버튼(owner 2026-10-21): 카카오 노랑 [SNS 공유하기] + 금색 [저장하기] */}
                       {/* 공유 카드는 세 번째 카드 그림이라 결제 전(세 번째 카드 비밀)에는 공유 버튼을 숨긴다 */}
-                      {!thirdHidden && (
+                      {/* 영문판 공유 화면은 3단계에서(카카오·네이버 블로그는 한국용) */}
+                      {!thirdHidden && locale === "ko" && (
                         <button type="button" className="btn sns sm" onClick={() => setSharing(true)}>
                           <KakaoTalkLogo size={24} />
-                          SNS 공유하기
+                          {U.share}
                         </button>
                       )}
                       <button type="button" className="btn gold sm" onClick={save}>
                         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                           <path d="M6 3.5h12v17l-6-4.2-6 4.2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
                         </svg>
-                        저장하기
+                        {U.save}
                       </button>
                     </div>
                     {msg && (
@@ -310,11 +318,13 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
                 {/* v4.1 watch: 마지막 쪽 맨 아래 109 안내(결제 후에는 본문 끝에도 같은 줄이 있으니 그때는 한 번만) */}
                 {p.fineprint && !(p.body ?? "").includes(p.fineprint) && <p className="fineprint">{p.fineprint}</p>}
                 {(p.page === 1 || p.page === n) && <p className="fineprint">{copy.disclaimer}</p>}
-                <AuthFooterLink tone="dark" />
+                {locale === "ko" && <AuthFooterLink tone="dark" />}
                 {/* 테스트 소개 페이지(owner 2026-11-04, SEO) */}
-                <p className="pb-1 text-center text-[12px] text-[#204870]/70">
-                  <Link href="/about" className="underline">이 테스트 자세히 보기</Link>
-                </p>
+                {locale === "ko" && (
+                  <p className="pb-1 text-center text-[12px] text-[#204870]/70">
+                    <Link href="/about" className="underline">{U.about}</Link>
+                  </p>
+                )}
               </div>
             </section>
           ))}
@@ -324,7 +334,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
       {r.cards[2] && !thirdHidden && (
         <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} nickname={r.nickname} />
       )}
-      <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label="크게 보기 닫기" tabIndex={zoom ? 0 : -1}>
+      <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label={U.zoomClose} tabIndex={zoom ? 0 : -1}>
         {/* eslint-disable-next-line @next/next/no-img-element -- 시안과 같은 단순 확대(고정 크기 이미지) */}
         {zoom && <img {...cardImg(zoom.src, "min(70vw, 300px)")} alt={zoom.alt} className={zoom.reversed ? "rev180" : ""} />}
       </button>
@@ -332,7 +342,7 @@ function Swipe({ id, r, copy, opts, initialPage }: { id: string; r: Ready; copy:
   );
 }
 
-type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; chat: (page: number) => void; opened: boolean };
+type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; chat: (page: number) => void; opened: boolean; locale: Locale };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
@@ -402,7 +412,8 @@ function SecretCard({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
 function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; standalone?: boolean }) {
   const c = ctx.copy.result;
   const promo = usePromo() === true;
-  const price = promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE;
+  // 영문판은 US$1.99, 할인 없음(owner 2026-11-05)
+  const priceLabel = ctx.locale === "en" ? usd(REPORT_PRICE_USD) : won(promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE);
   return (
       <div className={standalone ? "pay standalone" : "pay"}>
         {/* 결정형이면 "세 장이 고른 쪽"이 가장 큰 결제 이유 — 데이터의 _decision 문구 */}
@@ -410,11 +421,11 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
         {/* 문구 속 줄바꿈(\n)을 그대로(owner 2026-11-02) */}
         <p className="whitespace-pre-line">{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
         {/* 지금 가격만(lib/billing/pricing.ts). 할인 표시는 결제 화면에서만(owner 2026-10-26). */}
-        <p className="price">{fill(c.paywall_price, { price: won(price) })}</p>
+        <p className="price">{fill(c.paywall_price, { price: priceLabel })}</p>
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         {/* 4쪽(세 번째 카드 뒷면) 결제 버튼은 '카드 뒤집고 결과 보기'(v2.3.4 secret3.p4_cta, owner 2026-11-05 승인). 가격은 위 줄에 그대로. */}
         <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
-          {standalone && (c.secret3 as { p4_cta?: string }).p4_cta ? (c.secret3 as { p4_cta?: string }).p4_cta : fill(c.paywall_button, { price: won(price) })}
+          {standalone && (c.secret3 as { p4_cta?: string }).p4_cta ? (c.secret3 as { p4_cta?: string }).p4_cta : fill(c.paywall_button, { price: priceLabel })}
         </button>
       </div>
   );
@@ -423,10 +434,11 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
 function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const c = p.card!;
   const src = `/images/tarot/${c.image}`;
-  const alt = `${c.name} — ${c.character}${c.reversed ? " (역방향)" : ""}`;
+  const U = uiText(ctx.locale).result;
+  const alt = `${c.name} — ${c.character}${c.reversed ? ` (${U.reversed})` : ""}`;
   return (
     <>
-      <button type="button" className="card xl" onClick={() => ctx.openZoom({ src, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
+      <button type="button" className="card xl" onClick={() => ctx.openZoom({ src, alt, reversed: c.reversed })} aria-label={`${alt} ${U.zoom}`}>
         {p.page === 4 && ctx.opened ? (
           // 결제 직후: 뒷면으로 먼저 그린 뒤 그 자리에서 앞면으로 뒤집는다(owner 2026-11-02)
           <FlipReveal back="/images/tarot/card-back.webp" front={src} alt={alt} reversed={c.reversed} />
@@ -440,14 +452,14 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
       </button>
       <div className="cardinfo">
         <p className="cname">
-          <b>{c.name}</b> <span className="ch">{c.reversed ? `${c.character} · 역방향` : c.character}</span>
+          <b>{c.name}</b> <span className="ch">{c.reversed ? `${c.character} · ${U.reversed}` : c.character}</span>
         </p>
         <p className="kw">
           {c.keywords.map((k) => (
             <span key={k}>#{k}</span>
           ))}
         </p>
-        {c.arcana && <p className="arc">원래 타로 카드 · {c.arcana}</p>}
+        {c.arcana && <p className="arc">{U.arcana} · {c.arcana}</p>}
       </div>
       {/* 1쪽 안내 문단 — '카드는 이렇게 말해요' 위(owner 2026-11-02) */}
       {p.intro && <CardIntro text={p.intro} />}
@@ -455,7 +467,7 @@ function CardPage({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
       {(p.says ?? []).map((s, i) =>
         c.reversed && i === 0 ? (
           <p key={i} className="revsay">
-            <span className="revlab">역방향</span>
+            <span className="revlab">{U.reversed}</span>
             <Inl inline={parseInline(s)} />
           </p>
         ) : (
@@ -618,7 +630,7 @@ function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
                       <div className={`mcell ${c.dir}`}>
                         <span className="mpos">{c.position}</span>
                         <b>{c.name}</b>
-                        <span className="mrev">{c.reversed ? "역방향" : "정방향"}</span>
+                        <span className="mrev">{c.reversed ? uiText(ctx.locale).result.reversed : uiText(ctx.locale).result.upright}</span>
                         <span className="mforce">
                           {ARROW[c.dir]} {c.force}
                         </span>
@@ -648,7 +660,7 @@ function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: Ctx }) {
             return (
               <div key={i} className="mini">
                 <span className="pos">{b.position}</span>
-                <b>{b.name}</b> <small>{b.reversed ? `${b.character} · 역방향` : b.character}</small>
+                <b>{b.name}</b> <small>{b.reversed ? `${b.character} · ${uiText(ctx.locale).result.reversed}` : b.character}</small>
               </div>
             );
           case "kw":
@@ -683,12 +695,12 @@ function Strip({ cards, ctx }: { cards: ResultCard[]; ctx: Ctx }) {
                 <img {...cardImg(c.image, "(max-width: 400px) 30vw, 120px")} alt="" fetchPriority="high" />
               </span>
             );
-          const alt = `${c.name} — ${c.character}${c.reversed ? " (역방향)" : ""}`;
+          const alt = `${c.name} — ${c.character}${c.reversed ? ` (${uiText(ctx.locale).result.reversed})` : ""}`;
           return (
-            <button type="button" key={c.id} className="card sm" onClick={() => ctx.openZoom({ src: c.image, alt, reversed: c.reversed })} aria-label={`${alt} 크게 보기`}>
+            <button type="button" key={c.id} className="card sm" onClick={() => ctx.openZoom({ src: c.image, alt, reversed: c.reversed })} aria-label={`${alt} ${uiText(ctx.locale).result.zoom}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img {...cardImg(c.image, "(max-width: 400px) 30vw, 120px")} alt={alt} fetchPriority="high" className={c.reversed ? "rev180" : ""} onError={hideBroken} />
-              {c.reversed && <span className="revtag" style={{ display: "block" }}>역방향</span>}
+              {c.reversed && <span className="revtag" style={{ display: "block" }}>{uiText(ctx.locale).result.reversed}</span>}
             </button>
           );
         })}
