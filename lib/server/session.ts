@@ -562,7 +562,7 @@ export async function claim(s: SessionRow, userId: string | null) {
 type OrderRow = { id: string; user_id: string; session_id: string; amount: number; currency?: "KRW" | "USD" | null; status: "pending" | "paid" | "canceled"; payment_key: string | null };
 const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 뒤 이 화면을 새로고침해 주세요. 계속되면 contact@ssolwellness.com으로 알려 주세요.";
 
-export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null }: { email?: string | null } = {}) {
+export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null, country = null }: { email?: string | null; country?: string | null } = {}) {
   if (!userId || s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
   // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
   if (body.withdrawalAck !== true) throw new TarotError(400, "이용 관련 약관에 동의해 주세요.");
@@ -589,7 +589,9 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
     console.error("tarot_orders 생성 실패:", error?.message);
     throw new TarotError(500, "주문을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
   }
-  return { orderId: row.id as string, orderName: en ? REPORT_ORDER_NAME_EN : REPORT_ORDER_NAME, amount, currency: price.currency, customerKey: userId };
+  // country: 영문 PayPal 결제창(API 개별 연동 키)에 넘기는 나라 — 접속 국가, 모르거나 한국이면 US(아스트로와 같음)
+  const payCountry = country && /^[A-Z]{2}$/.test(country) && country !== "KR" ? country : "US";
+  return { orderId: row.id as string, orderName: en ? REPORT_ORDER_NAME_EN : REPORT_ORDER_NAME, amount, currency: price.currency, customerKey: userId, ...(en ? { country: payCountry } : {}) };
 }
 
 async function settleOrder(orderId: string, status: "canceled") {
@@ -623,6 +625,8 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   // 토스가 돌려준 금액(달러면 1.99)을 센트로 바꿔 주문 금액(정수)과 비교한다
   if (toMinor(currency, amount) !== order.amount) throw new TarotError(400, "결제 금액이 일치하지 않아요.");
   amount = toMajor(currency, order.amount);
+  // 달러 주문은 해외결제 상점(TOSS_EN_SECRET_KEY)으로만 승인·조회·취소한다 — 원화 상점 키로 대신하지 않음
+  const store = currency === "USD" ? "en" : "ko";
 
   let method: string | null = null;
   let tossEmail: string | null = null;
@@ -633,14 +637,14 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
       await settleOrder(orderId, "canceled");
       throw Object.assign(new TarotError(409, "이미 결제한 결과예요. 결과 화면에서 바로 볼 수 있어요."), { sessionId: order.session_id });
     }
-    const r = await confirmTossPayment({ paymentKey, orderId, amount });
+    const r = await confirmTossPayment({ paymentKey, orderId, amount }, store);
     if (r.ok) {
       method = r.method;
       tossEmail = r.customerEmail ?? null;
     }
     else {
       // 승인 응답이 실패여도 토스에서는 이미 승인됐을 수 있다 — 실제 상태를 물어 DONE이면 결제 완료, 확실히 아니면 취소, 모르면 재시도 안내.
-      const lookup = await getTossPayment(paymentKey);
+      const lookup = await getTossPayment(paymentKey, store);
       const d = decideAfterConfirmFailure(lookup, { orderId, amount });
       if (d === "cancel") {
         await settleOrder(orderId, "canceled");
@@ -651,7 +655,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
     }
   } else {
     // 'canceled' 주문: 예전에 오류로 잘못 취소됐을 수 있으니 토스에서 실제로 승인됐는지만 확인한다(다시 승인하지 않음).
-    const lookup = await getTossPayment(paymentKey);
+    const lookup = await getTossPayment(paymentKey, store);
     if (decideAfterConfirmFailure(lookup, { orderId, amount }) !== "paid") throw new TarotError(409, "이미 처리된 주문이에요.");
     method = lookup?.method ?? null;
   }
@@ -659,7 +663,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   // 여기부터는 토스 승인이 확인됨.
   const saved = await markOrderPaid(orderId, { paymentKey, method });
   if (saved === "duplicate") {
-    const refunded = await cancelTossPayment(paymentKey, "같은 결과에 대한 중복 결제");
+    const refunded = await cancelTossPayment(paymentKey, "같은 결과에 대한 중복 결제", store);
     if (refunded) await settleOrder(orderId, "canceled");
     console.error(refunded ? "타로 중복 결제 취소함" : "타로 중복 결제 취소 실패(수동 확인 필요)", orderId);
     throw Object.assign(new TarotError(409, refunded ? "이미 결제한 결과라 이번 결제는 취소했어요." : CONFIRM_RETRY_MESSAGE), { sessionId: order.session_id });

@@ -12,6 +12,7 @@ export const CHECKOUT_EN = {
   ackAfter: ".",
   methods: "Visa · Mastercard · JCB · PayPal. Your bank may add a foreign-transaction fee.",
   pay: "Pay US$1.99 and see my full reading",
+  payPaypal: "Pay with PayPal", // 아스트로 영문 결제와 같은 문구(08 문서에 없는 버튼)
   needAck: "Tick the box above to continue",
   loading: "Loading payment…",
   opening: "Opening payment…",

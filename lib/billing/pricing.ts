@@ -18,8 +18,22 @@ export const REPORT_ORDER_NAME_EN = "Ssol Tarot House Full Reading";
 // 주문 표(tarot_orders.amount)는 정수 칸이라 달러는 센트로 저장한다(1.99달러 = 199). 토스 승인·조회에는 달러 금액(1.99)을 쓴다.
 export const toMinor = (currency: "KRW" | "USD", major: number): number => (currency === "USD" ? Math.round(major * 100) : major);
 export const toMajor = (currency: "KRW" | "USD", minor: number): number => (currency === "USD" ? minor / 100 : minor);
-// 영문 결제는 owner가 토스 해외 결제를 켜고 확인한 뒤에만 연다(TAROT_USD_CHECKOUT=1). 그 전에는 주문을 만들지 않는다.
-export const usdCheckoutEnabled = (env: Record<string, string | undefined> = process.env): boolean => env.TAROT_USD_CHECKOUT === "1";
+// 영문 결제는 owner가 켜고(TAROT_USD_CHECKOUT=1) **해외결제 상점 키**(TOSS_EN_SECRET_KEY)가 있을 때만 연다.
+// 한국어(원화) 상점 키로 대신하지 않는다(2026-11-06 — 원화 상점으로 달러를 요청하면 토스 2003).
+export const usdCheckoutEnabled = (env: Record<string, string | undefined> = process.env): boolean => env.TAROT_USD_CHECKOUT === "1" && Boolean(env.TOSS_EN_SECRET_KEY);
+export type TossStore = "ko" | "en";
+/** 상점별 비밀 키 — 한국어(원화) = TOSS_SECRET_KEY, 영문(달러) = TOSS_EN_SECRET_KEY. 없으면 null(서로 대신 쓰지 않는다). */
+export const tossSecretFor = (store: TossStore, env: Record<string, string | undefined> = process.env): string | null =>
+  (store === "en" ? env.TOSS_EN_SECRET_KEY : env.TOSS_SECRET_KEY) || null;
+/** 영문 결제창 키 — 해외결제 상점 키만(NEXT_PUBLIC_TOSS_EN_CLIENT_KEY). 한국어 키(NEXT_PUBLIC_TOSS_CLIENT_KEY)로 대신하지 않는다. */
+export const enTossClientKey = (): string | undefined => process.env.NEXT_PUBLIC_TOSS_EN_CLIENT_KEY || undefined;
+/** 키 종류(아스트로와 같음): 결제위젯 키(…_gck_…)면 토스 결제위젯(외화결제 UI), API 개별 연동 키(…_ck_…)면 결제창을 바로 연다. */
+export function tossKeyKind(clientKey: string | undefined): "widget" | "api" | null {
+  if (!clientKey) return null;
+  if (/_gck_/.test(clientKey)) return "widget";
+  if (/_ck_/.test(clientKey)) return "api";
+  return null;
+}
 export type ReportPrice = { currency: "KRW" | "USD"; amount: number; label: string };
 export function reportPriceFor(locale: "ko" | "en", now: Date = new Date()): ReportPrice {
   if (locale === "en") return { currency: "USD", amount: REPORT_PRICE_USD, label: usd(REPORT_PRICE_USD) };

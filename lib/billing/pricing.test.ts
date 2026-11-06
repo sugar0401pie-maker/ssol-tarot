@@ -27,7 +27,7 @@ test("화면 문구는 금액을 직접 쓰지 않고 {price}/{list} 자리로 �
 });
 
 // 영문판 결제(2026-11-06): US$1.99, 할인 없음, 주문 표에는 센트로
-import { REPORT_PRICE_USD, reportPriceFor, toMajor, toMinor, usd, usdCheckoutEnabled } from "./pricing.ts";
+import { REPORT_PRICE_USD, reportPriceFor, toMajor, toMinor, tossKeyKind, tossSecretFor, usd, usdCheckoutEnabled } from "./pricing.ts";
 test("영문 가격은 US$1.99이고 할인 기간에도 그대로", () => {
   assert.deepEqual(reportPriceFor("en", new Date("2026-11-10T12:00:00+09:00")), { currency: "USD", amount: REPORT_PRICE_USD, label: "US$1.99" });
   assert.equal(reportPriceFor("ko", new Date("2026-11-10T12:00:00+09:00")).label, "990원");
@@ -40,8 +40,22 @@ test("달러는 센트로 저장하고 토스 금액과 맞춰 본다(원화는 
   assert.equal(toMinor("KRW", 990), 990);
   assert.equal(toMajor("KRW", 990), 990);
 });
-test("영문 결제는 TAROT_USD_CHECKOUT=1일 때만 열린다", () => {
+test("영문 결제는 TAROT_USD_CHECKOUT=1이고 해외결제 상점 비밀 키가 있을 때만 열린다(원화 키로 대신하지 않음)", () => {
   assert.equal(usdCheckoutEnabled({}), false);
-  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "true" }), false);
-  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "1" }), true);
+  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "1" }), false);
+  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "1", TOSS_SECRET_KEY: "ko" }), false);
+  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "true", TOSS_EN_SECRET_KEY: "en" }), false);
+  assert.equal(usdCheckoutEnabled({ TAROT_USD_CHECKOUT: "1", TOSS_EN_SECRET_KEY: "en" }), true);
+});
+test("상점별 비밀 키: 영문은 TOSS_EN_SECRET_KEY만, 한국어는 TOSS_SECRET_KEY만(2003 방지)", () => {
+  assert.equal(tossSecretFor("en", { TOSS_SECRET_KEY: "ko" }), null);
+  assert.equal(tossSecretFor("en", { TOSS_SECRET_KEY: "ko", TOSS_EN_SECRET_KEY: "en" }), "en");
+  assert.equal(tossSecretFor("ko", { TOSS_SECRET_KEY: "ko", TOSS_EN_SECRET_KEY: "en" }), "ko");
+  assert.equal(tossSecretFor("ko", { TOSS_EN_SECRET_KEY: "en" }), null);
+});
+test("영문 결제창 키 종류", () => {
+  assert.equal(tossKeyKind("live_gck_x"), "widget");
+  assert.equal(tossKeyKind("live_ck_x"), "api");
+  assert.equal(tossKeyKind(undefined), null);
+  assert.equal(tossKeyKind("weird"), null);
 });

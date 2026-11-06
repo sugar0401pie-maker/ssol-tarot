@@ -15,7 +15,7 @@ export async function POST(req: Request, ctx: RouteContext<"/api/tarot/session/[
     const user = await getAuthUser(req.headers.get("authorization")).catch(() => null);
     const userId = user?.id ?? null;
     const s = await loadSession(id, { key: null, userId });
-    const r = await createOrder(s, userId, await readJson(req), { email: user?.email ?? null });
+    const r = await createOrder(s, userId, await readJson(req), { email: user?.email ?? null, country: req.headers.get("x-vercel-ip-country") });
     // 기간 한정 무료 열람 계정이면 결제 뒤와 같이 리포트를 만든다(lib/billing/compAccess.ts)
     if ("comp" in r) after(() => generateReport(s.id));
     return NextResponse.json(r);
