@@ -13,7 +13,8 @@ import { clean, fill } from "@/lib/client/text";
 import { cardImg } from "@/lib/client/cardImage";
 import { splitTeaser, parseBlocks, parseInline, type Block, type Inline, type ParseOpts } from "@/lib/client/pageBlocks";
 import type { Copy } from "./TarotFlow";
-import { SafetyScreen } from "./SafetyScreen";
+import { SafetyScreen, useHelplines } from "./SafetyScreen";
+import { fillHelplinesDeep } from "@/lib/safety/helplinesEn";
 import { ShareSheet } from "./share/ShareSheet";
 import KakaoTalkLogo from "./share/KakaoTalkLogo";
 import AuthFooterLink from "./auth/AuthFooterLink";
@@ -42,6 +43,8 @@ function hideBroken(e: React.SyntheticEvent<HTMLImageElement>) {
 
 export default function ResultView({ id, copy, opts, initialPage = 1, locale = "ko" }: { id: string; copy: ViewCopy; opts: ParseOpts; initialPage?: number; locale?: Locale }) {
   const U = uiText(locale).result;
+  // 영문 결과의 안전 안내(watch 줄·두려움 안내 박스)에 든 {crisis_line} 등을 접속 국가 번호로(모르면 국제 안내)
+  const helplines = useHelplines(locale === "en");
   const [res, setRes] = useState<ResultResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nickname, setNickname] = useState("");
@@ -81,6 +84,8 @@ export default function ResultView({ id, copy, opts, initialPage = 1, locale = "
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 문구는 언어가 바뀌지 않는 한 같음
   }, [id]);
 
+  const filled = useMemo(() => (res && locale === "en" ? fillHelplinesDeep(res, helplines) : res), [res, helplines, locale]);
+
   if (error) {
     return (
       <main className="dawn-bg flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
@@ -110,7 +115,7 @@ export default function ResultView({ id, copy, opts, initialPage = 1, locale = "
       </main>
     );
   }
-  return <Swipe id={id} r={res as Ready} copy={copy} opts={opts} initialPage={initialPage} locale={locale} />;
+  return <Swipe id={id} r={(filled ?? res) as Ready} copy={copy} opts={opts} initialPage={initialPage} locale={locale} />;
 }
 
 // 쪽이 잠겨 있는지 — 세 번째 카드(4쪽)부터(owner 2026-11-02 시크릿). 예전 서버 응답(5쪽 일부 무료)도 그대로 그린다.

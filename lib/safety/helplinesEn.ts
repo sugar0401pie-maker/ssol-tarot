@@ -26,6 +26,14 @@ export function fillHelplines(text: string, h: Helplines): string {
   return text.replace(/\{(crisis_line|crisis_text|emergency|dv_line|youth_line)\}/g, (_m, k: keyof Helplines) => h[k]);
 }
 
+/** 결과 응답처럼 겹친 값 안의 모든 글에 fillHelplines(영문 결과의 watch 안내·두려움 안내 박스 등). */
+export function fillHelplinesDeep<T>(v: T, h: Helplines): T {
+  if (typeof v === "string") return fillHelplines(v, h) as T;
+  if (Array.isArray(v)) return v.map((x) => fillHelplinesDeep(x, h)) as T;
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fillHelplinesDeep(x, h)])) as T;
+  return v;
+}
+
 /** 전화로 걸 수 있는 번호(tel:)를 고른다 — 문구에 숫자가 있으면 첫 번호, 없으면 null(전화 버튼 대신 글만). */
 export function telOf(label: string): string | null {
   const m = label.match(/(\+?\d[\d\s-]{1,14}\d)/);

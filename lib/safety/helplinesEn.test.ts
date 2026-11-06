@@ -23,3 +23,12 @@ test("전화 번호 고르기", () => {
   assert.equal(telOf("Samaritans: call 116 123"), "116123");
   assert.equal(telOf("your local emergency number"), null);
 });
+
+import { fillHelplinesDeep } from "./helplinesEn.ts";
+test("결과 응답 전체의 자리 표시를 채운다(다른 자리·숫자는 그대로)", () => {
+  const h = helplinesFor("ZZ");
+  const out = fillHelplinesDeep({ pages: [{ page: 10, fineprint: "Call {crisis_line}.", n: 3, body: "Hi {nickname}" }] }, h);
+  assert.equal(out.pages[0].fineprint, `Call ${h.crisis_line}.`);
+  assert.equal(out.pages[0].body, "Hi {nickname}");
+  assert.equal(out.pages[0].n, 3);
+});

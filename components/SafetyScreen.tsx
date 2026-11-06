@@ -9,7 +9,7 @@ import type { Locale } from "@/lib/i18n/locale";
 
 // 영문판: 데이터 문구의 {crisis_line} 등을 접속 국가의 번호로(lib/safety/helplinesEn.ts — 전문가 확인 전 초안).
 // 국가를 받기 전·실패하면 국제 안내(findahelpline.com, 지역 응급 번호)로 바로 보인다 — 기다리느라 비어 있지 않게.
-function useHelplines(on: boolean): Helplines {
+export function useHelplines(on: boolean): Helplines {
   const [h, setH] = useState<Helplines>(() => helplinesFor(null));
   useEffect(() => {
     if (!on) return;
