@@ -15,7 +15,8 @@ import { TERMS_URL } from "@/lib/legal/urls";
 import { Stars } from "../Cards";
 import PageFoot from "../PageFoot";
 
-const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+// 결제창 키는 서버가 주문 통화(이 화면은 원화)로 골라 준다(/api/tarot/session/{id}/pay-config) — 브라우저에 키를 박아 두지 않는다.
+type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null };
 
 type Order = { orderId: string; orderName: string; amount: number; customerKey: string };
 type Widget = Awaited<ReturnType<typeof import("@tosspayments/payment-widget-sdk")["loadPaymentWidget"]>>;
@@ -26,6 +27,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   const back = `/result/${id}/${page}`;
   const [checked, setChecked] = useState<boolean | null>(null); // 로그인 확인 중 null
   const [customerKey, setCustomerKey] = useState<string | null>(null); // 서버 주문의 customerKey와 같은 값(로그인 사용자 id)
+  const [TOSS_CLIENT_KEY, setClientKey] = useState<string | null | undefined>(undefined); // undefined = 아직 모름
   const [busy, setBusy] = useState(false);
   const [ack, setAck] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
@@ -44,6 +46,10 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
     void getRealSession().then(async (s) => {
       if (!s) return router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
       await claimIfGuest(id);
+      // 이 결과의 통화·키를 서버에 묻는다. 영문(달러) 결과면 영문 결제 화면으로(원화 상점으로 달러를 요청하지 않게)
+      const cfg = await api<PayConfig>(`/api/tarot/session/${id}/pay-config`).catch(() => null);
+      if (cfg?.currency === "USD") return router.replace(`/en/checkout/${id}?page=${page}`);
+      setClientKey(cfg?.clientKey ?? null);
       setCustomerKey(s.user.id);
       setChecked(true);
     });
@@ -70,7 +76,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
     return () => {
       cancelled = true;
     };
-  }, [checked, customerKey, promoState]);
+  }, [checked, customerKey, promoState, TOSS_CLIENT_KEY]);
 
   async function pay() {
     if (!ack || !widgetRef.current || busy) return;
@@ -144,7 +150,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
               </label>
               <p className="mt-2 break-keep pl-6 text-[11.5px] leading-relaxed text-moon/60">※ {STORAGE_NOTE}</p>
             </div>
-            {!TOSS_CLIENT_KEY && <p className="err">결제 설정이 아직 준비되지 않았어요.</p>}
+            {TOSS_CLIENT_KEY === null && <p className="err">결제 설정이 아직 준비되지 않았어요.</p>}
             {/* 토스 위젯이 그려지는 자리(흰 바탕이 필요) */}
             <div className="overflow-hidden rounded-2xl bg-white">
               <div id="toss-payment-methods" />

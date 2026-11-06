@@ -12,17 +12,17 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError, claimIfGuest } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
-import { REPORT_ORDER_NAME_EN, REPORT_PRICE_USD, enTossClientKey, tossKeyKind } from "@/lib/billing/pricing";
+import { REPORT_ORDER_NAME_EN, REPORT_PRICE_USD } from "@/lib/billing/pricing";
 import { CHECKOUT_EN as T } from "@/lib/i18n/checkoutEn";
 import { Stars } from "../Cards";
 
-const CLIENT_KEY = enTossClientKey();
-const KEY_KIND = tossKeyKind(CLIENT_KEY);
+// 결제창 키는 서버가 주문 통화(달러)로 골라 준다(/api/tarot/session/{id}/pay-config, owner 개발 전달 2026-11-06).
+type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null };
 /** 토스 관리자(해외결제 상점)의 외화결제 UI 이름 — 점이 들어간 "dollar.only"(owner 확인 2026-11-06, 아스트로와 같음) */
 const EN_VARIANT = process.env.NEXT_PUBLIC_TOSS_EN_VARIANT || "dollar.only";
 const USD = { currency: "USD" as const, value: REPORT_PRICE_USD };
 
-type Order = { orderId: string; orderName: string; amount: number; currency?: "KRW" | "USD"; customerKey: string; country?: string };
+type Order = { orderId: string; orderName: string; amount: number; currency?: "KRW" | "USD"; clientKey?: string | null; customerKey: string; country?: string };
 type Widgets = ReturnType<Awaited<ReturnType<typeof import("@tosspayments/tosspayments-sdk")["loadTossPayments"]>>["widgets"]>;
 type PayMethod = "card" | "paypal";
 
@@ -44,11 +44,18 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
   const [error, setError] = useState<string | null>(null);
   const widgetsRef = useRef<Widgets | null>(null);
   const orderRef = useRef<Order | null>(null);
+  const [cfg, setCfg] = useState<PayConfig | null>(null);
+  const CLIENT_KEY = cfg?.currency === "USD" ? cfg.clientKey : null; // 달러 상점 키만 쓴다
+  const KEY_KIND = CLIENT_KEY ? cfg?.keyKind ?? null : null;
 
   useEffect(() => {
     void getRealSession().then(async (s) => {
       if (!s) return router.replace(`/en/login?next=${encodeURIComponent(`/en/checkout/${id}?page=${page}`)}`);
       await claimIfGuest(id);
+      const c = await api<PayConfig>(`/api/tarot/session/${id}/pay-config`).catch(() => null);
+      // 한국어(원화) 결과면 한국어 결제 화면으로
+      if (c?.currency === "KRW") return router.replace(`/checkout/${id}?page=${page}`);
+      setCfg(c);
       setCustomerKey(s.user.id);
       setChecked(true);
     });
@@ -57,11 +64,12 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
   // 결제위젯 키면 들어오자마자 외화결제 UI를 그린다
   useEffect(() => {
     if (!checked || !customerKey || !CLIENT_KEY || KEY_KIND !== "widget" || widgetsRef.current) return;
+    const key = CLIENT_KEY;
     let cancelled = false;
     void (async () => {
       try {
         const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
-        const toss = await loadTossPayments(CLIENT_KEY);
+        const toss = await loadTossPayments(key);
         const widgets = toss.widgets({ customerKey });
         await widgets.setAmount(USD);
         // 외화결제 UI만 쓴다 — 기본 UI(DEFAULT)는 국내 일반결제라 달러로 열면 2003으로 거절된다(DEFAULT로 되돌아가지 않음)
@@ -78,7 +86,7 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
     return () => {
       cancelled = true;
     };
-  }, [checked, customerKey]);
+  }, [checked, customerKey, CLIENT_KEY, KEY_KIND]);
 
   /** 동의한 뒤에야 주문을 만든다(동의 판을 주문에 기록). 무료 열람 계정이면 결과로 바로 간다(null). */
   async function ensureOrder(): Promise<Order | null> {
@@ -88,8 +96,9 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
       router.replace(`/en/result/${r.sessionId}/${page}?opened=1`);
       return null;
     }
-    // 서버 주문이 달러·US$1.99가 아니면 결제하지 않는다(표시 금액과 청구 금액이 어긋나지 않게)
+    // 서버 주문이 달러·US$1.99가 아니거나, 주문이 알려 준 키가 이 화면 키와 다르면 결제하지 않는다(키·금액 혼선 방지)
     if (r.currency !== "USD" || r.amount !== REPORT_PRICE_USD) throw new Error("amount mismatch");
+    if (r.clientKey && r.clientKey !== CLIENT_KEY) throw new Error("key mismatch");
     orderRef.current = r;
     return r;
   }

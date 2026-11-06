@@ -10,8 +10,8 @@ export type TossConfirmResult =
   // network: 토스까지 닿지 못했거나 응답을 못 읽음 — 토스에서는 승인됐을 수도 있다(그래서 바로 취소하지 않는다)
   | { ok: false; error: string; code: string | null; network: boolean };
 
-// 상점(가맹점) 고르기(2026-11-06): 한국어(원화) = TOSS_SECRET_KEY, 영문(달러, 해외결제 상점) = TOSS_EN_SECRET_KEY.
-// 서로 대신 쓰지 않는다 — 원화 상점 키로 달러를 요청하면 토스가 2003 '계약된 결제수단이 아닙니다'로 거절한다(아스트로에서 겪음).
+// 상점(가맹점) 고르기: 주문 통화(KRW/USD)로 그 통화 상점의 시크릿 키(lib/billing/pricing.ts tossKeysFor).
+// 승인·조회·취소 모두 같은 규칙 — 원화 키로 달러 결제를 다루면 토스가 2003 '계약된 결제수단이 아닙니다'로 거절한다.
 import { tossSecretFor, type TossStore } from "@/lib/billing/pricing";
 export type { TossStore };
 function authHeader(store: TossStore): string | null {
@@ -19,7 +19,7 @@ function authHeader(store: TossStore): string | null {
   return secretKey ? `Basic ${Buffer.from(`${secretKey}:`).toString("base64")}` : null;
 }
 
-export async function confirmTossPayment(params: { paymentKey: string; orderId: string; amount: number }, store: TossStore = "ko"): Promise<TossConfirmResult> {
+export async function confirmTossPayment(params: { paymentKey: string; orderId: string; amount: number }, store: TossStore = "KRW"): Promise<TossConfirmResult> {
   const auth = authHeader(store);
   if (!auth) return { ok: false, error: "결제 연동이 아직 설정되지 않았어요.", code: "NO_KEY", network: false };
   try {
@@ -41,7 +41,7 @@ export async function confirmTossPayment(params: { paymentKey: string; orderId: 
 }
 
 /** 결제 한 건의 실제 상태(승인 응답을 못 받았거나 '이미 처리됨'일 때 확인용). 못 물어보면 null. */
-export async function getTossPayment(paymentKey: string, store: TossStore = "ko"): Promise<TossLookup | null> {
+export async function getTossPayment(paymentKey: string, store: TossStore = "KRW"): Promise<TossLookup | null> {
   const auth = authHeader(store);
   if (!auth) return null;
   try {
@@ -56,7 +56,7 @@ export async function getTossPayment(paymentKey: string, store: TossStore = "ko"
 }
 
 /** 승인된 결제를 전액 취소(같은 결과를 두 번 결제한 경우 등). 성공하면 true. */
-export async function cancelTossPayment(paymentKey: string, reason: string, store: TossStore = "ko"): Promise<boolean> {
+export async function cancelTossPayment(paymentKey: string, reason: string, store: TossStore = "KRW"): Promise<boolean> {
   const auth = authHeader(store);
   if (!auth) return false;
   try {

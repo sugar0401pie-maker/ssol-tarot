@@ -25,7 +25,7 @@ import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBloc
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { mergeE } from "@/lib/tarot/validateV4.js";
-import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currentReportPrice, reportPriceFor, toMajor, toMinor, usdCheckoutEnabled, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
+import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
 import { hasCompAccess } from "@/lib/billing/compAccess";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
@@ -562,6 +562,16 @@ export async function claim(s: SessionRow, userId: string | null) {
 type OrderRow = { id: string; user_id: string; session_id: string; amount: number; currency?: "KRW" | "USD" | null; status: "pending" | "paid" | "canceled"; payment_key: string | null };
 const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 뒤 이 화면을 새로고침해 주세요. 계속되면 contact@ssolwellness.com으로 알려 주세요.";
 
+/**
+ * 결제 화면 설정(주문 전에도 결제창을 그리려고 — owner 2026-11-04): 이 결과의 통화와 **그 통화 상점의 클라이언트 키**를 서버가 정해 준다.
+ * 통화는 세션 언어로(영문 = USD) — 브라우저 언어·주소로 고르지 않는다. 클라이언트 키는 공개 값이지만 시크릿 키는 절대 보내지 않는다.
+ */
+export function payConfig(s: SessionRow) {
+  const currency = currencyForLocale(localeOf(s));
+  const clientKey = tossKeysFor(currency).clientKey;
+  return { currency, clientKey, keyKind: tossKeyKind(clientKey) };
+}
+
 export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null, country = null }: { email?: string | null; country?: string | null } = {}) {
   if (!userId || s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
   // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
@@ -582,7 +592,7 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
   if (en && !usdCheckoutEnabled()) throw new TarotError(503, "영문 결제는 아직 준비 중이에요.");
   const price = en ? reportPriceFor("en") : { currency: "KRW" as const, amount: currentReportPrice() };
   const insert: Record<string, unknown> = { user_id: userId, session_id: s.id, amount: toMinor(price.currency, price.amount), withdrawal_version: en ? CHECKOUT_EN_VERSION : WITHDRAWAL_NOTICE_VERSION };
-  if (price.currency === "USD") insert.currency = "USD"; // 원화 주문은 기본값(KRW) — 마이그레이션 전에도 한국어 결제는 그대로 동작
+  insert.currency = price.currency; // 주문 통화를 저장 — 승인·조회·취소 키를 이 값으로 고른다(마이그레이션 20261106000000 실행 완료)
   const { data: row, error } = await db().from("tarot_orders").insert(insert).select("id").single();
   const amount = price.amount;
   if (error || !row) {
@@ -591,7 +601,7 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
   }
   // country: 영문 PayPal 결제창(API 개별 연동 키)에 넘기는 나라 — 접속 국가, 모르거나 한국이면 US(아스트로와 같음)
   const payCountry = country && /^[A-Z]{2}$/.test(country) && country !== "KR" ? country : "US";
-  return { orderId: row.id as string, orderName: en ? REPORT_ORDER_NAME_EN : REPORT_ORDER_NAME, amount, currency: price.currency, customerKey: userId, ...(en ? { country: payCountry } : {}) };
+  return { orderId: row.id as string, orderName: en ? REPORT_ORDER_NAME_EN : REPORT_ORDER_NAME, amount, currency: price.currency, clientKey: tossKeysFor(price.currency).clientKey, customerKey: userId, ...(en ? { country: payCountry } : {}) };
 }
 
 async function settleOrder(orderId: string, status: "canceled") {
@@ -625,8 +635,8 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   // 토스가 돌려준 금액(달러면 1.99)을 센트로 바꿔 주문 금액(정수)과 비교한다
   if (toMinor(currency, amount) !== order.amount) throw new TarotError(400, "결제 금액이 일치하지 않아요.");
   amount = toMajor(currency, order.amount);
-  // 달러 주문은 해외결제 상점(TOSS_EN_SECRET_KEY)으로만 승인·조회·취소한다 — 원화 상점 키로 대신하지 않음
-  const store = currency === "USD" ? "en" : "ko";
+  // 승인·조회·취소 키는 주문 통화의 상점 것만(달러 주문 = USD 상점 키) — 다른 통화 키로 대신하지 않음
+  const store = currency;
 
   let method: string | null = null;
   let tossEmail: string | null = null;
@@ -638,6 +648,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
       throw Object.assign(new TarotError(409, "이미 결제한 결과예요. 결과 화면에서 바로 볼 수 있어요."), { sessionId: order.session_id });
     }
     const r = await confirmTossPayment({ paymentKey, orderId, amount }, store);
+    if (!r.ok) console.warn("토스 승인 실패:", { currency: store, code: r.code, network: r.network }); // 금액·키·이메일은 남기지 않음
     if (r.ok) {
       method = r.method;
       tossEmail = r.customerEmail ?? null;
