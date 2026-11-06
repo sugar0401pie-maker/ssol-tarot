@@ -3,6 +3,8 @@ import { Noto_Sans_KR, Gowun_Batang } from "next/font/google";
 import "../globals.css";
 import "../auth.css";
 import Analytics from "@/components/Analytics";
+import { redirect } from "next/navigation";
+import { EN_PAGES_HIDDEN } from "@/lib/i18n/enAccess";
 
 // 영문판 뿌리 레이아웃(2026-11-05) — <html lang="en">. 한국어판은 app/(ko)/layout.tsx.
 // 글꼴은 한국어판과 같은 것(영문 글자도 같은 모양) — 디자인을 그대로 맞추기 위해.
@@ -24,6 +26,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#012F53" };
 
 export default function EnRootLayout({ children }: LayoutProps<"/en">) {
+  // 영문판 숨김 중이면 어느 영문 주소로 들어와도 한국어 첫 화면으로(lib/i18n/enAccess.ts)
+  if (EN_PAGES_HIDDEN) redirect("/");
   return (
     <html lang="en" className={`${notoSansKr.variable} ${gowunBatang.variable} h-full antialiased`}>
       <body className="min-h-full">
