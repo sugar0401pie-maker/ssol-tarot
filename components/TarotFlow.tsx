@@ -16,10 +16,8 @@ import { localePath, splitLocale, type Locale } from "@/lib/i18n/locale";
 import { uiText } from "@/lib/i18n/ui";
 import { CONSENT_EN } from "@/lib/i18n/consentEn";
 import { createContext, useContext } from "react";
-import { variantOf } from "@/lib/tarot/v43.js";
 
 // 입력창 A/B(v4.3) — 같은 세션은 늘 같은 쪽. 영문판은 B 문구가 없어 A.
-const placeholderVariant = (id: string) => variantOf(id) as "A" | "B";
 
 // 화면 조각(IntroScreen 등)이 언어를 알도록 — TarotFlow가 넣어 준다.
 const LocaleCtx = createContext<Locale>("ko");
@@ -322,7 +320,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
       )}
       {screen === "worry" && (
         <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
-          <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} variant={session ? placeholderVariant(session.id) : "A"} />
+          <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} variant="B" />
           {needLogin && (
             // 로그인 없이 볼 수 있는 하루 횟수를 다 씀 → 로그인하면 바로 다시 시작(/?start=1)
             <Link href={L(`/login?next=${encodeURIComponent(L("/?start=1"))}`)} className="btn-night relative z-[1] mt-3 block w-full max-w-sm rounded-full py-3.5 text-center text-[15px] font-medium">
@@ -519,7 +517,7 @@ function WorryScreen({
   const [text, setText] = useState("");
   const [ph, setPh] = useState(0);
   // v4.3 입력창 A/B(copy.worry.placeholder_ab): A = 지금 예시(대표님이 고른 연애·이직 예시 그대로), B = 자세한 예시 + 안내 한 줄.
-  // 배정은 세션 id로 고정(v43.variantOf) — 결제 분석 때 같은 id로 다시 계산할 수 있어 따로 저장하지 않는다.
+  // owner 2026-11-06: A/B 시험 없이 모두 B(자세한 예시 + 안내 한 줄). 영문 데이터에는 B가 없어 영문판은 기존 예시 그대로.
   const ab = (copy.worry as { placeholder_ab?: { B?: { examples?: string[]; hint?: string | null } } }).placeholder_ab;
   const useB = variant === "B" && Boolean(ab?.B?.examples?.length);
   const examples = useB ? ab!.B!.examples! : copy.worry.placeholder_examples;
