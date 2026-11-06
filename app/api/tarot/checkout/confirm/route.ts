@@ -1,5 +1,5 @@
 import { NextResponse, after } from "next/server";
-import { confirmPayment, generateReport } from "@/lib/server/session";
+import { confirmPayment, generateReport, sendOrderEmailEn } from "@/lib/server/session";
 import { authFrom, fail, readJson } from "@/lib/server/http";
 
 // 토스 결제창에서 돌아온 값(paymentKey·orderId·amount)을 그대로 믿지 않는다:
@@ -13,6 +13,9 @@ export async function POST(req: Request) {
     const { userId } = await authFrom(req);
     const r = await confirmPayment(userId, await readJson(req));
     if (r.generate) after(() => generateReport(r.sessionId));
+    // 영문(달러) 주문: 결제 직후 주문 확인 이메일 한 번(08 §4 — EU·UK 청약철회 포기 확인)
+    const mail = "orderEmail" in r ? r.orderEmail : null;
+    if (mail) after(() => sendOrderEmailEn(r.sessionId, mail));
     return NextResponse.json({ ok: true, sessionId: r.sessionId });
   } catch (e) {
     return fail(e, req);

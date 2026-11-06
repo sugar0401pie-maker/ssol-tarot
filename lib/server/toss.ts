@@ -6,7 +6,7 @@ import "server-only";
 import type { TossLookup } from "@/lib/billing/confirmDecision";
 
 export type TossConfirmResult =
-  | { ok: true; totalAmount: number; method: string | null }
+  | { ok: true; totalAmount: number; method: string | null; customerEmail?: string | null }
   // network: 토스까지 닿지 못했거나 응답을 못 읽음 — 토스에서는 승인됐을 수도 있다(그래서 바로 취소하지 않는다)
   | { ok: false; error: string; code: string | null; network: boolean };
 
@@ -29,7 +29,8 @@ export async function confirmTossPayment(params: { paymentKey: string; orderId: 
       // 5xx는 토스 쪽 처리 결과를 알 수 없으므로 network와 같게 본다
       return { ok: false, error: body?.message ?? `토스 결제 승인에 실패했어요 (${res.status}).`, code: body?.code ?? null, network: res.status >= 500 };
     }
-    return { ok: true, totalAmount: body.totalAmount, method: body.method ?? null };
+    // customerEmail: 결제창에서 구매자가 넣은 이메일(토스가 돌려줄 때만 — 영문 주문 확인 메일의 예비 주소, 아스트로와 같음)
+    return { ok: true, totalAmount: body.totalAmount, method: body.method ?? null, customerEmail: typeof body.customerEmail === "string" ? body.customerEmail : null };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "결제 승인 중 오류가 발생했어요.", code: null, network: true };
   }

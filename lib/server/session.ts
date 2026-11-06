@@ -5,6 +5,9 @@ import { toLocale, type Locale } from "@/lib/i18n/locale";
 import { screenTextEn } from "@/lib/tarot-glue/screenWorryEn";
 import { CONSENT_EN, CONSENT_EN_VERSION } from "@/lib/i18n/consentEn";
 import { CHECKOUT_EN_VERSION } from "@/lib/i18n/checkoutEn";
+import { buildOrderEmailEn, isEmail } from "@/lib/billing/orderEmailEn";
+import { sendEmail } from "@/lib/email/resend";
+import { kakaoImagePath, SITE_URL } from "@/lib/client/shareCard";
 import { createShuffle, pickSlot } from "@/lib/tarot/deck.js";
 import { mergeSafety } from "@/lib/tarot/safety.js";
 import { screenWorry } from "@/lib/tarot-glue/screenWorry";
@@ -622,6 +625,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   amount = toMajor(currency, order.amount);
 
   let method: string | null = null;
+  let tossEmail: string | null = null;
   if (order.status === "pending") {
     // 같은 결과를 이미 결제했다면(다른 탭의 주문) 토스 승인을 하지 않는다 — 승인 전이면 카드에서 돈이 나가지 않는다.
     const { data: sess } = await db().from("tarot_sessions").select("paid_at").eq("id", order.session_id).maybeSingle();
@@ -630,7 +634,10 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
       throw Object.assign(new TarotError(409, "이미 결제한 결과예요. 결과 화면에서 바로 볼 수 있어요."), { sessionId: order.session_id });
     }
     const r = await confirmTossPayment({ paymentKey, orderId, amount });
-    if (r.ok) method = r.method;
+    if (r.ok) {
+      method = r.method;
+      tossEmail = r.customerEmail ?? null;
+    }
     else {
       // 승인 응답이 실패여도 토스에서는 이미 승인됐을 수 있다 — 실제 상태를 물어 DONE이면 결제 완료, 확실히 아니면 취소, 모르면 재시도 안내.
       const lookup = await getTossPayment(paymentKey);
@@ -660,7 +667,49 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   const now = new Date().toISOString();
   await update(order.session_id, { paid_at: now, report_status: "generating", report_started_at: now });
   await countEvent("paid");
-  return { ok: true, sessionId: order.session_id, generate: true };
+  // 영문(달러) 주문은 결제가 처음 완료될 때 한 번 주문 확인 이메일(08 §4) — 보내는 일은 라우트가 응답 뒤(after)에
+  const orderEmail = currency === "USD" ? { orderId, userId, method, tossEmail, paidAt: new Date(now) } : null;
+  return { ok: true, sessionId: order.session_id, generate: true, orderEmail };
+}
+
+/** 로그인 계정의 이메일(auth). user_metadata는 사용자가 바꿀 수 있어 쓰지 않는다(아스트로 getAccountEmail과 같은 규칙). */
+async function accountEmail(userId: string): Promise<string | null> {
+  const { data, error } = await db().auth.admin.getUserById(userId);
+  if (error || !data.user) return null;
+  const fromIdentity = (data.user.identities ?? [])
+    .map((i) => (i.identity_data ?? {}) as Record<string, unknown>)
+    .map((d) => (typeof d.email === "string" ? d.email : ""))
+    .find((e) => e) ?? "";
+  const email = data.user.email || fromIdentity;
+  return isEmail(email) ? email : null;
+}
+
+/**
+ * 영문 주문 확인 이메일(쏠 아스트로 하우스와 같은 방식). 받는 사람: 로그인 계정 이메일 → 토스 결제창에서 받은 이메일.
+ * 고민 글·해석은 넣지 않는다 — 세 번째 카드 그림·이름(결제 뒤라 공개)과 주문 내역만. 실패해도 결제·리포트에는 영향 없다.
+ * 받는 주소·본문은 로그에 남기지 않는다.
+ */
+export async function sendOrderEmailEn(sessionId: string, m: { orderId: string; userId: string; method: string | null; tossEmail: string | null; paidAt: Date }) {
+  try {
+    const to = (await accountEmail(m.userId)) ?? (isEmail(m.tossEmail) ? m.tossEmail : null);
+    if (!to) return console.warn("영문 주문 확인 이메일: 받을 주소 없음");
+    const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
+    const s = row as SessionRow | null;
+    const key = s ? expandPicks(s.picks, "en")[2] : null;
+    const mail = buildOrderEmailEn({
+      orderId: m.orderId,
+      paidAt: m.paidAt,
+      method: m.method,
+      resultId: sessionId,
+      imageUrl: key ? `${SITE_URL}${kakaoImagePath(String(key.card.image), Boolean(key.reversed))}` : null,
+      cardName: key ? String(key.card.name) : null,
+      nickname: s?.nickname ?? null,
+    });
+    const r = await sendEmail({ to, ...mail, from: "SSOL Tarot House <noreply@ssolwellnesshouse.com>" });
+    if (!r.ok) console.error("영문 주문 확인 이메일 실패:", r.reason);
+  } catch (e) {
+    console.error("영문 주문 확인 이메일 오류:", e instanceof Error ? e.name : "unknown");
+  }
 }
 
 // 결제 직후(백그라운드): D(5·6쪽)·E1(7쪽)·E2(8·9쪽)를 **동시에** 부른다(v4.2 패키지 — E를 둘로 나눠 속도를 줄임).
