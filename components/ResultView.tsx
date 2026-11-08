@@ -18,6 +18,15 @@ import { fillHelplinesDeep } from "@/lib/safety/helplinesEn";
 import { ShareSheet } from "./share/ShareSheet";
 import KakaoTalkLogo from "./share/KakaoTalkLogo";
 import AuthFooterLink from "./auth/AuthFooterLink";
+import { EN_IMPRINT_URL, enLegalUrl } from "@/lib/legal/en";
+
+const EN_RESULT_LINKS: [string, string][] = [
+  [enLegalUrl("terms"), "Terms"],
+  [enLegalUrl("privacy"), "Privacy"],
+  [enLegalUrl("refund"), "Refunds"],
+  [enLegalUrl("disclaimer"), "Disclaimer"],
+  [EN_IMPRINT_URL, "Imprint"],
+];
 import { SceneArt } from "./SceneArt";
 import { RESULT_PAGE_SCENE, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
@@ -324,6 +333,17 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
                 {p.fineprint && !(p.body ?? "").includes(p.fineprint) && <p className="fineprint">{p.fineprint}</p>}
                 {(p.page === 1 || p.page === n) && <p className="fineprint">{copy.disclaimer}</p>}
                 {locale === "ko" && <AuthFooterLink tone="dark" />}
+                {/* 영문: 쪽마다 정책·사업자 정보 링크(owner 2026-11-08, 기획 08 문서 6장) */}
+                {locale === "en" && (
+                  <p className="pb-1 text-center text-[11.5px] leading-5 text-[#204870]/70">
+                    {EN_RESULT_LINKS.map(([href, label], i) => (
+                      <span key={href}>
+                        {i > 0 && " · "}
+                        <Link href={href} prefetch={false} className="underline">{label}</Link>
+                      </span>
+                    ))}
+                  </p>
+                )}
                 {/* 테스트 소개 페이지(owner 2026-11-04, SEO) */}
                 {locale === "ko" && (
                   <p className="pb-1 text-center text-[12px] text-[#204870]/70">

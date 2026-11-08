@@ -31,7 +31,7 @@ SSOL Wellness House offers non-clinical wellness coaching and wellness sessions.
 - **We check for signs of crisis.** If what you write suggests you may be in danger, we pause the reading and show you where to get help.
 - **No account needed.** You can save results and pay without signing in.
 - **We never sell your data.** We share it only with the services that run the site, take payments and measure our ads.
-- **Your data may leave Korea.** Some of those services are in the United States, and Sowella AI runs on servers in India. The section "Where your data goes" lists them.
+- **Your data may leave Korea.** Some of those services are in the United States, and our database and Sowella AI run on servers in India. The section "Where your data goes" lists them.
 - **You stay in control.** You can see, fix or delete your data, and withdraw consent, at any time.
 
 This summary helps you read the policy. The full text below is what applies.
@@ -80,11 +80,11 @@ We do not sell your personal information or give it to other companies for their
 
 ## Where your data goes
 
-We use the service providers below to run the Service. They act on our behalf under contract, and we supervise how they protect your data. Several are in the United States, and Sowella AI runs on servers in India, so your data may be transferred to those countries.
+We use the service providers below to run the Service. They act on our behalf under contract, and we supervise how they protect your data. Several are in the United States, and our database and Sowella AI run on servers in India, so your data may be transferred to those countries.
 
 | Provider | Country | What they do | What they receive | When it is sent |
 | --- | --- | --- | --- | --- |
-| Supabase, Inc. | Republic of Korea (Seoul region, ap-northeast-2); Supabase, Inc. is a US company | Database and account sign-in | All Service data | When you use the Service |
+| Supabase, Inc. | India (Mumbai region, ap-south-1); Supabase, Inc. is a US company | Database and account sign-in | All Service data | When you use the Service |
 | Vercel Inc. | United States | Website hosting | Access data, page requests | When you use the Service |
 | Resend | United States | Sends sign-up verification emails | Email address, verification code | When you sign up |
 | Toss Payments Co., Ltd. | Republic of Korea | Card payments (Visa, Mastercard, JCB) | Order number, amount, currency, payment result | When you pay |
@@ -93,7 +93,7 @@ We use the service providers below to run the Service. They act on our behalf un
 | Google LLC (Google Analytics) | United States | Visitor statistics | See the Cookie Policy | Only with your consent |
 | X Corp. | United States | Measuring our X ads | See the Cookie Policy | Only with your consent |
 | OpenAI, L.L.C. | United States | Sorts what you write and writes parts of your reading; writes Sowella AI replies | What you wrote, your nickname and your cards; for Sowella AI, the tarot items it uses and your chat messages | Only if you write about your situation, or chat with Sowella AI |
-| [Hosting provider] for Sowella AI | India | Database and hosting for Sowella AI | Your account details, the report items passed to Sowella AI, your chat messages | When you start a chat with Sowella AI |
+| Supabase, Inc. and Vercel Inc. for Sowella AI | India (Mumbai region) | Database and hosting for Sowella AI | Your account details, the report items passed to Sowella AI, your chat messages | When you start a chat with Sowella AI |
 
 We never send what you write, your nickname, your cards, your email address or your phone number to Google Analytics or X.
 

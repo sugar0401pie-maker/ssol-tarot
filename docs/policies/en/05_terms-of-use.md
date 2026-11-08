@@ -16,8 +16,8 @@ You must be at least 18 years old. The Service, including Sowella AI, may not be
 
 | Item | Price | What you get |
 | --- | --- | --- |
-| Your cards and a first reading | Free | [Your first two cards, what each one says, and a short reading of the two together] |
-| Full report | US$1.99, one-time | [Your third card], the story your three cards tell, what this means for your situation, where the cards point, remedies and this week's practices |
+| Your cards and a first reading | Free | Your first two cards, what each one says, and a short reading of the two together |
+| Full report | US$1.99, one-time | Your third card, the story your three cards tell, what this means for your situation, where the cards point, remedies and this week's practices |
 
 You can draw cards again for a new reading at any time. Sowella AI is a separate service with its own terms; new Sowella AI members get a free 3-day pass there. The full report is a one-time purchase for one reading. It does not renew automatically and we never charge you again. Because the report is digital content delivered right after payment, by buying it you ask us to deliver it immediately and agree that you lose your right to cancel once it is shown to you (see the Refund Policy for when we still refund). Prices include any taxes we must collect, unless the checkout page says otherwise. Your bank may add its own foreign-transaction fee.
 

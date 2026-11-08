@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Noto_Sans_KR, Gowun_Batang } from "next/font/google";
 import "../globals.css";
 import "../auth.css";
-import Analytics from "@/components/Analytics";
 import { redirect } from "next/navigation";
 import { EN_PAGES_HIDDEN } from "@/lib/i18n/enAccess";
 
@@ -32,7 +31,7 @@ export default function EnRootLayout({ children }: LayoutProps<"/en">) {
     <html lang="en" className={`${notoSansKr.variable} ${gowunBatang.variable} h-full antialiased`}>
       <body className="min-h-full">
         {children}
-        <Analytics />
+        {/* 구글 애널리틱스는 영문판에서 부르지 않는다 — 영문 방침(Cookie Policy)이 "동의한 경우에만"이라 쿠키 동의 창을 만들기 전까지 끔(2026-11-08) */}
       </body>
     </html>
   );

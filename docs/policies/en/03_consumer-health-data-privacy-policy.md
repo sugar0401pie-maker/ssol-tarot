@@ -33,10 +33,10 @@ Only the service providers that run the Service for us process it, under contrac
 
 | Provider | What they do |
 | --- | --- |
-| Supabase, Inc. | Database (Seoul region) |
+| Supabase, Inc. | Database (Mumbai region, India) |
 | Vercel Inc. | Website hosting |
 | OpenAI, L.L.C. | Sorts what you write, writes parts of your reading, and writes Sowella AI replies |
-| [Hosting provider] (India) | Database and hosting for Sowella AI |
+| Supabase, Inc. and Vercel Inc. (India) | Database and hosting for Sowella AI |
 
 ## Your rights
 

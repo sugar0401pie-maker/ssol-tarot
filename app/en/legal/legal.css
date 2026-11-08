@@ -1,0 +1,13 @@
+/* 영문 약관 본문(크림 상자 위 남색 글자 — 한국어 /legal과 같은 모양) */
+.legal-en h3 { margin-top: 1.4rem; font-size: 15px; font-weight: 600; }
+.legal-en h4 { margin-top: 1rem; font-size: 14px; font-weight: 600; }
+.legal-en p, .legal-en li { font-size: 14px; line-height: 1.6rem; color: rgba(1, 53, 102, 0.88); }
+.legal-en p { margin-top: 0.6rem; }
+.legal-en ul, .legal-en ol { margin-top: 0.5rem; padding-left: 1.25rem; }
+.legal-en ul { list-style: disc; }
+.legal-en ol { list-style: decimal; }
+.legal-en a { text-decoration: underline; }
+.legal-en .tbl { margin-top: 0.75rem; overflow-x: auto; }
+.legal-en table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.35rem; }
+.legal-en th, .legal-en td { border: 1px solid rgba(1, 53, 102, 0.18); padding: 6px 8px; text-align: left; vertical-align: top; }
+.legal-en th { font-weight: 600; background: rgba(1, 53, 102, 0.06); }

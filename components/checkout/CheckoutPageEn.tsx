@@ -15,6 +15,7 @@ import { getRealSession } from "@/lib/supabase/browser";
 import { REPORT_ORDER_NAME_EN, REPORT_PRICE_USD } from "@/lib/billing/pricing";
 import { CHECKOUT_EN as T } from "@/lib/i18n/checkoutEn";
 import { Stars } from "../Cards";
+import PageFoot from "../PageFoot";
 
 // 결제창 키는 서버가 주문 통화(달러)로 골라 준다(/api/tarot/session/{id}/pay-config, owner 개발 전달 2026-11-06).
 type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null; variantKey: string };
@@ -210,6 +211,7 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
           </>
         )}
       </div>
+      <PageFoot locale="en" />
     </main>
   );
 }

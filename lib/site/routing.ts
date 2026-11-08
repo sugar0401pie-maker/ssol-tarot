@@ -47,7 +47,7 @@ export function routeRequest(r: RouteInput): RouteResult {
       return { kind: "redirect", url: `https://${KO_HOST}/?lang=ko`, status: 307, noStore: true };
     }
     if (isEnPath(r.pathname)) return { kind: "next" };
-    if (r.pathname === "/about" || r.pathname === "/legal") return { kind: "redirect", url: `/en${r.search}`, status: 307 };
+    if (r.pathname === "/about") return { kind: "redirect", url: `/en${r.search}`, status: 307 }; // 영문 소개 페이지는 아직 없음
     return { kind: "redirect", url: `/en${r.pathname === "/" ? "" : r.pathname}${r.search}`, status: 308 };
   }
 

@@ -34,6 +34,8 @@ test("영문 사이트: /en 밖의 주소는 /en…으로, 닫혀 있으면 한�
   assert.deepEqual(e({ pathname: "/" }), { kind: "redirect", url: "/en", status: 308 });
   assert.deepEqual(e({ pathname: "/result/x/2", search: "?opened=1" }), { kind: "redirect", url: "/en/result/x/2?opened=1", status: 308 });
   assert.deepEqual(e({ pathname: "/about" }), { kind: "redirect", url: "/en", status: 307 });
+  assert.deepEqual(e({ pathname: "/legal" }), { kind: "redirect", url: "/en/legal", status: 308 });
+  assert.deepEqual(e({ pathname: "/imprint" }), { kind: "redirect", url: "/en/imprint", status: 308 });
   assert.deepEqual(e({ enOpen: false, pathname: "/en/worry" }), { kind: "redirect", url: `https://${KO_HOST}/?lang=ko`, status: 307, noStore: true });
 });
 test("미리보기 주소(localhost·vercel.app)는 아무 것도 하지 않음", () => {

@@ -20,7 +20,7 @@ You don't have to write anything. If you tap **I'd rather keep it in my head**, 
 
 ## 3. Who processes it
 
-Your text is sent to OpenAI, L.L.C. (United States), which sorts it and writes the parts of your reading that connect the cards to your situation. OpenAI acts only on our instructions, does not use your text to train its models, and deletes it after up to 30 days. It is also stored in our database (Supabase, Seoul region). See "Where your data goes" in the Privacy Policy.
+Your text is sent to OpenAI, L.L.C. (United States), which sorts it and writes the parts of your reading that connect the cards to your situation. OpenAI acts only on our instructions, does not use your text to train its models, and deletes it after up to 30 days. It is also stored in our database (Supabase, Mumbai region in India). See "Where your data goes" in the Privacy Policy.
 
 ## 4. How long we keep it
 
