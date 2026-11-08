@@ -31,6 +31,7 @@ import { SceneArt } from "./SceneArt";
 import { RESULT_PAGE_SCENE, withExtraPool, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
 import { WaitNotice } from "./WaitNotice";
+import { lineAt } from "@/lib/client/rotate";
 
 // 결과 넘겨 보기 10쪽(v4.2 — 예전 11쪽에서 옛 8쪽이 빠짐). 화면 모양은 owner 시안 docs/design/result-swipe-preview-v4.html과 똑같이 맞춘다
 // (CSS: app/result/[id]/result-v4.css, 줄 → 블록 규칙: lib/client/pageBlocks.ts).
@@ -434,6 +435,26 @@ function SecretCard({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   );
 }
 
+/** 결제 상자 안 고객 후기 — 3.5초마다 다음 문장(lib/client/rotate.ts lineAt). 후기가 없으면 아무것도 안 그림. */
+function ReviewRotator({ lines }: { lines?: string[] }) {
+  const list = (lines || []).filter(Boolean);
+  const [ms, setMs] = useState(0);
+  useEffect(() => {
+    if (list.length < 2) return;
+    const start = Date.now();
+    const t = setInterval(() => setMs(Date.now() - start), 500);
+    return () => clearInterval(t);
+  }, [list.length]);
+  if (!list.length) return null;
+  const idx = Math.floor(ms / REVIEW_MS) % list.length;
+  return (
+    <p className="reviews" aria-live="off">
+      <span key={idx} className="review-line">“{lineAt(list, ms, REVIEW_MS)}”</span>
+    </p>
+  );
+}
+const REVIEW_MS = 3500;
+
 function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; standalone?: boolean }) {
   const c = ctx.copy.result;
   const promo = usePromo() === true;
@@ -448,6 +469,8 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
         {/* 지금 가격만(lib/billing/pricing.ts). 할인 표시는 결제 화면에서만(owner 2026-10-26). */}
         {/* 가격 줄: 데이터에 paywall_price_lead가 있으면 그 문장(owner 2026-11-08, 한국어판), 없으면 예전 '전체 리포트 {price}' */}
         <p className="price">{fill((c as { paywall_price_lead?: string }).paywall_price_lead || c.paywall_price, { price: priceLabel })}</p>
+        {/* 실제 고객 후기를 하나씩 돌아가며(owner 2026-11-08, 데이터 paywall_reviews — 받은 문장 그대로) */}
+        <ReviewRotator lines={(c as { paywall_reviews?: string[] }).paywall_reviews} />
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         {/* 4쪽(세 번째 카드 뒷면) 결제 버튼은 '카드 뒤집고 결과 보기'(v2.3.4 secret3.p4_cta, owner 2026-11-05 승인). 가격은 위 줄에 그대로. */}
         <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
