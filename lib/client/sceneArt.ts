@@ -7,6 +7,8 @@ export const SCENES = [
   "login",
   // 결과 화면(owner 그림 09~12): 해석 → 5쪽, 웰니스 처방 → 8쪽, 실천 → 9쪽, 쏘웰라로 이어 가기 → 10쪽 (RESULT_PAGE_SCENE)
   "result_interpret", "result_wellness", "result_practice", "result_continue",
+  // 공용 그림(owner 2026-11-08): 특정 단계 없이 받은 그림 — 혼자는 어디에도 안 나오고 EXTRA_POOL로 다른 화면 후보에만 섞인다
+  "extra",
 ] as const;
 // 안전 안내 화면(safety)은 일부러 넣지 않는다 — 승인된 안내만 보이게.
 export type SceneId = (typeof SCENES)[number];
@@ -26,10 +28,14 @@ export const RESULT_PAGE_SCENE: Partial<Record<number, SceneId>> = {
   5: "result_interpret", 6: "shuffle", 7: "draw", 8: "result_wellness", 9: "result_practice", 10: "result_continue",
 };
 
-// '다 뽑음'(reveal) 화면에는 그림을 띄우지 않고(owner 2026-11-02), 그 그림은 앞 단계(환영·경험 질문·처음 안내·고민 쓰기)
-// 그림 후보에 섞어 무작위로 나오게 한다.
+// 화면에 그림을 띄우지 않는 단계(섞기·뽑기·다 뽑음·결과 기다림)의 그림과 공용 그림(extra)은 다른 화면의 무작위 후보로 돌린다
+// (owner 2026-11-02 reveal → 앞 단계, 2026-11-08 "다른 화면의 무작위 후보로" — loading·extra·섞기·뽑기 그림도).
+// 대상: 앞 단계 4곳(환영·경험 질문·처음 안내·고민 쓰기) + 결과 6쪽(shuffle)·7쪽(draw). 기다림 화면 자체에는 여전히 그림 없음.
+const SHARED: SceneId[] = ["shuffle", "draw", "reveal", "loading", "extra"];
+const others = (self?: SceneId) => SHARED.filter((s) => s !== self);
 export const EXTRA_POOL: Partial<Record<SceneId, SceneId[]>> = {
-  welcome: ["reveal"], experience: ["reveal"], first_time: ["reveal"], worry: ["reveal"],
+  welcome: others(), experience: others(), first_time: others(), worry: others(),
+  shuffle: others("shuffle"), draw: others("draw"),
 };
 /** 장면별 후보에 EXTRA_POOL 그림을 더한 지도(같은 파일은 한 번만). */
 export function withExtraPool(map: SceneArtMap, extra: Partial<Record<SceneId, SceneId[]>> = EXTRA_POOL): SceneArtMap {

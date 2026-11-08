@@ -28,7 +28,7 @@ const EN_RESULT_LINKS: [string, string][] = [
   [EN_IMPRINT_URL, "Imprint"],
 ];
 import { SceneArt } from "./SceneArt";
-import { RESULT_PAGE_SCENE, type SceneArtMap } from "@/lib/client/sceneArt";
+import { RESULT_PAGE_SCENE, withExtraPool, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
 import { WaitNotice } from "./WaitNotice";
 
@@ -164,7 +164,7 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
   useEffect(() => {
     fetch("/api/scene-art")
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => setSceneArt(j))
+      .then((j) => setSceneArt(withExtraPool(j))) // 결과 6·7쪽도 공용 후보를 섞는다(owner 2026-11-08)
       .catch(() => setSceneArt(null));
   }, []);
   const router = useRouter();
