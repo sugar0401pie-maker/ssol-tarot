@@ -11,6 +11,8 @@ import { buildNormalizer } from "../lib/tarot/normalize.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MODEL = process.argv[2] || "text-embedding-3-small";
+// DIM=1024 처럼 주면 그 길이로 줄여 받는다(text-embedding-3 모델만 — 저장 용량 줄이기)
+const DIM = process.env.DIM ? Number(process.env.DIM) : null;
 const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.4.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
 const norm = buildNormalizer(JSON.parse(fs.readFileSync(path.join(ROOT, "data/norm_dict.json"), "utf8")));
 const tableOf = (r) => (r.tables ?? [r.table ?? null])[0] ?? null;
@@ -20,7 +22,7 @@ async function embedAll(texts) {
   for (let i = 0; i < texts.length; i += 256) {
     const res = await fetch("https://api.openai.com/v1/embeddings", {
       method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-      body: JSON.stringify({ model: MODEL, input: texts.slice(i, i + 256) }),
+      body: JSON.stringify({ model: MODEL, input: texts.slice(i, i + 256), ...(DIM ? { dimensions: DIM } : {}) }),
     });
     if (!res.ok) throw new Error(`embeddings ${res.status}`);
     const j = await res.json();
@@ -30,7 +32,7 @@ async function embedAll(texts) {
 }
 const unit = (v) => { const n = Math.hypot(...v) || 1; return v.map((x) => x / n); };
 const cacheDir = path.join(ROOT, "scripts/.cache"); fs.mkdirSync(cacheDir, { recursive: true });
-const cacheFile = path.join(cacheDir, `gold_v2.4_${MODEL}.json`);
+const cacheFile = path.join(cacheDir, `gold_v2.4_${MODEL}${DIM ? `_${DIM}` : ""}.json`);
 let V;
 if (fs.existsSync(cacheFile)) V = JSON.parse(fs.readFileSync(cacheFile, "utf8"));
 else { V = (await embedAll(rows.map((r) => norm(r.text)))).map(unit); fs.writeFileSync(cacheFile, JSON.stringify(V)); }
@@ -64,7 +66,7 @@ function run(mode, wEmb = 0.7) {
   const p = (x, d) => `${((x / d) * 100).toFixed(1)}%`;
   return { "점수표 1위": p(t1, n), "세부 고민 1위": p(s1, nSub), "세부 후보 8개 안": p(s8, nSub) };
 }
-const out = { "글자 검색(지금)": run("char"), [`임베딩(${MODEL})`]: run("emb") };
+const out = { "글자 검색(지금)": run("char"), [`임베딩(${MODEL}${DIM ? ` ${DIM}` : ""})`]: run("emb") };
 for (const w of (process.env.W || "0.5,0.7,0.85").split(",").map(Number)) out[`하이브리드 ${w}/${(1 - w).toFixed(2)}`] = run("hybrid", w);
 console.log(`실제 고민 ${real.length}건 · 5겹 교차 검증 · 색인 ${rows.length}줄`);
 console.table(out);
