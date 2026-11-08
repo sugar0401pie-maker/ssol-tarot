@@ -14,7 +14,7 @@ const gowunBatang = Gowun_Batang({ variable: "--font-gowun-batang", subsets: ["l
 // "fortune·prediction·destiny"는 메타 태그에도 쓰지 않는다(스펙 11장 2번과 같은 원칙).
 const DESCRIPTION = "A self-reflection wellness tarot made by professional counselors. Think of your question, draw three cards, and get wellness practices that fit you.";
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshouse.com"),
+  metadataBase: new URL("https://en.tarot.ssolwellnesshouse.com"),
   title: "SSOL Tarot House",
   description: DESCRIPTION,
   openGraph: { title: "SSOL Tarot House", description: DESCRIPTION, siteName: "SSOL Tarot House", locale: "en_US", type: "website" },

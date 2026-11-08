@@ -8,7 +8,7 @@ test("주문 확인 이메일: 08 §4 문구(주문 번호·가격·결제 시�
   assert.ok(m.text.includes("Order no. ord-1 · Full tarot report · US$1.99, one-time payment, no renewal · Paid on November 6, 2026, 09:05 UTC with card."));
   assert.ok(m.text.includes("you lose your right to cancel once it is shown to you"));
   assert.ok(m.text.includes("572-07-03549") && m.text.includes("/en/legal#terms") && m.text.includes("/en/legal#refund"));
-  assert.ok(m.text.includes("https://tarot.ssolwellnesshouse.com/en/result/r1/4"));
+  assert.ok(m.text.includes("https://en.tarot.ssolwellnesshouse.com/en/result/r1/4"));
   assert.ok(!/[가-힣]/.test(m.text) && !/[가-힣]/.test(m.html));
 });
 

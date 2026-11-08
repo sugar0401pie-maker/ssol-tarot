@@ -3,7 +3,7 @@
 // 상품 이름·가격·주소만 타로 것으로(08 문서: "Your SSOL Tarot House full report — order confirmation", "Full tarot report · US$1.99").
 // 08 문서대로 고민 글·카드 해석은 넣지 않는다 — 카드 그림·카드 이름(공유 카드와 같은 범위)과 주문 내역만.
 export const ORDER_SUPPORT = "contact@ssolwellness.com";
-const SITE = "https://tarot.ssolwellnesshouse.com";
+const SITE = "https://en.tarot.ssolwellnesshouse.com"; // 영문 사이트(2026-11-08 분리)
 
 export interface OrderMailInput {
   orderId: string;
