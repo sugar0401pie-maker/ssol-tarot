@@ -10,6 +10,11 @@ owner 프로젝트 노트: `docs/project-note.md`. 출시 전 할 일: `docs/05_
 ## 0. 우선순위
 안전 규칙(4장)이 다른 모든 지시보다 우선한다. 헷갈리면 멈추고 owner에게 묻는다.
 
+## 0-1. 저장소 나누기 — HARD RULE (owner 2026-11-08)
+- **영문판(en.tarot.ssolwellnesshouse.com) 업데이트는 영문 저장소 `ssol-tarot-en`에만 한다.** 한국어 저장소 `ssol-tarot`에는 영문 데이터·문구·화면·약관을 반영하지 않는다.
+- 한국어판(tarot.ssolwellnesshouse.com) 업데이트는 한국어 저장소 `ssol-tarot`에 한다. 영문 사이트에 필요한 공통 코드(예: 패키지 코드 `lib/tarot/*.js`, 결과 조립 `lib/tarot-glue/*`)만 영문 저장소에 함께 옮긴다.
+- 예전 "두 저장소는 코드가 같아야 한다(한쪽을 고치면 다른 쪽에도 같은 커밋)" 규칙은 이 규칙으로 대체한다.
+
 ## 1. 함께 일하는 사람
 owner는 개발자가 아니다. 큰 변경마다 (1) 무엇을·왜 바꾸는지 쉬운 한국어로 설명 (2) 그 기능만 구현 (3) 테스트를 돌리고 실패도 그대로 보고 (4) owner가 코드 밖에서 할 일(클릭·설정)을 정확히 알려 준다. 관련 없는 기능은 건드리지 않는다.
 - **지우는 작업은 먼저 묻는다(owner 2026-11-05).** 데이터(DB 행·표·칸), 파일, 기능·화면·문구를 지우거나 없애는 작업은 하기 전에 무엇을 왜 지우는지 owner에게 말하고 확인받은 뒤에 한다. 방침에 정한 자동 삭제(로그인 없이 본 결과 보관 기간 등)는 이 규칙과 별개로 정해진 대로 동작한다.
@@ -165,3 +170,4 @@ owner는 개발자가 아니다. 큰 변경마다 (1) 무엇을·왜 바꾸는�
 - **2026-11-08 — 영문 카드 뒷면(owner 제공, 남색 바탕 물결 + "by ssol Wellness House").** 원본은 두 저장소 모두 `public/images/tarot/en/card-back.webp`. 화면 코드는 뒷면을 `/images/tarot/card-back.webp` 한 경로로 쓰므로, **이 저장소(영문 사이트)에서만 그 파일을 영문 뒷면으로 바꿔 둠** — 한국어 저장소는 한국어 뒷면 그대로. 두 저장소가 다른 것: `EN_PAGES_HIDDEN` 한 줄 + 이 그림 파일 하나. 코드를 옮길 때 이 둘은 덮어쓰지 않는다.
 - **2026-11-08 — 영문 약관·방침·Imprint·영문 하단 사업자 정보(owner "영문 정책·사업자 정보 하나도 안 왔음, 전면 확인").** `/en/legal`(한 페이지, 앵커 `#terms`·`#privacy`·`#worry-consent`·`#health-data`·`#cookies`·`#refund`·`#disclaimer`) = `docs/policies/en/*.md`(기획 초안 v1.1.2, 법률 검토 전)를 `lib/legal/md.ts`(새 의존성 없는 작은 변환기, 글자는 모두 이스케이프, 테스트)로 그림. `/en/imprint` = 사업자 정보(기획 08 문서 6장 영문 표기, `lib/legal/en.ts` `EN_BUSINESS`). 영문 하단 `SiteFooterEn` = Imprint·Terms·Privacy·Health Data·Cookie·Refund·Disclaimer 링크 + 상호·대표·사업자등록번호·통신판매업신고번호·주소·전화·이메일 + © + 한국어로 보기 — 첫 화면·로그인·내 결과·약관·Imprint·영문 결제 화면에, 영문 결과 화면은 쪽마다 짧은 정책 링크 줄. 영문 사이트 `/legal`·`/imprint`는 `/en/…`으로. **문서 사실 바로잡음(기획 초안과 실제 설정이 달랐음)**: Supabase 지역 Seoul(ap-northeast-2) → **Mumbai, India(ap-south-1)**(타로·쏘웰라가 같은 프로젝트 — 쏘웰라 기록), 빈칸 `[Hosting provider]` → Supabase·Vercel(인도), 약관 표의 `[…]` 괄호 제거 — 기획 원본에도 반영 요청 필요. 구글 애널리틱스는 영문판에서도 켜 둠(owner 2026-11-08 "영문 ga 켜줘" — Claude가 임의로 껐던 것을 되돌림; 영문 Cookie Policy의 "동의한 경우에만" 문구와는 아직 다름). 아직 없는 것: 쿠키 동의 창·Cookie settings·Do Not Sell 페이지(X 픽셀을 안 쓰므로 지금은 해당 없음), 영문 소개(/about) 페이지.
 - **2026-11-08 — 영문 결제 화면의 철회권 동의 체크박스 없앰(owner "토스 결제창 안에 약관 체크 UI가 있음").** `CheckoutPageEn`은 체크 없이 [Pay]를 누를 수 있고, 동의는 토스 결제창의 약관 UI(`renderAgreement`)에서 받는다 — owner가 토스 약관을 우리 약관(`/en/legal#terms`·`#refund`)으로 이어지게 설정한다. 주문에는 여전히 `withdrawalAck: true`와 문구 판 `en-checkout-2026-11-06`이 남는다. 안 쓰게 된 문구 `ackBefore`·`ackAfter`·`needAck`(`lib/i18n/checkoutEn.ts`)는 owner 지시로 보관(지우지 않음).
+- **2026-11-08 — 한국어 패키지 v2.3.6 · 영문 자료 v1.2.4: 결제 전 흐림 예시를 고민 영역별 9세트로(owner).** 결제 전 5~9쪽 흐림 아래 예시가 모두 '일에 지친 사람' 한 가지라 연애 고민에도 퇴근·마감 이야기가 비쳤다. 패키지 `v43.blurSetKey(frame, cls, blur_samples)`(연애는 `love_status`, 그 밖은 `frame.area` → `cls.domain`, 기본 GEN)로 세트를 골라 `buildUnpaidPages`(`lib/tarot-glue/v4.ts`)가 5쪽은 `sets[k]["5"]`, 6~9쪽은 `sets[k][쪽]`, 10쪽은 공통 예시를 쓴다. 세트가 없는 데이터면 예전 공통 예시. 데이터는 `copy.result.blur_samples`의 `sets`·`pick`·`source`·`rule`·`pages`만 패키지 값으로(다른 문구는 owner 수정본 유지). 흐림 영역은 이미 `aria-hidden`·`user-select: none`. 한국어는 `ssol-tarot`, 영문은 `ssol-tarot-en`에 각각 반영(위 0-1 규칙). 예시는 가상 인물·번역 초안(검수 전).
