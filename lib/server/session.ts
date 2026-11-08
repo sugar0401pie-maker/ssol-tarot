@@ -276,7 +276,7 @@ export async function runClassification(sessionId: string) {
   const P = promptsFor(locale);
   const msg = worryUserMessage(worry);
   // v4.1: A2 사용자 입력에 비슷한 고민의 정답 5개를 붙이고(few-shot), 같은 5개의 투표를 두 번째 의견용으로 저장한다.
-  const fc = frameCall(worry, locale);
+  const fc = await frameCall(worry, locale);
   const callA = () => tryTwice("고민 분류(A)", async () => parseClassification(await generateText(P.A, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data));
   const callA2 = () =>
     tryTwice("고민 틀(A2)", async () => {

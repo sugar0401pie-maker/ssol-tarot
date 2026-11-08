@@ -50,3 +50,15 @@ export async function generateText(
   if (!text) throw new Error("AI가 빈 응답을 반환함");
   return text;
 }
+
+// v2.3.9 의미 검색(임베딩) — 비슷한 고민 예시 찾기용. 모델·길이는 판별 DB 색인을 만들 때와 같아야 한다(scripts/build_embed_index.mjs).
+// 질문(고민 글) 임베딩은 저장하지 않고 바로 버린다(요청서). 로그에는 토큰 수만.
+export const EMBED_MODEL = process.env.TAROT_EMBED_MODEL || "text-embedding-3-large";
+export const EMBED_DIM = Number(process.env.TAROT_EMBED_DIM || 1024);
+export async function embedText(text: string, { timeoutMs = 4000 }: { timeoutMs?: number } = {}): Promise<number[]> {
+  const res = await new OpenAI({ timeout: timeoutMs, maxRetries: 0 }).embeddings.create({ model: EMBED_MODEL, input: text, dimensions: EMBED_DIM });
+  console.info(`[tarot-ai] embed model=${EMBED_MODEL} in=${res.usage?.prompt_tokens ?? 0}`);
+  const v = res.data?.[0]?.embedding;
+  if (!v || v.length !== EMBED_DIM) throw new Error("임베딩 길이가 색인과 다름");
+  return v;
+}

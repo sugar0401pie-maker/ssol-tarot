@@ -9,6 +9,8 @@ import normDict from "@/data/norm_dict.json";
 import subDb from "@/data/worry_subtopics.json";
 import type { Locale } from "@/lib/i18n/locale";
 import { worryUserMessage } from "./prompts";
+import { embedText, EMBED_MODEL, EMBED_DIM } from "./ai";
+import { decodeIndex, hybridTop, unit } from "@/lib/tarot-glue/embedSearch";
 
 // v4.1 고민 틀(A2) 사용자 입력: 판별 DB '고민 틀 정답'에서 비슷한 고민 5개를 붙인다. 한국어 = judge-db/data/frame_gold_v2.1.jsonl(1,446건 — 합성 490 + 실제 고민 956건을 owner가 익명화·문체 변경, 2026-11-05).
 // 이 파일은 엑셀(judge-db/쏠타로_판별DB_*.xlsx '고민 틀 정답(T6)' 시트)에서 scripts/judge_db_frame_gold.py로 만든다.
@@ -23,19 +25,68 @@ const GOLD: Record<Locale, string> = {
 
 type Index = ReturnType<typeof buildIndex>;
 const indexes: Partial<Record<Locale, Index | null>> = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const goldRows: Partial<Record<Locale, any[]>> = {};
 
 function getIndex(locale: Locale): Index | null {
   if (indexes[locale] !== undefined) return indexes[locale] ?? null;
   try {
     const rows = fs.readFileSync(GOLD[locale], "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
+    goldRows[locale] = rows;
     // 한국어는 반말·줄임말·오타를 정리한 뒤 비교(v2.3.9 normalize.js — 검색에만 쓰고 AI에 보내는 원문은 그대로)
-    indexes[locale] = locale === "ko" ? buildIndex(rows, { normalize: buildNormalizer(normDict) }) : buildIndex(rows);
+    indexes[locale] = locale === "ko" ? buildIndex(rows, { normalize: koNorm }) : buildIndex(rows);
   } catch (e) {
     console.warn("고민 틀 정답 색인을 만들지 못함 — 예시 없이 A2 호출:", e instanceof Error ? e.message : "unknown");
     indexes[locale] = null;
   }
   return indexes[locale] ?? null;
 }
+
+// v2.3.9 의미 검색 색인(한국어만) — scripts/build_embed_index.mjs가 만든 16비트 벡터. 모델·차원·줄 id가 지금 판별 DB와 다르면 쓰지 않는다.
+// 끄기: TAROT_EMBED_SEARCH=0. 색인이 없거나 질문 임베딩이 실패·4초 초과면 예전처럼 글자 검색만(결과가 멈추지 않게).
+const EMB_BIN = path.join(process.cwd(), "judge-db/data/frame_gold_v2.4.emb.f16.bin");
+const EMB_META = path.join(process.cwd(), "judge-db/data/frame_gold_v2.4.emb.meta.json");
+let embIndex: { vecs: Float32Array[]; ids: string[] } | null | undefined;
+function getEmbIndex(): { vecs: Float32Array[]; ids: string[] } | null {
+  if (embIndex !== undefined) return embIndex;
+  embIndex = null;
+  if (process.env.TAROT_EMBED_SEARCH === "0") return null;
+  try {
+    const rows = goldRows.ko;
+    const meta = JSON.parse(fs.readFileSync(EMB_META, "utf8"));
+    if (!rows || meta.model !== EMBED_MODEL || meta.dim !== EMBED_DIM || meta.ids.length !== rows.length || meta.ids.some((id: string, i: number) => id !== rows[i].id)) {
+      console.warn("의미 검색 색인이 판별 DB·모델과 맞지 않음 — 글자 검색만");
+      return null;
+    }
+    const vecs = decodeIndex(new Uint8Array(fs.readFileSync(EMB_BIN)), EMBED_DIM);
+    embIndex = { vecs, ids: meta.ids };
+  } catch (e) {
+    console.warn("의미 검색 색인을 읽지 못함 — 글자 검색만:", e instanceof Error ? e.message : "unknown");
+  }
+  return embIndex;
+}
+
+// 글자 검색 이웃(id → 점수)과 임베딩 코사인을 0.7·0.3으로 섞어 이웃 k개(글자 검색 결과와 같은 모양).
+async function hybridNeighbors(ix: Index, worryText: string, norm: (t: string) => string, k: number) {
+  const charTop = ix.nearest(worryText, 50);
+  const E = getEmbIndex();
+  const rows = goldRows.ko;
+  if (!E || !rows || !aiReady()) return ix.nearest(worryText, k);
+  try {
+    const q = unit(await embedText(norm(worryText)));
+    const top = hybridTop(q, E.vecs, E.ids, new Map(charTop.map((n) => [n.id, n.score])), k);
+    return top.map(({ i, score }) => {
+      const r = rows[i];
+      return { id: r.id, score, text: r.text, table: (r.tables ?? [r.table ?? null])[0] ?? null, tables: r.tables ?? [r.table ?? null], mode: r.mode ?? null, ranked: r.ranked ?? r.options_ranked ?? [],
+        sub_id: r.sub_id ?? null, sub2: r.sub2 ?? null, area: r.area ?? null, want: r.want ?? null, love_status: r.love_status ?? null, love_topic: r.love_topic ?? null };
+    });
+  } catch (e) {
+    console.warn("의미 검색 실패 — 글자 검색만:", e instanceof Error ? e.message : "unknown");
+    return ix.nearest(worryText, k);
+  }
+}
+const aiReady = () => Boolean(process.env.OPENAI_API_KEY);
+const koNorm = buildNormalizer(normDict);
 
 // 패키지 buildFrameUserBlock의 한국어 안내 줄을 영어로(PROMPTS_EN_NOTES — "개발 확인 필요"의 안내 한 줄).
 const EN_FEWSHOT_HEAD = "[Answer examples for similar worries — use them only for picking the table and ordering the options. Take the words for options and questions from this worry.]";
@@ -53,11 +104,11 @@ export type FrameVote = { table: string | null; share: number; top_score: number
 export const SUB_NEIGHBORS = 20;
 export const SUB_CANDIDATES = 8;
 
-export function frameCall(worryText: string, locale: Locale = "ko"): { user: string; vote: FrameVote | null } {
+export async function frameCall(worryText: string, locale: Locale = "ko"): Promise<{ user: string; vote: FrameVote | null }> {
   const ix = getIndex(locale);
   if (!ix) return { user: worryUserMessage(worryText), vote: null };
   try {
-    const all = ix.nearest(worryText, locale === "ko" ? SUB_NEIGHBORS : FEWSHOT_K);
+    const all = locale === "ko" ? await hybridNeighbors(ix, worryText, koNorm, SUB_NEIGHBORS) : ix.nearest(worryText, FEWSHOT_K);
     const neighbors = all.slice(0, FEWSHOT_K);
     const v = voteTable(neighbors);
     // table이 undefined면 이웃이 없다는 뜻(두 번째 의견 건너뜀) — null(= '방향 없음' 표)과 구분해서 기록하지 않는다.
