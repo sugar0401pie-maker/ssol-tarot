@@ -21,3 +21,4 @@ next-env.d.ts
 # 문장 DB 스크립트 실행 부산물
 db/__pycache__/
 db/import_report.md
+scripts/.cache/
