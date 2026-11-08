@@ -31,7 +31,6 @@ import { SceneArt } from "./SceneArt";
 import { RESULT_PAGE_SCENE, withExtraPool, type SceneArtMap } from "@/lib/client/sceneArt";
 import { Stars } from "./Cards";
 import { WaitNotice } from "./WaitNotice";
-import { lineAt } from "@/lib/client/rotate";
 
 // 결과 넘겨 보기 10쪽(v4.2 — 예전 11쪽에서 옛 8쪽이 빠짐). 화면 모양은 owner 시안 docs/design/result-swipe-preview-v4.html과 똑같이 맞춘다
 // (CSS: app/result/[id]/result-v4.css, 줄 → 블록 규칙: lib/client/pageBlocks.ts).
@@ -435,25 +434,29 @@ function SecretCard({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   );
 }
 
-/** 결제 상자 안 고객 후기 — 3.5초마다 다음 문장(lib/client/rotate.ts lineAt). 후기가 없으면 아무것도 안 그림. */
+/** 결제 상자 안 고객 후기 — 1.5초마다 무작위로 다음 문장(바로 앞 문장은 다시 안 나옴, owner 2026-11-08). 후기가 없으면 아무것도 안 그림. */
 function ReviewRotator({ lines }: { lines?: string[] }) {
-  const list = (lines || []).filter(Boolean);
-  const [ms, setMs] = useState(0);
+  const list = useMemo(() => (lines || []).filter(Boolean), [lines]);
+  // 첫 그림은 0번(서버·브라우저 화면이 같게), 그 뒤부터 무작위
+  const [state, setState] = useState({ idx: 0, tick: 0 });
   useEffect(() => {
     if (list.length < 2) return;
-    const start = Date.now();
-    const t = setInterval(() => setMs(Date.now() - start), 500);
+    const t = setInterval(() => {
+      setState((s) => {
+        const r = Math.floor(Math.random() * (list.length - 1));
+        return { idx: r >= s.idx ? r + 1 : r, tick: s.tick + 1 };
+      });
+    }, REVIEW_MS);
     return () => clearInterval(t);
   }, [list.length]);
   if (!list.length) return null;
-  const idx = Math.floor(ms / REVIEW_MS) % list.length;
   return (
     <p className="reviews" aria-live="off">
-      <span key={idx} className="review-line">“{lineAt(list, ms, REVIEW_MS)}”</span>
+      <span key={state.tick} className="review-line">“{list[state.idx % list.length]}”</span>
     </p>
   );
 }
-const REVIEW_MS = 3500;
+const REVIEW_MS = 1500;
 
 function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; standalone?: boolean }) {
   const c = ctx.copy.result;

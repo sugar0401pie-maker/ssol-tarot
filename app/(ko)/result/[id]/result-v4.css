@@ -181,6 +181,6 @@
 
 /* 결제 상자 고객 후기(owner 2026-11-08) — 두 줄 높이를 잡아 문장이 바뀌어도 상자가 흔들리지 않게 */
 .tv4 .pay .reviews { min-height: 3.2em; margin: 8px 0 4px !important; font-size: 13px; line-height: 1.55; opacity: .85; word-break: keep-all; }
-.tv4 .pay .review-line { display: inline-block; animation: tv4-review-in .5s ease; }
+.tv4 .pay .review-line { display: inline-block; animation: tv4-review-in .3s ease; }
 @keyframes tv4-review-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .tv4 .pay .review-line { animation: none; } }
