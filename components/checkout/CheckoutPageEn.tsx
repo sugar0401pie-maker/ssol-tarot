@@ -38,7 +38,6 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
   const [checked, setChecked] = useState<boolean | null>(null);
   const [customerKey, setCustomerKey] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [ack, setAck] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const widgetsRef = useRef<Widgets | null>(null);
@@ -87,7 +86,7 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
     };
   }, [checked, customerKey, CLIENT_KEY, KEY_KIND]);
 
-  /** 동의한 뒤에야 주문을 만든다(동의 판을 주문에 기록). 무료 열람 계정이면 결과로 바로 간다(null). */
+  /** [결제하기]를 누를 때 주문을 만든다(토스 약관 UI 동의 뒤, 화면 문구 판을 주문에 기록). 무료 열람 계정이면 결과로 바로 간다(null). */
   async function ensureOrder(): Promise<Order | null> {
     if (orderRef.current) return orderRef.current;
     const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } });
@@ -108,7 +107,7 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
   });
 
   async function run(fn: () => Promise<void>) {
-    if (!ack || busy) return;
+    if (busy) return;
     setError(null);
     setBusy(true);
     try {
@@ -164,22 +163,7 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
               <p className="mt-1 text-sm text-moon/80">{T.product}</p>
               <p className="mt-2 text-[12px] text-moon/60">{T.methods}</p>
             </div>
-            <div className="px-1 text-sm text-moon/90">
-              <label className="flex items-start gap-2">
-                <input type="checkbox" className="mt-1" checked={ack} disabled={busy} onChange={(e) => setAck(e.target.checked)} />
-                <span>
-                  {T.ackBefore}
-                  <Link href="/en/legal#terms" target="_blank" className="underline">
-                    {T.terms}
-                  </Link>
-                  {T.and}
-                  <Link href="/en/legal#refund" target="_blank" className="underline">
-                    {T.refund}
-                  </Link>
-                  {T.ackAfter}
-                </span>
-              </label>
-            </div>
+            {/* 약관·철회권 동의는 토스 결제창 안의 약관 UI에서 받는다(owner 2026-11-08 — 우리 체크박스 없앰) */}
             {/* 해외결제 상점 키가 없거나 알 수 없는 키면 결제를 열지 않는다(한국어 키로 대신하지 않음) */}
             {!KEY_KIND && <p className="err">{T.notReady}</p>}
             {KEY_KIND === "widget" && (
@@ -194,16 +178,16 @@ export default function CheckoutPageEn({ id, page }: { id: string; page: number 
               </p>
             )}
             {KEY_KIND === "widget" && (
-              <button type="button" className="btn block" disabled={!ready || !ack || busy} onClick={payWidget}>
-                {!ready ? T.loading : busy ? T.opening : ack ? T.pay : T.needAck}
+              <button type="button" className="btn block" disabled={!ready || busy} onClick={payWidget}>
+                {!ready ? T.loading : busy ? T.opening : T.pay}
               </button>
             )}
             {KEY_KIND === "api" && (
               <>
-                <button type="button" className="btn block" disabled={!ack || busy} onClick={() => payWindow("card")}>
-                  {busy ? T.opening : ack ? T.pay : T.needAck}
+                <button type="button" className="btn block" disabled={busy} onClick={() => payWindow("card")}>
+                  {busy ? T.opening : T.pay}
                 </button>
-                <button type="button" className="linkish text-center" disabled={!ack || busy} onClick={() => payWindow("paypal")}>
+                <button type="button" className="linkish text-center" disabled={busy} onClick={() => payWindow("paypal")}>
                   {T.payPaypal}
                 </button>
               </>
