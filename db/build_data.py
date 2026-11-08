@@ -127,6 +127,7 @@ COPY = dict(
     paywall_title="이어지는 이야기는 리포트에서 열려요",
     paywall_body="세 장이 함께 들려주는 이야기, 마음 깊이 읽기, 웰니스 처방, 이번 주 실천 카드까지 이어서 읽을 수 있어요.",
     paywall_price="전체 리포트 {price}",
+    paywall_price_lead="지금, 단돈 {price}으로 타로카드의 마지막 키를 열어보세요.",
     paywall_button="{price} 결제하고 이어 읽기",
     generating="바다 친구들이 리포트를 쓰고 있어요…",
     share="내 카드 공유하기", save="결과 저장하기", retry="다른 고민으로 다시 해 보기"),

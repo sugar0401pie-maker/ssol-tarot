@@ -1699,6 +1699,8 @@
    "paywall_title_decision": "세 장이 고른 쪽은 리포트에서 공개돼요",
    "paywall_body_decision": "왜 그쪽인지, 이번 주에 무엇부터 할지까지\n이어서 읽을 수 있어요. 내 고민에 대어 본 해석과 웰니스 처방,\n이번 주 실천 카드도 함께 열려요.",
    "paywall_price": "전체 리포트 {price}",
+   "paywall_price_lead": "지금, 단돈 {price}으로 타로카드의 마지막 키를 열어보세요.",
+   "paywall_price_lead_rule": "2026-11-08 owner: 결제 상자의 가격 줄을 이 문장으로 바꿈(있으면 paywall_price 대신). {price}는 항상 '…원'이라 조사 '으로' 고정.",
    "paywall_button": "{price} 결제하고 이어 읽기",
    "paywall_price_rule": "2026-10-26 owner: 2026-10-26 ~ 11-30(한국 시간) 990원 할인, 할인 표시는 결제 화면에서만. 금액은 코드(lib/billing/pricing.ts)가 {price}·{list}에 채운다 — 여기에 숫자를 쓰지 않는다.",
    "generating": "바다 친구들이 리포트를 쓰고 있어요…",

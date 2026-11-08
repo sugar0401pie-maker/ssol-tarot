@@ -446,7 +446,8 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
         {/* 문구 속 줄바꿈(\n)을 그대로(owner 2026-11-02) */}
         <p className="whitespace-pre-line">{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
         {/* 지금 가격만(lib/billing/pricing.ts). 할인 표시는 결제 화면에서만(owner 2026-10-26). */}
-        <p className="price">{fill(c.paywall_price, { price: priceLabel })}</p>
+        {/* 가격 줄: 데이터에 paywall_price_lead가 있으면 그 문장(owner 2026-11-08, 한국어판), 없으면 예전 '전체 리포트 {price}' */}
+        <p className="price">{fill((c as { paywall_price_lead?: string }).paywall_price_lead || c.paywall_price, { price: priceLabel })}</p>
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         {/* 4쪽(세 번째 카드 뒷면) 결제 버튼은 '카드 뒤집고 결과 보기'(v2.3.4 secret3.p4_cta, owner 2026-11-05 승인). 가격은 위 줄에 그대로. */}
         <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
