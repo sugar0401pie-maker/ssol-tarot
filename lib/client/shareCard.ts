@@ -7,7 +7,9 @@ export type ShareCopy = { kakao_title: string; kakao_desc: string; kakao_desc_de
 /** 카카오 카드 그림: 세 번째 카드(앞으로의 열쇠). /images/tarot/card-14-between.webp → /images/tarot/kakao/card-14-between(-rev).jpg */
 export function kakaoImagePath(cardImage: string, reversed: boolean): string {
   const file = cardImage.split("/").pop()!.replace(/\.webp$/, "");
-  return `/images/tarot/kakao/${file}${reversed ? "-rev" : ""}.jpg`;
+  // 영문 카드 그림(…/en/card-…)이면 영문 공유 그림 폴더(kakao/en/)
+  const dir = /(^|\/)en\/card-/.test(cardImage) ? "kakao/en" : "kakao";
+  return `/images/tarot/${dir}/${file}${reversed ? "-rev" : ""}.jpg`;
 }
 
 export type ShareChannel = "kakao" | "link_copy" | "device" | "naver_blog" | "x" | "instagram" | "youtube";

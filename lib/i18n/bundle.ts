@@ -16,7 +16,11 @@ export type Bundle = { locale: Locale; data: typeof ko; tables: typeof koTables;
 const KO: Bundle = { locale: "ko", data: ko, tables: koTables, midDb: koMid };
 // 영어 데이터는 같은 키 구조(값만 영어) — 타입은 한국어 것을 쓴다(영어에만 있는 키는 any로 읽음).
 // 영어 데이터에 아직 없는 화면 문구는 임시 문구(enInterim.ts)로 채운다 — 데이터 값이 있으면 데이터가 이긴다.
-const EN: Bundle = { locale: "en", data: { ...(en as any), copy: fillMissing((en as any).copy, EN_INTERIM_COPY) }, tables: enTables as any, midDb: enMid as any };
+// 영문 카드 그림(owner 2026-11-08): public/images/tarot/en/ 아래 같은 파일 이름 — 데이터는 고치지 않고 여기서 경로만 바꾼다.
+// 결과 화면·뽑기·내 결과·인트로·주문 메일이 모두 card.image.file로 그림을 고르므로 이 한 곳이면 된다.
+export const EN_ART_DIR = "en/";
+const enCards = (en as any).cards.map((c: any) => ({ ...c, image: { ...c.image, file: EN_ART_DIR + c.image.file } }));
+const EN: Bundle = { locale: "en", data: { ...(en as any), cards: enCards, copy: fillMissing((en as any).copy, EN_INTERIM_COPY) }, tables: enTables as any, midDb: enMid as any };
 
 export function bundleFor(locale: Locale): Bundle {
   return locale === "en" ? EN : KO;

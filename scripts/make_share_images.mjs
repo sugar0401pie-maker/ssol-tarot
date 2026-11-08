@@ -10,21 +10,28 @@ const OUT = path.join(SRC, "kakao");
 const NIGHT = { r: 1, g: 47, b: 83 }; // --night #012F53
 fs.mkdirSync(OUT, { recursive: true });
 
-const files = fs.readdirSync(SRC).filter((f) => /^card-\d\d-.+\.webp$/.test(f));
-for (const f of files) {
+// 한국어 카드(public/images/tarot/) → kakao/, 영문 카드(public/images/tarot/en/) → kakao/en/
+const jobs = [[SRC, OUT], [path.join(SRC, "en"), path.join(OUT, "en")]].filter(([d]) => fs.existsSync(d));
+const files = [];
+for (const [dir, out] of jobs) {
+  fs.mkdirSync(out, { recursive: true });
+  for (const f of fs.readdirSync(dir).filter((f) => /^card-\d\d-.+\.webp$/.test(f))) files.push([dir, out, f]);
+}
+for (const [dir, out, f] of files) {
   const base = f.replace(/\.webp$/, "");
-  const card = await sharp(path.join(SRC, f)).resize({ height: 700 }).toBuffer();
+  const card = await sharp(path.join(dir, f)).resize({ height: 700 }).toBuffer();
   for (const rev of [false, true]) {
     const c = rev ? await sharp(card).rotate(180).toBuffer() : card;
     const meta = await sharp(c).metadata();
     await sharp({ create: { width: 800, height: 800, channels: 3, background: NIGHT } })
       .composite([{ input: c, left: Math.round((800 - meta.width) / 2), top: 50 }])
       .jpeg({ quality: 86 })
-      .toFile(path.join(OUT, `${base}${rev ? "-rev" : ""}.jpg`));
+      .toFile(path.join(out, `${base}${rev ? "-rev" : ""}.jpg`));
   }
 }
 
-// 사이트 미리보기 그림: 카드 뒷면 세 장
+// 사이트 미리보기 그림: 카드 뒷면 세 장 — owner가 준 썸네일(2026-10-23)을 덮어쓰지 않게 --og 를 줄 때만 만든다
+if (!process.argv.includes("--og")) { console.log(`카드 ${files.length}장 × 2 (미리보기 그림은 건너뜀 — 만들려면 --og)`); process.exit(0); }
 const back = await sharp(path.join(SRC, "card-back.webp")).resize({ height: 520 }).toBuffer();
 const bw = (await sharp(back).metadata()).width;
 const gap = 40;
