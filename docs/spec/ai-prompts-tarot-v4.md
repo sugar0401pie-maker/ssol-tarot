@@ -54,7 +54,7 @@ v3.x의 `ai-prompts-tarot-v2.md`(A 분류·안전)는 그대로 쓰고, 아래 A
  14-3. (2026-10-22 owner) 결론과 반대쪽 선택지는 결론 문장 안에서 다시 꺼내지 않습니다("소송을 하지 않는 것보다 회사에 소송을 하는 것 쪽을" ✕ → "회사에 소송을 하는 방향을" ○).
 ```
 
-## A2 · 고민 틀 v4.7 (고민 제출 직후, A 분류와 함께) — v4.3: want·love_status·stage·control·area 칸, 예측 질문 선택지, 경계 예시 추가
+## A2 · 고민 틀 v4.9 (전문: 08_판별DB/A2_고민틀_프롬프트_v4.9.txt — v2.3.8: 세부 고민 sub_id 117개 목록 추가) · 이전 v4.8 (고민 제출 직후, A 분류와 함께) — v2.3.7: love_topic 칸, '누가 바뀌는지' 경계·반말 규칙 추가 ·  — v4.3: want·love_status·stage·control·area 칸, 예측 질문 선택지, 경계 예시 추가
 
 > v4.1에서 v4.6으로 교체(기준 `08_판별DB/고민틀_기준_v4.6.md`). 출력은 validateV4.parseFrame으로 검증(옛 형식도 통과). table·mode·options_ranked·money는 decision.pickTable / lean이 씀(mode axis: [+ 쪽, − 쪽] → 합 ≥ 0이면 [0] / mode rank: 추천 순위 → 카드 +면 1순위, −면 2순위).
 > **사용자 입력**은 `frameInput.buildFrameUserBlock`(파이프라인에서는 `prepareFrameCall`)이 만듦 — 판별 DB 고민 틀 정답(`08_판별DB/data/frame_gold_v1.jsonl`)에서 고민 글과 가장 비슷한 정답 5개(글자 2~4그램 TF-IDF 코사인, `retrieve.js`)를 `<example n="1"><worry>…</worry><answer>{"table","mode","options_ranked"}</answer></example>`로 붙이고, 맨 끝에 `<worry>이번 고민</worry>`.
@@ -131,6 +131,7 @@ v3.x의 `ai-prompts-tarot-v2.md`(A 분류·안전)는 그대로 쓰고, 아래 A
 [④ v4.7 새 칸 — 실제 고민 975건 분석(2026-11-05) 반영]
 - want(듣고 싶은 답 하나): "yesno"(된다·안 된다, 합격·성사 여부) / "when"(시기) / "their_mind"(상대의 마음·상태) / "which"(어느 쪽) / "how"(방법) / "why"(이유) / "comfort"(위로·괜찮다는 말) / "unclear". 예) "올해 안에 연애할 수 있을까요?" → yesno, "언제 연애해요?" → when, "그 사람 저 좋아할까요?" → their_mind, "이직할까요 남을까요" → which.
 - love_status(연애 고민일 때만, 아니면 null): "single"(솔로·연애 원함) / "some"(썸) / "crush"(짝사랑) / "dating"(연애 중) / "ex"(이별 뒤·재회) / "married"(기혼·결혼 준비) / "unknown".
+- love_topic(v4.8, 연애 고민일 때만, 아니면 null): "marriage"(결혼 결정·결혼 준비 — 결혼 후 살 곳·이사·돈·집·양가 가족 이야기 포함) / "distance"(장거리, 연인이나 내가 이직·발령·유학·이사로 떨어짐 — 결혼 이야기가 중심이면 marriage) / "conflict"(서운함·싸움·권태·연락 문제) / "breakup_consider"(헤어질까) / "future"(이 사람과 미래가 있을까, 결혼 이야기 전) / "crush_progress"(썸·짝사랑 진전) / "reunion"(재회) / "new"(새 인연).
 - stage: "before"(시작 전·준비 중·곧 시험/면접) / "waiting"(이미 했고 결과·답을 기다림) / "after_fail"(떨어짐·거절·이별 뒤) / "ongoing"(진행 중) / "none".
 - control(답이 누구 손에): "me"(내 행동) / "other"(상대 사람) / "outside"(시험 결과·회사 결정·운) / "mixed".
 - area(세부 영역): "LOV" / "CAR"(직장·이직) / "JOB"(취업 준비·취업 합격) / "EDU"(시험·입시·학업) / "DIR"(진로 선택·자기계발·창작) / "FAM" / "SOC" / "LIF"(돈·집·건강·생활) / "SELF"(나 자신·감정) / "FORT"(막연한 운세) / "NONE".
@@ -140,10 +141,13 @@ v3.x의 `ai-prompts-tarot-v2.md`(A 분류·안전)는 그대로 쓰고, 아래 A
 - "합격할까요 / 취업될까요 / 붙을까요 / 잘할 수 있을까요(면접·시험)"는 결과 예측이라도 table null이 아니라 start(want yesno). 
 - 이직·퇴사·회사를 옮길까는 start가 아니라 job. "회사가 힘들어요, 계속 다닐 수 있을까"도 job.
 - 지금 사귀는 사람과의 관계를 묻는 글(권태·싸움·이어 갈까)은 approach가 아니라 continue. 썸·짝사랑 상대에게 다가갈까는 approach.
+- (v4.8) **누가 바뀌는지 본다.** 연인·배우자의 이직·발령·이사·유학이 나와도 고민의 중심이 관계·결혼이면 area "LOV"(job·move 표 아님). 예) "남친이 6개월 만나고 결혼하자고 함.. 근데 결혼하고나서 지방으로 이직할 수도 있대.. 우린 아직 돈도 오픈안했는데" → area LOV, love_status dating, love_topic marriage, table progress, 선택지 ["결혼 이야기 진행하기 (암시)","지금 단계를 지키며 더 이야기 나누기 (암시)"], want which, hidden_question "결혼 후 지방에서 살고 돈 이야기를 나누는 것까지 감당할 수 있을까요?". 내 이직이 중심이고 연인은 배경이면 CAR/job. 결혼 후 함께 이사할지는 LOV(marriage), 혼자 독립·이사는 LIF/move.
+- (v4.8) 반말·줄임말·말줄임표(…함, ~했대, 남친, 여친, 우째, 어케, 돈 오픈)로 써도 같은 기준으로 읽는다. 말투 때문에 표나 영역을 바꾸지 않는다. core_question·hidden_question은 존댓말 물음표 문장으로 다듬어 쓰고, user_words는 원문 그대로 따온다.
+- (v4.8) 칸 하나라도 형식이 애매하면 confidence "low"로 두고 나머지는 끝까지 채운다(코드가 일부 칸을 고쳐 살리지만, core_question은 꼭 물음표로 끝나는 한 문장).
 - 질문 없이 감정·상황만 쓴 글도 고를 행동이 보이면 표를 고름(예: "회사 일이 안 풀려 속상해요" → job, want comfort). 정말 고를 행동이 없을 때만 null.
 
 [출력 — 이 형식만]
-{"table":"...","decision_source":"explicit","mode":"axis","rank_reason":null,"worry_type":"...","options_ranked":["...","..."],"core_question":"...?","hidden_question":null,"deadline":null,"duration":null,"money":false,"user_words":["...","..."],"want":"yesno","love_status":null,"stage":"before","control":"outside","area":"JOB","confidence":"high"}
+{"table":"...","decision_source":"explicit","mode":"axis","rank_reason":null,"worry_type":"...","options_ranked":["...","..."],"core_question":"...?","hidden_question":null,"deadline":null,"duration":null,"money":false,"user_words":["...","..."],"want":"yesno","love_status":null,"love_topic":null,"sub_id":"JB-WHEN","stage":"before","control":"outside","area":"JOB","confidence":"high"}
 ```
 
 ## C · 3장째 뽑는 순간 (2~5쪽 한 줄·질문, 5쪽 teaser / 비결정형만 5쪽 headline·lead)

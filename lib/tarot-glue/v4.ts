@@ -9,7 +9,8 @@ import type { MidDb } from "./midResult.ts";
 import { type Lean } from "../tarot/decision.js";
 import { pkg } from "./pkg.ts";
 import { afterFrame } from "../tarot/frameInput.js";
-import { normalizeFrameV43, applyForecastOptions, midAreaKey, teaserLine, answerFirst, blurSetKey } from "../tarot/v43.js";
+import { normalizeFrameV43, applyForecastOptions, applySubDefaults, midAreaKey, teaserLine, answerFirst, blurSetKey } from "../tarot/v43.js";
+import subDbKo from "../../data/worry_subtopics.json" with { type: "json" };
 import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
 
@@ -24,7 +25,16 @@ const bd = (locale?: Locale) => bundleFor(locale ?? "ko");
 // 영문판은 아직 v4.3 데이터가 없어 손대지 않는다.
 export function prepareFrame(frame: Frame | null, cls: Cls | null, locale?: Locale): Frame | null {
   if (!frame || locale === "en") return frame;
-  return applyForecastOptions(normalizeFrameV43(frame, cls), bd(locale).tables);
+  // v2.3.8: A2가 고른 세부 고민(sub_id, 117개)의 기본값으로 빈 칸(영역·연애 단계·주제·듣고 싶은 답)을 채운다(없는 id면 sub_id만 지움).
+  return applyForecastOptions(applySubDefaults(normalizeFrameV43(frame, cls), subDbKo), bd(locale).tables);
+}
+
+/** 3쪽 고민 읽기 문장의 영역 이름(패키지 buildPagesV43과 같은 순서): 세부 고민 이름(영역이 맞을 때) → 중간 결과 묶음 이름 → 영역 이름. */
+export function areaPhraseFor(frame: Frame | null, midKey: string | null, phrases: Record<string, string> | undefined): string | null {
+  if (!frame) return null;
+  const sub = frame.sub_id ? (subDbKo as any).subs?.[frame.sub_id] : null;
+  if (sub && (!frame.area || frame.area === sub.area) && sub.phrase) return sub.phrase;
+  return (phrases && ((midKey && phrases[midKey]) || phrases[frame.area])) || null;
 }
 
 /** 7쪽 '답 먼저' 한 줄(v4.3 — 예측·시기·상대 마음, DB 문장). now = 테스트를 본 시각(시기 달 계산 — 다시 열어도 같은 달). 영문판·고민 없음이면 null. */
@@ -161,6 +171,7 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
 export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, picks, locale }: { paid: boolean; name: string; cls: Cls | null; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; locale?: Locale }): any[] {
   const { data, midDb } = bd(locale);
   const CR = data.copy.result as any;
+  const midKey: string | null = locale === "en" ? cls?.domain ?? null : midAreaKey(frame, cls, midDb, subDbKo);
   return secretThird(pages, {
     paid, name, frame: frame as any, lean: lean as any, picks,
     reading: pkg(locale).assemble.readingSentence({ name, cls, data }),
@@ -169,10 +180,11 @@ export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, pick
     teaser5: (CR.pages as { key: string; teaser?: string }[]).find((x) => x.key === "story")?.teaser ?? null,
     mid: midDb as unknown as MidDb,
     // v4.3: 중간 결과 묶음은 세부 영역·연애 단계로(v43.midAreaKey — 취업·시험·솔로·짝사랑/썸·이별 뒤)
-    domain: locale === "en" ? cls?.domain ?? null : midAreaKey(frame, cls, midDb),
+    // v2.3.8: 세부 고민(sub_id)의 묶음이 가장 먼저(영역이 다르면 무시) — midAreaKey에 세부 고민 DB를 넘긴다
+    domain: midKey,
     // v4.3: '답은 아직…' 문단 뒤 듣고 싶은 답에 맞춘 예고(v43.teaserLine). 영문판은 문구가 없어 빼둔다.
     teaser: locale === "en" || !CR.v43 ? null : teaserLine({ frame, lean, name, data }),
-    areaPhrase: locale === "en" ? null : (frame?.area && CR.v43?.area_phrases?.[frame.area]) || null,
+    areaPhrase: locale === "en" ? null : areaPhraseFor(frame, midKey, CR.v43?.area_phrases),
   });
 }
 const summaryTitle = (locale?: Locale) => String((bd(locale).data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");

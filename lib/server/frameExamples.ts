@@ -1,8 +1,12 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { buildIndex } from "@/lib/tarot/retrieve.js";
-import { prepareFrameCall, FEWSHOT_HEAD, FEWSHOT_NOTE } from "@/lib/tarot/frameInput.js";
+import { buildIndex, voteTable, subCandidates } from "@/lib/tarot/retrieve.js";
+import { buildFrameUserBlock, FEWSHOT_K, FEWSHOT_HEAD, FEWSHOT_NOTE } from "@/lib/tarot/frameInput.js";
+import { buildNormalizer } from "@/lib/tarot/normalize.js";
+import { subPromptBlock } from "@/lib/tarot/v43.js";
+import normDict from "@/data/norm_dict.json";
+import subDb from "@/data/worry_subtopics.json";
 import type { Locale } from "@/lib/i18n/locale";
 import { worryUserMessage } from "./prompts";
 
@@ -12,7 +16,8 @@ import { worryUserMessage } from "./prompts";
 // 색인을 못 만들면(파일 없음 등) 예시 없이 예전처럼 고민만 보내고 두 번째 의견은 건너뛴다(README_v4 대체 경로).
 // 영문판은 같은 490건을 영어로 옮긴 judge-db/data/frame_gold_en_v1.2.jsonl(기획 전달본, text = 영어 고민).
 const GOLD: Record<Locale, string> = {
-  ko: path.join(process.cwd(), "judge-db/data/frame_gold_v2.1.jsonl"), // v2.3.4 + owner 익명화판(2026-11-05): 합성 490 + 실제 956(익명화·문체 변경)
+  // v2.3.9: v2.1(합성 490 + 실제 956 익명판) + 반말 경계 300 + 고민 문장 DB 예시 — 3,932줄, 줄마다 세부 고민 sub_id
+  ko: path.join(process.cwd(), "judge-db/data/frame_gold_v2.4.jsonl"),
   en: path.join(process.cwd(), "judge-db/data/frame_gold_en_v1.2.jsonl"),
 };
 
@@ -23,7 +28,8 @@ function getIndex(locale: Locale): Index | null {
   if (indexes[locale] !== undefined) return indexes[locale] ?? null;
   try {
     const rows = fs.readFileSync(GOLD[locale], "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
-    indexes[locale] = buildIndex(rows);
+    // 한국어는 반말·줄임말·오타를 정리한 뒤 비교(v2.3.9 normalize.js — 검색에만 쓰고 AI에 보내는 원문은 그대로)
+    indexes[locale] = locale === "ko" ? buildIndex(rows, { normalize: buildNormalizer(normDict) }) : buildIndex(rows);
   } catch (e) {
     console.warn("고민 틀 정답 색인을 만들지 못함 — 예시 없이 A2 호출:", e instanceof Error ? e.message : "unknown");
     indexes[locale] = null;
@@ -42,17 +48,26 @@ function toEnglishBlock(user: string): string {
 export type FrameVote = { table: string | null; share: number; top_score: number; neighbors: { id: string; score: number; table: string | null }[] };
 
 /** A2 사용자 메시지 + 투표(두 번째 의견용). 이웃의 고민 글은 판별 DB 예시 문장이고, 투표 기록에는 id·점수·표만 남긴다. */
+// v2.3.9: 이웃 20개 → 앞 5개는 few-shot 예시·두 번째 의견 투표, 20개 전체로 세부 고민 후보 8개(subCandidates)를 뽑아
+// A2 v4.10의 [세부 고민 후보] 블록(subPromptBlock)을 사용자 입력 맨 앞에 붙인다(영문판은 세부 고민 DB가 없어 예전처럼 5개만).
+export const SUB_NEIGHBORS = 20;
+export const SUB_CANDIDATES = 8;
+
 export function frameCall(worryText: string, locale: Locale = "ko"): { user: string; vote: FrameVote | null } {
   const ix = getIndex(locale);
   if (!ix) return { user: worryUserMessage(worryText), vote: null };
   try {
-    const prep = prepareFrameCall({ worryText, index: ix });
-    const v = prep.vote;
+    const all = ix.nearest(worryText, locale === "ko" ? SUB_NEIGHBORS : FEWSHOT_K);
+    const neighbors = all.slice(0, FEWSHOT_K);
+    const v = voteTable(neighbors);
     // table이 undefined면 이웃이 없다는 뜻(두 번째 의견 건너뜀) — null(= '방향 없음' 표)과 구분해서 기록하지 않는다.
     const vote: FrameVote | null = v && v.table !== undefined
-      ? { table: v.table ?? null, share: v.share, top_score: v.top_score, neighbors: prep.neighbors.map((n) => ({ id: n.id, score: n.score, table: n.table ?? null })) }
+      ? { table: v.table ?? null, share: v.share, top_score: v.top_score, neighbors: neighbors.map((n) => ({ id: n.id, score: n.score, table: n.table ?? null })) }
       : null;
-    return { user: locale === "en" ? toEnglishBlock(prep.user) : prep.user, vote };
+    const base = buildFrameUserBlock({ worryText, examples: neighbors });
+    if (locale === "en") return { user: toEnglishBlock(base), vote };
+    const subBlock = subPromptBlock(subCandidates(all, SUB_CANDIDATES), subDb);
+    return { user: `${subBlock}\n\n${base}`, vote };
   } catch (e) {
     console.warn("비슷한 예시 찾기 실패 — 예시 없이 A2 호출:", e instanceof Error ? e.message : "unknown");
     return { user: worryUserMessage(worryText), vote: null };

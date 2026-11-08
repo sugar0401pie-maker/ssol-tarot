@@ -23,6 +23,7 @@ function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"],
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
 import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
+import { parseFrameV43 } from "@/lib/tarot/v43.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { mergeE } from "@/lib/tarot/validateV4.js";
 import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, variantKeyFor, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
@@ -257,6 +258,15 @@ async function tryTwice<T>(label: string, fn: () => Promise<T | null>): Promise<
   return null;
 }
 
+// v2.3.7: 한국어 고민 틀은 '부분 살리기'(parseFrameV43 — 고칠 수 있는 칸은 고치고, 그래도 안 되면 표 없이 결국 묻는 것만 살림).
+// 영문판은 영어 패키지 검증기 그대로.
+function parseFrameFor(locale: Locale, raw: unknown): { frame: unknown; errors: string[] } {
+  if (locale === "en") return pkg(locale).validate.parseFrame(raw as string);
+  const r = parseFrameV43(raw);
+  if (r.salvaged) console.warn("고민 틀(A2) 부분 살리기:", r.fixed.length, "칸 고침");
+  return { frame: r.frame, errors: r.errors };
+}
+
 export async function runClassification(sessionId: string) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const worry = row?.worry_text as string | null;
@@ -270,7 +280,7 @@ export async function runClassification(sessionId: string) {
   const callA = () => tryTwice("고민 분류(A)", async () => parseClassification(await generateText(P.A, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data));
   const callA2 = () =>
     tryTwice("고민 틀(A2)", async () => {
-      const r = pkg(locale).validate.parseFrame(await generateText(P.A2, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
+      const r = parseFrameFor(locale, await generateText(P.A2, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
       // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
       if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
       return r.frame;
@@ -284,7 +294,7 @@ export async function runClassification(sessionId: string) {
     try {
       const parts = splitMerged(await generateText(MERGED_CLASSIFY_SYSTEM, fc.user, { timeoutMs: 20000, maxOutputTokens: 2400, label: "A+A2" }));
       cls = parts.classification ? parseClassification(parts.classification, data) : null;
-      frame = parts.frame ? pkg(locale).validate.parseFrame(parts.frame).frame : null;
+      frame = parts.frame ? parseFrameFor(locale, parts.frame).frame : null;
     } catch (e) {
       console.warn("A+A2 호출 실패:", e instanceof Error ? e.message : "unknown");
     }

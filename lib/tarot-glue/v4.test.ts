@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid, reorderSecret } from "./v4.ts";
+import { paceTeaser, PLAN_MOVED_HEAD, conclusionFirst, tidyApply, closingFirst, tidyDirection, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid, reorderSecret, areaPhraseFor } from "./v4.ts";
 import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
@@ -274,4 +274,20 @@ test("v4.3 돈 고민이면 답 먼저 아래 ※ 보장하지 않는다는 한 
   assert.ok(out[0].body.startsWith("**카드로 보면") && out[0].body.split("\n")[1].startsWith("※ ") && !out[0].body.includes("세 장은 ‘남기’"));
   assert.deepEqual(prepareFrame(frame, cs.ai)?.options_ranked ?? prepareFrame(frame, cs.ai)?.options, frame.options_ranked ?? frame.options);
   assert.equal(answerFirstFor({ frame: null, lean: null, picks, now: new Date() }), null);
+});
+
+// v2.3.7~2.3.9: 세부 고민(sub_id) — 빈 칸 기본값, 3쪽 고민 읽기 문장의 영역 이름 순서(세부 → 묶음 → 영역)
+test("세부 고민 기본값·3쪽 영역 이름", () => {
+  const f = prepareFrame({ table: null, decision_source: "none", worry_type: "situation", options_ranked: [], core_question: "결혼해도 될까요?", sub_id: "MR-REAL", area: null }, null);
+  assert.equal(f.sub_id, "MR-REAL");
+  assert.equal(f.area, "LOV");
+  const sub = areaPhraseFor(f, null, {});
+  assert.ok(sub && sub.length > 0, "세부 고민 이름이 먼저");
+  // 없는 id는 지우고, 묶음 이름 → 영역 이름 순서
+  const g = prepareFrame({ table: null, decision_source: "none", worry_type: "situation", options_ranked: [], core_question: "이직할까요?", sub_id: "ZZ-NOPE", area: "LOV" }, null);
+  assert.equal(g.sub_id, null);
+  assert.equal(areaPhraseFor(g, "LOV_MARRY", { LOV_MARRY: "결혼을 앞둔 연애 고민", LOV: "x" }), "결혼을 앞둔 연애 고민");
+  assert.equal(areaPhraseFor(g, null, { LOV: "연애 이름" }), "연애 이름");
+  // 세부 고민의 영역이 고민 틀 영역과 어긋나면 세부 이름은 쓰지 않는다
+  assert.equal(areaPhraseFor({ sub_id: "MR-REAL", area: "CAR" }, null, { CAR: "직장 이름" }), "직장 이름");
 });

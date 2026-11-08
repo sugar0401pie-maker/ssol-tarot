@@ -1,5 +1,11 @@
 # 쏠 타로 v4.1 코드 — 개발자용
 
+> **v2.3.9:** 검색: `buildIndex(gold_v2.4, { normalize: buildNormalizer(norm_dict) })` → `nearest(text, 20)` → `voteTable(top5)`(두 번째 의견) + `subCandidates(top20, 8)` → `subPromptBlock(cands, worry_subtopics)` → A2 v4.10 `{SUB_BLOCK}`. 임베딩은 `embedRetriever.example.mjs`.
+>
+> **v2.3.8:** A2 v4.9 `sub_id` → `applySubDefaults(frame, subDb)` → `buildPagesV43({..., subDb: worry_subtopics.json})` · `midAreaKey`가 세부 mid를 가장 먼저 · 색인 `frame_gold_v2.3.jsonl`(결과에 sub_id) · 묶음 24개.
+>
+> **v2.3.7:** `parseFrameV43(raw)`(부분 살리기, `{frame, errors, fixed, salvaged}`) → `normalizeFrameV43`(새 칸 `love_topic`) → … · `midAreaKey` 연애 세부(LOV_MARRIED → `love_topic_keys` → 단계) · 3쪽 첫 문장 영역 이름 = `area_phrases[mid.key]` · 판별 색인 `frame_gold_v2.2.jsonl` · A2 v4.8.
+>
 > **v2.3.6:** 결제 전 흐림 예시 9세트 — `blurSetKey(frame, cls, data.copy.result.blur_samples)` → `blur_samples.sets[key]["5"~"9"]`, 10쪽은 `pages["10"]`. 흐림 영역은 `aria-hidden="true"`·선택 막기 권장.
 >
 > **v2.3.4:** 시기 `{when}` = `whenMonths(bucket, timing_rule, now)` — 본 날(Asia/Seoul)의 달 + early 1~2 / mid 3~4 / late 5~6 / beyond 6달, 해가 바뀌면 처음 한 번만 "내년". `buildPagesV43({..., now})`·`answerFirst({..., now})`, 결과 `timing.when`. 처음 본 시각을 저장해 재열람에도 같은 달.

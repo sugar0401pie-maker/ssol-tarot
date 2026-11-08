@@ -52,8 +52,9 @@ export function worryPageBody({ name, oldPage1, reading: reading0, frame, lean, 
   // v4.3 예측 질문이면 '될 흐름 / 어려운 흐름' 선택지 줄은 보이지 않는다(패키지 buildPagesV43과 같음)
   if (box && frame?.forecast) box = box.split("\n").filter((x) => !x.trim().startsWith("◦ 선택지")).join("\n");
   // v4.3: 취업·시험 등 세부 영역이면 고민 읽기 문장의 영역 이름을 바꾼다(data copy.result.v43.area_phrases — 패키지와 같은 바꾸기)
+  // v2.3.7·2.3.8: 연애 세부 묶음·세부 고민(117) 이름까지 — 바꿀 영역 이름 목록도 패키지 buildPagesV43과 같게(연애·가족·친구·재정 추가)
   const reading = areaPhrase
-    ? reading0.replace(/진로와 자기계발에 대한 고민|직업과 커리어에 대한 고민|나 자신과 삶의 방향에 대한 고민/, areaPhrase).replace(/고민(으로|로) 읽혔/, "고민으로 읽혔")
+    ? reading0.replace(/진로와 자기계발에 대한 고민|직업과 커리어에 대한 고민|나 자신과 삶의 방향에 대한 고민|연애에 대한 고민|가족에 대한 고민|친구와 사회관계에 대한 고민|재정과 생활 안정에 대한 고민/, areaPhrase).replace(/고민(으로|로) 읽혔/, "고민으로 읽혔")
     : reading0;
   const m = reading.match(/^(.+?[.?!])\s+([\s\S]+)$/);
   const lead = m ? `!! **${m[1]}** ${m[2]}` : `!! **${reading}**`;
