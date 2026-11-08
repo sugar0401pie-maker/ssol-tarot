@@ -434,29 +434,41 @@ function SecretCard({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   );
 }
 
-/** 결제 상자 안 고객 후기 — 1.5초마다 무작위로 다음 문장(바로 앞 문장은 다시 안 나옴, owner 2026-11-08). 후기가 없으면 아무것도 안 그림. */
+/** 결제 상자 안 고객 후기 — 랭킹판처럼 세 줄이 보이고, 1.5초마다 한 줄씩 위로 올라가며 아래에서 다음 후기가 들어온다(owner 2026-11-08).
+ *  순서는 화면을 열 때 한 번 섞고(첫 그림은 데이터 순서 — 서버·브라우저 화면이 같게) 끝까지 가면 처음부터 다시. 후기가 없으면 아무것도 안 그림. */
 function ReviewRotator({ lines }: { lines?: string[] }) {
-  const list = useMemo(() => (lines || []).filter(Boolean), [lines]);
-  // 첫 그림은 0번(서버·브라우저 화면이 같게), 그 뒤부터 무작위
-  const [state, setState] = useState({ idx: 0, tick: 0 });
+  const base = useMemo(() => (lines || []).filter(Boolean), [lines]);
+  const [order, setOrder] = useState<string[]>(base);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
-    if (list.length < 2) return;
-    const t = setInterval(() => {
-      setState((s) => {
-        const r = Math.floor(Math.random() * (list.length - 1));
-        return { idx: r >= s.idx ? r + 1 : r, tick: s.tick + 1 };
-      });
-    }, REVIEW_MS);
-    return () => clearInterval(t);
-  }, [list.length]);
-  if (!list.length) return null;
+    const a = [...base];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    // 섞은 순서는 그림이 한 번 그려진 다음에 적용(서버 화면과 첫 그림이 같도록)
+    const t0 = setTimeout(() => { setOrder(a); setTick(0); }, 0);
+    const t = a.length > REVIEW_ROWS ? setInterval(() => setTick((n) => n + 1), REVIEW_MS) : undefined;
+    return () => { clearTimeout(t0); if (t) clearInterval(t); };
+  }, [base]);
+  if (!order.length) return null;
+  const n = order.length;
+  const at = (k: number) => order[((k % n) + n) % n];
+  const moving = n > REVIEW_ROWS && tick > 0;
+  // 움직일 때는 맨 위로 빠져나갈 줄 하나를 더 그려 두고 한 칸 위로 밀어 올린다
+  const rows = Array.from({ length: Math.min(n, REVIEW_ROWS) + (moving ? 1 : 0) }, (_, i) => at(tick - (moving ? 1 : 0) + i));
   return (
-    <p className="reviews" aria-live="off">
-      <span key={state.tick} className="review-line">“{list[state.idx % list.length]}”</span>
-    </p>
+    <div className="reviews" aria-hidden="true">
+      <div key={tick} className={moving ? "reviews-track up" : "reviews-track"}>
+        {rows.map((t, i) => (
+          <p key={i} className="review-row">“{t}”</p>
+        ))}
+      </div>
+    </div>
   );
 }
 const REVIEW_MS = 1500;
+const REVIEW_ROWS = 3;
 
 function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; standalone?: boolean }) {
   const c = ctx.copy.result;
@@ -468,7 +480,8 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
         {/* 결정형이면 "세 장이 고른 쪽"이 가장 큰 결제 이유 — 데이터의 _decision 문구 */}
         <b>{ctx.r.decision ? c.paywall_title_decision : c.paywall_title}</b>
         {/* 문구 속 줄바꿈(\n)을 그대로(owner 2026-11-02) */}
-        <p className="whitespace-pre-line">{ctx.r.decision ? c.paywall_body_decision : c.paywall_body}</p>
+        {/* 기본 안내 문단(paywall_body)은 화면에서 뺌(owner 2026-11-08) — 결정형 고민의 문단만 남김. 데이터 문구는 보관 */}
+        {ctx.r.decision && <p className="whitespace-pre-line">{c.paywall_body_decision}</p>}
         {/* 지금 가격만(lib/billing/pricing.ts). 할인 표시는 결제 화면에서만(owner 2026-10-26). */}
         {/* 가격 줄: 데이터에 paywall_price_lead가 있으면 그 문장(owner 2026-11-08, 한국어판), 없으면 예전 '전체 리포트 {price}' */}
         <p className="price">{fill((c as { paywall_price_lead?: string }).paywall_price_lead || c.paywall_price, { price: priceLabel })}</p>

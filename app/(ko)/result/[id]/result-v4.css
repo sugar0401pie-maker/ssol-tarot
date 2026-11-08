@@ -179,8 +179,10 @@
 .tv4 .cardintro b { color: var(--line); }
 .tv4 .card[role="img"] { cursor: default; }
 
-/* 결제 상자 고객 후기(owner 2026-11-08) — 두 줄 높이를 잡아 문장이 바뀌어도 상자가 흔들리지 않게 */
-.tv4 .pay .reviews { min-height: 3.2em; margin: 8px 0 4px !important; font-size: 13px; line-height: 1.55; opacity: .85; word-break: keep-all; }
-.tv4 .pay .review-line { display: inline-block; animation: tv4-review-in .3s ease; }
-@keyframes tv4-review-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .tv4 .pay .review-line { animation: none; } }
+/* 결제 상자 고객 후기(owner 2026-11-08) — 랭킹판처럼 세 줄, 한 줄씩 위로. 줄 높이를 고정해야 밀어 올리는 거리가 맞는다 */
+.tv4 .pay .reviews { --row: 2.9em; height: calc(var(--row) * 3); overflow: hidden; margin: 10px 0 6px; font-size: 12px; line-height: 1.45; text-align: left;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%); }
+.tv4 .pay .reviews-track.up { animation: tv4-rank-up .45s ease forwards; }
+.tv4 .pay .review-row { height: var(--row); margin: 0 !important; padding: 0 6px; display: flex; align-items: center; color: var(--moon) !important; opacity: .9; word-break: keep-all; overflow: hidden; }
+@keyframes tv4-rank-up { from { transform: none; } to { transform: translateY(calc(var(--row) * -1)); } }
+@media (prefers-reduced-motion: reduce) { .tv4 .pay .reviews-track.up { animation: none; transform: translateY(calc(var(--row) * -1)); } }
