@@ -1,5 +1,7 @@
 # 쏠 타로 v4.1 코드 — 개발자용
 
+> **v2.3.6:** 결제 전 흐림 예시 9세트 — `blurSetKey(frame, cls, data.copy.result.blur_samples)` → `blur_samples.sets[key]["5"~"9"]`, 10쪽은 `pages["10"]`. 흐림 영역은 `aria-hidden="true"`·선택 막기 권장.
+>
 > **v2.3.4:** 시기 `{when}` = `whenMonths(bucket, timing_rule, now)` — 본 날(Asia/Seoul)의 달 + early 1~2 / mid 3~4 / late 5~6 / beyond 6달, 해가 바뀌면 처음 한 번만 "내년". `buildPagesV43({..., now})`·`answerFirst({..., now})`, 결과 `timing.when`. 처음 본 시각을 저장해 재열람에도 같은 달.
 >
 > **v2.3.3 (2026-11-05, CSO 결정):** 돈 고민(`frame.money` 또는 area FORT)이면 7쪽 답 먼저 바로 아래 `※ answer_first_db.money_note.text` · `secret3.intro` 끝 문장 변경 · `timing_rule.labels`를 개월 수로(초반·중반·후반 안 씀) · validateV4 시점 검사에 'N개월' 추가.
@@ -16,7 +18,7 @@
 > - **7쪽 맨 위 답 먼저:** `answerFirst` — `02_데이터/answer_first_db.json`(예측 60 · 시기 20 · 상대 마음 132). 조건 문장은 붙이지 않음(CSO: 조건은 결과 하단에 따로). 시기 규칙은 `timing_rule`(+쪽 강도 strong→초반·clear→중반·slight→후반, −쪽→6개월 이후) — 데이터에서 바꿀 수 있음.
 > - **입력창 A/B:** `copy.worry.placeholder_ab`(A 지금 / B 자세한 예시 + 안내 한 줄), 배정 `variantOf(id)`.
 > - **측정:** `eventFields(...)` — 결제 기록에 글자 수·want·연애 단계·예고 종류·답 먼저 종류·A/B를 함께 남김(고민 원문 제외). 항목 설명은 `EVENTS_v43.md`.
-> - **판별 DB:** 실제 고민 정답 `08_판별DB/data/frame_gold_v2.jsonl`(합성 490 + 실제 963, 위기 글 제외)로 색인을 바꿔요. 근거 `08_판별DB/eval/real_v43_eval.txt`(`node run_eval_real.mjs`).
+> - **판별 DB:** 실제 고민 정답 `08_판별DB/data/frame_gold_v2.1.jsonl`(합성 490 + 실제 956 익명화, 위기·민감 글 제외)로 색인을 바꿔요. 근거 `08_판별DB/eval/real_v43_eval_anon.txt`(`node run_eval_real.mjs`).
 > - 예시: `01_설계/example-reports/v43-예시1.md`(썸 끊김·상대 마음), `v43-예시2.md`(올해 안 취업). `node demo_v43.mjs`.
 > - **v4.3.1:** `teaserLine` — their_mind 예고는 관계 표(approach·reunion·continue·progress)에서만, 아니면 yesno 쪽으로. start 표는 stage에 따라 `yesno_result_waiting`/`yesno_result_after_fail`, want how·comfort·why, 재물(FORT)은 `fortune`. `answerFirst` — lean이 없으면 `forecast_general`(셋째 카드 `forceOf` up·flat·down, 시기는 `timing_bucket`), start 표는 `forecast_by_area.start[frame.area]` 먼저. `buildPagesV43` — 7쪽에 예측 답이 들어가면 첫 8줄 안의 `**세 장은 … 쪽이에요.**` 줄과 바로 다음 '◦ ' 줄을 뺌. 4쪽 잠금 `next` = `copy.result.v43.card3_cta`. E2 프롬프트에 예측 모드 안내 추가. 테스트 82개 통과.
 

@@ -107,6 +107,18 @@ test("결제 전 응답에는 결론과 유료 본문이 없다", () => {
   for (const p of out.slice(3)) assert.equal(p.body, null);
 });
 
+test("v2.3.6 결제 전 흐림 예시는 고민 영역별 세트(연애 단계·영역), 세트 없으면 기본", () => {
+  const BS = data.copy.result.blur_samples as { sets: Record<string, Record<string, string>> };
+  type Args = Parameters<typeof buildUnpaidPages>[0];
+  const run = (f: Args["frame"], c: Args["cls"]) => sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: c, picks, safety, worryText: cs.worry, frame: f, lean: null, C: null }));
+  const love = run({ ...frame, area: "LOV", love_status: "dating" } as Args["frame"], cs.ai);
+  assert.equal(love[4].blur, BS.sets.LOV_DATING["5"]);
+  assert.equal(love[5].blur, BS.sets.LOV_DATING["6"]);
+  assert.equal(love[8].blur, BS.sets.LOV_DATING["9"]);
+  const gen = run(null, null);
+  assert.equal(gen[4].blur, BS.sets.GEN["5"], "분류 없음 = GEN");
+});
+
 test("고민 미작성(분류·틀·C 없음)도 10쪽이 끊기지 않는다", () => {
   const out = sanitizeUnpaid(buildUnpaidPages({ name: "지수", cls: null, picks, safety: { level: "none", violence: false, fear: false }, worryText: "", frame: null, lean: null, C: null }));
   assert.equal(out.length, 10);

@@ -11,3 +11,4 @@ export function answerFirst(args: { frame: any; lean: any; picks: any[]; db: any
 export function buildPagesV43(args: any): any[];
 export function variantOf(id: string, experiment?: string, arms?: string[]): string;
 export function eventFields(args: any): Record<string, unknown>;
+export function blurSetKey(frame: any, cls: any, B: any): string | null;

@@ -9,7 +9,7 @@ import type { MidDb } from "./midResult.ts";
 import { type Lean } from "../tarot/decision.js";
 import { pkg } from "./pkg.ts";
 import { afterFrame } from "../tarot/frameInput.js";
-import { normalizeFrameV43, applyForecastOptions, midAreaKey, teaserLine, answerFirst } from "../tarot/v43.js";
+import { normalizeFrameV43, applyForecastOptions, midAreaKey, teaserLine, answerFirst, blurSetKey } from "../tarot/v43.js";
 import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
 
@@ -196,11 +196,19 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
   // 세 번째 카드 이름은 결제 전에는 보내지 않는다(owner 2026-11-02 시크릿) — 예시 속 세 번째 카드 자리는 "세 번째 카드"로.
   const names = picks.map((p, i) => (i === 2 ? (locale === "en" ? "the third card" : "세 번째 카드") : String(p.card?.name ?? "")));
   // v2.3.2부터 locked5는 {note, text}(가상 인물·카드 이름 없음). 예전 문자열 형식도 받는다.
-  const l5 = (data.copy.result as any).blur_samples?.locked5;
+  const BS = (data.copy.result as any).blur_samples;
+  const l5 = BS?.locked5;
   const locked5 = String((l5 && typeof l5 === "object" ? l5.text : l5) ?? "");
-  const personalized = withTeaser.map((p) =>
-    p.page === 5 ? { ...p, blur: personalizeBlur(locked5, name, names, locale) || null } : p.blur ? { ...p, blur: personalizeBlur(String(p.blur), name, names, locale) } : p,
-  );
+  // v2.3.6: 결제 전 5~9쪽 흐림 예시를 고민 영역별 가상 예시 세트에서 고른다(연애는 연애 단계, 그 밖은 frame.area → cls.domain, 기본 GEN).
+  // 세트가 없는 데이터(예전 판)면 예전처럼 공통 예시. 10쪽(쏘웰라)은 세트 공통.
+  const setKey: string | null = BS ? blurSetKey(frame, cls, BS) : null;
+  const set: Record<string, string> | null = setKey ? BS.sets[setKey] : null;
+  const personalized = withTeaser.map((p) => {
+    if (p.page === 5) return { ...p, blur: personalizeBlur(set?.["5"] || locked5, name, names, locale) || null };
+    const fromSet = p.page >= 6 && p.page <= 9 ? set?.[String(p.page)] : undefined;
+    const blur = fromSet || p.blur;
+    return blur ? { ...p, blur: personalizeBlur(String(blur), name, names, locale) } : p;
+  });
   return reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, locale });
 }
 
