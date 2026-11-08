@@ -180,9 +180,9 @@
 .tv4 .card[role="img"] { cursor: default; }
 
 /* 결제 상자 고객 후기(owner 2026-11-08) — 랭킹판처럼 세 줄, 한 줄씩 위로. 줄 높이를 고정해야 밀어 올리는 거리가 맞는다 */
-.tv4 .pay .reviews { --row: 2.9em; height: calc(var(--row) * 3); overflow: hidden; margin: 10px 0 6px; font-size: 12px; line-height: 1.45; text-align: left;
+.tv4 .pay .reviews { --row: 2.9em; height: calc(var(--row) * 3); overflow: hidden; margin: 10px 0 6px; font-size: 12px; line-height: 1.45; text-align: center;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%); }
 .tv4 .pay .reviews-track.up { animation: tv4-rank-up .45s ease forwards; }
-.tv4 .pay .review-row { height: var(--row); margin: 0 !important; padding: 0 6px; display: flex; align-items: center; color: var(--moon) !important; opacity: .9; word-break: keep-all; overflow: hidden; }
+.tv4 .pay .review-row { height: var(--row); margin: 0 !important; padding: 0 6px; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--moon) !important; opacity: .9; word-break: keep-all; overflow: hidden; }
 @keyframes tv4-rank-up { from { transform: none; } to { transform: translateY(calc(var(--row) * -1)); } }
 @media (prefers-reduced-motion: reduce) { .tv4 .pay .reviews-track.up { animation: none; transform: translateY(calc(var(--row) * -1)); } }
