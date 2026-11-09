@@ -276,10 +276,12 @@ export async function runClassification(sessionId: string) {
   const P = promptsFor(locale);
   const msg = worryUserMessage(worry);
   // v4.1: A2 사용자 입력에 비슷한 고민의 정답 5개를 붙이고(few-shot), 같은 5개의 투표를 두 번째 의견용으로 저장한다.
-  const fc = await frameCall(worry, locale);
+  // 비슷한 예시 찾기(의미 검색 약 1초)는 A2에만 필요 — 고민 분류(A)는 기다리지 않고 바로 시작한다(2026-11-09).
+  const fcP = frameCall(worry, locale);
   const callA = () => tryTwice("고민 분류(A)", async () => parseClassification(await generateText(P.A, msg, { timeoutMs: 15000, maxOutputTokens: 800, label: "A" }), data));
   const callA2 = () =>
     tryTwice("고민 틀(A2)", async () => {
+      const fc = await fcP;
       const r = parseFrameFor(locale, await generateText(P.A2, fc.user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2" }));
       // 탈락 이유는 운영 로그에만(내용 없이 규칙 이름만)
       if (!r.frame && r.errors.length) console.warn("고민 틀(A2) 검증 탈락:", r.errors.length, "건");
@@ -292,7 +294,7 @@ export async function runClassification(sessionId: string) {
     // A+A2 한 번 호출(owner 2026-10-26). 어느 절반이든 검증을 못 넘으면 그 절반만 예전처럼 따로 다시 부른다 —
     // 특히 안전 판단(A)이 빠진 채로 넘어가지 않게.
     try {
-      const parts = splitMerged(await generateText(MERGED_CLASSIFY_SYSTEM, fc.user, { timeoutMs: 20000, maxOutputTokens: 2400, label: "A+A2" }));
+      const parts = splitMerged(await generateText(MERGED_CLASSIFY_SYSTEM, (await fcP).user, { timeoutMs: 20000, maxOutputTokens: 2400, label: "A+A2" }));
       cls = parts.classification ? parseClassification(parts.classification, data) : null;
       frame = parts.frame ? parseFrameFor(locale, parts.frame).frame : null;
     } catch (e) {
@@ -316,7 +318,7 @@ export async function runClassification(sessionId: string) {
     violence: merged.violence,
     fear: merged.fear,
     frame,
-    frame_vote: fc.vote,
+    frame_vote: (await fcP).vote,
   };
   if (merged.level === "urgent") patch.result_status = "safety";
   await update(sessionId, patch);

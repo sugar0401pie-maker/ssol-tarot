@@ -3,7 +3,8 @@ import { createAdminClient } from "./supabaseAdmin";
 
 // 누적 인원 집계(owner 2026-11-02, 표 tarot_daily_counts). 숫자만 1 올린다 — 사람·고민 정보는 넘기지 않는다.
 // 집계는 부가 기능이라 실패해도(표 없음·오류) 테스트 흐름을 막지 않고 경고만 남긴다.
-export type CountMetric = "started" | "result" | "safety" | "paid" | "visit";
+// embed_ok/embed_fallback: 비슷한 고민 찾기에서 의미 검색(임베딩)을 쓴 횟수 / 쓰려다 글자 검색으로 대신한 횟수(2026-11-09).
+export type CountMetric = "started" | "result" | "safety" | "paid" | "visit" | "embed_ok" | "embed_fallback";
 
 export async function countEvent(metric: CountMetric): Promise<void> {
   try {

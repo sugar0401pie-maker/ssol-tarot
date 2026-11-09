@@ -11,6 +11,7 @@ import type { Locale } from "@/lib/i18n/locale";
 import { worryUserMessage } from "./prompts";
 import { embedText, EMBED_MODEL, EMBED_DIM } from "./ai";
 import { decodeIndex, hybridTop, unit } from "@/lib/tarot-glue/embedSearch";
+import { countEvent } from "./counters";
 
 // v4.1 고민 틀(A2) 사용자 입력: 판별 DB '고민 틀 정답'에서 비슷한 고민 5개를 붙인다. 한국어 = judge-db/data/frame_gold_v2.1.jsonl(1,446건 — 합성 490 + 실제 고민 956건을 owner가 익명화·문체 변경, 2026-11-05).
 // 이 파일은 엑셀(judge-db/쏠타로_판별DB_*.xlsx '고민 틀 정답(T6)' 시트)에서 scripts/judge_db_frame_gold.py로 만든다.
@@ -69,23 +70,40 @@ function getEmbIndex(): { vecs: Float32Array[]; ids: string[] } | null {
 // 글자 검색 이웃(id → 점수)과 임베딩 코사인을 0.7·0.3으로 섞어 이웃 k개(글자 검색 결과와 같은 모양).
 async function hybridNeighbors(ix: Index, worryText: string, norm: (t: string) => string, k: number) {
   const charTop = ix.nearest(worryText, 50);
+  if (process.env.TAROT_EMBED_SEARCH === "0" || !aiReady()) return ix.nearest(worryText, k);
   const E = getEmbIndex();
   const rows = goldRows.ko;
-  if (!E || !rows || !aiReady()) return ix.nearest(worryText, k);
+  // 의미 검색을 쓰려 했는데 못 쓴 경우만 'embed_fallback'으로 센다(숫자만 — 고민 글·사람 정보 없음). 'embed_ok'와 나눠 보면 실패 비율.
+  if (!E || !rows) {
+    void countEvent("embed_fallback");
+    return ix.nearest(worryText, k);
+  }
   try {
     const q = unit(await embedText(norm(worryText)));
     const top = hybridTop(q, E.vecs, E.ids, new Map(charTop.map((n) => [n.id, n.score])), k);
-    return top.map(({ i, score }) => {
+    const out = top.map(({ i, score }) => {
       const r = rows[i];
       return { id: r.id, score, text: r.text, table: (r.tables ?? [r.table ?? null])[0] ?? null, tables: r.tables ?? [r.table ?? null], mode: r.mode ?? null, ranked: r.ranked ?? r.options_ranked ?? [],
         sub_id: r.sub_id ?? null, sub2: r.sub2 ?? null, area: r.area ?? null, want: r.want ?? null, love_status: r.love_status ?? null, love_topic: r.love_topic ?? null };
     });
+    void countEvent("embed_ok");
+    return out;
   } catch (e) {
+    void countEvent("embed_fallback");
     console.warn("의미 검색 실패 — 글자 검색만:", e instanceof Error ? e.message : "unknown");
     return ix.nearest(worryText, k);
   }
 }
 const aiReady = () => Boolean(process.env.OPENAI_API_KEY);
+
+/** 색인 미리 읽기(약 0.5초) — 세션을 만들 때 뒤에서 불러, 고민을 제출할 때는 이미 읽혀 있게 한다(같은 서버 인스턴스일 때). 실패해도 조용히. */
+export function warmFrameIndexes(locale: Locale = "ko"): void {
+  try {
+    if (getIndex(locale) && locale === "ko") getEmbIndex();
+  } catch {
+    /* 실제 요청 때 다시 시도 */
+  }
+}
 const koNorm = buildNormalizer(normDict);
 
 // 패키지 buildFrameUserBlock의 한국어 안내 줄을 영어로(PROMPTS_EN_NOTES — "개발 확인 필요"의 안내 한 줄).

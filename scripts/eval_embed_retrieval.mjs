@@ -13,6 +13,8 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MODEL = process.argv[2] || "text-embedding-3-small";
 // DIM=1024 처럼 주면 그 길이로 줄여 받는다(text-embedding-3 모델만 — 저장 용량 줄이기)
 const DIM = process.env.DIM ? Number(process.env.DIM) : null;
+// SUBN=10 처럼 주면 세부 후보 개수를 바꿔 잰다(기본 8 — 서버 SUB_CANDIDATES와 같게)
+const SUBN = Number(process.env.SUBN || 8);
 const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.4.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
 const norm = buildNormalizer(JSON.parse(fs.readFileSync(path.join(ROOT, "data/norm_dict.json"), "utf8")));
 const tableOf = (r) => (r.tables ?? [r.table ?? null])[0] ?? null;
@@ -60,11 +62,11 @@ function run(mode, wEmb = 0.7) {
       void pos;
       n++;
       if (voteTable(top.slice(0, 5)).table === tableOf(q)) t1++;
-      if (q.sub_id) { nSub++; const c = subCandidates(top, 8); if (c[0] === q.sub_id) s1++; if (c.includes(q.sub_id)) s8++; }
+      if (q.sub_id) { nSub++; const c = subCandidates(top, SUBN); if (c[0] === q.sub_id) s1++; if (c.includes(q.sub_id)) s8++; }
     }
   }
   const p = (x, d) => `${((x / d) * 100).toFixed(1)}%`;
-  return { "점수표 1위": p(t1, n), "세부 고민 1위": p(s1, nSub), "세부 후보 8개 안": p(s8, nSub) };
+  return { "점수표 1위": p(t1, n), "세부 고민 1위": p(s1, nSub), [`세부 후보 ${SUBN}개 안`]: p(s8, nSub) };
 }
 const out = { "글자 검색(지금)": run("char"), [`임베딩(${MODEL}${DIM ? ` ${DIM}` : ""})`]: run("emb") };
 for (const w of (process.env.W || "0.5,0.7,0.85").split(",").map(Number)) out[`하이브리드 ${w}/${(1 - w).toFixed(2)}`] = run("hybrid", w);
