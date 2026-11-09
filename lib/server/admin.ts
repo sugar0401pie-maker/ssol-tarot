@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient, getAuthUser } from "./supabaseAdmin";
 import { TarotError } from "./session";
 import { isAdminEmail } from "@/lib/admin/access";
+import { checkAdminPassword } from "@/lib/admin/password";
 import { addDays, kstDayBounds } from "@/lib/admin/kstDay";
 import { buildFunnel, recentDays, type DailyCount } from "@/lib/admin/funnel";
 import { EXPORT_HEADER, EXPORT_WIDTHS, exportRow, type ExportOrder, type ExportSession, type ExportUser } from "@/lib/admin/exportRows";
@@ -13,6 +14,11 @@ export async function requireAdmin(req: Request): Promise<{ id: string; email: s
   const u = await getAuthUser(req.headers.get("authorization")).catch(() => null);
   if (!u) throw new TarotError(401, "로그인이 필요해요.");
   if (!u.email || !isAdminEmail(u.email)) throw new TarotError(403, "관리자 계정이 아니에요.");
+  // 관리자 계정이어도 입장 암호(x-admin-pass 헤더)를 요청마다 다시 확인한다(owner 2026-11-09). 틀리면 423 → 화면이 암호 입력을 다시 띄움.
+  if (!checkAdminPassword(req.headers.get("x-admin-pass"))) {
+    console.warn("관리자 입장 암호 불일치:", u.id);
+    throw new TarotError(423, "관리자 암호가 맞지 않아요.");
+  }
   return { id: u.id, email: u.email };
 }
 

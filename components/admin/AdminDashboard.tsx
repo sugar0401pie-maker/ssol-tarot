@@ -7,15 +7,19 @@ import { useCallback, useEffect, useState } from "react";
 import { getAccessToken, getRealSession } from "@/lib/supabase/browser";
 import { kstToday } from "@/lib/admin/kstDay";
 import type { FunnelRow } from "@/lib/admin/funnel";
+import PageFoot from "../PageFoot";
 
 type Summary = { day: string; funnel: FunnelRow[]; recent: { day: string; values: Record<string, number> }[]; firstVisitDay: string | null };
 
 const fmt = (n: number) => n.toLocaleString("ko-KR");
 const pct = (r: number | null) => (r === null ? "–" : `${r.toFixed(1)}%`);
 
-async function authed(path: string): Promise<Response> {
+// 입장 암호는 이 화면의 메모리에만 둔다(브라우저 저장소에 넣지 않음 — 새로고침하면 다시 입력). 서버가 요청마다 확인한다.
+async function authed(path: string, pass: string): Promise<Response> {
   const token = await getAccessToken();
-  return fetch(path, { headers: token ? { Authorization: `Bearer ${token}` } : {}, cache: "no-store" });
+  const headers: Record<string, string> = { "x-admin-pass": pass };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetch(path, { headers, cache: "no-store" });
 }
 
 export default function AdminDashboard() {
@@ -24,33 +28,44 @@ export default function AdminDashboard() {
   const [data, setData] = useState<Summary | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState<"" | "day" | "until">("");
+  const [pass, setPass] = useState<string | null>(null);
+  const [passInput, setPassInput] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  const load = useCallback(async (d: string) => {
+  // 로그인 확인 → 안 돼 있으면 로그인 화면으로. 로그인돼 있으면 입장 암호를 묻는다.
+  useEffect(() => {
+    void getRealSession().then((s) => {
+      if (!s) router.replace("/login?next=/admin");
+      else setLoggedIn(true);
+    });
+  }, [router]);
+
+  const load = useCallback(async (d: string, p: string) => {
     setErr(null);
-    if (!(await getRealSession())) {
-      router.replace("/login?next=/admin");
-      return;
-    }
-    const res = await authed(`/api/admin/summary?day=${d}`);
+    const res = await authed(`/api/admin/summary?day=${d}`, p);
     const j = await res.json().catch(() => ({}));
     if (!res.ok) {
       setData(null);
+      if (res.status === 423) setPass(null); // 암호가 틀리면 다시 묻는다
       setErr(j.error ?? "불러오지 못했어요.");
       return;
     }
     setData(j as Summary);
-  }, [router]);
+  }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => void load(day), 0);
+    if (!pass) return;
+    const t = setTimeout(() => void load(day, pass), 0);
     return () => clearTimeout(t);
-  }, [day, load]);
+  }, [day, pass, load]);
 
   const download = async (range: "day" | "until") => {
     setBusy(range);
     setErr(null);
     try {
-      const res = await authed(`/api/admin/export?day=${day}&range=${range}`);
+      if (!pass) return;
+      const res = await authed(`/api/admin/export?day=${day}&range=${range}`, pass);
+      if (res.status === 423) setPass(null);
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error ?? "내려받지 못했어요.");
@@ -72,8 +87,8 @@ export default function AdminDashboard() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-800">
-      <div className="mx-auto max-w-3xl space-y-6">
+    <main className="flex min-h-screen flex-col bg-slate-50 px-4 pt-8 text-slate-800">
+      <div className="mx-auto w-full max-w-3xl flex-1 space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-xl font-bold">쏠 타로 하우스 · 관리자</h1>
@@ -86,6 +101,33 @@ export default function AdminDashboard() {
         </header>
 
         {err && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
+
+        {loggedIn && !pass && (
+          <form
+            className="rounded-lg bg-white p-4 shadow-sm"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (passInput) setPass(passInput);
+              setPassInput("");
+            }}
+          >
+            <h2 className="mb-2 font-semibold">관리자 암호</h2>
+            <p className="mb-3 text-xs text-slate-500">관리자 계정으로 로그인했어도 암호를 한 번 더 넣어야 볼 수 있어요.</p>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={passInput}
+                onChange={(e) => setPassInput(e.target.value)}
+                className="min-w-0 flex-1 rounded border border-slate-300 bg-white px-3 py-2"
+                aria-label="관리자 암호"
+              />
+              <button type="submit" className="rounded bg-slate-800 px-4 py-2 text-sm font-semibold text-white">
+                들어가기
+              </button>
+            </div>
+          </form>
+        )}
 
         {data && (
           <section className="rounded-lg bg-white p-4 shadow-sm">
@@ -172,6 +214,10 @@ export default function AdminDashboard() {
             </div>
           </section>
         )}
+      </div>
+      {/* 하단 '내 결과 · 로그아웃'·사업자 정보(다른 화면과 같은 PageFoot — 밤 배경용 글자색이라 어두운 띠 위에) */}
+      <div className="night-bg -mx-4 mt-10 px-4 pb-8 pt-2">
+        <PageFoot />
       </div>
     </main>
   );

@@ -75,3 +75,16 @@ test("엑셀 한 줄: 로그인 수단·결제·영역", () => {
   assert.equal(comp[5], "로그인 안 함");
   assert.equal(exportRow(s, null, { session_id: "s1", amount: 199, currency: "USD", paid_at: null })[16], 1.99);
 });
+
+test("관리자 입장 암호: 요약값과 맞는 암호만 통과(시험용 암호로)", async () => {
+  const { checkAdminPassword } = await import("./password.ts");
+  const { scryptSync } = await import("node:crypto");
+  const salt = "testsalt";
+  const hash = scryptSync("open-sesame", salt, 32).toString("hex");
+  assert.equal(checkAdminPassword("open-sesame", salt, hash), true);
+  assert.equal(checkAdminPassword("Open-sesame", salt, hash), false);
+  assert.equal(checkAdminPassword("", salt, hash), false);
+  assert.equal(checkAdminPassword(undefined, salt, hash), false);
+  assert.equal(checkAdminPassword("x".repeat(500), salt, hash), false);
+  assert.equal(checkAdminPassword("wrong"), false); // 실제 요약값에도 엉뚱한 암호는 통과 못 함
+});
