@@ -8,7 +8,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshous
 export default function robots(): MetadataRoute.Robots {
   const steps = Object.values(STEP_PATH).filter((p) => p !== "/");
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/result", "/checkout", "/login", ...steps] },
+    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/result", "/checkout", "/login", "/admin", ...steps] },
     sitemap: `${SITE}/sitemap.xml`,
   };
 }
