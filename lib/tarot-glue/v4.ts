@@ -9,7 +9,7 @@ import type { MidDb } from "./midResult.ts";
 import { type Lean } from "../tarot/decision.js";
 import { pkg } from "./pkg.ts";
 import { afterFrame } from "../tarot/frameInput.js";
-import { normalizeFrameV43, applyForecastOptions, applySubDefaults, midAreaKey, teaserLine, answerFirst, blurSetKey } from "../tarot/v43.js";
+import { normalizeFrameV43, applyForecastOptions, applySubDefaults, resolveTable, midAreaKey, teaserLine, answerFirst, blurSetKey } from "../tarot/v43.js";
 import subDbKo from "../../data/worry_subtopics.json" with { type: "json" };
 import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
@@ -23,10 +23,14 @@ const bd = (locale?: Locale) => bundleFor(locale ?? "ko");
 // v2.3.4(v4.3): 저장된 고민 틀(A2 v4.7)을 쓰기 전에 새 칸 검사 + 예측 질문이면 선택지를 '될 흐름 / 어려운 흐름'으로.
 // 패키지 순서(v43.js 머리말) 그대로: normalizeFrameV43 → applyForecastOptions → lean. 예전 결과(새 칸 없음)는 그대로 지나간다.
 // 영문판은 아직 v4.3 데이터가 없어 손대지 않는다.
-export function prepareFrame(frame: Frame | null, cls: Cls | null, locale?: Locale): Frame | null {
+export function prepareFrame(frame: Frame | null, cls: Cls | null, locale?: Locale, safety?: { level?: string | null; violence?: boolean } | null): Frame | null {
   if (!frame || locale === "en") return frame;
-  // v2.3.8: A2가 고른 세부 고민(sub_id, 117개)의 기본값으로 빈 칸(영역·연애 단계·주제·듣고 싶은 답)을 채운다(없는 id면 sub_id만 지움).
-  return applyForecastOptions(applySubDefaults(normalizeFrameV43(frame, cls), subDbKo), bd(locale).tables);
+  // v2.3.8: A2가 고른 세부 고민(sub_id, v2.3.11부터 144개)의 기본값으로 빈 칸(영역·연애 단계·주제·듣고 싶은 답)을 채운다(없는 id면 sub_id만 지움).
+  // v2.3.11: 세부 고민의 점수표 규칙(table_rule)으로 A2의 표를 맞춘다(resolveTable — 안전 주의·폭력이면 표를 새로 붙이지 않음).
+  //   세 곳(3장째 C·결과·유료 리포트)이 같은 safety를 넘겨야 같은 표가 나온다.
+  const tables = bd(locale).tables;
+  const sub = applySubDefaults(normalizeFrameV43(frame, cls), subDbKo);
+  return applyForecastOptions(resolveTable(sub, subDbKo, tables, { safety: safety ?? null }), tables);
 }
 
 /** 3쪽 고민 읽기 문장의 영역 이름(패키지 buildPagesV43과 같은 순서): 세부 고민 이름(영역이 맞을 때) → 중간 결과 묶음 이름 → 영역 이름. */

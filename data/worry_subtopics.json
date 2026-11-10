@@ -1,6 +1,6 @@
 {
- "version": "v1 (2026-11-08, 고민 문장 DB v0.1 + 새 세부 6)",
- "note": "A2 v4.9가 sub_id를 고르면 3쪽 첫 문장(phrase)·중간 결과 묶음(mid)·빈 칸(area·love_status·love_topic) 기본값으로 씀.",
+ "version": "v2 (2026-11-10, 점수표 규칙 table_rule + 새 세부 27 = 144개)",
+ "note": "A2 v4.9가 sub_id를 고르면 3쪽 첫 문장(phrase)·중간 결과 묶음(mid)·빈 칸(area·love_status·love_topic) 기본값으로 씀. | v2: 세부마다 table_rule{mode fixed·choose·none, default, allowed, choose_by}. 코드 resolveTable()이 A2의 table을 이 규칙으로 맞춤(영역이 세부와 같을 때만, 안전 주의면 표를 새로 붙이지 않음).",
  "subs": {
   "LV-WHEN": {
    "group": "연애 시작",
@@ -18,7 +18,21 @@
    "mid": "LOV_SINGLE",
    "phrase": "인연이 언제 찾아올지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(120/122)",
+    "gold": {
+     "newlove": 120,
+     "approach": 1,
+     "progress": 1
+    }
+   }
   },
   "LV-DEADLINE": {
    "group": "연애 시작",
@@ -36,7 +50,20 @@
    "mid": "LOV_SINGLE",
    "phrase": "정해 둔 때 안에 인연을 만나고 싶은 고민",
    "review": " v2.3.9: 실제 고민 라벨 기준 — \"올해 안에·연말·크리스마스 전에\"처럼 기한이 글에 있으면 LV-DEADLINE(조급함 표현이 없어도), 기한 없이 시기만 물으면 LV-WHEN. 3쪽 문장에서 '조급한'은 뺌(CSO 확인 필요).",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(54/55)",
+    "gold": {
+     "newlove": 54,
+     "progress": 1
+    }
+   }
   },
   "LV-LONGSOLO": {
    "group": "연애 시작",
@@ -54,7 +81,19 @@
    "mid": "LOV_SINGLE",
    "phrase": "오래 혼자여서 나만 안 되는 것 같은 고민",
    "review": "LV-ABLE과 경계가 가까움: 매력·자격 의심은 LONGSOLO, 사랑할 마음 자체에 대한 의심은 ABLE로 구분 단서를 더 분명히.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(38/38)",
+    "gold": {
+     "newlove": 38
+    }
+   }
   },
   "LV-NOCHANCE": {
    "group": "연애 시작",
@@ -72,7 +111,19 @@
    "mid": "LOV_SINGLE",
    "phrase": "새로운 사람을 만날 기회가 없는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(36/36)",
+    "gold": {
+     "newlove": 36
+    }
+   }
   },
   "LV-IDEAL": {
    "group": "연애 시작",
@@ -90,7 +141,19 @@
    "mid": "LOV_SINGLE",
    "phrase": "어떤 사람을 만나게 될지에 대한 고민",
    "review": "MR-WHO(배우자상)와 겹침: 결혼·배우자 단어 유무로만 갈리므로 합쳐도 무방.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(24/24)",
+    "gold": {
+     "newlove": 24
+    }
+   }
   },
   "LV-LONELY": {
    "group": "연애 시작",
@@ -108,7 +171,20 @@
    "mid": "LOV_SINGLE",
    "phrase": "외로움 속에서 연애를 바라는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/18)",
+    "gold": {
+     "express": 1,
+     "newlove": 17
+    }
+   }
   },
   "LV-ABLE": {
    "group": "연애 시작",
@@ -126,7 +202,19 @@
    "mid": "LOV_SINGLE",
    "phrase": "내가 사랑을 할 수 있는 사람인지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(16/16)",
+    "gold": {
+     "newlove": 16
+    }
+   }
   },
   "LV-BLINDDATE": {
    "group": "연애 시작",
@@ -144,7 +232,20 @@
    "mid": "LOV_SINGLE",
    "phrase": "앞둔 소개팅·만남이 잘될지에 대한 고민",
    "review": "소개팅 뒤 애프터 연락 고민은 CR-APPROACH와 겹침: 만남 전=BLINDDATE, 만남 후=CR 쪽으로 정리 필요.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/29)",
+    "gold": {
+     "newlove": 28,
+     "None": 1
+    }
+   }
   },
   "LV-SOMEONLY": {
    "group": "연애 시작",
@@ -162,7 +263,20 @@
    "mid": "LOV_SINGLE",
    "phrase": "썸에서 연애로 이어지지 못하는 고민",
    "review": "1건뿐이라 LV-LONGSOLO에 합치는 것을 검토.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/18)",
+    "gold": {
+     "approach": 1,
+     "newlove": 17
+    }
+   }
   },
   "CR-MIND": {
    "group": "짝사랑·썸",
@@ -180,7 +294,21 @@
    "mid": "LOV_CRUSH",
    "phrase": "마음 가는 그 사람의 속마음에 대한 고민",
    "review": "CR-CHANCE와 혼동 잦음: \"좋아할까\"=MIND, \"이어질까\"=CHANCE를 구분 단서에 예문으로 고정.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(63/67)",
+    "gold": {
+     "progress": 2,
+     "approach": 63,
+     "boundary": 2
+    }
+   }
   },
   "CR-DEFINE": {
    "group": "짝사랑·썸",
@@ -198,7 +326,22 @@
    "mid": "LOV_CRUSH",
    "phrase": "썸인지 아닌지 애매한 관계에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "progress",
+    "allowed": [
+     "progress",
+     "approach"
+    ],
+    "choose_by": "사귀자는 말·관계 정의가 중심이면 progress, 내가 먼저 연락·표현할지면 approach",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "progress": 24,
+     "approach": 9,
+     "reunion": 1
+    }
+   }
   },
   "CR-CHANCE": {
    "group": "짝사랑·썸",
@@ -216,7 +359,22 @@
    "mid": "LOV_CRUSH",
    "phrase": "마음 가는 사람과 이어질 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(69/77)",
+    "gold": {
+     "progress": 6,
+     "approach": 69,
+     "None": 1,
+     "continue": 1
+    }
+   }
   },
   "CR-LONGCRUSH": {
    "group": "짝사랑·썸",
@@ -234,7 +392,19 @@
    "mid": "LOV_CRUSH",
    "phrase": "친구로만 보는 듯한 사람을 오래 좋아하는 고민",
    "review": "CR-GIVEUP과 겹침: 접을지 결정이 중심이면 GIVEUP으로.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/28)",
+    "gold": {
+     "approach": 28
+    }
+   }
   },
   "CR-APPROACH": {
    "group": "짝사랑·썸",
@@ -252,7 +422,20 @@
    "mid": "LOV_CRUSH",
    "phrase": "먼저 연락하고 다가갈지에 대한 고민",
    "review": "CR-HOWTO(방법)와 합쳐도 됨: 할지 말지 vs 어떻게만 다름.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(37/40)",
+    "gold": {
+     "newlove": 3,
+     "approach": 37
+    }
+   }
   },
   "CR-CONFESS": {
    "group": "짝사랑·썸",
@@ -270,7 +453,23 @@
    "mid": "LOV_CRUSH",
    "phrase": "마음을 고백할지 말지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "express",
+    "allowed": [
+     "express",
+     "progress",
+     "approach"
+    ],
+    "choose_by": "말을 꺼낼지(고백) 자체면 express, 고백 뒤 사귀게 될지면 progress, 연락·다가가기면 approach",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "progress": 14,
+     "approach": 4,
+     "express": 25
+    }
+   }
   },
   "CR-GIVEUP": {
    "group": "짝사랑·썸",
@@ -288,7 +487,22 @@
    "mid": "LOV_CRUSH",
    "phrase": "이제 그만 좋아해야 할지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(30/34)",
+    "gold": {
+     "continue": 1,
+     "approach": 30,
+     "reunion": 2,
+     "progress": 1
+    }
+   }
   },
   "CR-SIGNAL": {
    "group": "짝사랑·썸",
@@ -306,7 +520,19 @@
    "mid": "LOV_CRUSH",
    "phrase": "그 사람 반응이 식은 것 같아 신경 쓰이는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(35/35)",
+    "gold": {
+     "approach": 35
+    }
+   }
   },
   "CR-DISTANCE": {
    "group": "짝사랑·썸",
@@ -324,7 +550,21 @@
    "mid": "LOV_CRUSH",
    "phrase": "거리와 상황 때문에 가까워지기 어려운 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/20)",
+    "gold": {
+     "continue": 1,
+     "approach": 17,
+     "progress": 2
+    }
+   }
   },
   "CR-TWO": {
    "group": "짝사랑·썸",
@@ -342,7 +582,24 @@
    "mid": "LOV_CRUSH",
    "phrase": "두 사람 사이에서 마음을 정하지 못하는 고민",
    "review": "\"두 사람 중 선택\"과 \"마음 덜 가는 상대와 이어 갈지\"는 다른 질문(which vs yesno)이라 나누는 것을 검토.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach",
+     "newlove"
+    ],
+    "choose_by": "두 사람 중 고르기면 표 없음(사용자가 쓴 선택지는 유지), 한 사람에게 다가갈지면 approach, 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 4,
+     "approach": 4,
+     "continue": 1,
+     "None": 12
+    }
+   }
   },
   "CR-HOWTO": {
    "group": "짝사랑·썸",
@@ -360,7 +617,19 @@
    "mid": "LOV_CRUSH",
    "phrase": "좋아하는 사람에게 다가가는 방법에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/20)",
+    "gold": {
+     "approach": 20
+    }
+   }
   },
   "CR-ENDED": {
    "group": "짝사랑·썸",
@@ -378,7 +647,22 @@
    "mid": "LOV_CRUSH_ENDED",
    "phrase": "썸이 끝난 뒤에도 마음이 접히지 않는 고민",
    "review": "썸 상대의 재연락은 EX-RECONTACT에 들어 있어 경계 표시 필요(사귄 적 있으면 EX).",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "reunion": 31,
+     "continue": 1,
+     "newlove": 2,
+     "approach": 1
+    }
+   }
   },
   "RL-TRUE": {
    "group": "연애 중",
@@ -396,7 +680,22 @@
    "mid": "LOV_TRUST",
    "phrase": "연인의 진심을 확인하고 싶은 고민",
    "review": "바람·다른 이성 의심이 여기 섞이기 쉬움: 별도 세부로 뺄지 검토.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(36/41)",
+    "gold": {
+     "continue": 36,
+     "boundary": 1,
+     "approach": 3,
+     "progress": 1
+    }
+   }
   },
   "RL-STAY": {
    "group": "연애 중",
@@ -414,7 +713,22 @@
    "mid": "LOV_BREAKUP",
    "phrase": "연인과 계속 만날지 헤어질지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(75/79)",
+    "gold": {
+     "continue": 75,
+     "None": 2,
+     "boundary": 1,
+     "approach": 1
+    }
+   }
   },
   "RL-FIGHT": {
    "group": "연애 중",
@@ -432,7 +746,24 @@
    "mid": "LOV_DATING",
    "phrase": "같은 문제로 반복되는 다툼에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "continue",
+    "allowed": [
+     "continue",
+     "boundary",
+     "express"
+    ],
+    "choose_by": "계속 만날지면 continue, 상대 요구를 거절할지면 boundary, 서운함을 말할지면 express",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "approach": 6,
+     "boundary": 13,
+     "continue": 35,
+     "express": 5
+    }
+   }
   },
   "RL-CONTACT": {
    "group": "연애 중",
@@ -450,7 +781,23 @@
    "mid": "LOV_TRUST",
    "phrase": "연인의 연락과 표현이 적어 서운한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "express",
+    "allowed": [
+     "express",
+     "continue"
+    ],
+    "choose_by": "서운함을 말할지면 express, 이 관계를 이어 갈지면 continue",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "approach": 5,
+     "continue": 8,
+     "progress": 1,
+     "express": 30
+    }
+   }
   },
   "RL-DULL": {
    "group": "연애 중",
@@ -468,7 +815,21 @@
    "mid": "LOV_DATING",
    "phrase": "설렘이 줄어든 권태기에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(23/25)",
+    "gold": {
+     "approach": 1,
+     "continue": 23,
+     "boundary": 1
+    }
+   }
   },
   "RL-LIVE": {
    "group": "연애 중",
@@ -486,7 +847,19 @@
    "mid": "LOV_DATING",
    "phrase": "연인과 같이 살아도 될지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "progress",
+    "allowed": [
+     "progress"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/20)",
+    "gold": {
+     "progress": 20
+    }
+   }
   },
   "RL-LAST": {
    "group": "연애 중",
@@ -504,7 +877,20 @@
    "mid": "LOV_DATING",
    "phrase": "지금 연인과 오래 함께할 수 있을지에 대한 고민",
    "review": "MR-THIS와 경계: 결혼 단어가 있으면 MR-THIS.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/29)",
+    "gold": {
+     "continue": 28,
+     "progress": 1
+    }
+   }
   },
   "RL-BREAK": {
    "group": "연애 중",
@@ -522,7 +908,21 @@
    "mid": "LOV_TRUST",
    "phrase": "시간을 갖자는 말 뒤에 남은 불안한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(19/21)",
+    "gold": {
+     "continue": 19,
+     "approach": 1,
+     "reunion": 1
+    }
+   }
   },
   "RL-SORRY": {
    "group": "연애 중",
@@ -540,7 +940,20 @@
    "mid": "LOV_DATING",
    "phrase": "내 잘못으로 틀어진 사이를 되돌리고 싶은 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "express",
+    "allowed": [
+     "express"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(15/16)",
+    "gold": {
+     "approach": 1,
+     "express": 15
+    }
+   }
   },
   "EX-CHANCE": {
    "group": "이별·재회",
@@ -558,7 +971,19 @@
    "mid": "LOV_EX",
    "phrase": "헤어진 연인과 다시 만날 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(58/58)",
+    "gold": {
+     "reunion": 58
+    }
+   }
   },
   "EX-MIND": {
    "group": "이별·재회",
@@ -576,7 +1001,21 @@
    "mid": "LOV_EX",
    "phrase": "헤어진 사람의 속마음과 미련에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(33/35)",
+    "gold": {
+     "reunion": 33,
+     "approach": 1,
+     "continue": 1
+    }
+   }
   },
   "EX-WAIT": {
    "group": "이별·재회",
@@ -594,7 +1033,20 @@
    "mid": "LOV_EX",
    "phrase": "헤어진 사람의 연락을 기다리는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(35/36)",
+    "gold": {
+     "reunion": 35,
+     "approach": 1
+    }
+   }
   },
   "EX-REACH": {
    "group": "이별·재회",
@@ -612,7 +1064,19 @@
    "mid": "LOV_EX",
    "phrase": "헤어진 사람에게 먼저 연락할지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(35/35)",
+    "gold": {
+     "reunion": 35
+    }
+   }
   },
   "EX-FRESH": {
    "group": "이별·재회",
@@ -630,7 +1094,22 @@
    "mid": "LOV_EX",
    "phrase": "막 헤어져 일상이 무너진 아픈 고민",
    "review": "재회 질문이 아닌 위로가 중심이라 reunion 점수표(정리 vs 재회)가 거칠게 느껴질 수 있음: table을 비우는 것도 검토.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "reunion",
+    "allowed": [
+     "reunion",
+     "newlove"
+    ],
+    "choose_by": "아직 그 사람을 바라면 reunion, 잊고 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "boundary": 1,
+     "reunion": 31,
+     "newlove": 5
+    }
+   }
   },
   "EX-NEWONE": {
    "group": "이별·재회",
@@ -648,7 +1127,19 @@
    "mid": "LOV_SINGLE",
    "phrase": "이별 뒤 새로운 인연을 만날 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(18/18)",
+    "gold": {
+     "newlove": 18
+    }
+   }
   },
   "EX-REPEAT": {
    "group": "이별·재회",
@@ -666,7 +1157,20 @@
    "mid": "LOV_EX",
    "phrase": "헤어졌다 다시 만나기를 반복하는 고민",
    "review": "현재 재결합 상태면 연애 중(RL-STAY)과 겹침: 지금 헤어진 상태인지로 구분.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(15/17)",
+    "gold": {
+     "reunion": 15,
+     "continue": 2
+    }
+   }
   },
   "EX-RECONTACT": {
    "group": "이별·재회",
@@ -684,7 +1188,20 @@
    "mid": "LOV_EX",
    "phrase": "다시 연락해 온 사람의 뜻에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(24/25)",
+    "gold": {
+     "reunion": 24,
+     "None": 1
+    }
+   }
   },
   "EX-THEYMOVED": {
    "group": "이별·재회",
@@ -702,7 +1219,19 @@
    "mid": "LOV_EX",
    "phrase": "새 사람이 생긴 전 연인을 잊지 못하는 고민",
    "review": "1건뿐이라 EX-CHANCE에 합치는 것을 검토.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/17)",
+    "gold": {
+     "reunion": 17
+    }
+   }
   },
   "MR-THIS": {
    "group": "결혼",
@@ -720,7 +1249,20 @@
    "mid": "LOV_MARRY",
    "phrase": "지금 연인과 결혼까지 갈 수 있을지에 대한 고민",
    "review": "결혼 이야기는 오갔는데 살 곳·돈·이사·집안 반대 같은 현실 조건이 걸리는 경우가 빠져 있어 new_subs로 제안.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "progress",
+    "allowed": [
+     "progress"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(58/59)",
+    "gold": {
+     "progress": 58,
+     "continue": 1
+    }
+   }
   },
   "MR-WHEN": {
    "group": "결혼",
@@ -738,7 +1280,21 @@
    "mid": "LOV_MARRY",
    "phrase": "결혼을 언제 할 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "newlove",
+    "allowed": [
+     "newlove",
+     "progress"
+    ],
+    "choose_by": "만나는 사람이 있으면 progress, 없으면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 28,
+     "progress": 6
+    }
+   }
   },
   "MR-WHETHER": {
    "group": "결혼",
@@ -756,7 +1312,22 @@
    "mid": "LOV_MARRY",
    "phrase": "결혼이라는 선택 자체에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "progress"
+    ],
+    "choose_by": "지금 연인과 결혼할지면 progress, 결혼 자체를 고민하면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "progress": 8,
+     "approach": 1,
+     "None": 14
+    }
+   }
   },
   "MR-PARTNER": {
    "group": "결혼",
@@ -774,7 +1345,21 @@
    "mid": "LOV_MARRY",
    "phrase": "연인의 결혼 생각이 궁금한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "progress",
+    "allowed": [
+     "progress"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(39/41)",
+    "gold": {
+     "progress": 39,
+     "approach": 1,
+     "continue": 1
+    }
+   }
   },
   "MR-PRESSURE": {
    "group": "결혼",
@@ -792,7 +1377,20 @@
    "mid": "LOV_MARRY",
    "phrase": "주변의 결혼 재촉이 부담스러운 고민",
    "review": "부모 재촉은 FM-FAMILY와도 닿음: 결혼 화제가 있으면 여기.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(16/17)",
+    "gold": {
+     "newlove": 1,
+     "None": 16
+    }
+   }
   },
   "MR-WHO": {
    "group": "결혼",
@@ -810,7 +1408,19 @@
    "mid": "LOV_MARRY",
    "phrase": "앞으로 만날 배우자의 모습에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(15/15)",
+    "gold": {
+     "newlove": 15
+    }
+   }
   },
   "JB-WHEN": {
    "group": "취업",
@@ -828,7 +1438,21 @@
    "mid": "JOB",
    "phrase": "취업이 언제쯤 이뤄질지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(62/64)",
+    "gold": {
+     "start": 62,
+     "approach": 1,
+     "job": 1
+    }
+   }
   },
   "JB-WAIT": {
    "group": "취업",
@@ -846,7 +1470,21 @@
    "mid": "JOB",
    "phrase": "지원한 곳의 결과를 기다리는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(38/43)",
+    "gold": {
+     "start": 38,
+     "job": 4,
+     "None": 1
+    }
+   }
   },
   "JB-INTERVIEW": {
    "group": "취업",
@@ -864,7 +1502,20 @@
    "mid": "TEST_AHEAD",
    "phrase": "다가오는 면접을 잘 볼 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(32/33)",
+    "gold": {
+     "start": 32,
+     "job": 1
+    }
+   }
   },
   "JB-LATE": {
    "group": "취업",
@@ -882,7 +1533,22 @@
    "mid": "JOB_LONG",
    "phrase": "길어진 취업 준비와 나이·공백에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "express": 1,
+     "boundary": 2,
+     "start": 31,
+     "job": 1
+    }
+   }
   },
   "JB-WHERE": {
    "group": "취업",
@@ -900,7 +1566,24 @@
    "mid": "JOB",
    "phrase": "어떤 분야로 취업할지 정하지 못한 고민",
    "review": "PT-WHAT·PT-TWO와 겹침: 취업 직무가 분명하면 JB, 인생 방향이면 PT.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start",
+     "job"
+    ],
+    "choose_by": "갈 곳을 직접 두 개 이상 썼으면 표 없음(선택지 유지), 붙을지까지 물으면 start, 다니던 곳을 옮기는 거면 job",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "start": 7,
+     "None": 24,
+     "move": 1,
+     "job": 2
+    }
+   }
   },
   "JB-STUCK": {
    "group": "취업",
@@ -918,7 +1601,20 @@
    "mid": "JOB_LONG",
    "phrase": "취업 준비가 손에 잡히지 않는 고민",
    "review": "EX2-STUDY와 같은 결(무기력)이라 대상만 다름.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(18/19)",
+    "gold": {
+     "start": 18,
+     "None": 1
+    }
+   }
   },
   "JB-TERMS": {
    "group": "취업",
@@ -936,7 +1632,19 @@
    "mid": "JOB",
    "phrase": "원하는 조건의 일자리에 갈 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(26/26)",
+    "gold": {
+     "start": 26
+    }
+   }
   },
   "JB-ABROAD": {
    "group": "취업",
@@ -954,7 +1662,23 @@
    "mid": "DIR",
    "phrase": "해외에서 일하고 살고 싶은 고민",
    "review": "취업보다 이민·워홀·삶터 이동이 섞여 있어 area를 DIR로 둠.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "start",
+    "allowed": [
+     "start",
+     "move"
+    ],
+    "choose_by": "갈지·붙을지면 start, 살 곳을 옮기는 게 중심이면 move",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "move": 2,
+     "start": 17,
+     "job": 2,
+     "None": 1
+    }
+   }
   },
   "WK-QUIT": {
    "group": "이직·퇴사",
@@ -972,7 +1696,20 @@
    "mid": "CAR",
    "phrase": "지금 회사를 그만둘지에 대한 고민",
    "review": "WK-STAY·WK-HARD와 많이 겹침: 퇴사 여부(QUIT)/비교(STAY)/힘듦 호소(HARD)로 구분 단서 예문 보강 필요.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(58/59)",
+    "gold": {
+     "job": 58,
+     "boundary": 1
+    }
+   }
   },
   "WK-WHEN": {
    "group": "이직·퇴사",
@@ -990,7 +1727,19 @@
    "mid": "CAR",
    "phrase": "퇴사와 이직의 때를 고르는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(42/42)",
+    "gold": {
+     "job": 42
+    }
+   }
   },
   "WK-MOVE": {
    "group": "이직·퇴사",
@@ -1008,7 +1757,20 @@
    "mid": "CAR",
    "phrase": "이직이 언제 이뤄질지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(70/72)",
+    "gold": {
+     "job": 70,
+     "start": 2
+    }
+   }
   },
   "WK-STAY": {
    "group": "이직·퇴사",
@@ -1026,7 +1788,20 @@
    "mid": "CAR",
    "phrase": "지금 회사에 남을지 옮길지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(56/57)",
+    "gold": {
+     "job": 56,
+     "start": 1
+    }
+   }
   },
   "WK-AFTER": {
    "group": "이직·퇴사",
@@ -1044,7 +1819,21 @@
    "mid": "CAR",
    "phrase": "그만둔 뒤의 생계가 두려운 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "None": 1,
+     "job": 31,
+     "start": 3
+    }
+   }
   },
   "WK-OFFER": {
    "group": "이직·퇴사",
@@ -1062,7 +1851,20 @@
    "mid": "CAR",
    "phrase": "받은 이직 제안을 받아들일지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/29)",
+    "gold": {
+     "job": 28,
+     "start": 1
+    }
+   }
   },
   "WK-SWITCH": {
    "group": "이직·퇴사",
@@ -1080,7 +1882,21 @@
    "mid": "CAR",
    "phrase": "다른 직무와 업종으로 옮길지에 대한 고민",
    "review": "WK-FIT과 겹침: 옮길 분야가 정해져 있으면 SWITCH.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(34/37)",
+    "gold": {
+     "start": 1,
+     "job": 34,
+     "None": 2
+    }
+   }
   },
   "WK-NEWJOB": {
    "group": "이직·퇴사",
@@ -1098,7 +1914,21 @@
    "mid": "CAR",
    "phrase": "옮긴 직장에 적응하지 못하는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(22/24)",
+    "gold": {
+     "None": 1,
+     "job": 22,
+     "start": 1
+    }
+   }
   },
   "WK-PEOPLE": {
    "group": "이직·퇴사",
@@ -1116,7 +1946,21 @@
    "mid": "CAR",
    "phrase": "직장 사람 때문에 그만두고 싶은 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(23/27)",
+    "gold": {
+     "boundary": 2,
+     "express": 2,
+     "job": 23
+    }
+   }
   },
   "WK-PAY": {
    "group": "이직·퇴사",
@@ -1134,7 +1978,20 @@
    "mid": "CAR",
    "phrase": "연봉과 처우 때문에 옮길지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/18)",
+    "gold": {
+     "start": 1,
+     "job": 17
+    }
+   }
   },
   "WK-SECURE": {
    "group": "이직·퇴사",
@@ -1152,7 +2009,21 @@
    "mid": "CAR_INSECURE",
    "phrase": "지금 일자리를 계속 지킬 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 2,
+     "job": 22,
+     "start": 2
+    }
+   }
   },
   "WK-FIT": {
    "group": "이직·퇴사",
@@ -1170,7 +2041,20 @@
    "mid": "CAR",
    "phrase": "지금 하는 일이 나와 맞는지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(35/36)",
+    "gold": {
+     "job": 35,
+     "start": 1
+    }
+   }
   },
   "WK-HARD": {
    "group": "이직·퇴사",
@@ -1188,7 +2072,23 @@
    "mid": "CAR",
    "phrase": "회사 생활을 버티기 너무 힘든 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "job",
+    "allowed": [
+     "job",
+     "boundary"
+    ],
+    "choose_by": "옮길지·버틸지·하소연이면 job, 떠넘기는 일을 거절할지면 boundary",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "boundary": 10,
+     "None": 6,
+     "start": 2,
+     "job": 19
+    }
+   }
   },
   "EX2-UNI": {
    "group": "시험·입시",
@@ -1206,7 +2106,19 @@
    "mid": "EDU",
    "phrase": "원하는 대학에 붙을 수 있을지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(43/43)",
+    "gold": {
+     "start": 43
+    }
+   }
   },
   "EX2-WAIT": {
    "group": "시험·입시",
@@ -1224,7 +2136,19 @@
    "mid": "EDU",
    "phrase": "이미 본 시험의 결과를 기다리는 고민",
    "review": "공무원 발표 대기는 EX2-LONG과 겹침: 시험을 이미 봤으면 WAIT.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(33/33)",
+    "gold": {
+     "start": 33
+    }
+   }
   },
   "EX2-BEFORE": {
    "group": "시험·입시",
@@ -1242,7 +2166,21 @@
    "mid": "TEST_AHEAD",
    "phrase": "코앞에 다가온 시험이 불안한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(42/44)",
+    "gold": {
+     "boundary": 1,
+     "start": 42,
+     "None": 1
+    }
+   }
   },
   "EX2-STUDY": {
    "group": "시험·입시",
@@ -1260,7 +2198,21 @@
    "mid": "EDU",
    "phrase": "공부가 손에 잡히지 않는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(32/36)",
+    "gold": {
+     "start": 32,
+     "None": 3,
+     "express": 1
+    }
+   }
   },
   "EX2-LONG": {
    "group": "시험·입시",
@@ -1278,7 +2230,20 @@
    "mid": "EXAM_LONG",
    "phrase": "오래 준비해 온 시험에 지쳐 가는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(36/37)",
+    "gold": {
+     "start": 36,
+     "None": 1
+    }
+   }
   },
   "EX2-AGAIN": {
    "group": "시험·입시",
@@ -1296,7 +2261,19 @@
    "mid": "EDU",
    "phrase": "다시 도전하는 시험이 잘될지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(27/27)",
+    "gold": {
+     "start": 27
+    }
+   }
   },
   "EX2-GRAD": {
    "group": "시험·입시",
@@ -1314,7 +2291,20 @@
    "mid": "EDU",
    "phrase": "대학원과 학위 과정에 대한 고민",
    "review": "대학원 진학 결정(갈까 말까)은 PT-TWO와 겹침: 결과·심사 대기만 여기에.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 5,
+     "start": 25
+    }
+   }
   },
   "EX2-AUDITION": {
    "group": "시험·입시",
@@ -1332,7 +2322,19 @@
    "mid": "DIR",
    "phrase": "오디션과 공모전 결과에 대한 고민",
    "review": "성격상 창작·꿈 진로라 SB-CREATE·PT-DREAM과 묶는 편이 자연스러움(대주제 이동 검토).",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(23/23)",
+    "gold": {
+     "start": 23
+    }
+   }
   },
   "PT-WHAT": {
    "group": "진로·방향",
@@ -1350,7 +2352,20 @@
    "mid": "DIR",
    "phrase": "앞으로 무엇을 하며 살지 막막한 고민",
    "review": "PT-MEANING과 경계가 흐림: 합치는 것을 검토.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(33/37)",
+    "gold": {
+     "start": 4,
+     "None": 33
+    }
+   }
   },
   "PT-MAJOR": {
    "group": "진로·방향",
@@ -1368,7 +2383,21 @@
    "mid": "DIR",
    "phrase": "전공과 학과를 정하지 못한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(14/16)",
+    "gold": {
+     "start": 1,
+     "None": 14,
+     "job": 1
+    }
+   }
   },
   "PT-TWO": {
    "group": "진로·방향",
@@ -1386,7 +2415,24 @@
    "mid": "DIR",
    "phrase": "두 갈래 길 가운데 하나를 골라야 하는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start",
+     "job"
+    ],
+    "choose_by": "두 길을 직접 썼으면 표 없음(선택지 유지), 지금 회사를 떠날지면 job, 새 일을 시작할지면 start",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "start": 14,
+     "job": 5,
+     "continue": 1,
+     "None": 25
+    }
+   }
   },
   "PT-DREAM": {
    "group": "진로·방향",
@@ -1404,7 +2450,20 @@
    "mid": "DIR",
    "phrase": "꿈과 현실 사이에서 진로를 정하는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(21/22)",
+    "gold": {
+     "start": 21,
+     "None": 1
+    }
+   }
   },
   "PT-MEANING": {
    "group": "진로·방향",
@@ -1422,7 +2481,21 @@
    "mid": "DIR",
    "phrase": "마음 쏟을 의미 있는 일을 찾는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start"
+    ],
+    "choose_by": "구체적인 일을 시작할지면 start, 아니면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "start": 3,
+     "None": 15
+    }
+   }
   },
   "SB-START": {
    "group": "사업·창작",
@@ -1440,7 +2513,20 @@
    "mid": "DIR",
    "phrase": "창업과 개인 사업을 시작할지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(29/30)",
+    "gold": {
+     "start": 29,
+     "job": 1
+    }
+   }
   },
   "SB-RUN": {
    "group": "사업·창작",
@@ -1458,7 +2544,20 @@
    "mid": "BIZ",
    "phrase": "운영 중인 사업의 매출과 앞날에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/29)",
+    "gold": {
+     "None": 1,
+     "start": 28
+    }
+   }
   },
   "SB-SIDE": {
    "group": "사업·창작",
@@ -1476,7 +2575,20 @@
    "mid": "DIR",
    "phrase": "부업과 N잡이 잘될지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/21)",
+    "gold": {
+     "start": 20,
+     "job": 1
+    }
+   }
   },
   "SB-CREATE": {
    "group": "사업·창작",
@@ -1494,7 +2606,20 @@
    "mid": "DIR",
    "phrase": "창작 활동이 성과로 이어질지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(25/26)",
+    "gold": {
+     "start": 25,
+     "job": 1
+    }
+   }
   },
   "SB-CLOSE": {
    "group": "사업·창작",
@@ -1512,7 +2637,21 @@
    "mid": "BIZ",
    "phrase": "가게와 사업을 정리할지에 대한 고민",
    "review": "start 점수표(시작/기다림)가 정리 결정과 맞지 않아 table 비움.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start"
+    ],
+    "choose_by": "새로 다른 일을 시작할지까지 물으면 start, 아니면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "start": 3,
+     "None": 13
+    }
+   }
   },
   "MN-URGENT": {
    "group": "돈",
@@ -1530,7 +2669,22 @@
    "mid": "LIF",
    "phrase": "당장 급한 돈 문제에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start"
+    ],
+    "choose_by": "돈 버는 일을 시작할지면 start, 아니면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "boundary": 1,
+     "start": 6,
+     "None": 29
+    }
+   }
   },
   "MN-RICH": {
    "group": "돈",
@@ -1548,7 +2702,20 @@
    "mid": "LIF",
    "phrase": "큰돈을 모으고 싶은 바람에 대한 고민",
    "review": "로또 바람은 ET-LUCK과 겹침: 일회성 당첨은 ET-LUCK으로.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/29)",
+    "gold": {
+     "None": 28,
+     "start": 1
+    }
+   }
   },
   "MN-WHEN": {
    "group": "돈",
@@ -1566,7 +2733,20 @@
    "mid": "LIF",
    "phrase": "금전운이 언제 풀릴지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "start": 5,
+     "None": 28
+    }
+   }
   },
   "MN-INVEST": {
    "group": "돈",
@@ -1584,7 +2764,21 @@
    "mid": "LIF",
    "phrase": "투자 손실과 회복에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start"
+    ],
+    "choose_by": "새로 투자하거나 더 넣을지면 start, 아니면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 15,
+     "start": 5
+    }
+   }
   },
   "MN-HOME": {
    "group": "돈",
@@ -1602,7 +2796,20 @@
    "mid": "LIF",
    "phrase": "집과 독립에 필요한 돈에 대한 고민",
    "review": "이사·독립을 할지 자체의 결정(돈 외)은 빠져 있어 new_subs로 제안.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "move",
+    "allowed": [
+     "move"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/23)",
+    "gold": {
+     "start": 3,
+     "move": 20
+    }
+   }
   },
   "MN-HOWTO": {
    "group": "돈",
@@ -1620,7 +2827,21 @@
    "mid": "LIF",
    "phrase": "돈을 벌 방법을 찾지 못한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/23)",
+    "gold": {
+     "start": 20,
+     "move": 1,
+     "None": 2
+    }
+   }
   },
   "UF-YEAR": {
    "group": "앞날·운세",
@@ -1638,7 +2859,20 @@
    "mid": "NONE",
    "phrase": "올해와 내년의 흐름에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/32)",
+    "gold": {
+     "start": 1,
+     "None": 31
+    }
+   }
   },
   "UF-ANXIOUS": {
    "group": "앞날·운세",
@@ -1656,7 +2890,19 @@
    "mid": "NONE",
    "phrase": "막연히 앞날이 불안한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(32/32)",
+    "gold": {
+     "None": 32
+    }
+   }
   },
   "UF-STUCK": {
    "group": "앞날·운세",
@@ -1674,7 +2920,20 @@
    "mid": "NONE",
    "phrase": "제자리에 멈춰 있는 것 같은 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/31)",
+    "gold": {
+     "None": 28,
+     "start": 3
+    }
+   }
   },
   "UF-EMPTY": {
    "group": "앞날·운세",
@@ -1692,7 +2951,20 @@
    "mid": "NONE",
    "phrase": "삶이 재미없고 허전한 고민",
    "review": "PT-MEANING과 닿음: 해야 할 일을 찾으면 PT-MEANING, 감정 호소면 여기.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/18)",
+    "gold": {
+     "None": 17,
+     "express": 1
+    }
+   }
   },
   "UF-ALL": {
    "group": "앞날·운세",
@@ -1710,7 +2982,21 @@
    "mid": "NONE",
    "phrase": "여러 고민이 한꺼번에 얽힌 고민",
    "review": "20건으로 큼: A2가 가장 무게가 큰 한 영역을 고를 수 있으면 그 세부로 보내고 여기는 최후 선택으로.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(29/33)",
+    "gold": {
+     "None": 29,
+     "newlove": 1,
+     "start": 3
+    }
+   }
   },
   "UF-WISH": {
    "group": "앞날·운세",
@@ -1728,7 +3014,20 @@
    "mid": "NONE",
    "phrase": "바라는 일이 이루어질지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(16/17)",
+    "gold": {
+     "start": 1,
+     "None": 16
+    }
+   }
   },
   "PR-NOFRIEND": {
    "group": "인간관계",
@@ -1746,7 +3045,24 @@
    "mid": "SOC",
    "phrase": "곁에 친구가 없어 마음 쓰이는 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "approach",
+    "allowed": [
+     "approach",
+     "express",
+     null
+    ],
+    "choose_by": "다가갈지면 approach, 마음을 말할지면 express, 하소연만이면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "express": 15,
+     "None": 4,
+     "start": 3,
+     "approach": 16
+    }
+   }
   },
   "PR-CONFLICT": {
    "group": "인간관계",
@@ -1764,7 +3080,21 @@
    "mid": "SOC",
    "phrase": "친구와 다툰 뒤 화해하고 싶은 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "express",
+    "allowed": [
+     "express"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/23)",
+    "gold": {
+     "boundary": 2,
+     "express": 20,
+     "start": 1
+    }
+   }
   },
   "PR-CUT": {
    "group": "인간관계",
@@ -1782,7 +3112,21 @@
    "mid": "SOC",
    "phrase": "관계를 이어 갈지 거리를 둘지에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "boundary",
+    "allowed": [
+     "boundary"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(26/30)",
+    "gold": {
+     "boundary": 26,
+     "express": 3,
+     "None": 1
+    }
+   }
   },
   "PR-HURT": {
    "group": "인간관계",
@@ -1800,7 +3144,21 @@
    "mid": "SOC",
    "phrase": "믿던 사람에게 상처받은 뒤의 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/19)",
+    "gold": {
+     "None": 17,
+     "boundary": 1,
+     "express": 1
+    }
+   }
   },
   "PR-MIND": {
    "group": "인간관계",
@@ -1818,7 +3176,21 @@
    "mid": "SOC",
    "phrase": "주변 사람이 나를 어떻게 볼지에 대한 고민",
    "review": "직장 상사·동료면 WK-PEOPLE과 겹침: 그만둘 생각이 없으면 여기.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "express"
+    ],
+    "choose_by": "속마음을 말할지면 express, 아니면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "express": 9,
+     "None": 15
+    }
+   }
   },
   "PR-STRESS": {
    "group": "인간관계",
@@ -1836,7 +3208,23 @@
    "mid": "SOC",
    "phrase": "인간관계 전반이 버거운 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "boundary",
+     "express"
+    ],
+    "choose_by": "선을 그을지면 boundary, 말을 꺼낼지면 express, 아니면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 18,
+     "boundary": 17,
+     "express": 2
+    }
+   }
   },
   "FM-BABY": {
    "group": "가족·출산",
@@ -1854,7 +3242,20 @@
    "mid": "FAM",
    "phrase": "아이를 가질지와 그 때에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(14/16)",
+    "gold": {
+     "start": 14,
+     "None": 2
+    }
+   }
   },
   "FM-FAMILY": {
    "group": "가족·출산",
@@ -1872,7 +3273,26 @@
    "mid": "FAM",
    "phrase": "가족과의 관계가 힘든 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": "boundary",
+    "allowed": [
+     "boundary",
+     "express",
+     null
+    ],
+    "choose_by": "거리를 두거나 거절할지면 boundary, 말을 꺼낼지면 express, 하소연만이면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 3,
+     "boundary": 31,
+     "move": 1,
+     "express": 15,
+     "approach": 1,
+     "start": 2
+    }
+   }
   },
   "FM-FOR": {
    "group": "가족·출산",
@@ -1890,7 +3310,20 @@
    "mid": "FAM",
    "phrase": "가족의 일이 잘되기를 바라는 고민",
    "review": "대신 묻는 영역(자녀 입시 등)에 따라 EDU·CAR 문장이 더 맞을 수 있음.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/21)",
+    "gold": {
+     "express": 1,
+     "None": 20
+    }
+   }
   },
   "HL-DIET": {
    "group": "몸·건강",
@@ -1908,7 +3341,20 @@
    "mid": "LIF",
    "phrase": "다이어트와 몸 관리에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(19/20)",
+    "gold": {
+     "start": 19,
+     "None": 1
+    }
+   }
   },
   "HL-WORRY": {
    "group": "몸·건강",
@@ -1926,7 +3372,22 @@
    "mid": "LIF",
    "phrase": "몸과 건강이 걱정되는 고민",
    "review": "의료 판단을 주지 않도록 결과 문장 검수 필요.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start"
+    ],
+    "choose_by": "치료·검사·관리를 시작할지면 start, 아니면 표 없음",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "start": 5,
+     "None": 19,
+     "job": 1
+    }
+   }
   },
   "HL-PET": {
    "group": "몸·건강",
@@ -1944,7 +3405,19 @@
    "mid": "LIF",
    "phrase": "아끼는 반려동물의 안부에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(15/15)",
+    "gold": {
+     "None": 15
+    }
+   }
   },
   "ET-FAN": {
    "group": "기타",
@@ -1962,7 +3435,20 @@
    "mid": "NONE",
    "phrase": "좋아하는 스타와의 인연에 대한 고민",
    "review": "실제 연애로 읽지 않도록 LOV 문장과 섞이지 않게 NONE 유지.",
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(22/23)",
+    "gold": {
+     "None": 22,
+     "start": 1
+    }
+   }
   },
   "ET-LUCK": {
    "group": "기타",
@@ -1980,7 +3466,19 @@
    "mid": "NONE",
    "phrase": "당첨과 티켓팅 같은 운에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/20)",
+    "gold": {
+     "None": 20
+    }
+   }
   },
   "ET-SMALL": {
    "group": "기타",
@@ -1998,7 +3496,21 @@
    "mid": "LIF",
    "phrase": "일상 속 작은 선택에 대한 고민",
    "review": null,
-   "source": "고민 문장 DB v0.1"
+   "source": "고민 문장 DB v0.1",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start"
+    ],
+    "choose_by": "할지 말지(실행)면 start, 둘 중 고르기면 표 없음(선택지 유지)",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "start": 15,
+     "None": 21
+    }
+   }
   },
   "MR-REAL": {
    "group": "결혼",
@@ -2016,7 +3528,22 @@
    "mid": "LOV_MARRY",
    "phrase": "결혼을 앞두고 현실 조건이 걸리는 고민",
    "review": null,
-   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)"
+   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "progress",
+    "allowed": [
+     "progress"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(57/61)",
+    "gold": {
+     "progress": 57,
+     "start": 1,
+     "job": 1,
+     "continue": 2
+    }
+   }
   },
   "MR-FAMILY": {
    "group": "결혼",
@@ -2034,7 +3561,21 @@
    "mid": "LOV_MARRY",
    "phrase": "집안의 반대 앞에 선 결혼에 대한 고민",
    "review": null,
-   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)"
+   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "progress",
+    "allowed": [
+     "progress"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/33)",
+    "gold": {
+     "progress": 31,
+     "express": 1,
+     "continue": 1
+    }
+   }
   },
   "RL-APART": {
    "group": "연애 중",
@@ -2052,7 +3593,22 @@
    "mid": "LOV_DISTANCE",
    "phrase": "멀리 떨어지게 된 연인과의 관계에 대한 고민",
    "review": null,
-   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)"
+   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(42/48)",
+    "gold": {
+     "approach": 1,
+     "job": 1,
+     "continue": 42,
+     "progress": 4
+    }
+   }
   },
   "ML-LIFE": {
    "group": "결혼",
@@ -2070,7 +3626,25 @@
    "mid": "LOV_MARRIED",
    "phrase": "배우자와 함께하는 결혼 생활에 대한 고민",
    "review": null,
-   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)"
+   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "continue",
+    "allowed": [
+     "continue",
+     "boundary",
+     "express"
+    ],
+    "choose_by": "결혼 생활을 이어 갈지면 continue, 선을 그을지면 boundary, 말을 꺼낼지면 express",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "boundary": 8,
+     "approach": 3,
+     "continue": 30,
+     "start": 1,
+     "express": 9
+    }
+   }
   },
   "RL-OTHER": {
    "group": "연애 중",
@@ -2088,7 +3662,20 @@
    "mid": "LOV_TRUST",
    "phrase": "연인 곁의 다른 사람이 마음에 걸리는 고민",
    "review": null,
-   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)"
+   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(24/25)",
+    "gold": {
+     "continue": 24,
+     "boundary": 1
+    }
+   }
   },
   "LF-MOVE": {
    "group": "돈",
@@ -2106,7 +3693,814 @@
    "mid": "LIF",
    "phrase": "이사와 독립을 할지 정하는 고민",
    "review": null,
-   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)"
+   "source": "v2.3.8 추가(Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "move",
+    "allowed": [
+     "move"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(51/55)",
+    "gold": {
+     "None": 2,
+     "move": 51,
+     "express": 2
+    }
+   }
+  },
+  "WK-DEPT": {
+   "group": "이직·퇴사",
+   "name": "부서 이동·인사 발령",
+   "definition": "회사는 그대로 다니면서 부서·팀·근무지를 옮길지, 바라는 곳으로 발령이 날지",
+   "clue": "부서·팀 이동·발령·인사·본사·지점으로",
+   "vs_neighbors": "WK-MOVE는 회사를 옮김 · WK-STAY는 회사를 계속 다닐지",
+   "scene": null,
+   "tarot_count": null,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "부서를 옮기거나 원하는 곳으로 발령 날지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "WK-PROMO": {
+   "group": "이직·퇴사",
+   "name": "승진·인정받을 수 있을지",
+   "definition": "지금 회사에서 승진·진급하거나 인정받을지, 승진 제안을 받아들일지",
+   "clue": "승진·진급·매니저·평가·인정받다",
+   "vs_neighbors": "WK-OFFER는 다른 회사 제안 · WK-ADAPT는 아직 적응 중",
+   "scene": null,
+   "tarot_count": null,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "지금 자리에서 한 단계 올라설 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "WK-ADAPT": {
+   "group": "이직·퇴사",
+   "name": "입사 초기 적응·일을 잘 해낼 수 있을지",
+   "definition": "들어간 지 얼마 안 된 직장에서 일을 잘 해낼지, 동료와 어울리고 인정받을지. 그만둘 생각은 드러나지 않음",
+   "clue": "신입·첫 직장·적응·눈치·잘 해낼 수 있을까·폐 끼치는 것 같아",
+   "vs_neighbors": "WK-NEWJOB은 새 직장이 안 맞아 옮길 생각 · WK-FIT은 이 일 자체가 맞는지",
+   "scene": null,
+   "tarot_count": null,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "새 일터에 자리 잡고 잘 해낼 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "job"
+    ],
+    "choose_by": "그만둘지·옮길지가 글에 드러나면 job, 아니면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "WK-LOAD": {
+   "group": "이직·퇴사",
+   "name": "업무량·일과 삶 균형·기운 없음",
+   "definition": "일이 너무 많거나 일과 생활 균형이 무너져 지침. 옮기거나 그만둘 생각은 드러나지 않음",
+   "clue": "일이 산더미·마감·퇴근하면 녹초·워라밸·기운이 안 나",
+   "vs_neighbors": "WK-HARD는 버티기 어려워 옮길지까지 생각 · SF-TIRED는 일 밖의 삶 전반이 지침",
+   "scene": null,
+   "tarot_count": null,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "how",
+   "mid": "CAR",
+   "phrase": "쌓인 일과 지친 하루 사이에서 균형을 찾는 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "boundary",
+     "job"
+    ],
+    "choose_by": "남의 일을 떠맡는 걸 거절할지면 boundary, 옮길지면 job, 아니면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "WK-PREP": {
+   "group": "이직·퇴사",
+   "name": "이직을 위한 공부·준비를 시작할지",
+   "definition": "옮기려고 시험·자격증·포트폴리오 준비를 시작할지 망설임",
+   "clue": "이직용 시험·공부 시작할까·자격증 따서 옮기려고",
+   "vs_neighbors": "WK-MOVE는 옮기는 일이 될지 · EX2-LONG은 시험 자체가 목표",
+   "scene": null,
+   "tarot_count": null,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "which",
+   "mid": "CAR",
+   "phrase": "옮기기 위한 준비를 지금 시작할지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "JB-APPLY": {
+   "group": "취업",
+   "name": "지원 전, 가고 싶은 곳에 붙을 수 있을지",
+   "definition": "아직 지원 전이거나 준비 중인 특정 회사·기관에 합격할 가능성, 넣어 볼지",
+   "clue": "목표 회사·지원할까·넣어 봐도 될까·합격 가능성·자소서 쓰는 중",
+   "vs_neighbors": "JB-WAIT는 이미 지원하고 결과 대기 · JB-TERMS는 원하는 조건(연봉·분야) 전반",
+   "scene": null,
+   "tarot_count": null,
+   "area": "JOB",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "JOB",
+   "phrase": "가고 싶은 곳에 지원해 붙을 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "JB-RETURN": {
+   "group": "취업",
+   "name": "재취업·복직·공백 뒤 다시 일하기",
+   "definition": "그만두거나 쉬었다가(육아·건강·퇴사) 다시 일자리를 구하거나 복직할지",
+   "clue": "재취업·복직·다시 일자리·쉬다가·공백",
+   "vs_neighbors": "JB-LATE는 나이·공백 때문에 뒤처진 느낌이 중심 · JB-WHEN은 첫 취업 시기",
+   "scene": null,
+   "tarot_count": null,
+   "area": "JOB",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "JOB_LONG",
+   "phrase": "쉬었다가 다시 일을 시작할 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "JB-PART": {
+   "group": "취업",
+   "name": "아르바이트를 구할지·할지",
+   "definition": "아르바이트 자리를 구하거나 시작할지",
+   "clue": "알바·아르바이트·파트타임",
+   "vs_neighbors": "SB-SIDE는 본업 외 부업 · JB-WHEN은 정규 취업",
+   "scene": null,
+   "tarot_count": null,
+   "area": "JOB",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "JOB",
+   "phrase": "아르바이트 자리를 구하고 시작하는 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "ED-SCHOOL": {
+   "group": "시험·입시",
+   "name": "학교생활·성적·계속 다닐지",
+   "definition": "시험 결과가 아닌 학교생활 전반 — 성적 유지, 과제·실습을 버틸지, 휴학·자퇴",
+   "clue": "성적·학교 다닐까 그만둘까·휴학·자퇴·실습·과제·연구",
+   "vs_neighbors": "EX2-STUDY는 시험 공부가 손에 안 잡힘 · EX2-UNI는 입시 결과",
+   "scene": null,
+   "tarot_count": null,
+   "area": "EDU",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "EDU",
+   "phrase": "학교생활을 잘 이어 갈 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "start",
+    "allowed": [
+     "start",
+     null
+    ],
+    "choose_by": "할지 말지·잘될지면 start, 하소연만이면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "ED-ABROAD": {
+   "group": "시험·입시",
+   "name": "유학·교환학생",
+   "definition": "해외로 공부하러 갈지, 갈 수 있을지, 가서 잘 지낼지",
+   "clue": "유학·교환학생·해외 진학·어학연수",
+   "vs_neighbors": "JB-ABROAD는 해외 취업·워홀·이민",
+   "scene": null,
+   "tarot_count": null,
+   "area": "EDU",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "EDU",
+   "phrase": "해외로 공부하러 가는 길에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "start",
+    "allowed": [
+     "start",
+     "move"
+    ],
+    "choose_by": "갈지·붙을지면 start, 살 곳을 옮기는 게 중심이면 move",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "SB-SKILL": {
+   "group": "사업·창작",
+   "name": "창작·작업 실력이 늘지·막힘",
+   "definition": "성과보다 실력 자체 — 글·그림·작업이 언제 늘지, 막힌 작업을 어떻게 풀지",
+   "clue": "실력이 언제 늘까·안 써져·안 떠올라·막혔어",
+   "vs_neighbors": "SB-CREATE는 성과(조회수·당선·수입)",
+   "scene": null,
+   "tarot_count": null,
+   "area": "DIR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "when",
+   "mid": "DIR",
+   "phrase": "작업 실력이 자라고 막힌 곳이 풀릴지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "start",
+    "allowed": [
+     "start",
+     null
+    ],
+    "choose_by": "언제 늘지·풀릴지면 start, 하소연만이면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "LG-DISPUTE": {
+   "group": "법·분쟁",
+   "name": "법적 문제·분쟁의 결과",
+   "definition": "진행 중인 법적 일·수사·소송·기관이나 업체와의 분쟁이 어떻게 끝날지, 계속할지",
+   "clue": "법적인 일·소송·수사·조사·분쟁·환불 안 해 줌·다투는 중",
+   "vs_neighbors": "MN-URGENT는 돈이 급함 · PR-CONFLICT는 친구와 갈등",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LIF",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "when",
+   "mid": "LIF",
+   "phrase": "진행 중인 다툼이 어떻게 마무리될지에 대한 고민",
+   "review": "법률 판단으로 읽히지 않게 결과 안내에 '전문가 상담' 문구가 필요한지 CSO 결정 필요(Claude가 정하지 않음).",
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": true
+  },
+  "MN-DEAL": {
+   "group": "돈",
+   "name": "계약·매매가 성사될지",
+   "definition": "집·땅·물건 계약이나 매매가 원하는 때·값에 이뤄질지",
+   "clue": "계약·매매·팔릴까·계약운",
+   "vs_neighbors": "MN-HOME은 집 마련 자금 · LF-MOVE는 이사할지",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LIF",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "LIF",
+   "phrase": "계약이 원하는 대로 이뤄질지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "ET-SAFE": {
+   "group": "기타",
+   "name": "앞둔 일·기다리는 일이 무사할지",
+   "definition": "여행·배송·서류 처리·모임처럼 곧 있을 일이나 기다리는 일이 별 탈 없이 될지",
+   "clue": "무사히·별 탈 없이·언제 올까·처리될까·틀어질까",
+   "vs_neighbors": "ET-LUCK은 당첨·티켓팅 같은 운 · ET-SMALL은 내가 고를 작은 결정",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LIF",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "LIF",
+   "phrase": "앞둔 일이 별 탈 없이 지나갈지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "CR-LATE": {
+   "group": "짝사랑·썸",
+   "name": "놓쳤던 상대를 뒤늦게 좋아하게 됨",
+   "definition": "예전에 나를 좋아했지만 내가 피하거나 놓친 사람을, 그 마음이 식은 뒤 좋아하게 됨",
+   "clue": "예전에 날 좋아했던·내가 피했는데·마음 접고 나서야",
+   "vs_neighbors": "CR-ENDED는 내가 고백했다 거절됨 · EX-CHANCE는 사귀었다 헤어짐",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "한발 늦게 알아챈 마음을 전할 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "CR-TAKEN": {
+   "group": "짝사랑·썸",
+   "name": "좋아하는 사람에게 다른 사람이 있음",
+   "definition": "좋아하는 사람에게 연인이 있거나 다른 사람을 좋아함",
+   "clue": "사귀는 사람이 있는데·다른 사람을 짝사랑·그 마음 정리될까",
+   "vs_neighbors": "CR-TWO는 내가 두 사람 사이 · RL-OTHER는 내 연인 곁에 다른 사람",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "마음 가는 사람 곁에 다른 사람이 있어 망설이는 고민",
+   "review": "상대가 기혼인 글(N-0648)도 여기에 넣음 — 결과 문장 수위는 CSO 검토.",
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "approach",
+    "allowed": [
+     "approach",
+     null
+    ],
+    "choose_by": "다가갈지·이어질지면 approach, 마음을 접는 게 중심이면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "CR-WAIT": {
+   "group": "짝사랑·썸",
+   "name": "그 사람의 연락·만남을 기다림",
+   "definition": "썸·짝사랑·소개 상대가 먼저 연락하거나 모임에 나올지 기다림",
+   "clue": "연락 올까·먼저 해 줬으면·모임에 올까·바쁜 거 끝나면",
+   "vs_neighbors": "CR-APPROACH는 내가 먼저 할지 · EX-WAIT는 헤어진 사람의 연락",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "마음 가는 사람의 연락을 기다리는 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "CR-FEEL": {
+   "group": "짝사랑·썸",
+   "name": "내 감정이 뭔지 헷갈림",
+   "definition": "상대 마음보다 내 마음 — 좋아하는 건지, 미련·연민·외로움인지",
+   "clue": "이건 무슨 마음·미련인지·호감인 거겠죠·마음 생길까 봐",
+   "vs_neighbors": "CR-DEFINE은 둘의 관계가 썸인지 · CR-MIND는 상대 마음",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LOV",
+   "love_status": "unknown",
+   "love_topic": "crush_progress",
+   "table": null,
+   "want": "why",
+   "mid": "LOV_CRUSH",
+   "phrase": "내 마음이 어떤 감정인지 알고 싶은 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach"
+    ],
+    "choose_by": "다가갈지가 글에 있으면 approach, 아니면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "RL-HEART": {
+   "group": "연애 중",
+   "name": "연인이 있는데 내 마음이 다른 사람에게 감",
+   "definition": "내 쪽에서 연인 아닌 사람에게 끌리거나 설렘을 찾음",
+   "clue": "남친 있는데 다른 사람이·자꾸 생각나·설렘만",
+   "vs_neighbors": "RL-OTHER는 연인 쪽에 다른 사람 · CR-TWO는 아직 사귀지 않는 두 사람",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LOV",
+   "love_status": "dating",
+   "love_topic": "conflict",
+   "table": "continue",
+   "want": "which",
+   "mid": "LOV_DATING",
+   "phrase": "연인이 있는데 다른 곳으로 마음이 흔들리는 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "RL-BALANCE": {
+   "group": "연애 중",
+   "name": "마음·시간의 균형이 안 맞음",
+   "definition": "내가 더 좋아해 불안하거나, 일과 연애 사이에서 시간을 못 맞춤",
+   "clue": "내 마음이 너무 커·일이랑 연애·섭섭해해",
+   "vs_neighbors": "RL-CONTACT는 상대 연락이 적음 · RL-TRUE는 상대 진심 확인",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LOV",
+   "love_status": "dating",
+   "love_topic": "conflict",
+   "table": "continue",
+   "want": "how",
+   "mid": "LOV_DATING",
+   "phrase": "관계 안에서 마음과 시간의 균형을 찾는 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "continue",
+    "allowed": [
+     "continue"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "LV-LUCK": {
+   "group": "연애 시작",
+   "name": "연애운 전반·날 좋아하는 사람이 있을지",
+   "definition": "특정 상대 없이 연애운이 어떤지, 나를 좋아하는 사람이 있을지",
+   "clue": "연애운·날 좋아하는 사람 있을까",
+   "vs_neighbors": "LV-WHEN은 시기 · CR-MIND는 특정 상대",
+   "scene": null,
+   "tarot_count": null,
+   "area": "LOV",
+   "love_status": "single",
+   "love_topic": "new",
+   "table": "newlove",
+   "want": "yesno",
+   "mid": "LOV_SINGLE",
+   "phrase": "다가올 인연의 흐름이 궁금한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "newlove",
+    "allowed": [
+     "newlove"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "SF-TIRED": {
+   "group": "나 자신",
+   "name": "지침·무기력·미루기",
+   "definition": "삶·일상 전반이 버겁고 기운이 없거나 해야 할 일을 자꾸 미룸",
+   "clue": "버거워·무기력·번아웃·미루게 돼·몸이 안 움직여",
+   "vs_neighbors": "WK-LOAD는 회사 일 때문 · UF-STUCK은 제자리인 느낌",
+   "scene": null,
+   "tarot_count": null,
+   "area": "SELF",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "how",
+   "mid": "NONE",
+   "phrase": "지친 마음을 추스르고 다시 움직이고 싶은 고민",
+   "review": "우울·소진 표현이 짙으면 안전 단계(주의) 기준을 따름 — 기준은 상담사 검토 중.",
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "start"
+    ],
+    "choose_by": "다시 시작할지·해낼지 묻는 글이면 start, 아니면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "SF-MIND": {
+   "group": "나 자신",
+   "name": "내 마음을 모르겠음·외로움·흔들림",
+   "definition": "대상 없이 내 마음 상태 자체 — 외로움, 흔들림, 남들보다 늦다는 조급함",
+   "clue": "내 마음을 모르겠어·외로워·흔들려·남들보다 늦은 것 같아",
+   "vs_neighbors": "LV-LONELY는 외로워서 연애하고 싶음 · UF-ANXIOUS는 앞날 불안",
+   "scene": null,
+   "tarot_count": null,
+   "area": "SELF",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "comfort",
+   "mid": "NONE",
+   "phrase": "흔들리는 내 마음을 들여다보고 싶은 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "PR-BOUNDARY": {
+   "group": "인간관계",
+   "name": "참을지 맞설지·거절하기 어려움",
+   "definition": "싫은 말을 못 하거나, 나를 힘들게 한 사람에게 맞설지 참을지",
+   "clue": "거절 못 해·참을까 들이받을까·호구·맞대응",
+   "vs_neighbors": "PR-CUT은 관계를 끊을지 · PR-CONFLICT는 친구와 화해",
+   "scene": null,
+   "tarot_count": null,
+   "area": "SOC",
+   "love_status": null,
+   "love_topic": null,
+   "table": "boundary",
+   "want": "which",
+   "mid": "SOC",
+   "phrase": "참을지 선을 그을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "boundary",
+    "allowed": [
+     "boundary"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "PR-UNFAIR": {
+   "group": "인간관계",
+   "name": "억울한 일을 털어놓고 싶음",
+   "definition": "커뮤니티 제재·오해처럼 억울한 일을 겪고 속상함",
+   "clue": "억울해·정지당했어·이유도 모른 채",
+   "vs_neighbors": "PR-HURT는 가까운 사람에게 배신 · PR-STRESS는 관계 전반",
+   "scene": null,
+   "tarot_count": null,
+   "area": "SOC",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "comfort",
+   "mid": "SOC",
+   "phrase": "억울한 일을 겪고 마음을 추스르는 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "PR-GROUP": {
+   "group": "인간관계",
+   "name": "새 모임·조·친구와 잘 어울릴지",
+   "definition": "새로 만난 친구, 학교 조·모임 사람들과 잘 지낼지",
+   "clue": "새 친구·같은 조·모임·잘 어울릴 수 있을까",
+   "vs_neighbors": "PR-NOFRIEND는 친구가 없음 · WK-ADAPT는 직장 동료",
+   "scene": null,
+   "tarot_count": null,
+   "area": "SOC",
+   "love_status": null,
+   "love_topic": null,
+   "table": "approach",
+   "want": "yesno",
+   "mid": "SOC",
+   "phrase": "새로 만난 사람들과 잘 어울릴 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
+  },
+  "FM-CARE": {
+   "group": "가족·출산",
+   "name": "가족 돌봄·부양 부담",
+   "definition": "아픈 가족을 돌보거나 집안 형편을 책임지며 지침, 미안함",
+   "clue": "돌보는 중·간병·집에 돈이 없어·혼자 아이 키우며",
+   "vs_neighbors": "FM-FOR는 가족 일이 잘되길 바람 · FM-FAMILY는 가족과의 갈등",
+   "scene": null,
+   "tarot_count": null,
+   "area": "FAM",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "comfort",
+   "mid": "FAM",
+   "phrase": "가족을 돌보며 내 삶도 지키고 싶은 고민",
+   "review": null,
+   "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "boundary"
+    ],
+    "choose_by": "내 몫의 선을 그을지 묻는 글이면 boundary, 아니면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false
   }
  }
 }

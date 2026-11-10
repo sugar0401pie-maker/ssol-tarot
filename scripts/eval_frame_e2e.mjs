@@ -1,7 +1,7 @@
-// 4-(b) 끝까지 측정(2026-11-09): 실제 고민(판별 DB v2.4의 R- 익명판) 중 연애 50·직장 50건을 고민 틀 AI(A2)까지 실제로 돌려
+// 4-(b) 끝까지 측정(2026-11-09): 실제 고민(판별 DB의 R-·R2- 익명판) 중 연애 50·직장 50건을 고민 틀 AI(A2)까지 실제로 돌려
 // 세부 고민(sub_id)·점수표·영역을 정답과 비교한다. 같은 100건을 '의미 검색 + 글자 검색(지금)'과 '글자 검색만(예전)'으로 각각 돌린다(AI 200회).
 //   실행: node --conditions=react-server --experimental-strip-types scripts/eval_frame_e2e.mjs [건수/영역=50]
-//   필요: OPENAI_API_KEY, scripts/.cache/gold_v2.4_text-embedding-3-large_1024.json(eval_embed_retrieval.mjs가 만듦)
+//   필요: OPENAI_API_KEY, scripts/.cache/gold_v2.7_text-embedding-3-large_1024.json(eval_embed_retrieval.mjs가 만듦)
 //   공정하게 하려고 시험 100건은 두 색인 모두에서 뺀다. 질문 임베딩은 캐시된 자기 벡터(서버와 같은 정리·모델)를 쓴다.
 //   결과 전체(고민 글 포함)는 scripts/.cache/에만 남기고, 커밋하는 요약에는 id와 맞음/틀림만 적는다.
 import fs from "node:fs";
@@ -16,16 +16,16 @@ import { FRAME_SYSTEM } from "../lib/server/prompts.ts";
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PER = Number(process.argv[2] || 50);
 const MODEL = process.env.TAROT_AI_MODEL || "gpt-5.6-luna";
-const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.4.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
+const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.7.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
 const subDb = JSON.parse(fs.readFileSync(path.join(ROOT, "data/worry_subtopics.json"), "utf8"));
 const norm = buildNormalizer(JSON.parse(fs.readFileSync(path.join(ROOT, "data/norm_dict.json"), "utf8")));
-const V = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts/.cache/gold_v2.4_text-embedding-3-large_1024.json"), "utf8"));
+const V = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts/.cache/gold_v2.7_text-embedding-3-large_1024.json"), "utf8"));
 const tableOf = (r) => (r.tables ?? [r.table ?? null])[0] ?? null;
 
 // 고정 씨앗으로 고르기(다시 돌려도 같은 100건)
 let seed = 20261109;
 const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
-const pick = (pred, n) => rows.map((r, i) => [r, i]).filter(([r]) => r.id.startsWith("R-") && r.sub_id && pred(r)).map((x) => [rnd(), x]).sort((a, b) => a[0] - b[0]).slice(0, n).map((x) => x[1]);
+const pick = (pred, n) => rows.map((r, i) => [r, i]).filter(([r]) => /^R2?-/.test(r.id) && r.sub_id && pred(r)).map((x) => [rnd(), x]).sort((a, b) => a[0] - b[0]).slice(0, n).map((x) => x[1]);
 const love = pick((r) => r.area === "LOV", PER);
 const work = pick((r) => r.area === "CAR" || r.area === "JOB", PER);
 const test = [...love.map((x) => [...x, "연애"]), ...work.map((x) => [...x, "직장"])];
@@ -95,4 +95,4 @@ console.log(`모델 ${MODEL} · 연애 ${love.length} + 직장 ${work.length} ·
 console.table(summary);
 fs.mkdirSync(path.join(ROOT, "scripts/.cache"), { recursive: true });
 fs.writeFileSync(path.join(ROOT, "scripts/.cache/frame_e2e_detail.json"), JSON.stringify(out, null, 1));
-fs.writeFileSync(path.join(ROOT, "judge-db/eval/frame_e2e_2026-11-09.json"), JSON.stringify({ model: MODEL, n: test.length, tokens: { input: inTok, output: outTok }, summary, rows: out.map(({ mode, grp, id, gold, pred, candHit, err }) => ({ mode, grp, id, gold, pred, candHit, err })) }, null, 1));
+fs.writeFileSync(path.join(ROOT, `judge-db/eval/frame_e2e_${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)}.json`), JSON.stringify({ model: MODEL, n: test.length, tokens: { input: inTok, output: outTok }, summary, rows: out.map(({ mode, grp, id, gold, pred, candHit, err }) => ({ mode, grp, id, gold, pred, candHit, err })) }, null, 1));

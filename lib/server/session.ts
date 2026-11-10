@@ -432,7 +432,7 @@ export async function prepareResult(sessionId: string) {
   if (s.worry_text && aiConfigured()) {
     const locale = localeOf(s);
     const picks = expandPicks(s.picks, locale);
-    const frame = prepareFrame(s.frame ?? null, cls, locale);
+    const frame = prepareFrame(s.frame ?? null, cls, locale, { level: s.safety_level, violence: s.violence });
     const { decision, lean, review_log, lowered } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
     if (review_log) await saveFrameReview(s, review_log, lowered);
     const userBlock = buildCUserBlock({ name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, locale });
@@ -521,7 +521,7 @@ export async function getResult(s: SessionRow) {
   const picks = expandPicks(s.picks, locale);
   const cls = classificationForReport(s.classification);
   const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
-  const frame = prepareFrame(s.frame ?? null, cls, locale);
+  const frame = prepareFrame(s.frame ?? null, cls, locale, { level: s.safety_level, violence: s.violence });
   // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
   const { lean, decision } = decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null, locale });
   if (paid) {
@@ -756,7 +756,7 @@ export async function generateReport(sessionId: string) {
       const locale = localeOf(s);
       const P = promptsFor(locale);
       const picks = expandPicks(s.picks, locale);
-      const frame = prepareFrame(s.frame ?? null, cls, locale);
+      const frame = prepareFrame(s.frame ?? null, cls, locale, { level: s.safety_level, violence: s.violence });
       const { lean } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
       // 분류가 실패했으면 폭력 여부를 모르므로 더 조심스러운 쪽(violence=true)으로(스펙 6장 fail safe)
       const violence = s.violence || s.classification_status === "failed";

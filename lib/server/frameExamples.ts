@@ -20,7 +20,7 @@ import { countEvent } from "./counters";
 // 영문판은 같은 490건을 영어로 옮긴 judge-db/data/frame_gold_en_v1.2.jsonl(기획 전달본, text = 영어 고민).
 const GOLD: Record<Locale, string> = {
   // v2.3.9: v2.1(합성 490 + 실제 956 익명판) + 반말 경계 300 + 고민 문장 DB 예시 — 3,932줄, 줄마다 세부 고민 sub_id
-  ko: path.join(process.cwd(), "judge-db/data/frame_gold_v2.4.jsonl"),
+  ko: path.join(process.cwd(), "judge-db/data/frame_gold_v2.7.jsonl"),
   en: path.join(process.cwd(), "judge-db/data/frame_gold_en_v1.2.jsonl"),
 };
 
@@ -45,8 +45,8 @@ function getIndex(locale: Locale): Index | null {
 
 // v2.3.9 의미 검색 색인(한국어만) — scripts/build_embed_index.mjs가 만든 16비트 벡터. 모델·차원·줄 id가 지금 판별 DB와 다르면 쓰지 않는다.
 // 끄기: TAROT_EMBED_SEARCH=0. 색인이 없거나 질문 임베딩이 실패·4초 초과면 예전처럼 글자 검색만(결과가 멈추지 않게).
-const EMB_BIN = path.join(process.cwd(), "judge-db/data/frame_gold_v2.4.emb.f16.bin");
-const EMB_META = path.join(process.cwd(), "judge-db/data/frame_gold_v2.4.emb.meta.json");
+const EMB_BIN = path.join(process.cwd(), "judge-db/data/frame_gold_v2.7.emb.f16.bin");
+const EMB_META = path.join(process.cwd(), "judge-db/data/frame_gold_v2.7.emb.meta.json");
 let embIndex: { vecs: Float32Array[]; ids: string[] } | null | undefined;
 function getEmbIndex(): { vecs: Float32Array[]; ids: string[] } | null {
   if (embIndex !== undefined) return embIndex;

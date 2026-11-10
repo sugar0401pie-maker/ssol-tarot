@@ -2,6 +2,8 @@
 
 > **v2.3.9:** 검색: `buildIndex(gold_v2.4, { normalize: buildNormalizer(norm_dict) })` → `nearest(text, 20)` → `voteTable(top5)`(두 번째 의견) + `subCandidates(top20, 8)` → `subPromptBlock(cands, worry_subtopics)` → A2 v4.10 `{SUB_BLOCK}`. 임베딩은 `embedRetriever.example.mjs`.
 >
+> **v2.3.11:** `applySubDefaults → resolveTable(frame, subDb, tables, {safety}) → applyForecastOptions` — 세부의 `table_rule`로 점수표를 맞춤, `frame.table_fix` 기록. 같은 영역 묶음(진로·취업·시험)이면 세부 영역으로.
+
 > **v2.3.8:** A2 v4.9 `sub_id` → `applySubDefaults(frame, subDb)` → `buildPagesV43({..., subDb: worry_subtopics.json})` · `midAreaKey`가 세부 mid를 가장 먼저 · 색인 `frame_gold_v2.3.jsonl`(결과에 sub_id) · 묶음 24개.
 >
 > **v2.3.7:** `parseFrameV43(raw)`(부분 살리기, `{frame, errors, fixed, salvaged}`) → `normalizeFrameV43`(새 칸 `love_topic`) → … · `midAreaKey` 연애 세부(LOV_MARRIED → `love_topic_keys` → 단계) · 3쪽 첫 문장 영역 이름 = `area_phrases[mid.key]` · 판별 색인 `frame_gold_v2.2.jsonl` · A2 v4.8.

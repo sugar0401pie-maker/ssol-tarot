@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // v4.1 고민 틀 예시(판별 DB 정답 490건)는 서버가 실행 중에 파일로 읽는다(lib/server/frameExamples.ts) — 배포본에 같이 싣는다.
   outputFileTracingIncludes: {
-    "/api/tarot/**": ["./judge-db/data/frame_gold_v2.4.jsonl", "./judge-db/data/frame_gold_v2.4.emb.f16.bin", "./judge-db/data/frame_gold_v2.4.emb.meta.json", "./judge-db/data/frame_gold_en_v1.2.jsonl"],
+    "/api/tarot/**": ["./judge-db/data/frame_gold_v2.7.jsonl", "./judge-db/data/frame_gold_v2.7.emb.f16.bin", "./judge-db/data/frame_gold_v2.7.emb.meta.json", "./judge-db/data/frame_gold_en_v1.2.jsonl"],
   },
   images: {
     // 카드 그림만 최적화한다(다른 경로의 파일은 막음). 화질은 기본 75 하나만 허용.

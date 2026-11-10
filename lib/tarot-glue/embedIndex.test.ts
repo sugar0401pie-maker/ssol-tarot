@@ -3,11 +3,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { EMBED_MODEL_DEFAULT, EMBED_DIM_DEFAULT } from "./embedSearch.ts";
 
-// 판별 DB(frame_gold_v2.4.jsonl)를 고치고 의미 검색 색인을 다시 만들지 않으면, 서버는 조용히 글자 검색만 쓴다.
+// 판별 DB(frame_gold_v2.7.jsonl)를 고치고 의미 검색 색인을 다시 만들지 않으면, 서버는 조용히 글자 검색만 쓴다.
 // 그걸 배포 전에 드러내려는 테스트 — 실패하면 `node scripts/build_embed_index.mjs`로 색인을 다시 만든다(약 40원).
-const GOLD = "judge-db/data/frame_gold_v2.4.jsonl";
-const META = "judge-db/data/frame_gold_v2.4.emb.meta.json";
-const BIN = "judge-db/data/frame_gold_v2.4.emb.f16.bin";
+const GOLD = "judge-db/data/frame_gold_v2.7.jsonl";
+const META = "judge-db/data/frame_gold_v2.7.emb.meta.json";
+const BIN = "judge-db/data/frame_gold_v2.7.emb.f16.bin";
 
 test("의미 검색 색인이 지금 판별 DB·모델·차원과 맞는다", () => {
   const ids = fs.readFileSync(GOLD, "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l).id);

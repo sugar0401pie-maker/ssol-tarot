@@ -15,4 +15,8 @@ export function blurSetKey(frame: any, cls: any, B: any): string | null;
 export const LOVE_TOPICS: string[];
 export function parseFrameV43(raw: any): { frame: any | null; errors: string[]; fixed: string[]; salvaged: boolean };
 export function applySubDefaults(frame: any, subDb: any): any;
+export const AREA_FAMILY: Record<string, string>;
+export function sameAreaFamily(a: string | null | undefined, b: string | null | undefined): boolean;
+export function resolveTable(frame: any, subDb: any, tables: any, opts?: { safety?: { level?: string | null; violence?: boolean } | null }): any;
+export function tableRuleText(rule: any): string;
 export function subPromptBlock(candidates: string[], subDb: any): string;
