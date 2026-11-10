@@ -19,7 +19,7 @@ import { countEvent } from "./counters";
 // 색인을 못 만들면(파일 없음 등) 예시 없이 예전처럼 고민만 보내고 두 번째 의견은 건너뛴다(README_v4 대체 경로).
 // 영문판은 같은 490건을 영어로 옮긴 judge-db/data/frame_gold_en_v1.2.jsonl(기획 전달본, text = 영어 고민).
 const GOLD: Record<Locale, string> = {
-  // v2.3.9: v2.1(합성 490 + 실제 956 익명판) + 반말 경계 300 + 고민 문장 DB 예시 — 3,932줄, 줄마다 세부 고민 sub_id
+  // v2.3.12: 판별 DB v2.7 — 4,695줄(합성 + 실제 고민 익명판 R-·R2-), 줄마다 세부 고민 sub_id(144개)
   ko: path.join(process.cwd(), "judge-db/data/frame_gold_v2.7.jsonl"),
   en: path.join(process.cwd(), "judge-db/data/frame_gold_en_v1.2.jsonl"),
 };

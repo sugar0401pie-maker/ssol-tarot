@@ -45,7 +45,7 @@ import { CLASSIFY_SYSTEM_EN, FRAME_SYSTEM_EN, C_SYSTEM_EN, D_SYSTEM_EN, E1_SYSTE
 //      고민 원문은 로그에 남기지 않는다 / 실패하면 더 조심스러운 쪽으로.
 
 type Pick = { id: string; reversed: boolean; position: string };
-type SessionRow = {
+export type SessionRow = {
   id: string;
   access_key_hash: string;
   user_id: string | null;

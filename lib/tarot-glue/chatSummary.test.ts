@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildChatSummary, CHAT_SUMMARY_MAX } from "./chatSummary.ts";
+import { buildChatSummary, CHAT_SUMMARY_MAX, reportText, REPORT_CELL_MAX } from "./chatSummary.ts";
 
 test("고민 원문·결과 정보가 맨 위, 쪽마다 한 줄 '[번호. 제목] 본문'(굵게·목록 기호 제거)", () => {
   const s = buildChatSummary(
@@ -29,4 +29,15 @@ test("고민을 건너뛴 경우와 길이 상한", () => {
   assert.match(s, /결제한 전체 리포트/);
   assert.ok(s.length <= CHAT_SUMMARY_MAX, `${s.length}자`);
   assert.ok(s.endsWith("…"));
+});
+
+test("관리자 엑셀 리포트 전문: 쪽마다 한 줄, 6,000자 제한 없음, 엑셀 칸 한도 안", () => {
+  const long = "가".repeat(5000);
+  const pages = [1, 2, 3].map((n) => ({ page: n, title: `제목${n}`, body: `**${long}**` }));
+  const t = reportText(pages);
+  assert.equal(t.split("\n").length, 3);
+  assert.ok(t.startsWith("[1. 제목1] 가"));
+  assert.ok(t.length > CHAT_SUMMARY_MAX);
+  const huge = reportText([{ page: 1, title: "x", body: "나".repeat(40000) }]);
+  assert.ok(huge.length <= REPORT_CELL_MAX && huge.endsWith("…"));
 });

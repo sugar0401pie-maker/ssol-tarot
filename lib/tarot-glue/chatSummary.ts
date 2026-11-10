@@ -17,17 +17,29 @@ function flat(v: unknown): string {
     .trim();
 }
 
-export function buildChatSummary(pages: Page[], { worryText, nickname, createdAt, paid }: { worryText: string | null; nickname: string | null; createdAt: string; paid: boolean }): string {
-  const head = [
-    `[고민 원문] ${flat(worryText) || "(고민을 적지 않고 카드를 뽑음)"}`,
-    `[결과 정보] 쏠 타로 하우스 · ${createdAt.slice(0, 10)}${nickname ? ` · 닉네임 ${flat(nickname)}` : ""} · ${paid ? "결제한 전체 리포트" : "무료 결과(결제 전 — 세 번째 카드(앞으로의 열쇠)부터는 아직 열지 않음)"}`,
-  ];
-  const lines = pages
+/** 쪽마다 "[번호. 제목] 본문" 한 줄(길이 제한 없음). 쏘웰라 요약과 관리자 엑셀의 리포트 전문이 같이 쓴다. */
+export function pageLines(pages: Page[]): string[] {
+  return pages
     .map((p) => {
       const text = [p.says, p.question, p.body ?? p.free, p.fineprint].map(flat).filter(Boolean).join(" ");
       return text ? `[${p.page}. ${flat(p.title)}] ${text}` : null;
     })
     .filter((x): x is string => Boolean(x));
+}
+
+/** 관리자 엑셀용 리포트 전문 — 쪽마다 줄바꿈. 엑셀 한 칸 한도(32,767자) 안으로 자른다. */
+export const REPORT_CELL_MAX = 32000;
+export function reportText(pages: Page[]): string {
+  const t = pageLines(pages).join("\n");
+  return t.length <= REPORT_CELL_MAX ? t : t.slice(0, REPORT_CELL_MAX - 1) + "…";
+}
+
+export function buildChatSummary(pages: Page[], { worryText, nickname, createdAt, paid }: { worryText: string | null; nickname: string | null; createdAt: string; paid: boolean }): string {
+  const head = [
+    `[고민 원문] ${flat(worryText) || "(고민을 적지 않고 카드를 뽑음)"}`,
+    `[결과 정보] 쏠 타로 하우스 · ${createdAt.slice(0, 10)}${nickname ? ` · 닉네임 ${flat(nickname)}` : ""} · ${paid ? "결제한 전체 리포트" : "무료 결과(결제 전 — 세 번째 카드(앞으로의 열쇠)부터는 아직 열지 않음)"}`,
+  ];
+  const lines = pageLines(pages);
   let out = head.join("\n");
   for (const line of lines) {
     const room = CHAT_SUMMARY_MAX - out.length - 1;

@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient, getAuthUser } from "./supabaseAdmin";
-import { TarotError } from "./session";
+import { TarotError, getResult, type SessionRow } from "./session";
+import { reportText } from "@/lib/tarot-glue/chatSummary";
 import { isAdminEmail } from "@/lib/admin/access";
 import { checkAdminPassword } from "@/lib/admin/password";
 import { addDays, kstDayBounds } from "@/lib/admin/kstDay";
@@ -45,13 +46,15 @@ async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ dat
   }
 }
 
-/** 엑셀 파일: range "day" = 그 날 하루에 시작한 결과, "until" = 처음부터 그 날까지. */
-export async function adminExport(day: string, range: "day" | "until", admin: { id: string }) {
+/** 엑셀 파일: range "day" = 그 날 하루에 시작한 결과, "until" = 처음부터 그 날까지,
+ *  "paid" = 처음부터 그 날까지 중 실제 결제한 결과만 + 리포트 전문 칸(owner 2026-11-10). */
+export async function adminExport(day: string, range: "day" | "until" | "paid", admin: { id: string }) {
   const { start, end } = kstDayBounds(day);
   const cols = "id, created_at, user_id, nickname, experience, worry_text, worry_skipped, classification, frame, safety_level, result_status, paid_at, report_status, locale";
   const sessions = await readAll<ExportSession>((from, to) => {
     let q = db().from("tarot_sessions").select(cols).lt("created_at", end);
     if (range === "day") q = q.gte("created_at", start);
+    if (range === "paid") q = q.not("paid_at", "is", null);
     return q.order("created_at", { ascending: true }).range(from, to) as unknown as PromiseLike<{ data: ExportSession[] | null; error: { message: string } | null }>;
   });
 
@@ -78,9 +81,32 @@ export async function adminExport(day: string, range: "day" | "until", admin: { 
   }
 
   const subs = (subDb as { subs: Record<string, { name?: string }> }).subs;
-  const rows = sessions.map((s) => exportRow(s, s.user_id ? users.get(s.user_id) : null, orders.get(s.id), subs));
+  // 결제분 파일: 실제 결제 주문이 있는 결과만(관리자 지정 무료 열람 제외), 고객이 보는 화면과 같은 조립으로 리포트 전문을 붙인다(AI 호출 없음).
+  const picked = range === "paid" ? sessions.filter((s) => orders.has(s.id)) : sessions;
+  const reports = new Map<string, string>();
+  if (range === "paid") {
+    for (let i = 0; i < picked.length; i += 100) {
+      const { data, error } = await db().from("tarot_sessions").select("*").in("id", picked.slice(i, i + 100).map((s) => s.id));
+      if (error) throw new TarotError(500, `리포트를 읽지 못했어요(${error.message}).`);
+      for (const row of (data ?? []) as SessionRow[]) {
+        try {
+          const r = await getResult(row);
+          reports.set(row.id, r.status === "ready" && "pages" in r ? reportText(r.pages as Parameters<typeof reportText>[0]) : `(리포트 없음: ${r.status})`);
+        } catch {
+          reports.set(row.id, "(리포트를 만들지 못했어요)");
+        }
+      }
+    }
+  }
+  const rows = picked.map((s) => {
+    const row = exportRow(s, s.user_id ? users.get(s.user_id) : null, orders.get(s.id), subs);
+    return range === "paid" ? [...row, reports.get(s.id) ?? ""] : row;
+  });
   // 누가 언제 몇 건을 내려받았는지만 기록(내용·이메일은 남기지 않음)
   console.info("관리자 엑셀 내려받기:", { admin: admin.id, day, range, rows: rows.length });
-  const file = buildXlsx(range === "day" ? `${day} 참가자` : `${day}까지 참가자`, EXPORT_HEADER, rows, EXPORT_WIDTHS);
+  const title = range === "day" ? `${day} 참가자` : range === "paid" ? `${day}까지 결제 리포트` : `${day}까지 참가자`;
+  const header = range === "paid" ? [...EXPORT_HEADER, "리포트 전문"] : EXPORT_HEADER;
+  const widths = range === "paid" ? [...EXPORT_WIDTHS, 100] : EXPORT_WIDTHS;
+  const file = buildXlsx(title, header, rows, widths);
   return { file, count: rows.length };
 }
