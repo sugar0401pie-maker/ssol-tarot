@@ -1,0 +1,4060 @@
+{
+ "model": "gpt-5.6-luna",
+ "n": 100,
+ "tokens": {
+  "input": 1608030,
+  "output": 84545
+ },
+ "summary": {
+  "의미+글자(지금) · 연애": {
+   "세부 고민 정답": "76% (38/50)",
+   "세부 고민 정답(2순위 정답 포함)": "96% (48/50)",
+   "정답이 후보 8개 안": "96% (48/50)",
+   "점수표 정답": "94% (47/50)",
+   "영역 정답": "100% (50/50)",
+   "AI 실패": 0
+  },
+  "의미+글자(지금) · 직장": {
+   "세부 고민 정답": "60% (30/50)",
+   "세부 고민 정답(2순위 정답 포함)": "70% (35/50)",
+   "정답이 후보 8개 안": "86% (43/50)",
+   "점수표 정답": "88% (44/50)",
+   "영역 정답": "90% (45/50)",
+   "AI 실패": 0
+  },
+  "의미+글자(지금) · 전체": {
+   "세부 고민 정답": "68% (68/100)",
+   "세부 고민 정답(2순위 정답 포함)": "83% (83/100)",
+   "정답이 후보 8개 안": "91% (91/100)",
+   "점수표 정답": "91% (91/100)",
+   "영역 정답": "95% (95/100)",
+   "AI 실패": 0
+  },
+  "글자만(예전) · 연애": {
+   "세부 고민 정답": "76% (38/50)",
+   "세부 고민 정답(2순위 정답 포함)": "92% (46/50)",
+   "정답이 후보 8개 안": "86% (43/50)",
+   "점수표 정답": "92% (46/50)",
+   "영역 정답": "98% (49/50)",
+   "AI 실패": 0
+  },
+  "글자만(예전) · 직장": {
+   "세부 고민 정답": "68% (34/50)",
+   "세부 고민 정답(2순위 정답 포함)": "82% (41/50)",
+   "정답이 후보 8개 안": "80% (40/50)",
+   "점수표 정답": "88% (44/50)",
+   "영역 정답": "94% (47/50)",
+   "AI 실패": 0
+  },
+  "글자만(예전) · 전체": {
+   "세부 고민 정답": "72% (72/100)",
+   "세부 고민 정답(2순위 정답 포함)": "87% (87/100)",
+   "정답이 후보 8개 안": "83% (83/100)",
+   "점수표 정답": "90% (90/100)",
+   "영역 정답": "96% (96/100)",
+   "AI 실패": 0
+  }
+ },
+ "rows": [
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-282",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1073",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-823",
+   "gold": {
+    "sub_id": "EX-NEWONE",
+    "sub2": "EX-FRESH",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-FRESH",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-613",
+   "gold": {
+    "sub_id": "LV-BLINDDATE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-BLINDDATE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0716",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-DISTANCE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-923",
+   "gold": {
+    "sub_id": "CR-GIVEUP",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-GIVEUP",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-187",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-643",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": "LV-DEADLINE",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-943",
+   "gold": {
+    "sub_id": "EX-RECONTACT",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-RECONTACT",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-77",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1177",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "RL-LAST",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-667",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-APPROACH",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1126",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-715",
+   "gold": {
+    "sub_id": "MR-WHETHER",
+    "sub2": null,
+    "table": [
+     "progress"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-WHETHER",
+    "table": null,
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-308",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1123",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0848",
+   "gold": {
+    "sub_id": "LV-IDEAL",
+    "sub2": "MR-WHO",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-IDEAL",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-819",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-ABLE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0831",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-263",
+   "gold": {
+    "sub_id": "RL-STAY",
+    "sub2": "EX-REPEAT",
+    "table": [
+     "continue"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-REPEAT",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-369",
+   "gold": {
+    "sub_id": "LV-SOMEONLY",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-SOMEONLY",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-918",
+   "gold": {
+    "sub_id": "CR-FEEL",
+    "sub2": "CR-MIND",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1065",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-842",
+   "gold": {
+    "sub_id": "LV-LONGSOLO",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-152",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-793",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1056",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-763",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-989",
+   "gold": {
+    "sub_id": "CR-GIVEUP",
+    "sub2": "CR-CHANCE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-79",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": "LV-LONGSOLO",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-DEADLINE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-857",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0959",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0720",
+   "gold": {
+    "sub_id": "LV-DEADLINE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-DEADLINE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0669",
+   "gold": {
+    "sub_id": "MR-WHEN",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-447",
+   "gold": {
+    "sub_id": "CR-LONGCRUSH",
+    "sub2": "CR-GIVEUP",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-GIVEUP",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1151",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0970",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": "CR-DEFINE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1069",
+   "gold": {
+    "sub_id": "CR-DEFINE",
+    "sub2": "CR-CHANCE",
+    "table": [
+     "progress"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-437",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": "LV-NOCHANCE",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1059",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": "LV-IDEAL",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-342",
+   "gold": {
+    "sub_id": "RL-LAST",
+    "sub2": null,
+    "table": [
+     "continue"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "RL-LAST",
+    "table": "continue",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-724",
+   "gold": {
+    "sub_id": "MR-THIS",
+    "sub2": "CR-TWO",
+    "table": [
+     "progress"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-THIS",
+    "table": "progress",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0785",
+   "gold": {
+    "sub_id": "RL-APART",
+    "sub2": "RL-TRUE",
+    "table": [
+     "continue"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "RL-TRUE",
+    "table": "continue",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0801",
+   "gold": {
+    "sub_id": "MR-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-396",
+   "gold": {
+    "sub_id": "LV-LONGSOLO",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-1095",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-498",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-APPROACH",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-637",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-DEFINE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-946",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R2-0661",
+   "gold": {
+    "sub_id": "CR-GIVEUP",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-GIVEUP",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-480",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "연애",
+   "id": "R-855",
+   "gold": {
+    "sub_id": "EX-REPEAT",
+    "sub2": "EX-CHANCE",
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-REPEAT",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-439",
+   "gold": {
+    "sub_id": "JB-WHERE",
+    "sub2": null,
+    "table": [
+     null
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHERE",
+    "table": null,
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-229",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-HARD",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-525",
+   "gold": {
+    "sub_id": "JB-LATE",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-RETURN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-583",
+   "gold": {
+    "sub_id": "WK-SWITCH",
+    "sub2": "WK-PAY",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-SWITCH",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-69",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-818",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": "EX2-BEFORE",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "UF-ALL",
+    "table": null,
+    "area": "FORT"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-587",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-WHEN",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0782",
+   "gold": {
+    "sub_id": "WK-SECURE",
+    "sub2": "JB-WAIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-581",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-AFTER",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "JB-RETURN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-386",
+   "gold": {
+    "sub_id": "JB-INTERVIEW",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-INTERVIEW",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-271",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0966",
+   "gold": {
+    "sub_id": "WK-LOAD",
+    "sub2": null,
+    "table": [
+     null
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": null,
+    "table": null,
+    "area": "NONE"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-88",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-769",
+   "gold": {
+    "sub_id": "WK-SWITCH",
+    "sub2": "WK-FIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-FIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-165",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "JB-TERMS",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-PAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0607",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-TERMS",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-272",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHERE",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-561",
+   "gold": {
+    "sub_id": "JB-WAIT",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-761",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": "WK-QUIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-313",
+   "gold": {
+    "sub_id": "WK-AFTER",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-AFTER",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-928",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-78",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": "WK-MOVE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-1054",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-HARD",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-859",
+   "gold": {
+    "sub_id": "JB-WHERE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHERE",
+    "table": null,
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-266",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": "WK-SWITCH",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-SWITCH",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-1006",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-APPLY",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-901",
+   "gold": {
+    "sub_id": "JB-WAIT",
+    "sub2": "JB-INTERVIEW",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0867",
+   "gold": {
+    "sub_id": "JB-WAIT",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-395",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WAIT",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-APPLY",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-796",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "JB-TERMS",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-91",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-285",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-488",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": "WK-HARD",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0776",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-909",
+   "gold": {
+    "sub_id": "WK-PROMO",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-PROMO",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0965",
+   "gold": {
+    "sub_id": "JB-APPLY",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-APPLY",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-327",
+   "gold": {
+    "sub_id": "WK-NEWJOB",
+    "sub2": "WK-QUIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0662",
+   "gold": {
+    "sub_id": "WK-STAY",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-418",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0608",
+   "gold": {
+    "sub_id": "WK-PEOPLE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-PEOPLE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-302",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": "WK-MOVE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-894",
+   "gold": {
+    "sub_id": "WK-STAY",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-316",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": "JB-TERMS",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHERE",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0987",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-STAY",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "JB-APPLY",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-660",
+   "gold": {
+    "sub_id": "WK-NEWJOB",
+    "sub2": "WK-SECURE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-SECURE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-923",
+   "gold": {
+    "sub_id": "CR-GIVEUP",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-GIVEUP",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-322",
+   "gold": {
+    "sub_id": "WK-SECURE",
+    "sub2": "WK-MOVE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R-410",
+   "gold": {
+    "sub_id": "JB-LATE",
+    "sub2": "JB-STUCK",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-STUCK",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-282",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-613",
+   "gold": {
+    "sub_id": "LV-BLINDDATE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-BLINDDATE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0716",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-DISTANCE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "hybrid",
+   "grp": "직장",
+   "id": "R2-0938",
+   "gold": {
+    "sub_id": "WK-NEWJOB",
+    "sub2": "WK-PEOPLE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-NEWJOB",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1073",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-823",
+   "gold": {
+    "sub_id": "EX-NEWONE",
+    "sub2": "EX-FRESH",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-NEWONE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-187",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-643",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": "LV-DEADLINE",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-667",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-APPROACH",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-943",
+   "gold": {
+    "sub_id": "EX-RECONTACT",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-RECONTACT",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-77",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1126",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1177",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "RL-LAST",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-715",
+   "gold": {
+    "sub_id": "MR-WHETHER",
+    "sub2": null,
+    "table": [
+     "progress"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-WHETHER",
+    "table": null,
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-308",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0848",
+   "gold": {
+    "sub_id": "LV-IDEAL",
+    "sub2": "MR-WHO",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-IDEAL",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1123",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-989",
+   "gold": {
+    "sub_id": "CR-GIVEUP",
+    "sub2": "CR-CHANCE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-819",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-ABLE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-263",
+   "gold": {
+    "sub_id": "RL-STAY",
+    "sub2": "EX-REPEAT",
+    "table": [
+     "continue"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-REPEAT",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-842",
+   "gold": {
+    "sub_id": "LV-LONGSOLO",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0831",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-369",
+   "gold": {
+    "sub_id": "LV-SOMEONLY",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-SOMEONLY",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-918",
+   "gold": {
+    "sub_id": "CR-FEEL",
+    "sub2": "CR-MIND",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-152",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1065",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-793",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-79",
+   "gold": {
+    "sub_id": "LV-NOCHANCE",
+    "sub2": "LV-LONGSOLO",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-DEADLINE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1056",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-763",
+   "gold": {
+    "sub_id": "EX-CHANCE",
+    "sub2": null,
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-CHANCE",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0720",
+   "gold": {
+    "sub_id": "LV-DEADLINE",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-DEADLINE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-857",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "PR-MIND",
+    "table": null,
+    "area": "SOC"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0959",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-447",
+   "gold": {
+    "sub_id": "CR-LONGCRUSH",
+    "sub2": "CR-GIVEUP",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1151",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0669",
+   "gold": {
+    "sub_id": "MR-WHEN",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0970",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": "CR-DEFINE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1069",
+   "gold": {
+    "sub_id": "CR-DEFINE",
+    "sub2": "CR-CHANCE",
+    "table": [
+     "progress"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-437",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": "LV-NOCHANCE",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-NOCHANCE",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1059",
+   "gold": {
+    "sub_id": "LV-WHEN",
+    "sub2": "LV-IDEAL",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-724",
+   "gold": {
+    "sub_id": "MR-THIS",
+    "sub2": "CR-TWO",
+    "table": [
+     "progress"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-THIS",
+    "table": "progress",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-342",
+   "gold": {
+    "sub_id": "RL-LAST",
+    "sub2": null,
+    "table": [
+     "continue"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "RL-LAST",
+    "table": "continue",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0785",
+   "gold": {
+    "sub_id": "RL-APART",
+    "sub2": "RL-TRUE",
+    "table": [
+     "continue"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "RL-TRUE",
+    "table": "continue",
+    "area": "LOV"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-1095",
+   "gold": {
+    "sub_id": "CR-MIND",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-MIND",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-396",
+   "gold": {
+    "sub_id": "LV-LONGSOLO",
+    "sub2": "LV-WHEN",
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "LV-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0801",
+   "gold": {
+    "sub_id": "MR-WHEN",
+    "sub2": null,
+    "table": [
+     "newlove"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "MR-WHEN",
+    "table": "newlove",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-498",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-APPROACH",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-637",
+   "gold": {
+    "sub_id": "CR-CHANCE",
+    "sub2": "CR-DEFINE",
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-CHANCE",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R2-0661",
+   "gold": {
+    "sub_id": "CR-GIVEUP",
+    "sub2": null,
+    "table": [
+     "approach"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "CR-GIVEUP",
+    "table": "approach",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "연애",
+   "id": "R-855",
+   "gold": {
+    "sub_id": "EX-REPEAT",
+    "sub2": "EX-CHANCE",
+    "table": [
+     "reunion"
+    ],
+    "area": "LOV"
+   },
+   "pred": {
+    "sub_id": "EX-REPEAT",
+    "table": "reunion",
+    "area": "LOV"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-946",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-480",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-439",
+   "gold": {
+    "sub_id": "JB-WHERE",
+    "sub2": null,
+    "table": [
+     null
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHERE",
+    "table": null,
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-229",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-HARD",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-69",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-525",
+   "gold": {
+    "sub_id": "JB-LATE",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-RETURN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-818",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": "EX2-BEFORE",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "UF-ALL",
+    "table": null,
+    "area": "NONE"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-587",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-WHEN",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0782",
+   "gold": {
+    "sub_id": "WK-SECURE",
+    "sub2": "JB-WAIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-581",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-AFTER",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "JB-RETURN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0966",
+   "gold": {
+    "sub_id": "WK-LOAD",
+    "sub2": null,
+    "table": [
+     null
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-LOAD",
+    "table": null,
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-271",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-386",
+   "gold": {
+    "sub_id": "JB-INTERVIEW",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-INTERVIEW",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-769",
+   "gold": {
+    "sub_id": "WK-SWITCH",
+    "sub2": "WK-FIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-AFTER",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-272",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-TERMS",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-583",
+   "gold": {
+    "sub_id": "WK-SWITCH",
+    "sub2": "WK-PAY",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-SWITCH",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-88",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-165",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "JB-TERMS",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-561",
+   "gold": {
+    "sub_id": "JB-WAIT",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0607",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-TERMS",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-761",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": "WK-QUIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "PT-TWO",
+    "table": null,
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-1054",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-HARD",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-313",
+   "gold": {
+    "sub_id": "WK-AFTER",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-AFTER",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-78",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": "WK-MOVE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-928",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-266",
+   "gold": {
+    "sub_id": "WK-WHEN",
+    "sub2": "WK-SWITCH",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-SWITCH",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-859",
+   "gold": {
+    "sub_id": "JB-WHERE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHERE",
+    "table": null,
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-1006",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WHEN",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-TERMS",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-901",
+   "gold": {
+    "sub_id": "JB-WAIT",
+    "sub2": "JB-INTERVIEW",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0867",
+   "gold": {
+    "sub_id": "JB-WAIT",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WAIT",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-91",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-285",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-395",
+   "gold": {
+    "sub_id": "JB-TERMS",
+    "sub2": "JB-WAIT",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-APPLY",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-796",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "JB-TERMS",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-MOVE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-488",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": "WK-HARD",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-327",
+   "gold": {
+    "sub_id": "WK-NEWJOB",
+    "sub2": "WK-QUIT",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-909",
+   "gold": {
+    "sub_id": "WK-PROMO",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-PROMO",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0776",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0662",
+   "gold": {
+    "sub_id": "WK-STAY",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0608",
+   "gold": {
+    "sub_id": "WK-PEOPLE",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-PEOPLE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0965",
+   "gold": {
+    "sub_id": "JB-APPLY",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-APPLY",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-302",
+   "gold": {
+    "sub_id": "WK-QUIT",
+    "sub2": "WK-MOVE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-QUIT",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-418",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": null,
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-WHEN",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-316",
+   "gold": {
+    "sub_id": "JB-WHEN",
+    "sub2": "JB-TERMS",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-TERMS",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-894",
+   "gold": {
+    "sub_id": "WK-STAY",
+    "sub2": null,
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-660",
+   "gold": {
+    "sub_id": "WK-NEWJOB",
+    "sub2": "WK-SECURE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-SECURE",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": false,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-322",
+   "gold": {
+    "sub_id": "WK-SECURE",
+    "sub2": "WK-MOVE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0987",
+   "gold": {
+    "sub_id": "WK-MOVE",
+    "sub2": "WK-STAY",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-STAY",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R2-0938",
+   "gold": {
+    "sub_id": "WK-NEWJOB",
+    "sub2": "WK-PEOPLE",
+    "table": [
+     "job"
+    ],
+    "area": "CAR"
+   },
+   "pred": {
+    "sub_id": "WK-NEWJOB",
+    "table": "job",
+    "area": "CAR"
+   },
+   "candHit": true,
+   "err": null
+  },
+  {
+   "mode": "char",
+   "grp": "직장",
+   "id": "R-410",
+   "gold": {
+    "sub_id": "JB-LATE",
+    "sub2": "JB-STUCK",
+    "table": [
+     "start"
+    ],
+    "area": "JOB"
+   },
+   "pred": {
+    "sub_id": "JB-STUCK",
+    "table": "start",
+    "area": "JOB"
+   },
+   "candHit": false,
+   "err": null
+  }
+ ]
+}
