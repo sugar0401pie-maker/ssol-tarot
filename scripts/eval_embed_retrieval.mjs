@@ -15,7 +15,7 @@ const MODEL = process.argv[2] || "text-embedding-3-small";
 const DIM = process.env.DIM ? Number(process.env.DIM) : null;
 // SUBN=10 처럼 주면 세부 후보 개수를 바꿔 잰다(기본 8 — 서버 SUB_CANDIDATES와 같게)
 const SUBN = Number(process.env.SUBN || 8);
-const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.7.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
+const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.8.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
 const norm = buildNormalizer(JSON.parse(fs.readFileSync(path.join(ROOT, "data/norm_dict.json"), "utf8")));
 const tableOf = (r) => (r.tables ?? [r.table ?? null])[0] ?? null;
 

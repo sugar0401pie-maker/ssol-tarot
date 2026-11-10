@@ -16,7 +16,7 @@ import { FRAME_SYSTEM } from "../lib/server/prompts.ts";
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PER = Number(process.argv[2] || 50);
 const MODEL = process.env.TAROT_AI_MODEL || "gpt-5.6-luna";
-const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.7.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
+const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.8.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
 const subDb = JSON.parse(fs.readFileSync(path.join(ROOT, "data/worry_subtopics.json"), "utf8"));
 const norm = buildNormalizer(JSON.parse(fs.readFileSync(path.join(ROOT, "data/norm_dict.json"), "utf8")));
 const V = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts/.cache/gold_v2.7_text-embedding-3-large_1024.json"), "utf8"));
@@ -28,7 +28,11 @@ const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 214748364
 const pick = (pred, n) => rows.map((r, i) => [r, i]).filter(([r]) => /^R2?-/.test(r.id) && r.sub_id && pred(r)).map((x) => [rnd(), x]).sort((a, b) => a[0] - b[0]).slice(0, n).map((x) => x[1]);
 const love = pick((r) => r.area === "LOV", PER);
 const work = pick((r) => r.area === "CAR" || r.area === "JOB", PER);
-const test = [...love.map((x) => [...x, "연애"]), ...work.map((x) => [...x, "직장"])];
+// 2026-11-10 v2.3.13 검토 요청: 시험·돈 영역도 각 50건(연애·직장 표본은 앞과 같게 — 뒤에 고른다)
+const exam = pick((r) => r.area === "EDU", PER);
+const money = pick((r) => r.area === "LIF", PER);
+const GROUPS = ["연애", "직장", "시험", "돈"];
+const test = [...love.map((x) => [...x, "연애"]), ...work.map((x) => [...x, "직장"]), ...exam.map((x) => [...x, "시험"]), ...money.map((x) => [...x, "돈"])];
 const testIds = new Set(test.map(([r]) => r.id));
 const keep = rows.map((_, i) => i).filter((i) => !testIds.has(rows[i].id));
 const charIdx = buildIndex(keep.map((i) => rows[i]), { normalize: norm });
@@ -61,7 +65,9 @@ async function a2(user) {
 
 const out = [];
 const jobs = [];
-for (const mode of ["hybrid", "char"]) for (const [q, qi, grp] of test) jobs.push({ mode, q, qi, grp });
+// MODES=hybrid,char 로 예전 방식도 같이 잴 수 있다(기본은 지금 방식만 — 비용 절반)
+const MODES = (process.env.MODES || "hybrid").split(",");
+for (const mode of MODES) for (const [q, qi, grp] of test) jobs.push({ mode, q, qi, grp });
 let k = 0, inTok = 0, outTok = 0;
 async function worker() {
   while (k < jobs.length) {
@@ -79,19 +85,24 @@ async function worker() {
 await Promise.all(Array.from({ length: 6 }, worker));
 
 const pct = (a, b) => (b ? `${((a / b) * 100).toFixed(0)}% (${a}/${b})` : "-");
+// 결과 틀이 같다 = 영역·기본 점수표·3쪽 중간 결과 묶음(mid)이 같음 → 고객 결과는 3쪽 첫 문장만 달라짐(기획 v2.3.13 정의)
+const S = subDb.subs;
+const frameKey = (id) => (id && S[id] ? [S[id].area, S[id].table_rule?.default ?? S[id].table ?? null, S[id].mid ?? null].join("|") : null);
+const sameFrame = (a, b) => Boolean(a && b && frameKey(a) && frameKey(a) === frameKey(b));
 const summary = {};
-for (const mode of ["hybrid", "char"]) for (const grp of ["연애", "직장", "전체"]) {
+for (const mode of MODES) for (const grp of [...GROUPS, "전체"]) {
   const xs = out.filter((o) => o.mode === mode && (grp === "전체" || o.grp === grp));
   summary[`${mode === "hybrid" ? "의미+글자(지금)" : "글자만(예전)"} · ${grp}`] = {
     "세부 고민 정답": pct(xs.filter((o) => o.pred.sub_id === o.gold.sub_id).length, xs.length),
     "세부 고민 정답(2순위 정답 포함)": pct(xs.filter((o) => o.pred.sub_id && [o.gold.sub_id, o.gold.sub2].includes(o.pred.sub_id)).length, xs.length),
+    "결과 틀 기준 정답": pct(xs.filter((o) => o.pred.sub_id && (o.pred.sub_id === o.gold.sub_id || o.pred.sub_id === o.gold.sub2 || sameFrame(o.pred.sub_id, o.gold.sub_id))).length, xs.length),
     "정답이 후보 8개 안": pct(xs.filter((o) => o.candHit).length, xs.length),
     "점수표 정답": pct(xs.filter((o) => o.gold.table.includes(o.pred.table)).length, xs.length),
     "영역 정답": pct(xs.filter((o) => o.pred.area === o.gold.area).length, xs.length),
     "AI 실패": xs.filter((o) => o.err).length,
   };
 }
-console.log(`모델 ${MODEL} · 연애 ${love.length} + 직장 ${work.length} · 토큰 입력 ${inTok} / 출력 ${outTok}`);
+console.log(`모델 ${MODEL} · 연애 ${love.length} + 직장 ${work.length} + 시험 ${exam.length} + 돈 ${money.length} · 토큰 입력 ${inTok} / 출력 ${outTok}`);
 console.table(summary);
 fs.mkdirSync(path.join(ROOT, "scripts/.cache"), { recursive: true });
 fs.writeFileSync(path.join(ROOT, "scripts/.cache/frame_e2e_detail.json"), JSON.stringify(out, null, 1));
