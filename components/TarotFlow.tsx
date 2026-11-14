@@ -1,5 +1,6 @@
 "use client";
 
+import { DISPLAY_PARTICIPANTS_AS_OF } from "@/lib/stats/participants";
 import { claimVisit } from "@/lib/client/visit";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -438,7 +439,7 @@ function IntroScreen({ copy, friends, onStart }: { copy: C; friends: Friend[]; o
         <IntroCardSpin cards={friends} />
       </div>
       <div className="flex w-full max-w-sm flex-col items-center gap-4">
-        {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString(uiText(locale).numberLocale) })}</p>}
+        {count !== null && count > 0 && <p className="text-[12px] text-moon/80">{fill(copy.intro.participants, { count: count.toLocaleString(uiText(locale).numberLocale) })} {uiText(locale).asOf(DISPLAY_PARTICIPANTS_AS_OF)}</p>}
         {/* 아스트로 첫 화면처럼 두 버튼(owner 2026-10-21). 로그인해야 이용할 수 있어서, 로그인 전이면 둘 다 로그인 화면을 거친다. */}
         <button type="button" className="btn-night w-full rounded-full py-4 text-[16px] font-bold" onClick={onStart}>
           {copy.intro.button}

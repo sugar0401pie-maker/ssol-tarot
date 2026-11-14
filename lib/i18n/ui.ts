@@ -6,6 +6,8 @@ const KO = {
   tapAgain: "잠시 후 다시 눌러 주세요.",
   worryAria: "고민 쓰기",
   numberLocale: "ko-KR",
+  // 첫 화면 참여자 수 뒤에 붙는 기준일(owner 2026-11-14) — iso는 lib/stats/participants.ts의 날짜
+  asOf: (iso: string) => `(${iso.replaceAll("-", ".")} 기준)`,
   result: {
     noAccess: "이 결과는 카드를 뽑은 브라우저나, 결과를 저장한 계정으로 로그인해야 볼 수 있어요.",
     home: "처음으로",
@@ -41,6 +43,7 @@ const EN: typeof KO = {
   tapAgain: "Something went wrong. Please tap again in a moment.",
   worryAria: "Write your question",
   numberLocale: "en-US",
+  asOf: (iso: string) => `(as of ${new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })})`,
   result: {
     noAccess: "You can see this reading in the browser where you drew the cards, or after logging in to the account it was saved to.",
     home: "Back to start",
