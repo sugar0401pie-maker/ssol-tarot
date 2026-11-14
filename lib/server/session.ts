@@ -24,7 +24,7 @@ import { parseClassification, classificationForReport, type Classification } fro
 import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { parseFrameV43 } from "@/lib/tarot/v43.js";
-import { composeWorry, applyFollowup, firstQuestion } from "@/lib/tarot/followup.js";
+import { composeWorry, applyFollowup, firstQuestion, nextQuestion } from "@/lib/tarot/followup.js";
 import { lintReport } from "@/lib/tarot/reportLint.js";
 import { FOLLOWUP_DB, shouldAskFollowup, checkAnswers, type FollowupAnswer } from "@/lib/tarot-glue/followup";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
@@ -35,7 +35,7 @@ import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
-import { frameCall, type FrameVote } from "./frameExamples";
+import { frameCall, guessArea, type FrameVote } from "./frameExamples";
 import { GuestLimitError, checkGuestStart } from "./guestLimit";
 import { countEvent } from "./counters";
 import { MERGED_CLASSIFY_SYSTEM, mergedClassifyEnabled, splitMerged } from "./mergedClassify";
@@ -246,17 +246,32 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
     result_status: urgent ? "safety" : "drawing",
   });
   if (urgent) await countEvent("safety");
-  if (ask) return { urgent, needsClassification: false, followup: { intro: FOLLOWUP_DB.intro, skip: FOLLOWUP_DB.skip, first: firstQuestion(FOLLOWUP_DB) } };
+  if (ask) return { urgent, needsClassification: false, followup: await followupStart(worry) };
   return { urgent, needsClassification: !urgent && aiConfigured() };
+}
+
+// 다시 묻기 첫 화면. 2026-11-14(owner): 비슷한 고민들로 분야를 짐작할 수 있으면 첫 질문을 건너뛰고 그 분야의 둘째 질문부터
+// (화면에 "{분야} 고민으로 읽었어요." + [다른 분야예요]로 첫 질문으로 돌아갈 수 있음). 짐작은 고민 글을 저장하지 않는 검색만(AI 호출 없음).
+async function followupStart(worry: string) {
+  const db = FOLLOWUP_DB as typeof FOLLOWUP_DB & { guess_line?: string; guess_change?: string };
+  const base = { intro: db.intro, skip: db.skip, first: firstQuestion(db), guessed: null as null | { id: string; line: string; change: string } };
+  const g = await guessArea(worry);
+  if (!g || !db.guess_line || !db.guess_change) return base;
+  const preset = [{ q: "q1", id: g.id }];
+  const second = nextQuestion(db, preset);
+  const label = firstQuestion(db)?.options.find((o) => o.id === g.id)?.label;
+  if (!second || !label) return base;
+  return { ...base, first: second, guessed: { id: g.id, line: db.guess_line.replace("{area}", label), change: db.guess_change } };
 }
 
 // v2.3.14 다시 묻기 답(또는 건너뛰기 = 빈 목록). 답을 받은 뒤에만 분류를 시작한다.
 // 반환값 start=true면 라우트가 after()로 runClassification(id, answers)를 돌린다.
-export async function submitFollowup(s: SessionRow, body: { answers?: unknown }): Promise<{ start: boolean; answers: FollowupAnswer[] }> {
-  if (s.classification_status !== "followup") return { start: false, answers: [] }; // 이미 시작됨(연타·섞기 먼저)
+export async function submitFollowup(s: SessionRow, body: { answers?: unknown; guessed?: unknown }): Promise<{ start: boolean; answers: FollowupAnswer[]; guessed: boolean }> {
+  if (s.classification_status !== "followup") return { start: false, answers: [], guessed: false }; // 이미 시작됨(연타·섞기 먼저)
   const answers = checkAnswers(body.answers ?? []) ?? [];
   await update(s.id, { classification_status: "pending" });
-  return { start: true, answers };
+  // guessed = 첫 질문(분야)을 서버가 짐작해 건너뛰었고 사람이 바꾸지 않음 — 기록(frame.followup.guessed)에만 남긴다
+  return { start: true, answers, guessed: body.guessed === true && answers[0]?.q === "q1" };
 }
 
 // 백그라운드: 고민 분류(A)와 고민 틀(A2)을 함께. 각각 실패 → 1회 재시도 → 그래도 실패면
@@ -285,7 +300,7 @@ function parseFrameFor(locale: Locale, raw: unknown): { frame: unknown; errors: 
 // followup: 다시 묻기를 보여 준 세션이면 고른 답(건너뛰면 []), 보여 주지 않았으면 null.
 //   답은 고민 글 뒤에 "(덧붙임: …)"으로 붙여 AI(A·A2)와 비슷한 예시 찾기에 넘기고(composeWorry — 저장된 고민 글은 그대로),
 //   고민 틀이 나온 뒤 빈 칸만 채운다(applyFollowup). 안전 키워드 검사는 원문으로.
-export async function runClassification(sessionId: string, followup: FollowupAnswer[] | null = null) {
+export async function runClassification(sessionId: string, followup: FollowupAnswer[] | null = null, guessed = false) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const original = row?.worry_text as string | null;
   if (!original) return;
@@ -330,6 +345,7 @@ export async function runClassification(sessionId: string, followup: FollowupAns
   // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety — v4.1: none < watch < urgent, CSO 2026-10-22).
   // urgent만 카드를 멈추고, watch는 결과 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄. 분류에 실패해도 키워드 결과는 유지.
   if (frame && followup) frame = followup.length ? applyFollowup(frame, followup, FOLLOWUP_DB) : { ...(frame as object), followup: { answers: [], filled: [], skipped: true } };
+  if (frame && guessed) { const f = frame as { followup?: Record<string, unknown> }; if (f.followup) f.followup = { ...f.followup, guessed: true }; }
   const merged = mergeSafety(screenFor(locale, original), cls);
   const patch: Partial<SessionRow> = {
     classification: cls,

@@ -10,7 +10,7 @@ export async function POST(req: Request, ctx: RouteContext<"/api/tarot/session/[
   try {
     const { id } = await ctx.params;
     const r = await submitFollowup(await sessionFrom(req, id), await readJson(req));
-    if (r.start) after(() => runClassification(id, r.answers));
+    if (r.start) after(() => runClassification(id, r.answers, r.guessed));
     return NextResponse.json({ ok: true });
   } catch (e) {
     return fail(e, req);

@@ -29,7 +29,7 @@ import type { Friend } from "./IntroCardSpin";
 import { IntroCardSpin } from "./IntroCardSpin";
 import { DrawBoard } from "./DrawBoard";
 import { SafetyScreen } from "./SafetyScreen";
-import { nextQuestion, type FollowupView } from "@/lib/tarot/followup.js";
+import { nextQuestion, firstQuestion, type FollowupView } from "@/lib/tarot/followup.js";
 import followupDb from "@/data/followup_questions.json";
 
 // 시작 흐름 → 셔플 → 뽑기 → (대기). 화면 이동 규칙은 패키지 원본 상태 기계(lib/tarot/flow.js의 next)를 그대로 쓴다.
@@ -71,7 +71,9 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   const [needLogin, setNeedLogin] = useState(false); // 로그인 없이 볼 수 있는 하루 횟수를 다 씀
   const [shuffleId, setShuffleId] = useState<string | null>(null);
   // v2.3.14 짧은 고민에 다시 묻기(서버가 B칸·짧은 글일 때만 첫 질문을 돌려줌). 고민 쓰기 화면 안에서 고르기 질문 최대 2개.
-  const [followup, setFollowup] = useState<{ text: string; intro: string; skip: string; q: FollowupView; answers: { q: string; id: string }[] } | null>(null);
+  // guessed: 서버가 비슷한 고민으로 분야를 짐작해 첫 질문을 건너뛴 경우("{분야} 고민으로 읽었어요." + [다른 분야예요]) — 2026-11-14
+  type Guess = { id: string; line: string; change: string };
+  const [followup, setFollowup] = useState<{ text: string; intro: string; skip: string; q: FollowupView; answers: { q: string; id: string }[]; guessed: Guess | null } | null>(null);
 
   const go = useCallback(
     (action: Action) => {
@@ -199,9 +201,10 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     setNetError(null);
     try {
       const s = await ensureSession();
-      const r = await api<{ urgent: boolean; followup: { intro: string; skip: string; first: FollowupView } | null }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
+      const r = await api<{ urgent: boolean; followup: { intro: string; skip: string; first: FollowupView; guessed?: Guess | null } | null }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
       if (!skip && !r.urgent && r.followup?.first) {
-        setFollowup({ text, intro: r.followup.intro, skip: r.followup.skip, q: r.followup.first, answers: [] });
+        const g = r.followup.guessed ?? null;
+        setFollowup({ text, intro: r.followup.intro, skip: r.followup.skip, q: r.followup.first, answers: g ? [{ q: "q1", id: g.id }] : [], guessed: g });
         return;
       }
       go(skip ? { type: "SKIP_WORRY" } : { type: "SUBMIT_WORRY", text, localUrgent: r.urgent });
@@ -221,7 +224,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     if (q) return setFollowup({ ...followup, q, answers });
     setBusy(true);
     try {
-      await api(`/api/tarot/session/${session.id}/followup`, { key: session.key, body: { answers } });
+      await api(`/api/tarot/session/${session.id}/followup`, { key: session.key, body: { answers, guessed: Boolean(followup.guessed) } });
     } catch {
       /* 답을 못 보내도 섞기 화면에서 서버가 건너뛴 것으로 보고 분류를 시작한다 */
     } finally {
@@ -349,7 +352,18 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
       {screen === "worry" && (
         <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
           {followup ? (
-            <FollowupScreen intro={fill(followup.intro, { name: nickname })} skip={followup.skip} q={followup.q} busy={busy} onAnswer={answerFollowup} />
+            <FollowupScreen
+              intro={fill(followup.intro, { name: nickname })}
+              skip={followup.skip}
+              q={followup.q}
+              busy={busy}
+              onAnswer={answerFollowup}
+              guess={followup.guessed && followup.answers[0]?.id === followup.guessed.id ? followup.guessed : null}
+              onChangeArea={() => {
+                const first = firstQuestion(followupDb);
+                if (first) setFollowup({ ...followup, q: first, answers: [], guessed: null });
+              }}
+            />
           ) : (
             <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} variant="B" />
           )}
@@ -606,10 +620,21 @@ function WorryScreen({
 }
 
 // v2.3.14 다시 묻기 화면(고민 쓰기 화면 안). 문구는 data/followup_questions.json(Claude 초안 — CSO 검수 전).
-function FollowupScreen({ intro, skip, q, busy, onAnswer }: { intro: string; skip: string; q: FollowupView; busy: boolean; onAnswer: (id: string | null) => void }) {
+function FollowupScreen({ intro, skip, q, busy, onAnswer, guess = null, onChangeArea }: {
+  intro: string; skip: string; q: FollowupView; busy: boolean; onAnswer: (id: string | null) => void;
+  guess?: { line: string; change: string } | null; onChangeArea?: () => void;
+}) {
   return (
     <div key={q.key} className="fade-up flex flex-col gap-3">
       <p className="whitespace-pre-line break-keep text-center text-[14px] leading-relaxed text-moon/90">{intro}</p>
+      {guess && (
+        <p className="break-keep text-center text-[13.5px] leading-relaxed text-gold-soft">
+          {guess.line}{" "}
+          <button type="button" disabled={busy} className="ml-1 text-moon/80 underline underline-offset-4 disabled:opacity-60" onClick={onChangeArea}>
+            {guess.change}
+          </button>
+        </p>
+      )}
       <h2 className="break-keep text-center font-serif text-[clamp(17px,5vw,21px)] font-bold leading-snug text-gold-soft">{q.ask}</h2>
       <div className="mt-2 flex flex-col gap-2">
         {q.options.map((o) => (

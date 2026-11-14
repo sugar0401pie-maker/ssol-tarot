@@ -33,3 +33,20 @@ export function checkAnswers(raw: unknown): FollowupAnswer[] | null {
   }
   return out;
 }
+
+// 2026-11-14(owner): 짧은 고민도 분야는 비슷한 고민들로 짐작해 첫 질문("어떤 일에 대한 고민인가요?")을 건너뛴다.
+//   비슷한 고민 10개 중 GUESS_MIN_SHARE 이상이 같은 분야이고, 그 분야가 첫 질문의 고르기 답에 있을 때만(연애·직장·취업·시험·돈).
+//   측정(실제 짧은 고민 756건, 의미+글자 검색): 7개 이상 일치가 짧은 고민의 약 80%, 그중 약 96% 정답.
+export const GUESS_NEIGHBORS = 10;
+export const GUESS_MIN_SHARE = 0.7;
+const AREA_TO_Q1: Record<string, string> = { LOV: "love", CAR: "work", JOB: "job", EDU: "exam", LIF: "money" };
+export function pickGuess(areas: (string | null | undefined)[]): { area: string; id: string; share: number } | null {
+  const xs = areas.filter((a): a is string => Boolean(a));
+  if (xs.length < GUESS_NEIGHBORS * 0.5) return null;
+  const c = new Map<string, number>();
+  for (const a of xs) c.set(a, (c.get(a) ?? 0) + 1);
+  const [area, n] = [...c.entries()].sort((a, b) => b[1] - a[1])[0];
+  const share = n / areas.length;
+  const id = AREA_TO_Q1[area];
+  return id && share >= GUESS_MIN_SHARE ? { area, id, share } : null;
+}

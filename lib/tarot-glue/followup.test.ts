@@ -27,3 +27,12 @@ test("답 검사: 질문 순서대로만, 아니면 null", () => {
   assert.equal(checkAnswers([{ q: "q1", id: "love" }, { q: "love", id: "crush" }, { q: "want", id: "x" }]), null);
   assert.equal(checkAnswers("x"), null);
 });
+
+import { pickGuess } from "./followup.ts";
+test("분야 짐작: 10개 중 7개 이상 같은 분야이고 첫 질문 답에 있을 때만", () => {
+  assert.deepEqual(pickGuess([..."LLLLLLLCCJ"].map((x) => ({ L: "LOV", C: "CAR", J: "JOB" })[x])), { area: "LOV", id: "love", share: 0.7 });
+  assert.equal(pickGuess([..."LLLLLLCCCJ"].map((x) => ({ L: "LOV", C: "CAR", J: "JOB" })[x])), null); // 6개
+  assert.equal(pickGuess(Array(10).fill("FORT")), null); // 첫 질문 답에 없는 분야
+  assert.equal(pickGuess([]), null);
+  assert.equal(pickGuess(["LOV", "LOV", "LOV", null, null, null, null, null, null, null]), null);
+});

@@ -12,6 +12,7 @@ import { worryUserMessage } from "./prompts";
 import { embedText, EMBED_MODEL, EMBED_DIM } from "./ai";
 import { decodeIndex, hybridTop, unit } from "@/lib/tarot-glue/embedSearch";
 import { countEvent } from "./counters";
+import { GUESS_NEIGHBORS, pickGuess } from "@/lib/tarot-glue/followup";
 
 // v4.1 고민 틀(A2) 사용자 입력: 판별 DB '고민 틀 정답'에서 비슷한 고민 5개를 붙인다. 한국어 = judge-db/data/frame_gold_v2.1.jsonl(1,446건 — 합성 490 + 실제 고민 956건을 owner가 익명화·문체 변경, 2026-11-05).
 // 이 파일은 엑셀(judge-db/쏠타로_판별DB_*.xlsx '고민 틀 정답(T6)' 시트)에서 scripts/judge_db_frame_gold.py로 만든다.
@@ -141,5 +142,18 @@ export async function frameCall(worryText: string, locale: Locale = "ko"): Promi
   } catch (e) {
     console.warn("비슷한 예시 찾기 실패 — 예시 없이 A2 호출:", e instanceof Error ? e.message : "unknown");
     return { user: worryUserMessage(worryText), vote: null };
+  }
+}
+
+/** 2026-11-14: 짧은 고민의 분야 짐작(다시 묻기 첫 질문 건너뛰기용) — 비슷한 고민 10개(의미+글자, 실패하면 글자만)의 분야 투표. 한국어만. 실패하면 null(첫 질문부터). */
+export async function guessArea(worryText: string): Promise<{ area: string; id: string; share: number } | null> {
+  const ix = getIndex("ko");
+  if (!ix) return null;
+  try {
+    const nb = await hybridNeighbors(ix, worryText, koNorm, GUESS_NEIGHBORS);
+    return pickGuess(nb.map((n: { area?: string | null }) => n.area ?? null));
+  } catch (e) {
+    console.warn("분야 짐작 실패 — 첫 질문부터:", e instanceof Error ? e.message : "unknown");
+    return null;
   }
 }

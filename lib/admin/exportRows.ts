@@ -12,7 +12,7 @@ export type ExportSession = {
   worry_text: string | null;
   worry_skipped?: boolean | null;
   classification?: { domain?: string | null } | null;
-  frame?: { area?: string | null; sub_id?: string | null; table?: string | null; frame_id?: string | null; followup?: { answers?: string[]; skipped?: boolean } | null } | null;
+  frame?: { area?: string | null; sub_id?: string | null; table?: string | null; frame_id?: string | null; followup?: { answers?: string[]; skipped?: boolean; guessed?: boolean } | null } | null;
   safety_level?: string | null;
   result_status?: string | null;
   paid_at?: string | null;
@@ -80,8 +80,9 @@ export function exportRow(
 }
 
 /** 다시 묻기 칸: 보여 주지 않았으면 빈칸, 건너뛰면 "건너뜀", 답했으면 "q1:love, love:crush". */
-export function followupLabel(f: { answers?: string[]; skipped?: boolean } | null): string {
+export function followupLabel(f: { answers?: string[]; skipped?: boolean; guessed?: boolean } | null): string {
   if (!f) return "";
   if (f.skipped || !f.answers?.length) return "건너뜀";
-  return f.answers.join(", ");
+  // guessed = 첫 질문(분야)을 비슷한 고민으로 짐작해 건너뜀(2026-11-14)
+  return f.answers.map((a, i) => (i === 0 && f.guessed ? `${a}(짐작)` : a)).join(", ");
 }
