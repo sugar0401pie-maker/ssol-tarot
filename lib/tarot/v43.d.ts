@@ -20,3 +20,8 @@ export function sameAreaFamily(a: string | null | undefined, b: string | null | 
 export function resolveTable(frame: any, subDb: any, tables: any, opts?: { safety?: { level?: string | null; violence?: boolean } | null }): any;
 export function tableRuleText(rule: any): string;
 export function subPromptBlock(candidates: string[], subDb: any): string;
+// v2.3.14 결과 틀(두 단계 고르기)
+export function frameOf(subId: string, subDb: any): string | null;
+export function resolveFrame(frame: any, subDb: any): any;
+export function subPromptBlockFrames(candidates: string[], subDb: any, opts?: { compact?: boolean }): string;
+export function scoreSub(pred: any, gold: any, subDb: any): { strict: boolean; second: boolean; frame: boolean; frame_or_second: boolean };

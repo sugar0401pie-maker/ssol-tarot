@@ -24,6 +24,9 @@ import { parseClassification, classificationForReport, type Classification } fro
 import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { parseFrameV43 } from "@/lib/tarot/v43.js";
+import { composeWorry, applyFollowup, firstQuestion } from "@/lib/tarot/followup.js";
+import { lintReport } from "@/lib/tarot/reportLint.js";
+import { FOLLOWUP_DB, shouldAskFollowup, checkAnswers, type FollowupAnswer } from "@/lib/tarot-glue/followup";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { mergeE } from "@/lib/tarot/validateV4.js";
 import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, variantKeyFor, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
@@ -227,6 +230,7 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
   const worry = text.slice(0, copy.worry.max_len);
   const local = screenFor(localeOf(s), worry);
   const urgent = local.level === "urgent";
+  const ask = !urgent && aiConfigured() && shouldAskFollowup(s.id, worry, { urgent, locale: localeOf(s) });
   await update(s.id, {
     worry_text: worry,
     worry_skipped: false,
@@ -236,12 +240,23 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
     fear: local.fear,
     frame: null,
     // urgent면 카드 진행 자체가 없으므로 분류도 하지 않는다.
-    classification_status: urgent || !aiConfigured() ? "failed" : "pending",
+    // v2.3.14 다시 묻기: 짧은 글(B칸)이면 고르기 답을 받은 뒤에 분류한다(classification_status "followup" — 답·건너뛰기·섞기 중 먼저 오는 것에서 시작).
+    classification_status: urgent || !aiConfigured() ? "failed" : ask ? "followup" : "pending",
     classification: null,
     result_status: urgent ? "safety" : "drawing",
   });
   if (urgent) await countEvent("safety");
+  if (ask) return { urgent, needsClassification: false, followup: { intro: FOLLOWUP_DB.intro, skip: FOLLOWUP_DB.skip, first: firstQuestion(FOLLOWUP_DB) } };
   return { urgent, needsClassification: !urgent && aiConfigured() };
+}
+
+// v2.3.14 다시 묻기 답(또는 건너뛰기 = 빈 목록). 답을 받은 뒤에만 분류를 시작한다.
+// 반환값 start=true면 라우트가 after()로 runClassification(id, answers)를 돌린다.
+export async function submitFollowup(s: SessionRow, body: { answers?: unknown }): Promise<{ start: boolean; answers: FollowupAnswer[] }> {
+  if (s.classification_status !== "followup") return { start: false, answers: [] }; // 이미 시작됨(연타·섞기 먼저)
+  const answers = checkAnswers(body.answers ?? []) ?? [];
+  await update(s.id, { classification_status: "pending" });
+  return { start: true, answers };
 }
 
 // 백그라운드: 고민 분류(A)와 고민 틀(A2)을 함께. 각각 실패 → 1회 재시도 → 그래도 실패면
@@ -267,10 +282,14 @@ function parseFrameFor(locale: Locale, raw: unknown): { frame: unknown; errors: 
   return { frame: r.frame, errors: r.errors };
 }
 
-export async function runClassification(sessionId: string) {
+// followup: 다시 묻기를 보여 준 세션이면 고른 답(건너뛰면 []), 보여 주지 않았으면 null.
+//   답은 고민 글 뒤에 "(덧붙임: …)"으로 붙여 AI(A·A2)와 비슷한 예시 찾기에 넘기고(composeWorry — 저장된 고민 글은 그대로),
+//   고민 틀이 나온 뒤 빈 칸만 채운다(applyFollowup). 안전 키워드 검사는 원문으로.
+export async function runClassification(sessionId: string, followup: FollowupAnswer[] | null = null) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
-  const worry = row?.worry_text as string | null;
-  if (!worry) return;
+  const original = row?.worry_text as string | null;
+  if (!original) return;
+  const worry = followup && followup.length ? composeWorry(original, followup, FOLLOWUP_DB) : original;
   const locale = localeOf(row as SessionRow);
   const { data } = bundleFor(locale);
   const P = promptsFor(locale);
@@ -310,7 +329,8 @@ export async function runClassification(sessionId: string) {
   }
   // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety — v4.1: none < watch < urgent, CSO 2026-10-22).
   // urgent만 카드를 멈추고, watch는 결과 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄. 분류에 실패해도 키워드 결과는 유지.
-  const merged = mergeSafety(screenFor(locale, worry), cls);
+  if (frame && followup) frame = followup.length ? applyFollowup(frame, followup, FOLLOWUP_DB) : { ...(frame as object), followup: { answers: [], filled: [], skipped: true } };
+  const merged = mergeSafety(screenFor(locale, original), cls);
   const patch: Partial<SessionRow> = {
     classification: cls,
     classification_status: cls ? "done" : "failed",
@@ -339,8 +359,11 @@ async function saveFrameReview(s: SessionRow, reviewLog: Record<string, unknown>
 
 // ---------- 3. 셔플 ----------
 
+// 반환값의 startClassification=true면 라우트가 after()로 분류를 시작한다(다시 묻기에 답하지 않고 섞기로 넘어온 경우 — 건너뛴 것으로).
 export async function shuffle(s: SessionRow) {
   assertNotSafety(s);
+  const startClassification = s.classification_status === "followup";
+  if (startClassification) await update(s.id, { classification_status: "pending" });
   if (s.result_status === "started") throw new TarotError(409, "고민 쓰기부터 해 주세요.");
   if (s.picks.length > 0) throw new TarotError(409, "이미 카드를 뽑기 시작했어요.");
   const sh = createShuffle(B(s).data);
@@ -356,7 +379,7 @@ export async function shuffle(s: SessionRow) {
     reshuffle_count: s.current_shuffle_id ? s.reshuffle_count + 1 : s.reshuffle_count,
   });
   // 카드 순서는 보내지 않는다 — 자리 개수만.
-  return { shuffleId: sh.shuffleId, count: sh.order.length };
+  return { shuffleId: sh.shuffleId, count: sh.order.length, startClassification };
 }
 
 // ---------- 4. 뽑기 ----------
@@ -480,6 +503,25 @@ async function writeChatSummary(sessionId: string) {
     if (error) console.warn("chat_summary 저장 실패(마이그레이션 20261026000000 전일 수 있음):", error.message);
   } catch (e) {
     console.warn("chat_summary 만들기 실패:", e instanceof Error ? e.message : "unknown");
+  }
+}
+
+// v2.3.14 내보내기 전 검사(reportLint) — 지금은 운영 로그에 규칙 이름·건수만 남긴다(내용·고민 글은 남기지 않음).
+// 차단(block)이 나와도 결과는 그대로 연다: 다시 만들거나 DB 문장으로 바꾸는 처리는 로그를 보고 정한다.
+async function logReportLint(sessionId: string) {
+  try {
+    const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
+    const s = row as SessionRow | null;
+    if (!s || localeOf(s) === "en") return;
+    const r = await getResult(s);
+    if (r.status !== "ready") return;
+    // 읽기 지도([[…]])는 화면이 따로 그리는 내부 표시라 검사에서 뺀다.
+    const pages = (r.pages as { page: number; body?: string | null }[]).map((p) => ({ page: p.page, body: String(p.body ?? "").replace(/\[\[[^\]]*\]\]/g, "") }));
+    const f = (s.frame ?? {}) as { options?: string[] | null };
+    const out = lintReport({ pages, worryText: s.worry_text ?? "", options: (f.options ?? []).filter(Boolean), skipped: Boolean(s.worry_skipped) });
+    if (out.block.length || out.warn.length) console.info("리포트 검사:", "차단", out.block.map((x) => x.code).join(",") || "-", "· 기록", out.warn.map((x) => x.code).join(",") || "-");
+  } catch (e) {
+    console.warn("리포트 검사 실패:", e instanceof Error ? e.message : "unknown");
   }
 }
 
@@ -804,6 +846,7 @@ export async function generateReport(sessionId: string) {
     }
     await update(sessionId, { report: { sa, E }, report_status: "ready" });
     await writeChatSummary(sessionId);
+    await logReportLint(sessionId);
   } catch (e) {
     console.error("유료 리포트 생성 실패:", e instanceof Error ? e.message : "unknown");
     // 실패해도 결제한 사람은 결과를 본다 — report 없이 DB 문장(대체 경로)으로 열림

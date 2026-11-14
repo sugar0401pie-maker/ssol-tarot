@@ -10,10 +10,10 @@ ROOT = Path(__file__).resolve().parent.parent
 TS = ROOT / "lib/server/prompts.ts"
 MAP = {
     "CLASSIFY_SYSTEM": ("docs/spec/ai-prompts-tarot-v2.md", 1),  # A-2
-    # A2: v2.3.9부터 판별 DB의 전문 파일(v2.3.11부터 v4.11)이 원천 — 설계 문서 A2 블록에는 세부 고민 목록 자리가 없다.
+    # A2: v2.3.9부터 판별 DB의 전문 파일(v2.3.11부터 v4.11, v2.3.14부터 v4.12 — 결과 틀 먼저)이 원천 — 설계 문서 A2 블록에는 세부 고민 목록 자리가 없다.
     #     {SUB_BLOCK}(세부 고민 후보 — v2.3.11부터 144개)은 요청마다 달라서 시스템 프롬프트에 넣지 않고 사용자 입력 맨 앞에 붙인다
     #     (CLAUDE.md 5장: 시스템 프롬프트 안에서 값을 치환하지 않는다) — 그 자리에는 아래 안내 한 줄.
-    "FRAME_SYSTEM": ("judge-db/A2_고민틀_프롬프트_v4.11.txt", None),
+    "FRAME_SYSTEM": ("judge-db/A2_고민틀_프롬프트_v4.12.txt", None),
     "C_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 2),
     "D_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 3),
     "E1_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 4),  # v4.2 E1(7쪽)
@@ -25,12 +25,12 @@ def blocks(md: Path) -> list[str]:
     return [m.group(1) for m in re.finditer(r"^```[a-z]*\n(.*?)\n```", md.read_text(encoding="utf-8"), re.S | re.M)]
 
 
-SUB_BLOCK_POINTER = "  (세부 고민 후보와 그 밖의 세부 목록은 사용자 입력 맨 앞의 [세부 고민 후보] 블록에 있어요.)"
+SUB_BLOCK_POINTER = "  (결과 틀 후보·그 안의 세부 고민과 그 밖의 틀 목록은 사용자 입력 맨 앞의 [결과 틀 후보] 블록에 있어요.)"
 
 
 def source(doc: str, idx) -> str:
     if idx is None:  # 전문 파일
-        return (ROOT / doc).read_text(encoding="utf-8").strip().replace("\n{SUB_BLOCK}\n", "\n" + SUB_BLOCK_POINTER + "\n").replace("아래 {SUB_BLOCK} 후보 줄 끝", "[세부 고민 후보] 블록의 후보 줄 끝")
+        return (ROOT / doc).read_text(encoding="utf-8").strip().replace("\n{SUB_BLOCK}\n", "\n" + SUB_BLOCK_POINTER + "\n").replace("아래 {SUB_BLOCK} 후보 줄 끝", "[결과 틀 후보] 블록의 후보 줄 끝")
     return blocks(ROOT / doc)[idx]
 
 

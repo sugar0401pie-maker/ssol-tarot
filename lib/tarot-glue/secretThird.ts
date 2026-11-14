@@ -104,9 +104,9 @@ export function keyLine(text: string): string {
   return text.includes(KEY_SENTENCE) ? `!! ${text.replace(KEY_SENTENCE, `**${KEY_SENTENCE}**`)}` : text;
 }
 
-export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null, teaser = null, areaPhrase = null }: {
+export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null, teaser = null, areaPhrase = null, subTeaser4 = null }: {
   paid: boolean; name: string; reading: string; frame: FrameLike; lean: LeanLike; picks: Card[]; copy: SecretCopy; frameTitle: string; teaser5?: string | null;
-  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null;
+  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null; subTeaser4?: string | null;
 }): any[] {
   const by = (n: number) => pages.find((p) => p.page === n);
   const [p1, p2, p3, p4] = [by(1), by(2), by(3), by(4)];
@@ -124,7 +124,10 @@ export function secretThird(pages: any[], { paid, name, reading, frame, lean, pi
   const opts = (frame?.options ?? []).map(cleanOption).filter(Boolean);
   const q = String(frame?.core_question ?? "").trim();
   // 4쪽 예고(v2.3.2): 선택지 → p4_options, 원문 질문만 → p4_question, 둘 다 없음 → p4_general
-  const teaser4 = slash
+  // v2.3.14: 잘 결제하는 세부 6개는 전용 4쪽 예고(copy.result.v43.sub_teasers[세부].p4) — 선택지가 화면에 보이는 고민은 기존 문구
+  const teaser4 = subTeaser4 && !slash
+    ? fill(subTeaser4, { name })
+    : slash
     ? fill(copy.p4_options, { name, options: slash, a: opts[0] ?? "", b: opts[1] ?? "" })
     : q && copy.p4_question ? fill(copy.p4_question, { name, q }) : fill(copy.p4_general, { name });
   const fourth = paid

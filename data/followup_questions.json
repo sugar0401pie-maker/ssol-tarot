@@ -1,0 +1,262 @@
+{
+ "version": "v1 (2026-11-14, CSO: 질문은 데이터베이스로 정해 둠)",
+ "note": "고민이 short_max자 이하이면 q1을 보여 주고, 고른 답의 next 질문 하나를 더 보여 줌(최대 2개, want는 선택). 답은 고르기만(직접 입력 없음). 고른 답의 text를 고민 글 뒤에 붙이고(compose), fields는 고민 틀의 빈 칸을 채움. 건너뛸 수 있음. 문구는 Claude 초안 — CSO 검수 전. 위기 글(안전 판정)에는 보여 주지 않음.",
+ "short_max": 20,
+ "max_questions": 2,
+ "intro": "조금만 더 알려 주시면\n카드를 {name}님 고민에 맞춰 읽을 수 있어요.",
+ "skip": "이대로 볼게요",
+ "compose_prefix": " (덧붙임: ",
+ "compose_suffix": ")",
+ "questions": {
+  "q1": {
+   "ask": "어떤 일에 대한 고민인가요?",
+   "options": [
+    {
+     "id": "love",
+     "label": "연애·결혼",
+     "text": "연애 고민",
+     "fields": {
+      "area": "LOV"
+     },
+     "next": "love"
+    },
+    {
+     "id": "work",
+     "label": "직장·이직",
+     "text": "직장 고민",
+     "fields": {
+      "area": "CAR"
+     },
+     "next": "work"
+    },
+    {
+     "id": "job",
+     "label": "취업 준비",
+     "text": "취업 고민",
+     "fields": {
+      "area": "JOB"
+     },
+     "next": "job"
+    },
+    {
+     "id": "exam",
+     "label": "시험·공부",
+     "text": "시험 고민",
+     "fields": {
+      "area": "EDU"
+     },
+     "next": "exam"
+    },
+    {
+     "id": "money",
+     "label": "돈·생활",
+     "text": "돈·생활 고민",
+     "fields": {
+      "area": "LIF"
+     },
+     "next": "want"
+    },
+    {
+     "id": "etc",
+     "label": "그 밖의 일",
+     "text": null,
+     "fields": {},
+     "next": "want"
+    }
+   ]
+  },
+  "love": {
+   "ask": "지금 어떤 사이인가요?",
+   "options": [
+    {
+     "id": "single",
+     "label": "만나는 사람이 없어요",
+     "text": "만나는 사람 없음",
+     "fields": {
+      "love_status": "single"
+     }
+    },
+    {
+     "id": "crush",
+     "label": "좋아하는 사람·썸이 있어요",
+     "text": "좋아하는 사람이 있음",
+     "fields": {
+      "love_status": "crush"
+     }
+    },
+    {
+     "id": "dating",
+     "label": "사귀는 중이에요",
+     "text": "사귀는 중",
+     "fields": {
+      "love_status": "dating"
+     }
+    },
+    {
+     "id": "ex",
+     "label": "헤어졌어요",
+     "text": "헤어진 뒤",
+     "fields": {
+      "love_status": "ex"
+     }
+    },
+    {
+     "id": "married",
+     "label": "결혼했어요",
+     "text": "결혼한 사이",
+     "fields": {
+      "love_status": "married"
+     }
+    }
+   ]
+  },
+  "work": {
+   "ask": "지금 어디쯤인가요?",
+   "options": [
+    {
+     "id": "think",
+     "label": "옮길지 남을지 고민 중",
+     "text": "옮길지 남을지 고민 중",
+     "fields": {
+      "stage": "before"
+     }
+    },
+    {
+     "id": "prep",
+     "label": "옮기려고 준비·지원 중",
+     "text": "이직 준비 중",
+     "fields": {
+      "stage": "ongoing"
+     }
+    },
+    {
+     "id": "wait",
+     "label": "결과를 기다리는 중",
+     "text": "결과를 기다리는 중",
+     "fields": {
+      "stage": "waiting"
+     }
+    },
+    {
+     "id": "hard",
+     "label": "옮길 생각은 없고 지금이 힘들어요",
+     "text": "옮길 생각은 없고 지금 회사가 힘듦",
+     "fields": {
+      "stage": "ongoing"
+     }
+    }
+   ]
+  },
+  "job": {
+   "ask": "지금 어디쯤인가요?",
+   "options": [
+    {
+     "id": "prep",
+     "label": "준비 중이에요",
+     "text": "취업 준비 중",
+     "fields": {
+      "stage": "before"
+     }
+    },
+    {
+     "id": "wait",
+     "label": "지원하고 결과를 기다려요",
+     "text": "지원 결과를 기다리는 중",
+     "fields": {
+      "stage": "waiting"
+     }
+    },
+    {
+     "id": "interview",
+     "label": "면접이 곧 있어요",
+     "text": "곧 면접",
+     "fields": {
+      "stage": "before"
+     }
+    },
+    {
+     "id": "fail",
+     "label": "떨어진 뒤 다시 준비해요",
+     "text": "탈락 뒤 다시 준비 중",
+     "fields": {
+      "stage": "after_fail"
+     }
+    }
+   ]
+  },
+  "exam": {
+   "ask": "지금 어디쯤인가요?",
+   "options": [
+    {
+     "id": "long",
+     "label": "오래 준비하는 시험이에요",
+     "text": "오래 준비하는 시험",
+     "fields": {
+      "stage": "ongoing"
+     }
+    },
+    {
+     "id": "soon",
+     "label": "시험이 코앞이에요",
+     "text": "시험이 코앞",
+     "fields": {
+      "stage": "before"
+     }
+    },
+    {
+     "id": "wait",
+     "label": "보고 나서 결과를 기다려요",
+     "text": "시험 결과를 기다리는 중",
+     "fields": {
+      "stage": "waiting"
+     }
+    },
+    {
+     "id": "again",
+     "label": "다시 도전하려고 해요",
+     "text": "다시 도전",
+     "fields": {
+      "stage": "after_fail"
+     }
+    }
+   ]
+  },
+  "want": {
+   "ask": "카드에게 가장 묻고 싶은 건 뭔가요?",
+   "options": [
+    {
+     "id": "yesno",
+     "label": "될지 안 될지",
+     "text": "될지 알고 싶음",
+     "fields": {
+      "want": "yesno"
+     }
+    },
+    {
+     "id": "when",
+     "label": "언제쯤일지",
+     "text": "언제쯤일지 알고 싶음",
+     "fields": {
+      "want": "when"
+     }
+    },
+    {
+     "id": "which",
+     "label": "어느 쪽이 나을지",
+     "text": "어느 쪽이 나을지 알고 싶음",
+     "fields": {
+      "want": "which"
+     }
+    },
+    {
+     "id": "how",
+     "label": "어떻게 하면 좋을지",
+     "text": "어떻게 하면 좋을지 알고 싶음",
+     "fields": {
+      "want": "how"
+     }
+    }
+   ]
+  }
+ }
+}

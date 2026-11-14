@@ -3,13 +3,14 @@
 // 원본 패키지 코드(lib/tarot/*.js)는 바꾸지 않는다.
 import { applyCardGist } from "./cardGist.ts";
 import { secretThird, type SecretCopy } from "./secretThird.ts";
+import { applyReportLines } from "./reportLines.ts";
 import { bundleFor } from "../i18n/bundle.ts";
 import type { Locale } from "../i18n/locale.ts";
 import type { MidDb } from "./midResult.ts";
 import { type Lean } from "../tarot/decision.js";
 import { pkg } from "./pkg.ts";
 import { afterFrame } from "../tarot/frameInput.js";
-import { normalizeFrameV43, applyForecastOptions, applySubDefaults, resolveTable, midAreaKey, teaserLine, answerFirst, blurSetKey } from "../tarot/v43.js";
+import { normalizeFrameV43, resolveFrame, applyForecastOptions, applySubDefaults, resolveTable, midAreaKey, teaserLine, answerFirst, blurSetKey } from "../tarot/v43.js";
 import subDbKo from "../../data/worry_subtopics.json" with { type: "json" };
 import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
@@ -29,7 +30,8 @@ export function prepareFrame(frame: Frame | null, cls: Cls | null, locale?: Loca
   // v2.3.11: 세부 고민의 점수표 규칙(table_rule)으로 A2의 표를 맞춘다(resolveTable — 안전 주의·폭력이면 표를 새로 붙이지 않음).
   //   세 곳(3장째 C·결과·유료 리포트)이 같은 safety를 넘겨야 같은 표가 나온다.
   const tables = bd(locale).tables;
-  const sub = applySubDefaults(normalizeFrameV43(frame, cls), subDbKo);
+  // v2.3.14: 결과 틀(frame_id, A2 v4.12)과 세부를 맞춘다(resolveFrame — 어긋나면 틀을 믿음). 예전 결과(frame_id 없음)는 세부의 틀만 채운다.
+  const sub = applySubDefaults(resolveFrame(normalizeFrameV43(frame, cls), subDbKo), subDbKo);
   return applyForecastOptions(resolveTable(sub, subDbKo, tables, { safety: safety ?? null }), tables);
 }
 
@@ -60,7 +62,8 @@ export function withAnswerFirst(pages: any[], af: any | null, frame: Frame | nul
     const L7 = String(p.body).split("\n");
     if (af.kind === "forecast") {
       const i = L7.findIndex((x, k) => k < 8 && /^\*\*세 장은 .*쪽(이에요|입니다)\.\*\*$/.test(x));
-      if (i >= 0) L7.splice(i, L7[i + 1] && L7[i + 1].startsWith("◦ ") ? 2 : 1);
+      // 다음 줄이 선택지 줄(◦ …)이면 같이 빼되, 카드별 이유 줄(◦ … 카드 … — …)은 남긴다(2026-11-14: 첫 카드 줄이 함께 지워지던 것)
+      if (i >= 0) L7.splice(i, L7[i + 1] && L7[i + 1].startsWith("◦ ") && !L7[i + 1].includes(" — ") ? 2 : 1);
     }
     const isMoney = !!(frame && (frame.money === true || frame.area === "FORT"));
     const mn = isMoney && (answerDbKo as any).money_note ? `\n※ ${(answerDbKo as any).money_note.text}` : "";
@@ -168,7 +171,15 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
   // 3쪽·5쪽 "카드 내용을 종합하면" 한 문장은 한국어 활용형을 바꾸는 코드라 영문판에는 쓰지 않는다.
   const gisted = locale === "en" ? pages : applyCardGist(pages, lean, summaryTitle(locale), { hideSummary: false });
   const af = answerFirstFor({ frame, lean, picks, now: now ?? new Date(), locale });
-  return reorderSecret(withAnswerFirst(gisted, af, frame), { paid: true, name, cls, frame, lean, picks, locale });
+  const ordered = reorderSecret(withAnswerFirst(gisted, af, frame), { paid: true, name, cls, frame, lean, picks, locale });
+  return withLines(ordered, { paid: true, frame, lean, picks, cls, safety, worryText, locale });
+}
+
+// v2.3.15~17 문장 DB(owner 2026-11-14 "3번 전부") — lib/tarot-glue/reportLines.ts. 영문판은 문장 DB가 없어 그대로.
+function withLines(pages: any[], a: { paid: boolean; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; cls: Cls | null; safety: Partial<Safety> | null; worryText: string; locale?: Locale }): any[] {
+  if (a.locale === "en") return pages;
+  const seed = a.picks.reduce((n, p) => n + p.card.no * 7 + (p.reversed ? 3 : 0), 0);
+  return applyReportLines(pages, { paid: a.paid, frame: a.frame, lean: a.lean, picks: a.picks, cls: a.cls, safety: a.safety ?? null, worryText: a.worryText || "", tables: bd(a.locale).tables, seed });
 }
 
 // 결과 쪽 순서 바꾸기 + 세 번째 카드 시크릿(owner 2026-11-02) — lib/tarot-glue/secretThird.ts
@@ -189,6 +200,7 @@ export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, pick
     // v4.3: '답은 아직…' 문단 뒤 듣고 싶은 답에 맞춘 예고(v43.teaserLine). 영문판은 문구가 없어 빼둔다.
     teaser: locale === "en" || !CR.v43 ? null : teaserLine({ frame, lean, name, data }),
     areaPhrase: locale === "en" ? null : areaPhraseFor(frame, midKey, CR.v43?.area_phrases),
+    subTeaser4: locale === "en" || !frame?.sub_id ? null : CR.v43?.sub_teasers?.[frame.sub_id]?.p4 ?? null,
   });
 }
 const summaryTitle = (locale?: Locale) => String((bd(locale).data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");
@@ -225,7 +237,7 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
     const blur = fromSet || p.blur;
     return blur ? { ...p, blur: personalizeBlur(String(blur), name, names, locale) } : p;
   });
-  return reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, locale });
+  return withLines(reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, locale }), { paid: false, frame, lean, picks, cls, safety, worryText, locale });
 }
 
 /** 블러 고정 예시 속 이름(민준님)과 예시 카드 이름 세 장(자리 순서)을 이 사람의 것으로. */

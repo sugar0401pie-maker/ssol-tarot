@@ -1,6 +1,6 @@
 {
- "version": "v2 (2026-11-10, 점수표 규칙 table_rule + 새 세부 27 = 144개) · v2.3.13 직장·취업 검토 반영(정의 55곳)",
- "note": "A2 v4.9가 sub_id를 고르면 3쪽 첫 문장(phrase)·중간 결과 묶음(mid)·빈 칸(area·love_status·love_topic) 기본값으로 씀. | v2: 세부마다 table_rule{mode fixed·choose·none, default, allowed, choose_by}. 코드 resolveTable()이 A2의 table을 이 규칙으로 맞춤(영역이 세부와 같을 때만, 안전 주의면 표를 새로 붙이지 않음).",
+ "version": "v4 (2026-11-14, 결과 틀 frames + 전용 묶음 5 + 재측정 검토 정의 고침)",
+ "note": "A2 v4.9가 sub_id를 고르면 3쪽 첫 문장(phrase)·중간 결과 묶음(mid)·빈 칸(area·love_status·love_topic) 기본값으로 씀. | v2: 세부마다 table_rule{mode fixed·choose·none, default, allowed, choose_by}. 코드 resolveTable()이 A2의 table을 이 규칙으로 맞춤(영역이 세부와 같을 때만, 안전 주의면 표를 새로 붙이지 않음). | v3: result_key = 영역|기본 점수표|중간 결과 묶음. 세부를 틀려도 result_key가 같으면 결과 틀(점수표·3쪽 중간 결과)은 같음 → 정확도를 엄격/결과 기준 둘로 잼. | v4: frames = 결과 틀(영역·기본 점수표·중간 결과 묶음이 같은 세부 묶음). 세부마다 frame 칸. A2 v4.12는 틀을 먼저 고르고 그 안에서 세부를 고름. 코드 resolveFrame().",
  "subs": {
   "LV-WHEN": {
    "group": "연애 시작",
@@ -32,7 +32,9 @@
      "approach": 1,
      "progress": 1
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-DEADLINE": {
    "group": "연애 시작",
@@ -63,7 +65,9 @@
      "newlove": 54,
      "progress": 1
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-LONGSOLO": {
    "group": "연애 시작",
@@ -93,7 +97,9 @@
     "gold": {
      "newlove": 38
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-NOCHANCE": {
    "group": "연애 시작",
@@ -123,7 +129,9 @@
     "gold": {
      "newlove": 36
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-IDEAL": {
    "group": "연애 시작",
@@ -153,7 +161,9 @@
     "gold": {
      "newlove": 24
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-LONELY": {
    "group": "연애 시작",
@@ -184,7 +194,9 @@
      "express": 1,
      "newlove": 17
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-ABLE": {
    "group": "연애 시작",
@@ -214,7 +226,9 @@
     "gold": {
      "newlove": 16
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-BLINDDATE": {
    "group": "연애 시작",
@@ -245,7 +259,9 @@
      "newlove": 28,
      "None": 1
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "LV-SOMEONLY": {
    "group": "연애 시작",
@@ -276,7 +292,9 @@
      "approach": 1,
      "newlove": 17
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "CR-MIND": {
    "group": "짝사랑·썸",
@@ -291,7 +309,7 @@
    "love_topic": "crush_progress",
    "table": "approach",
    "want": "their_mind",
-   "mid": "LOV_CRUSH",
+   "mid": "LOV_CRUSH_MIND",
    "phrase": "마음 가는 그 사람의 속마음에 대한 고민",
    "review": "CR-CHANCE와 혼동 잦음: \"좋아할까\"=MIND, \"이어질까\"=CHANCE를 구분 단서에 예문으로 고정.",
    "source": "고민 문장 DB v0.1",
@@ -308,7 +326,10 @@
      "approach": 63,
      "boundary": 2
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH_MIND",
+   "dedicated": true,
+   "frame": "F03"
   },
   "CR-DEFINE": {
    "group": "짝사랑·썸",
@@ -323,7 +344,7 @@
    "love_topic": "crush_progress",
    "table": "progress",
    "want": "their_mind",
-   "mid": "LOV_CRUSH",
+   "mid": "LOV_CRUSH_DEFINE",
    "phrase": "썸인지 아닌지 애매한 관계에 대한 고민",
    "review": null,
    "source": "고민 문장 DB v0.1",
@@ -341,7 +362,10 @@
      "approach": 9,
      "reunion": 1
     }
-   }
+   },
+   "result_key": "LOV|progress|LOV_CRUSH_DEFINE",
+   "dedicated": true,
+   "frame": "F16"
   },
   "CR-CHANCE": {
    "group": "짝사랑·썸",
@@ -356,7 +380,7 @@
    "love_topic": "crush_progress",
    "table": "approach",
    "want": "yesno",
-   "mid": "LOV_CRUSH",
+   "mid": "LOV_CRUSH_CHANCE",
    "phrase": "마음 가는 사람과 이어질 수 있을지에 대한 고민",
    "review": null,
    "source": "고민 문장 DB v0.1",
@@ -374,7 +398,10 @@
      "None": 1,
      "continue": 1
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH_CHANCE",
+   "dedicated": true,
+   "frame": "F02"
   },
   "CR-LONGCRUSH": {
    "group": "짝사랑·썸",
@@ -404,7 +431,9 @@
     "gold": {
      "approach": 28
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-APPROACH": {
    "group": "짝사랑·썸",
@@ -435,7 +464,9 @@
      "newlove": 3,
      "approach": 37
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-CONFESS": {
    "group": "짝사랑·썸",
@@ -469,7 +500,9 @@
      "approach": 4,
      "express": 25
     }
-   }
+   },
+   "result_key": "LOV|express|LOV_CRUSH",
+   "frame": "F09"
   },
   "CR-GIVEUP": {
    "group": "짝사랑·썸",
@@ -502,7 +535,9 @@
      "reunion": 2,
      "progress": 1
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-SIGNAL": {
    "group": "짝사랑·썸",
@@ -532,7 +567,9 @@
     "gold": {
      "approach": 35
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-DISTANCE": {
    "group": "짝사랑·썸",
@@ -564,7 +601,9 @@
      "approach": 17,
      "progress": 2
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-TWO": {
    "group": "짝사랑·썸",
@@ -599,7 +638,9 @@
      "continue": 1,
      "None": 12
     }
-   }
+   },
+   "result_key": "LOV|none|LOV_CRUSH",
+   "frame": "F14"
   },
   "CR-HOWTO": {
    "group": "짝사랑·썸",
@@ -629,7 +670,9 @@
     "gold": {
      "approach": 20
     }
-   }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-ENDED": {
    "group": "짝사랑·썸",
@@ -662,7 +705,9 @@
      "newlove": 2,
      "approach": 1
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_CRUSH_ENDED",
+   "frame": "F19"
   },
   "RL-TRUE": {
    "group": "연애 중",
@@ -695,7 +740,9 @@
      "approach": 3,
      "progress": 1
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_TRUST",
+   "frame": "F08"
   },
   "RL-STAY": {
    "group": "연애 중",
@@ -728,7 +775,10 @@
      "boundary": 1,
      "approach": 1
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_BREAKUP",
+   "dedicated": true,
+   "frame": "F04"
   },
   "RL-FIGHT": {
    "group": "연애 중",
@@ -763,7 +813,9 @@
      "continue": 35,
      "express": 5
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_DATING",
+   "frame": "F05"
   },
   "RL-CONTACT": {
    "group": "연애 중",
@@ -797,7 +849,9 @@
      "progress": 1,
      "express": 30
     }
-   }
+   },
+   "result_key": "LOV|express|LOV_TRUST",
+   "frame": "F11"
   },
   "RL-DULL": {
    "group": "연애 중",
@@ -829,7 +883,9 @@
      "continue": 23,
      "boundary": 1
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_DATING",
+   "frame": "F05"
   },
   "RL-LIVE": {
    "group": "연애 중",
@@ -859,7 +915,9 @@
     "gold": {
      "progress": 20
     }
-   }
+   },
+   "result_key": "LOV|progress|LOV_DATING",
+   "frame": "F17"
   },
   "RL-LAST": {
    "group": "연애 중",
@@ -890,7 +948,9 @@
      "continue": 28,
      "progress": 1
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_DATING",
+   "frame": "F05"
   },
   "RL-BREAK": {
    "group": "연애 중",
@@ -922,7 +982,9 @@
      "approach": 1,
      "reunion": 1
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_TRUST",
+   "frame": "F08"
   },
   "RL-SORRY": {
    "group": "연애 중",
@@ -953,7 +1015,9 @@
      "approach": 1,
      "express": 15
     }
-   }
+   },
+   "result_key": "LOV|express|LOV_DATING",
+   "frame": "F10"
   },
   "EX-CHANCE": {
    "group": "이별·재회",
@@ -968,7 +1032,7 @@
    "love_topic": "reunion",
    "table": "reunion",
    "want": "yesno",
-   "mid": "LOV_EX",
+   "mid": "LOV_EX_CHANCE",
    "phrase": "헤어진 연인과 다시 만날 수 있을지에 대한 고민",
    "review": null,
    "source": "고민 문장 DB v0.1",
@@ -983,7 +1047,10 @@
     "gold": {
      "reunion": 58
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX_CHANCE",
+   "dedicated": true,
+   "frame": "F21"
   },
   "EX-MIND": {
    "group": "이별·재회",
@@ -1015,7 +1082,9 @@
      "approach": 1,
      "continue": 1
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX",
+   "frame": "F20"
   },
   "EX-WAIT": {
    "group": "이별·재회",
@@ -1046,7 +1115,9 @@
      "reunion": 35,
      "approach": 1
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX",
+   "frame": "F20"
   },
   "EX-REACH": {
    "group": "이별·재회",
@@ -1076,7 +1147,9 @@
     "gold": {
      "reunion": 35
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX",
+   "frame": "F20"
   },
   "EX-FRESH": {
    "group": "이별·재회",
@@ -1109,7 +1182,9 @@
      "reunion": 31,
      "newlove": 5
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX",
+   "frame": "F20"
   },
   "EX-NEWONE": {
    "group": "이별·재회",
@@ -1139,14 +1214,16 @@
     "gold": {
      "newlove": 18
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "EX-REPEAT": {
    "group": "이별·재회",
    "name": "헤어졌다 만났다 반복",
    "definition": "같은 사람과 이별·재결합을 반복함",
    "clue": "또 헤어졌어요·몇 번 헤어졌다",
-   "vs_neighbors": "RL-STAY는 아직 헤어지지 않음",
+   "vs_neighbors": "RL-STAY는 아직 헤어지지 않음 · 지금 사귀는 중이고 이번에 끝낼지를 물으면 RL-STAY",
    "scene": "ex_contact",
    "tarot_count": 1,
    "area": "LOV",
@@ -1170,7 +1247,10 @@
      "reunion": 15,
      "continue": 2
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F20"
   },
   "EX-RECONTACT": {
    "group": "이별·재회",
@@ -1201,7 +1281,9 @@
      "reunion": 24,
      "None": 1
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX",
+   "frame": "F20"
   },
   "EX-THEYMOVED": {
    "group": "이별·재회",
@@ -1231,7 +1313,9 @@
     "gold": {
      "reunion": 17
     }
-   }
+   },
+   "result_key": "LOV|reunion|LOV_EX",
+   "frame": "F20"
   },
   "MR-THIS": {
    "group": "결혼",
@@ -1262,7 +1346,9 @@
      "progress": 58,
      "continue": 1
     }
-   }
+   },
+   "result_key": "LOV|progress|LOV_MARRY",
+   "frame": "F18"
   },
   "MR-WHEN": {
    "group": "결혼",
@@ -1294,7 +1380,9 @@
      "newlove": 28,
      "progress": 6
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_MARRY",
+   "frame": "F12"
   },
   "MR-WHETHER": {
    "group": "결혼",
@@ -1327,7 +1415,9 @@
      "approach": 1,
      "None": 14
     }
-   }
+   },
+   "result_key": "LOV|none|LOV_MARRY",
+   "frame": "F15"
   },
   "MR-PARTNER": {
    "group": "결혼",
@@ -1359,7 +1449,9 @@
      "approach": 1,
      "continue": 1
     }
-   }
+   },
+   "result_key": "LOV|progress|LOV_MARRY",
+   "frame": "F18"
   },
   "MR-PRESSURE": {
    "group": "결혼",
@@ -1390,7 +1482,9 @@
      "newlove": 1,
      "None": 16
     }
-   }
+   },
+   "result_key": "LOV|none|LOV_MARRY",
+   "frame": "F15"
   },
   "MR-WHO": {
    "group": "결혼",
@@ -1420,7 +1514,9 @@
     "gold": {
      "newlove": 15
     }
-   }
+   },
+   "result_key": "LOV|newlove|LOV_MARRY",
+   "frame": "F12"
   },
   "JB-WHEN": {
    "group": "취업",
@@ -1452,7 +1548,10 @@
      "approach": 1,
      "job": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|start|JOB",
+   "frame": "F28"
   },
   "JB-WAIT": {
    "group": "취업",
@@ -1484,14 +1583,17 @@
      "job": 4,
      "None": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|start|JOB",
+   "frame": "F28"
   },
   "JB-INTERVIEW": {
    "group": "취업",
-   "name": "면접을 앞두고 있음",
-   "definition": "다가오는 면접이 있고 잘 볼 수 있을지 걱정",
+   "name": "취업 면접을 앞두고 있음",
+   "definition": "다가오는 취업·이직 면접이 있고 잘 볼 수 있을지 걱정",
    "clue": "내일 면접·면접 잘 볼 수 있을까·최종 면접",
-   "vs_neighbors": "JB-WAIT는 이미 봄",
+   "vs_neighbors": "JB-WAIT는 이미 봄 · 대학·대학원 입시 면접은 EX2-BEFORE(코앞) 또는 EX2-UNI·EX2-GRAD",
    "scene": "interview_ahead",
    "tarot_count": 10,
    "area": "JOB",
@@ -1515,7 +1617,10 @@
      "start": 32,
      "job": 1
     }
-   }
+   },
+   "result_key": "JOB|start|TEST_AHEAD",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F30"
   },
   "JB-LATE": {
    "group": "취업",
@@ -1548,7 +1653,10 @@
      "start": 31,
      "job": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|start|JOB_LONG",
+   "frame": "F29"
   },
   "JB-WHERE": {
    "group": "취업",
@@ -1583,7 +1691,10 @@
      "move": 1,
      "job": 2
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|none|JOB",
+   "frame": "F27"
   },
   "JB-STUCK": {
    "group": "취업",
@@ -1614,7 +1725,10 @@
      "start": 18,
      "None": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|start|JOB_LONG",
+   "frame": "F29"
   },
   "JB-TERMS": {
    "group": "취업",
@@ -1644,7 +1758,10 @@
     "gold": {
      "start": 26
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|start|JOB",
+   "frame": "F28"
   },
   "JB-ABROAD": {
    "group": "취업",
@@ -1678,7 +1795,9 @@
      "job": 2,
      "None": 1
     }
-   }
+   },
+   "result_key": "DIR|start|DIR",
+   "frame": "F37"
   },
   "WK-QUIT": {
    "group": "이직·퇴사",
@@ -1709,7 +1828,10 @@
      "job": 58,
      "boundary": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-WHEN": {
    "group": "이직·퇴사",
@@ -1739,7 +1861,10 @@
     "gold": {
      "job": 42
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-MOVE": {
    "group": "이직·퇴사",
@@ -1754,7 +1879,7 @@
    "love_topic": null,
    "table": "job",
    "want": "when",
-   "mid": "CAR",
+   "mid": "CAR_MOVE",
    "phrase": "이직이 언제 이뤄질지에 대한 고민",
    "review": null,
    "source": "고민 문장 DB v0.1",
@@ -1770,7 +1895,11 @@
      "job": 70,
      "start": 2
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR_MOVE",
+   "dedicated": true,
+   "frame": "F24"
   },
   "WK-STAY": {
    "group": "이직·퇴사",
@@ -1801,7 +1930,10 @@
      "job": 56,
      "start": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-AFTER": {
    "group": "이직·퇴사",
@@ -1833,7 +1965,9 @@
      "job": 31,
      "start": 3
     }
-   }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-OFFER": {
    "group": "이직·퇴사",
@@ -1864,7 +1998,9 @@
      "job": 28,
      "start": 1
     }
-   }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-SWITCH": {
    "group": "이직·퇴사",
@@ -1896,7 +2032,10 @@
      "job": 34,
      "None": 2
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-NEWJOB": {
    "group": "이직·퇴사",
@@ -1928,7 +2067,10 @@
      "job": 22,
      "start": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-PEOPLE": {
    "group": "이직·퇴사",
@@ -1960,7 +2102,9 @@
      "express": 2,
      "job": 23
     }
-   }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-PAY": {
    "group": "이직·퇴사",
@@ -1991,7 +2135,10 @@
      "start": 1,
      "job": 17
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-SECURE": {
    "group": "이직·퇴사",
@@ -2023,7 +2170,10 @@
      "job": 22,
      "start": 2
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR_INSECURE",
+   "frame": "F23"
   },
   "WK-FIT": {
    "group": "이직·퇴사",
@@ -2054,7 +2204,10 @@
      "job": 35,
      "start": 1
     }
-   }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-HARD": {
    "group": "이직·퇴사",
@@ -2088,14 +2241,16 @@
      "start": 2,
      "job": 19
     }
-   }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "EX2-UNI": {
    "group": "시험·입시",
    "name": "대학에 붙을 수 있을지(입시 결과)",
    "definition": "수시·정시·논술 등 대학 입시 결과",
    "clue": "대학 붙을까·수시·정시·최초합·1지망",
-   "vs_neighbors": "EX2-WAIT는 대학 외 시험",
+   "vs_neighbors": "EX2-WAIT는 대학 외 시험 · 시험·면접이 며칠 안 남았다는 말이 중심이면 EX2-BEFORE",
    "scene": "exam_result_wait",
    "tarot_count": 21,
    "area": "EDU",
@@ -2118,7 +2273,10 @@
     "gold": {
      "start": 43
     }
-   }
+   },
+   "result_key": "EDU|start|EDU",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F31"
   },
   "EX2-WAIT": {
    "group": "시험·입시",
@@ -2148,14 +2306,16 @@
     "gold": {
      "start": 33
     }
-   }
+   },
+   "result_key": "EDU|start|EDU",
+   "frame": "F31"
   },
   "EX2-BEFORE": {
    "group": "시험·입시",
    "name": "시험을 앞두고 불안함",
-   "definition": "시험이 코앞이고 잘 볼 수 있을지 불안함",
-   "clue": "내일 시험·수능 잘 칠까·시험 불안",
-   "vs_neighbors": "EX2-STUDY는 공부가 안 되는 쪽",
+   "definition": "시험·입시 면접이 코앞이고 잘 볼 수 있을지 불안함. 시험 종류 단서 없이 \"붙을까\"만 물을 때도 이 세부",
+   "clue": "내일 시험·수능 잘 칠까·시험 불안·며칠 안 남았어요·곧 면접(입시)·준비하는 시험 붙을까",
+   "vs_neighbors": "EX2-STUDY는 공부가 안 되는 쪽 · 길게 준비하는 시험이고 임박했다는 말이 없으면 EX2-LONG · 취업 면접은 JB-INTERVIEW",
    "scene": "exam_before",
    "tarot_count": 14,
    "area": "EDU",
@@ -2180,7 +2340,10 @@
      "start": 42,
      "None": 1
     }
-   }
+   },
+   "result_key": "EDU|start|TEST_AHEAD",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F33"
   },
   "EX2-STUDY": {
    "group": "시험·입시",
@@ -2212,14 +2375,16 @@
      "None": 3,
      "express": 1
     }
-   }
+   },
+   "result_key": "EDU|start|EDU",
+   "frame": "F31"
   },
   "EX2-LONG": {
    "group": "시험·입시",
    "name": "오래 준비하는 시험(공무원·국가고시)",
-   "definition": "장기 수험 중이라 지침·합격 여부",
+   "definition": "공무원·임용·고시·전문 자격처럼 길게 준비하는 시험. 준비가 길어져 지치거나 붙을 수 있을지",
    "clue": "공무원·임용·국시·CPA·몇 년째 준비",
-   "vs_neighbors": "EX2-WAIT는 이미 본 시험",
+   "vs_neighbors": "EX2-WAIT는 이미 본 시험 · 시험 날이 코앞이라는 말(내일·며칠 뒤·곧)이 있으면 EX2-BEFORE · 시험 종류나 준비 기간 단서가 없으면 EX2-BEFORE",
    "scene": "exam_long",
    "tarot_count": 10,
    "area": "EDU",
@@ -2243,7 +2408,10 @@
      "start": 36,
      "None": 1
     }
-   }
+   },
+   "result_key": "EDU|start|EXAM_LONG",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F32"
   },
   "EX2-AGAIN": {
    "group": "시험·입시",
@@ -2273,14 +2441,16 @@
     "gold": {
      "start": 27
     }
-   }
+   },
+   "result_key": "EDU|start|EDU",
+   "frame": "F31"
   },
   "EX2-GRAD": {
    "group": "시험·입시",
    "name": "대학원·학위·논문",
    "definition": "대학원 진학·졸업·논문 심사",
-   "clue": "대학원·졸업·논문·리비전·박사",
-   "vs_neighbors": "PT-TWO는 대학원 갈지 결정",
+   "clue": "대학원·졸업·논문·리비전·박사·학술지·논문 투고 결과·대학원 면접",
+   "vs_neighbors": "PT-TWO는 대학원 갈지 결정 · 해외 대학원이라도 합격·연구가 중심이면 이 세부",
    "scene": "exam_result_wait",
    "tarot_count": 14,
    "area": "EDU",
@@ -2304,14 +2474,17 @@
      "None": 5,
      "start": 25
     }
-   }
+   },
+   "result_key": "EDU|start|EDU",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F31"
   },
   "EX2-AUDITION": {
    "group": "시험·입시",
    "name": "오디션·공모전 결과",
    "definition": "오디션·공모전·투고 결과를 기다림",
    "clue": "오디션·공모전·투고·데뷔",
-   "vs_neighbors": "SB-CREATE는 창작 성과 전반",
+   "vs_neighbors": "SB-CREATE는 창작 성과 전반 · 논문·학위 심사 결과는 EX2-GRAD",
    "scene": "exam_result_wait",
    "tarot_count": 6,
    "area": "DIR",
@@ -2334,7 +2507,10 @@
     "gold": {
      "start": 23
     }
-   }
+   },
+   "result_key": "DIR|start|DIR",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F37"
   },
   "PT-WHAT": {
    "group": "진로·방향",
@@ -2365,7 +2541,9 @@
      "start": 4,
      "None": 33
     }
-   }
+   },
+   "result_key": "DIR|none|DIR",
+   "frame": "F35"
   },
   "PT-MAJOR": {
    "group": "진로·방향",
@@ -2397,7 +2575,9 @@
      "None": 14,
      "job": 1
     }
-   }
+   },
+   "result_key": "DIR|none|DIR",
+   "frame": "F35"
   },
   "PT-TWO": {
    "group": "진로·방향",
@@ -2432,7 +2612,9 @@
      "continue": 1,
      "None": 25
     }
-   }
+   },
+   "result_key": "DIR|none|DIR",
+   "frame": "F35"
   },
   "PT-DREAM": {
    "group": "진로·방향",
@@ -2463,7 +2645,9 @@
      "start": 21,
      "None": 1
     }
-   }
+   },
+   "result_key": "DIR|start|DIR",
+   "frame": "F37"
   },
   "PT-MEANING": {
    "group": "진로·방향",
@@ -2495,7 +2679,9 @@
      "start": 3,
      "None": 15
     }
-   }
+   },
+   "result_key": "DIR|none|DIR",
+   "frame": "F35"
   },
   "SB-START": {
    "group": "사업·창작",
@@ -2526,7 +2712,9 @@
      "start": 29,
      "job": 1
     }
-   }
+   },
+   "result_key": "DIR|start|DIR",
+   "frame": "F37"
   },
   "SB-RUN": {
    "group": "사업·창작",
@@ -2557,7 +2745,9 @@
      "None": 1,
      "start": 28
     }
-   }
+   },
+   "result_key": "DIR|start|BIZ",
+   "frame": "F36"
   },
   "SB-SIDE": {
    "group": "사업·창작",
@@ -2588,7 +2778,9 @@
      "start": 20,
      "job": 1
     }
-   }
+   },
+   "result_key": "DIR|start|DIR",
+   "frame": "F37"
   },
   "SB-CREATE": {
    "group": "사업·창작",
@@ -2619,7 +2811,9 @@
      "start": 25,
      "job": 1
     }
-   }
+   },
+   "result_key": "DIR|start|DIR",
+   "frame": "F37"
   },
   "SB-CLOSE": {
    "group": "사업·창작",
@@ -2651,7 +2845,9 @@
      "start": 3,
      "None": 13
     }
-   }
+   },
+   "result_key": "DIR|none|BIZ",
+   "frame": "F34"
   },
   "MN-URGENT": {
    "group": "돈",
@@ -2684,14 +2880,16 @@
      "start": 6,
      "None": 29
     }
-   }
+   },
+   "result_key": "LIF|none|LIF",
+   "frame": "F39"
   },
   "MN-RICH": {
    "group": "돈",
    "name": "큰돈·부자가 되고 싶음",
    "definition": "로또·벼락부자 등 큰돈 바람",
    "clue": "부자·로또·큰돈·경제적 자유",
-   "vs_neighbors": "MN-URGENT는 당장 급함",
+   "vs_neighbors": "MN-URGENT는 당장 급함 · 복권·당첨이 나오면 ET-LUCK · 버는 방법을 물으면 MN-HOWTO",
    "scene": "money_worry",
    "tarot_count": 7,
    "area": "LIF",
@@ -2715,7 +2913,10 @@
      "None": 28,
      "start": 1
     }
-   }
+   },
+   "result_key": "LIF|none|LIF",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F39"
   },
   "MN-WHEN": {
    "group": "돈",
@@ -2746,7 +2947,9 @@
      "start": 5,
      "None": 28
     }
-   }
+   },
+   "result_key": "LIF|none|LIF",
+   "frame": "F39"
   },
   "MN-INVEST": {
    "group": "돈",
@@ -2778,7 +2981,9 @@
      "None": 15,
      "start": 5
     }
-   }
+   },
+   "result_key": "LIF|none|LIF",
+   "frame": "F39"
   },
   "MN-HOME": {
    "group": "돈",
@@ -2809,14 +3014,16 @@
      "start": 3,
      "move": 20
     }
-   }
+   },
+   "result_key": "LIF|move|LIF",
+   "frame": "F38"
   },
   "MN-HOWTO": {
    "group": "돈",
    "name": "돈을 어떻게 벌어야 할지",
    "definition": "돈 벌 방법을 모름",
    "clue": "뭐로 돈 벌어요·어떻게 하면 벌까",
-   "vs_neighbors": "SB-SIDE는 정해 둔 부업이 있음",
+   "vs_neighbors": "SB-SIDE는 정해 둔 부업이 있음 · 방법을 묻지 않고 많이 벌고 싶다는 바람이면 MN-RICH",
    "scene": "money_worry",
    "tarot_count": 2,
    "area": "LIF",
@@ -2841,7 +3048,10 @@
      "move": 1,
      "None": 2
     }
-   }
+   },
+   "result_key": "LIF|start|LIF",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F40"
   },
   "UF-YEAR": {
    "group": "앞날·운세",
@@ -2872,7 +3082,9 @@
      "start": 1,
      "None": 31
     }
-   }
+   },
+   "result_key": "FORT|none|NONE",
+   "frame": "F49"
   },
   "UF-ANXIOUS": {
    "group": "앞날·운세",
@@ -2902,7 +3114,9 @@
     "gold": {
      "None": 32
     }
-   }
+   },
+   "result_key": "FORT|none|NONE",
+   "frame": "F49"
   },
   "UF-STUCK": {
    "group": "앞날·운세",
@@ -2933,7 +3147,9 @@
      "None": 28,
      "start": 3
     }
-   }
+   },
+   "result_key": "SELF|none|NONE",
+   "frame": "F48"
   },
   "UF-EMPTY": {
    "group": "앞날·운세",
@@ -2964,13 +3180,15 @@
      "None": 17,
      "express": 1
     }
-   }
+   },
+   "result_key": "SELF|none|NONE",
+   "frame": "F48"
   },
   "UF-ALL": {
    "group": "앞날·운세",
    "name": "여러 고민이 한꺼번에",
    "definition": "서로 다른 영역(연애·일·돈·건강 등) 세 가지 이상을 한 번에 묻거나, 두 가지인데 어느 쪽도 중심이 아님",
-   "clue": "취업과 연애와 돈·전부 언제",
+   "clue": "취업과 연애와 돈·전부 언제·돈도 몸도 일도",
    "vs_neighbors": "UF-YEAR는 한 해 흐름 · 같은 길의 걱정 두 가지(취업과 시험, 이직과 연봉)는 UF-ALL이 아니라 먼저 쓴 쪽의 세부",
    "scene": "future_vague",
    "tarot_count": 20,
@@ -2996,7 +3214,10 @@
      "newlove": 1,
      "start": 3
     }
-   }
+   },
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "FORT|none|NONE",
+   "frame": "F49"
   },
   "UF-WISH": {
    "group": "앞날·운세",
@@ -3027,7 +3248,9 @@
      "start": 1,
      "None": 16
     }
-   }
+   },
+   "result_key": "FORT|none|NONE",
+   "frame": "F49"
   },
   "PR-NOFRIEND": {
    "group": "인간관계",
@@ -3062,7 +3285,9 @@
      "start": 3,
      "approach": 16
     }
-   }
+   },
+   "result_key": "SOC|approach|SOC",
+   "frame": "F44"
   },
   "PR-CONFLICT": {
    "group": "인간관계",
@@ -3094,7 +3319,9 @@
      "express": 20,
      "start": 1
     }
-   }
+   },
+   "result_key": "SOC|express|SOC",
+   "frame": "F46"
   },
   "PR-CUT": {
    "group": "인간관계",
@@ -3126,7 +3353,9 @@
      "express": 3,
      "None": 1
     }
-   }
+   },
+   "result_key": "SOC|boundary|SOC",
+   "frame": "F45"
   },
   "PR-HURT": {
    "group": "인간관계",
@@ -3158,7 +3387,9 @@
      "boundary": 1,
      "express": 1
     }
-   }
+   },
+   "result_key": "SOC|none|SOC",
+   "frame": "F47"
   },
   "PR-MIND": {
    "group": "인간관계",
@@ -3190,7 +3421,9 @@
      "express": 9,
      "None": 15
     }
-   }
+   },
+   "result_key": "SOC|none|SOC",
+   "frame": "F47"
   },
   "PR-STRESS": {
    "group": "인간관계",
@@ -3224,7 +3457,9 @@
      "boundary": 17,
      "express": 2
     }
-   }
+   },
+   "result_key": "SOC|none|SOC",
+   "frame": "F47"
   },
   "FM-BABY": {
    "group": "가족·출산",
@@ -3255,7 +3490,9 @@
      "start": 14,
      "None": 2
     }
-   }
+   },
+   "result_key": "FAM|start|FAM",
+   "frame": "F43"
   },
   "FM-FAMILY": {
    "group": "가족·출산",
@@ -3292,7 +3529,9 @@
      "approach": 1,
      "start": 2
     }
-   }
+   },
+   "result_key": "FAM|boundary|FAM",
+   "frame": "F41"
   },
   "FM-FOR": {
    "group": "가족·출산",
@@ -3323,14 +3562,16 @@
      "express": 1,
      "None": 20
     }
-   }
+   },
+   "result_key": "FAM|none|FAM",
+   "frame": "F42"
   },
   "HL-DIET": {
    "group": "몸·건강",
    "name": "다이어트·몸 관리",
    "definition": "살 빼기·운동 목표가 될지",
    "clue": "다이어트·살 빼기·몇 키로",
-   "vs_neighbors": "HL-WORRY는 건강 걱정",
+   "vs_neighbors": "HL-WORRY는 건강 걱정 · 몸 관리 목표(살·체력)가 있을 때만. 운동 시설·레슨을 옮길지는 ET-SMALL",
    "scene": "health_habit",
    "tarot_count": 2,
    "area": "LIF",
@@ -3354,7 +3595,10 @@
      "start": 19,
      "None": 1
     }
-   }
+   },
+   "result_key": "LIF|start|LIF",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F40"
   },
   "HL-WORRY": {
    "group": "몸·건강",
@@ -3387,7 +3631,9 @@
      "None": 19,
      "job": 1
     }
-   }
+   },
+   "result_key": "LIF|none|LIF",
+   "frame": "F39"
   },
   "HL-PET": {
    "group": "몸·건강",
@@ -3417,7 +3663,9 @@
     "gold": {
      "None": 15
     }
-   }
+   },
+   "result_key": "LIF|none|LIF",
+   "frame": "F39"
   },
   "ET-FAN": {
    "group": "기타",
@@ -3448,13 +3696,15 @@
      "None": 22,
      "start": 1
     }
-   }
+   },
+   "result_key": "NONE|none|NONE",
+   "frame": "F50"
   },
   "ET-LUCK": {
    "group": "기타",
    "name": "당첨·티켓팅 같은 운",
    "definition": "로또·티켓팅·추첨 성공",
-   "clue": "티켓팅·로또·추첨",
+   "clue": "티켓팅·로또·추첨·복권·당첨",
    "vs_neighbors": "MN-RICH는 부자 바람",
    "scene": "—",
    "tarot_count": 5,
@@ -3478,14 +3728,17 @@
     "gold": {
      "None": 20
     }
-   }
+   },
+   "result_key": "FORT|none|NONE",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F49"
   },
   "ET-SMALL": {
    "group": "기타",
-   "name": "일상 속 작은 결정",
-   "definition": "여행·메뉴·학원 옮기기 같은 작은 결정",
-   "clue": "여행 갈까·뭐 먹을까·학원 옮길까",
-   "vs_neighbors": "PT-TWO는 진로 결정",
+   "name": "일상 속 할지 말지(취미·수업·운동·지출)",
+   "definition": "취미·수업·운동·모임·여행·지출처럼 생활 속 작은 일을 할지 말지, 계속할지 그만둘지",
+   "clue": "여행 갈까·뭐 먹을까·학원 옮길까·수업 그만둘까·헬스장 옮길까·모임 계속 나갈까·조퇴할까",
+   "vs_neighbors": "PT-TWO는 진로 결정 · ED-SCHOOL은 학교 수업·휴학처럼 학업에 걸린 결정 · ET-SAFE는 내가 고르는 게 아니라 무사할지를 물음",
    "scene": "decision_hard",
    "tarot_count": 13,
    "area": "LIF",
@@ -3510,7 +3763,10 @@
      "start": 15,
      "None": 21
     }
-   }
+   },
+   "result_key": "LIF|none|LIF",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F39"
   },
   "MR-REAL": {
    "group": "결혼",
@@ -3543,7 +3799,9 @@
      "job": 1,
      "continue": 2
     }
-   }
+   },
+   "result_key": "LOV|progress|LOV_MARRY",
+   "frame": "F18"
   },
   "MR-FAMILY": {
    "group": "결혼",
@@ -3575,7 +3833,9 @@
      "express": 1,
      "continue": 1
     }
-   }
+   },
+   "result_key": "LOV|progress|LOV_MARRY",
+   "frame": "F18"
   },
   "RL-APART": {
    "group": "연애 중",
@@ -3608,7 +3868,9 @@
      "continue": 42,
      "progress": 4
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_DISTANCE",
+   "frame": "F06"
   },
   "ML-LIFE": {
    "group": "결혼",
@@ -3644,7 +3906,9 @@
      "start": 1,
      "express": 9
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_MARRIED",
+   "frame": "F07"
   },
   "RL-OTHER": {
    "group": "연애 중",
@@ -3675,7 +3939,9 @@
      "continue": 24,
      "boundary": 1
     }
-   }
+   },
+   "result_key": "LOV|continue|LOV_TRUST",
+   "frame": "F08"
   },
   "LF-MOVE": {
    "group": "돈",
@@ -3707,7 +3973,9 @@
      "move": 51,
      "express": 2
     }
-   }
+   },
+   "result_key": "LIF|move|LIF",
+   "frame": "F38"
   },
   "WK-DEPT": {
    "group": "이직·퇴사",
@@ -3736,7 +4004,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
   },
   "WK-PROMO": {
    "group": "이직·퇴사",
@@ -3765,7 +4035,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "CAR|start|CAR",
+   "frame": "F26"
   },
   "WK-ADAPT": {
    "group": "이직·퇴사",
@@ -3795,7 +4067,10 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|none|CAR",
+   "frame": "F25"
   },
   "WK-LOAD": {
    "group": "이직·퇴사",
@@ -3826,7 +4101,10 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|none|CAR",
+   "frame": "F25"
   },
   "WK-PREP": {
    "group": "이직·퇴사",
@@ -3855,14 +4133,16 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "CAR|start|CAR",
+   "frame": "F26"
   },
   "JB-APPLY": {
    "group": "취업",
    "name": "(취업 준비) 가고 싶은 특정한 곳에 붙을 수 있을지",
    "definition": "재직 중이 아닌 취업 준비. 가고 싶은 특정 회사·기관이 있고 아직 지원 전이거나 준비 중. 넣어 볼지도 포함",
    "clue": "목표 회사·가고 싶은 직장이 있는데·지원할까·넣어 봐도 될까·합격 가능성·자소서 쓰는 중",
-   "vs_neighbors": "JB-WAIT는 이미 지원하고 결과 대기 · JB-TERMS는 특정한 한 곳이 아니라 조건·직무 · 재직 중에 다른 회사에 지원하면 WK-MOVE",
+   "vs_neighbors": "JB-WAIT는 이미 지원하고 결과 대기 · JB-TERMS는 특정한 한 곳이 아니라 조건·직무 · 재직 중에 다른 회사에 지원하면 WK-MOVE · 합격 가능성을 물을 때만. 서류가 잘 처리될지는 ET-SAFE",
    "scene": null,
    "tarot_count": null,
    "area": "JOB",
@@ -3884,7 +4164,10 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|start|JOB",
+   "frame": "F28"
   },
   "JB-RETURN": {
    "group": "취업",
@@ -3913,7 +4196,10 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "JOB|start|JOB_LONG",
+   "frame": "F29"
   },
   "JB-PART": {
    "group": "취업",
@@ -3942,13 +4228,15 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "JOB|start|JOB",
+   "frame": "F28"
   },
   "ED-SCHOOL": {
    "group": "시험·입시",
    "name": "학교생활·성적·계속 다닐지",
    "definition": "시험 결과가 아닌 학교생활 전반 — 성적 유지, 과제·실습을 버틸지, 휴학·자퇴",
-   "clue": "성적·학교 다닐까 그만둘까·휴학·자퇴·실습·과제·연구",
+   "clue": "성적·학교 다닐까 그만둘까·휴학·자퇴·실습·과제·연구·수업 그만 듣고 싶어·연구 실력",
    "vs_neighbors": "EX2-STUDY는 시험 공부가 손에 안 잡힘 · EX2-UNI는 입시 결과",
    "scene": null,
    "tarot_count": null,
@@ -3972,7 +4260,10 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "EDU|start|EDU",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F31"
   },
   "ED-ABROAD": {
    "group": "시험·입시",
@@ -4002,7 +4293,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "EDU|start|EDU",
+   "frame": "F31"
   },
   "SB-SKILL": {
    "group": "사업·창작",
@@ -4032,7 +4325,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "DIR|start|DIR",
+   "frame": "F37"
   },
   "LG-DISPUTE": {
    "group": "법·분쟁",
@@ -4061,7 +4356,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": true
+   "needs_cso": true,
+   "result_key": "LIF|none|LIF",
+   "frame": "F39"
   },
   "MN-DEAL": {
    "group": "돈",
@@ -4090,14 +4387,16 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LIF|start|LIF",
+   "frame": "F40"
   },
   "ET-SAFE": {
    "group": "기타",
    "name": "앞둔 일·기다리는 일이 무사할지",
    "definition": "여행·배송·서류 처리·모임처럼 곧 있을 일이나 기다리는 일이 별 탈 없이 될지",
-   "clue": "무사히·별 탈 없이·언제 올까·처리될까·틀어질까",
-   "vs_neighbors": "ET-LUCK은 당첨·티켓팅 같은 운 · ET-SMALL은 내가 고를 작은 결정",
+   "clue": "무사히·별 탈 없이·언제 올까·처리될까·틀어질까·잘 지낼까·잘 다녀올까",
+   "vs_neighbors": "ET-LUCK은 당첨·티켓팅 같은 운 · ET-SMALL은 내가 고를 작은 결정 · 취업 관련 서류라도 처리가 무사할지를 물으면 이 세부(합격 가능성은 JB-APPLY) · 일·공부의 양이 많아 다 해낼지 걱정이면 WK-LOAD·EX2-STUDY",
    "scene": null,
    "tarot_count": null,
    "area": "LIF",
@@ -4119,7 +4418,10 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LIF|start|LIF",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F40"
   },
   "CR-LATE": {
    "group": "짝사랑·썸",
@@ -4148,7 +4450,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-TAKEN": {
    "group": "짝사랑·썸",
@@ -4178,7 +4482,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-WAIT": {
    "group": "짝사랑·썸",
@@ -4207,7 +4513,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01"
   },
   "CR-FEEL": {
    "group": "짝사랑·썸",
@@ -4220,7 +4528,7 @@
    "area": "LOV",
    "love_status": "unknown",
    "love_topic": "crush_progress",
-   "table": null,
+   "table": "approach",
    "want": "why",
    "mid": "LOV_CRUSH",
    "phrase": "내 마음이 어떤 감정인지 알고 싶은 고민",
@@ -4228,16 +4536,19 @@
    "source": "v2.3.11 추가(11/9까지 실제 고민 빈칸, Claude 제안, CSO 검수 전)",
    "table_rule": {
     "mode": "choose",
-    "default": null,
+    "default": "approach",
     "allowed": [
-     null,
-     "approach"
+     "approach",
+     null
     ],
-    "choose_by": "다가갈지가 글에 있으면 approach, 아니면 표 없음",
+    "choose_by": "대부분 approach(다가갈지·지켜볼지). 상대 이야기 없이 내 감정 정리만 물으면 표 없음",
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "revised": "v2.3.14 (재측정 200건 검토, Claude 제안 · CSO 검수 전)",
+   "frame": "F01"
   },
   "RL-HEART": {
    "group": "연애 중",
@@ -4266,7 +4577,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LOV|continue|LOV_DATING",
+   "frame": "F05"
   },
   "RL-BALANCE": {
    "group": "연애 중",
@@ -4295,7 +4608,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LOV|continue|LOV_DATING",
+   "frame": "F05"
   },
   "LV-LUCK": {
    "group": "연애 시작",
@@ -4324,7 +4639,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "frame": "F13"
   },
   "SF-TIRED": {
    "group": "나 자신",
@@ -4354,7 +4671,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "SELF|none|NONE",
+   "frame": "F48"
   },
   "SF-MIND": {
    "group": "나 자신",
@@ -4383,7 +4702,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "SELF|none|NONE",
+   "frame": "F48"
   },
   "PR-BOUNDARY": {
    "group": "인간관계",
@@ -4412,7 +4733,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "SOC|boundary|SOC",
+   "frame": "F45"
   },
   "PR-UNFAIR": {
    "group": "인간관계",
@@ -4441,7 +4764,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "SOC|none|SOC",
+   "frame": "F47"
   },
   "PR-GROUP": {
    "group": "인간관계",
@@ -4470,7 +4795,9 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "SOC|approach|SOC",
+   "frame": "F44"
   },
   "FM-CARE": {
    "group": "가족·출산",
@@ -4500,7 +4827,655 @@
     "basis": "새 세부(Claude 제안)",
     "gold": {}
    },
-   "needs_cso": false
+   "needs_cso": false,
+   "result_key": "FAM|none|FAM",
+   "frame": "F42"
+  }
+ },
+ "frames": {
+  "F01": {
+   "name": "연애 · 다가갈지 (짝사랑·썸)",
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "area": "LOV",
+   "table": "approach",
+   "mid": "LOV_CRUSH",
+   "subs": [
+    "CR-APPROACH",
+    "CR-SIGNAL",
+    "CR-GIVEUP",
+    "CR-LONGCRUSH",
+    "CR-DISTANCE",
+    "CR-HOWTO",
+    "CR-FEEL",
+    "CR-WAIT",
+    "CR-LATE",
+    "CR-TAKEN"
+   ],
+   "rep": "CR-APPROACH"
+  },
+  "F02": {
+   "name": "연애 · 다가갈지 (이어질 수 있을지)",
+   "result_key": "LOV|approach|LOV_CRUSH_CHANCE",
+   "area": "LOV",
+   "table": "approach",
+   "mid": "LOV_CRUSH_CHANCE",
+   "subs": [
+    "CR-CHANCE"
+   ],
+   "rep": "CR-CHANCE"
+  },
+  "F03": {
+   "name": "연애 · 다가갈지 (그 사람 마음)",
+   "result_key": "LOV|approach|LOV_CRUSH_MIND",
+   "area": "LOV",
+   "table": "approach",
+   "mid": "LOV_CRUSH_MIND",
+   "subs": [
+    "CR-MIND"
+   ],
+   "rep": "CR-MIND"
+  },
+  "F04": {
+   "name": "연애 · 이어 갈지 (계속 만날지)",
+   "result_key": "LOV|continue|LOV_BREAKUP",
+   "area": "LOV",
+   "table": "continue",
+   "mid": "LOV_BREAKUP",
+   "subs": [
+    "RL-STAY"
+   ],
+   "rep": "RL-STAY"
+  },
+  "F05": {
+   "name": "연애 · 이어 갈지 (연애 중)",
+   "result_key": "LOV|continue|LOV_DATING",
+   "area": "LOV",
+   "table": "continue",
+   "mid": "LOV_DATING",
+   "subs": [
+    "RL-FIGHT",
+    "RL-LAST",
+    "RL-DULL",
+    "RL-HEART",
+    "RL-BALANCE"
+   ],
+   "rep": "RL-FIGHT"
+  },
+  "F06": {
+   "name": "연애 · 이어 갈지 (장거리)",
+   "result_key": "LOV|continue|LOV_DISTANCE",
+   "area": "LOV",
+   "table": "continue",
+   "mid": "LOV_DISTANCE",
+   "subs": [
+    "RL-APART"
+   ],
+   "rep": "RL-APART"
+  },
+  "F07": {
+   "name": "연애 · 이어 갈지 (결혼 생활)",
+   "result_key": "LOV|continue|LOV_MARRIED",
+   "area": "LOV",
+   "table": "continue",
+   "mid": "LOV_MARRIED",
+   "subs": [
+    "ML-LIFE"
+   ],
+   "rep": "ML-LIFE"
+  },
+  "F08": {
+   "name": "연애 · 이어 갈지 (진심 확인)",
+   "result_key": "LOV|continue|LOV_TRUST",
+   "area": "LOV",
+   "table": "continue",
+   "mid": "LOV_TRUST",
+   "subs": [
+    "RL-TRUE",
+    "RL-BREAK",
+    "RL-OTHER"
+   ],
+   "rep": "RL-TRUE"
+  },
+  "F09": {
+   "name": "연애 · 말할지 (짝사랑·썸)",
+   "result_key": "LOV|express|LOV_CRUSH",
+   "area": "LOV",
+   "table": "express",
+   "mid": "LOV_CRUSH",
+   "subs": [
+    "CR-CONFESS"
+   ],
+   "rep": "CR-CONFESS"
+  },
+  "F10": {
+   "name": "연애 · 말할지 (연애 중)",
+   "result_key": "LOV|express|LOV_DATING",
+   "area": "LOV",
+   "table": "express",
+   "mid": "LOV_DATING",
+   "subs": [
+    "RL-SORRY"
+   ],
+   "rep": "RL-SORRY"
+  },
+  "F11": {
+   "name": "연애 · 말할지 (진심 확인)",
+   "result_key": "LOV|express|LOV_TRUST",
+   "area": "LOV",
+   "table": "express",
+   "mid": "LOV_TRUST",
+   "subs": [
+    "RL-CONTACT"
+   ],
+   "rep": "RL-CONTACT"
+  },
+  "F12": {
+   "name": "연애 · 새 인연 (결혼)",
+   "result_key": "LOV|newlove|LOV_MARRY",
+   "area": "LOV",
+   "table": "newlove",
+   "mid": "LOV_MARRY",
+   "subs": [
+    "MR-WHEN",
+    "MR-WHO"
+   ],
+   "rep": "MR-WHEN"
+  },
+  "F13": {
+   "name": "연애 · 새 인연 (솔로)",
+   "result_key": "LOV|newlove|LOV_SINGLE",
+   "area": "LOV",
+   "table": "newlove",
+   "mid": "LOV_SINGLE",
+   "subs": [
+    "LV-WHEN",
+    "LV-DEADLINE",
+    "LV-LONGSOLO",
+    "LV-NOCHANCE",
+    "LV-IDEAL",
+    "LV-BLINDDATE",
+    "EX-NEWONE",
+    "LV-SOMEONLY",
+    "LV-LONELY",
+    "LV-ABLE",
+    "LV-LUCK"
+   ],
+   "rep": "LV-WHEN"
+  },
+  "F14": {
+   "name": "연애 · 상황 읽기 (짝사랑·썸)",
+   "result_key": "LOV|none|LOV_CRUSH",
+   "area": "LOV",
+   "table": null,
+   "mid": "LOV_CRUSH",
+   "subs": [
+    "CR-TWO"
+   ],
+   "rep": "CR-TWO"
+  },
+  "F15": {
+   "name": "연애 · 상황 읽기 (결혼)",
+   "result_key": "LOV|none|LOV_MARRY",
+   "area": "LOV",
+   "table": null,
+   "mid": "LOV_MARRY",
+   "subs": [
+    "MR-WHETHER",
+    "MR-PRESSURE"
+   ],
+   "rep": "MR-WHETHER"
+  },
+  "F16": {
+   "name": "연애 · 한 걸음 나아갈지 (썸인지 애매)",
+   "result_key": "LOV|progress|LOV_CRUSH_DEFINE",
+   "area": "LOV",
+   "table": "progress",
+   "mid": "LOV_CRUSH_DEFINE",
+   "subs": [
+    "CR-DEFINE"
+   ],
+   "rep": "CR-DEFINE"
+  },
+  "F17": {
+   "name": "연애 · 한 걸음 나아갈지 (연애 중)",
+   "result_key": "LOV|progress|LOV_DATING",
+   "area": "LOV",
+   "table": "progress",
+   "mid": "LOV_DATING",
+   "subs": [
+    "RL-LIVE"
+   ],
+   "rep": "RL-LIVE"
+  },
+  "F18": {
+   "name": "연애 · 한 걸음 나아갈지 (결혼)",
+   "result_key": "LOV|progress|LOV_MARRY",
+   "area": "LOV",
+   "table": "progress",
+   "mid": "LOV_MARRY",
+   "subs": [
+    "MR-THIS",
+    "MR-REAL",
+    "MR-PARTNER",
+    "MR-FAMILY"
+   ],
+   "rep": "MR-THIS"
+  },
+  "F19": {
+   "name": "연애 · 재회 (끝난 썸)",
+   "result_key": "LOV|reunion|LOV_CRUSH_ENDED",
+   "area": "LOV",
+   "table": "reunion",
+   "mid": "LOV_CRUSH_ENDED",
+   "subs": [
+    "CR-ENDED"
+   ],
+   "rep": "CR-ENDED"
+  },
+  "F20": {
+   "name": "연애 · 재회 (이별 뒤)",
+   "result_key": "LOV|reunion|LOV_EX",
+   "area": "LOV",
+   "table": "reunion",
+   "mid": "LOV_EX",
+   "subs": [
+    "EX-REACH",
+    "EX-WAIT",
+    "EX-MIND",
+    "EX-FRESH",
+    "EX-RECONTACT",
+    "EX-THEYMOVED",
+    "EX-REPEAT"
+   ],
+   "rep": "EX-REACH"
+  },
+  "F21": {
+   "name": "연애 · 재회 (다시 만날 수 있을지)",
+   "result_key": "LOV|reunion|LOV_EX_CHANCE",
+   "area": "LOV",
+   "table": "reunion",
+   "mid": "LOV_EX_CHANCE",
+   "subs": [
+    "EX-CHANCE"
+   ],
+   "rep": "EX-CHANCE"
+  },
+  "F22": {
+   "name": "직장 · 옮길지 남을지",
+   "result_key": "CAR|job|CAR",
+   "area": "CAR",
+   "table": "job",
+   "mid": "CAR",
+   "subs": [
+    "WK-STAY",
+    "WK-QUIT",
+    "WK-WHEN",
+    "WK-SWITCH",
+    "WK-AFTER",
+    "WK-FIT",
+    "WK-OFFER",
+    "WK-PEOPLE",
+    "WK-HARD",
+    "WK-NEWJOB",
+    "WK-PAY",
+    "WK-DEPT"
+   ],
+   "rep": "WK-STAY"
+  },
+  "F23": {
+   "name": "직장 · 옮길지 남을지 (자리 불안)",
+   "result_key": "CAR|job|CAR_INSECURE",
+   "area": "CAR",
+   "table": "job",
+   "mid": "CAR_INSECURE",
+   "subs": [
+    "WK-SECURE"
+   ],
+   "rep": "WK-SECURE"
+  },
+  "F24": {
+   "name": "직장 · 옮길지 남을지 (이직이 될지)",
+   "result_key": "CAR|job|CAR_MOVE",
+   "area": "CAR",
+   "table": "job",
+   "mid": "CAR_MOVE",
+   "subs": [
+    "WK-MOVE"
+   ],
+   "rep": "WK-MOVE"
+  },
+  "F25": {
+   "name": "직장 · 상황 읽기",
+   "result_key": "CAR|none|CAR",
+   "area": "CAR",
+   "table": null,
+   "mid": "CAR",
+   "subs": [
+    "WK-ADAPT",
+    "WK-LOAD"
+   ],
+   "rep": "WK-ADAPT"
+  },
+  "F26": {
+   "name": "직장 · 될지·시작할지",
+   "result_key": "CAR|start|CAR",
+   "area": "CAR",
+   "table": "start",
+   "mid": "CAR",
+   "subs": [
+    "WK-PREP",
+    "WK-PROMO"
+   ],
+   "rep": "WK-PREP"
+  },
+  "F27": {
+   "name": "취업 · 상황 읽기",
+   "result_key": "JOB|none|JOB",
+   "area": "JOB",
+   "table": null,
+   "mid": "JOB",
+   "subs": [
+    "JB-WHERE"
+   ],
+   "rep": "JB-WHERE"
+  },
+  "F28": {
+   "name": "취업 · 될지·시작할지",
+   "result_key": "JOB|start|JOB",
+   "area": "JOB",
+   "table": "start",
+   "mid": "JOB",
+   "subs": [
+    "JB-WHEN",
+    "JB-WAIT",
+    "JB-TERMS",
+    "JB-APPLY",
+    "JB-PART"
+   ],
+   "rep": "JB-WHEN"
+  },
+  "F29": {
+   "name": "취업 · 될지·시작할지 (길어진 준비)",
+   "result_key": "JOB|start|JOB_LONG",
+   "area": "JOB",
+   "table": "start",
+   "mid": "JOB_LONG",
+   "subs": [
+    "JB-LATE",
+    "JB-STUCK",
+    "JB-RETURN"
+   ],
+   "rep": "JB-LATE"
+  },
+  "F30": {
+   "name": "취업 · 될지·시작할지 (코앞)",
+   "result_key": "JOB|start|TEST_AHEAD",
+   "area": "JOB",
+   "table": "start",
+   "mid": "TEST_AHEAD",
+   "subs": [
+    "JB-INTERVIEW"
+   ],
+   "rep": "JB-INTERVIEW"
+  },
+  "F31": {
+   "name": "시험·학업 · 될지·시작할지",
+   "result_key": "EDU|start|EDU",
+   "area": "EDU",
+   "table": "start",
+   "mid": "EDU",
+   "subs": [
+    "EX2-UNI",
+    "EX2-STUDY",
+    "EX2-WAIT",
+    "EX2-GRAD",
+    "EX2-AGAIN",
+    "ED-SCHOOL",
+    "ED-ABROAD"
+   ],
+   "rep": "EX2-UNI"
+  },
+  "F32": {
+   "name": "시험·학업 · 될지·시작할지 (장기 시험)",
+   "result_key": "EDU|start|EXAM_LONG",
+   "area": "EDU",
+   "table": "start",
+   "mid": "EXAM_LONG",
+   "subs": [
+    "EX2-LONG"
+   ],
+   "rep": "EX2-LONG"
+  },
+  "F33": {
+   "name": "시험·학업 · 될지·시작할지 (코앞)",
+   "result_key": "EDU|start|TEST_AHEAD",
+   "area": "EDU",
+   "table": "start",
+   "mid": "TEST_AHEAD",
+   "subs": [
+    "EX2-BEFORE"
+   ],
+   "rep": "EX2-BEFORE"
+  },
+  "F34": {
+   "name": "진로·창작 · 상황 읽기 (사업)",
+   "result_key": "DIR|none|BIZ",
+   "area": "DIR",
+   "table": null,
+   "mid": "BIZ",
+   "subs": [
+    "SB-CLOSE"
+   ],
+   "rep": "SB-CLOSE"
+  },
+  "F35": {
+   "name": "진로·창작 · 상황 읽기",
+   "result_key": "DIR|none|DIR",
+   "area": "DIR",
+   "table": null,
+   "mid": "DIR",
+   "subs": [
+    "PT-WHAT",
+    "PT-TWO",
+    "PT-MEANING",
+    "PT-MAJOR"
+   ],
+   "rep": "PT-WHAT"
+  },
+  "F36": {
+   "name": "진로·창작 · 될지·시작할지 (사업)",
+   "result_key": "DIR|start|BIZ",
+   "area": "DIR",
+   "table": "start",
+   "mid": "BIZ",
+   "subs": [
+    "SB-RUN"
+   ],
+   "rep": "SB-RUN"
+  },
+  "F37": {
+   "name": "진로·창작 · 될지·시작할지",
+   "result_key": "DIR|start|DIR",
+   "area": "DIR",
+   "table": "start",
+   "mid": "DIR",
+   "subs": [
+    "SB-START",
+    "SB-CREATE",
+    "PT-DREAM",
+    "EX2-AUDITION",
+    "JB-ABROAD",
+    "SB-SIDE",
+    "SB-SKILL"
+   ],
+   "rep": "SB-START"
+  },
+  "F38": {
+   "name": "돈·생활 · 이사·독립",
+   "result_key": "LIF|move|LIF",
+   "area": "LIF",
+   "table": "move",
+   "mid": "LIF",
+   "subs": [
+    "LF-MOVE",
+    "MN-HOME"
+   ],
+   "rep": "LF-MOVE"
+  },
+  "F39": {
+   "name": "돈·생활 · 상황 읽기",
+   "result_key": "LIF|none|LIF",
+   "area": "LIF",
+   "table": null,
+   "mid": "LIF",
+   "subs": [
+    "ET-SMALL",
+    "MN-WHEN",
+    "MN-URGENT",
+    "MN-RICH",
+    "HL-WORRY",
+    "MN-INVEST",
+    "HL-PET",
+    "LG-DISPUTE"
+   ],
+   "rep": "ET-SMALL"
+  },
+  "F40": {
+   "name": "돈·생활 · 될지·시작할지",
+   "result_key": "LIF|start|LIF",
+   "area": "LIF",
+   "table": "start",
+   "mid": "LIF",
+   "subs": [
+    "MN-HOWTO",
+    "HL-DIET",
+    "ET-SAFE",
+    "MN-DEAL"
+   ],
+   "rep": "MN-HOWTO"
+  },
+  "F41": {
+   "name": "가족 · 선 그을지",
+   "result_key": "FAM|boundary|FAM",
+   "area": "FAM",
+   "table": "boundary",
+   "mid": "FAM",
+   "subs": [
+    "FM-FAMILY"
+   ],
+   "rep": "FM-FAMILY"
+  },
+  "F42": {
+   "name": "가족 · 상황 읽기",
+   "result_key": "FAM|none|FAM",
+   "area": "FAM",
+   "table": null,
+   "mid": "FAM",
+   "subs": [
+    "FM-FOR",
+    "FM-CARE"
+   ],
+   "rep": "FM-FOR"
+  },
+  "F43": {
+   "name": "가족 · 될지·시작할지",
+   "result_key": "FAM|start|FAM",
+   "area": "FAM",
+   "table": "start",
+   "mid": "FAM",
+   "subs": [
+    "FM-BABY"
+   ],
+   "rep": "FM-BABY"
+  },
+  "F44": {
+   "name": "친구·사회 · 다가갈지",
+   "result_key": "SOC|approach|SOC",
+   "area": "SOC",
+   "table": "approach",
+   "mid": "SOC",
+   "subs": [
+    "PR-NOFRIEND",
+    "PR-GROUP"
+   ],
+   "rep": "PR-NOFRIEND"
+  },
+  "F45": {
+   "name": "친구·사회 · 선 그을지",
+   "result_key": "SOC|boundary|SOC",
+   "area": "SOC",
+   "table": "boundary",
+   "mid": "SOC",
+   "subs": [
+    "PR-CUT",
+    "PR-BOUNDARY"
+   ],
+   "rep": "PR-CUT"
+  },
+  "F46": {
+   "name": "친구·사회 · 말할지",
+   "result_key": "SOC|express|SOC",
+   "area": "SOC",
+   "table": "express",
+   "mid": "SOC",
+   "subs": [
+    "PR-CONFLICT"
+   ],
+   "rep": "PR-CONFLICT"
+  },
+  "F47": {
+   "name": "친구·사회 · 상황 읽기",
+   "result_key": "SOC|none|SOC",
+   "area": "SOC",
+   "table": null,
+   "mid": "SOC",
+   "subs": [
+    "PR-STRESS",
+    "PR-MIND",
+    "PR-HURT",
+    "PR-UNFAIR"
+   ],
+   "rep": "PR-STRESS"
+  },
+  "F48": {
+   "name": "나 자신 · 상황 읽기",
+   "result_key": "SELF|none|NONE",
+   "area": "SELF",
+   "table": null,
+   "mid": "NONE",
+   "subs": [
+    "UF-STUCK",
+    "UF-EMPTY",
+    "SF-TIRED",
+    "SF-MIND"
+   ],
+   "rep": "UF-STUCK"
+  },
+  "F49": {
+   "name": "운세 · 상황 읽기",
+   "result_key": "FORT|none|NONE",
+   "area": "FORT",
+   "table": null,
+   "mid": "NONE",
+   "subs": [
+    "UF-ALL",
+    "UF-YEAR",
+    "UF-ANXIOUS",
+    "ET-LUCK",
+    "UF-WISH"
+   ],
+   "rep": "UF-ALL"
+  },
+  "F50": {
+   "name": "기타 · 상황 읽기",
+   "result_key": "NONE|none|NONE",
+   "area": "NONE",
+   "table": null,
+   "mid": "NONE",
+   "subs": [
+    "ET-FAN"
+   ],
+   "rep": "ET-FAN"
   }
  }
 }

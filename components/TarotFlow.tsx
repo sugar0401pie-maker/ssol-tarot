@@ -29,6 +29,8 @@ import type { Friend } from "./IntroCardSpin";
 import { IntroCardSpin } from "./IntroCardSpin";
 import { DrawBoard } from "./DrawBoard";
 import { SafetyScreen } from "./SafetyScreen";
+import { nextQuestion, type FollowupView } from "@/lib/tarot/followup.js";
+import followupDb from "@/data/followup_questions.json";
 
 // 시작 흐름 → 셔플 → 뽑기 → (대기). 화면 이동 규칙은 패키지 원본 상태 기계(lib/tarot/flow.js의 next)를 그대로 쓴다.
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
@@ -68,6 +70,8 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   const [netError, setNetError] = useState<string | null>(null);
   const [needLogin, setNeedLogin] = useState(false); // 로그인 없이 볼 수 있는 하루 횟수를 다 씀
   const [shuffleId, setShuffleId] = useState<string | null>(null);
+  // v2.3.14 짧은 고민에 다시 묻기(서버가 B칸·짧은 글일 때만 첫 질문을 돌려줌). 고민 쓰기 화면 안에서 고르기 질문 최대 2개.
+  const [followup, setFollowup] = useState<{ text: string; intro: string; skip: string; q: FollowupView; answers: { q: string; id: string }[] } | null>(null);
 
   const go = useCallback(
     (action: Action) => {
@@ -195,7 +199,11 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     setNetError(null);
     try {
       const s = await ensureSession();
-      const r = await api<{ urgent: boolean }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
+      const r = await api<{ urgent: boolean; followup: { intro: string; skip: string; first: FollowupView } | null }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
+      if (!skip && !r.urgent && r.followup?.first) {
+        setFollowup({ text, intro: r.followup.intro, skip: r.followup.skip, q: r.followup.first, answers: [] });
+        return;
+      }
       go(skip ? { type: "SKIP_WORRY" } : { type: "SUBMIT_WORRY", text, localUrgent: r.urgent });
     } catch (e) {
       setNetError(e instanceof ApiError ? e.message : ui.retryLater);
@@ -203,6 +211,25 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     } finally {
       setBusy(false);
     }
+  }
+
+  // 다시 묻기: 고르면 다음 질문(패키지 nextQuestion), 다 고르거나 [이대로 볼게요]면 답을 보내고 섞기로.
+  async function answerFollowup(optionId: string | null) {
+    if (!followup || !session) return;
+    const answers = optionId ? [...followup.answers, { q: followup.q.key, id: optionId }] : followup.answers;
+    const q = optionId ? nextQuestion(followupDb, answers) : null;
+    if (q) return setFollowup({ ...followup, q, answers });
+    setBusy(true);
+    try {
+      await api(`/api/tarot/session/${session.id}/followup`, { key: session.key, body: { answers } });
+    } catch {
+      /* 답을 못 보내도 섞기 화면에서 서버가 건너뛴 것으로 보고 분류를 시작한다 */
+    } finally {
+      setBusy(false);
+    }
+    const text = followup.text;
+    setFollowup(null);
+    go({ type: "SUBMIT_WORRY", text, localUrgent: false });
   }
 
   // [결과 보기]: 결과가 이미 준비됐어도 신비한 대기 화면(카드·별이 도는 연출 + 안내 문구)을 최소 3초는 보여 준다
@@ -321,7 +348,11 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
       )}
       {screen === "worry" && (
         <Framed art={<SceneArt key={screen} map={sceneArt} id={screen as SceneId} className="fade-up relative z-[1] block w-full max-w-[480px] rounded-[12px] object-cover" sizes="(max-width: 480px) 90vw, 440px" />}>
-          <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} variant="B" />
+          {followup ? (
+            <FollowupScreen intro={fill(followup.intro, { name: nickname })} skip={followup.skip} q={followup.q} busy={busy} onAnswer={answerFollowup} />
+          ) : (
+            <WorryScreen copy={copy} nickname={nickname} error={state.error ?? netError} busy={busy} onSubmit={submitWorry} variant="B" />
+          )}
           {needLogin && (
             // 로그인 없이 볼 수 있는 하루 횟수를 다 씀 → 로그인하면 바로 다시 시작(/?start=1)
             <Link href={L(`/login?next=${encodeURIComponent(L("/?start=1"))}`)} className="btn-night relative z-[1] mt-3 block w-full max-w-sm rounded-full py-3.5 text-center text-[15px] font-medium">
@@ -570,6 +601,26 @@ function WorryScreen({
         {copy.worry.button_skip}
       </button>
       <p className="mt-3 text-[12px] leading-relaxed text-moon/70">{copy.worry.footnote}</p>
+    </div>
+  );
+}
+
+// v2.3.14 다시 묻기 화면(고민 쓰기 화면 안). 문구는 data/followup_questions.json(Claude 초안 — CSO 검수 전).
+function FollowupScreen({ intro, skip, q, busy, onAnswer }: { intro: string; skip: string; q: FollowupView; busy: boolean; onAnswer: (id: string | null) => void }) {
+  return (
+    <div key={q.key} className="fade-up flex flex-col gap-3">
+      <p className="whitespace-pre-line break-keep text-center text-[14px] leading-relaxed text-moon/90">{intro}</p>
+      <h2 className="break-keep text-center font-serif text-[clamp(17px,5vw,21px)] font-bold leading-snug text-gold-soft">{q.ask}</h2>
+      <div className="mt-2 flex flex-col gap-2">
+        {q.options.map((o) => (
+          <button key={o.id} type="button" disabled={busy} className="btn-night-ghost w-full rounded-full px-4 py-3 text-[14.5px] disabled:opacity-60" onClick={() => onAnswer(o.id)}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+      <button type="button" disabled={busy} className="mt-2 text-[13px] text-moon/70 underline underline-offset-4 disabled:opacity-60" onClick={() => onAnswer(null)}>
+        {skip}
+      </button>
     </div>
   );
 }

@@ -12,7 +12,7 @@ export type ExportSession = {
   worry_text: string | null;
   worry_skipped?: boolean | null;
   classification?: { domain?: string | null } | null;
-  frame?: { area?: string | null; sub_id?: string | null; table?: string | null } | null;
+  frame?: { area?: string | null; sub_id?: string | null; table?: string | null; frame_id?: string | null; followup?: { answers?: string[]; skipped?: boolean } | null } | null;
   safety_level?: string | null;
   result_status?: string | null;
   paid_at?: string | null;
@@ -25,8 +25,10 @@ export type ExportOrder = { session_id: string; amount: number; currency?: strin
 export const EXPORT_HEADER = [
   "참가 시각(한국)", "결과 번호", "언어", "닉네임", "이메일", "로그인 수단", "타로 경험", "고민 글", "고민 글자 수",
   "고민 영역", "세부 고민", "점수표", "안전 단계", "결과 상태", "결제 여부", "결제 시각(한국)", "결제 금액", "통화", "리포트 상태",
+  // v2.3.14(2026-11-14): 결과 틀(두 단계 고르기) · 짧은 고민에 다시 묻기(A/B — 결과 번호로 반씩)
+  "결과 틀", "다시 묻기",
 ];
-export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10];
+export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22];
 
 const PROVIDER: Record<string, string> = { email: "이메일", kakao: "카카오", "custom:naver": "네이버", naver: "네이버", google: "구글", apple: "애플" };
 export function providerLabel(u: ExportUser | null | undefined, userId: string | null): string {
@@ -46,6 +48,7 @@ export function exportRow(
   u: ExportUser | null | undefined,
   order: ExportOrder | null | undefined,
   subNames: Record<string, { name?: string }> = {},
+  frameNames: Record<string, { name?: string }> = {},
 ): Cell[] {
   const area = s.frame?.area ?? s.classification?.domain ?? null;
   const sub = s.frame?.sub_id ?? null;
@@ -71,5 +74,14 @@ export function exportRow(
     order ? (order.currency === "USD" ? order.amount / 100 : order.amount) : "",
     order ? (order.currency ?? "KRW") : "",
     REPORT[s.report_status ?? ""] ?? s.report_status ?? "",
+    s.frame?.frame_id ? `${frameNames[s.frame.frame_id]?.name ?? ""} (${s.frame.frame_id})`.trim() : "",
+    followupLabel(s.frame?.followup ?? null),
   ];
+}
+
+/** 다시 묻기 칸: 보여 주지 않았으면 빈칸, 건너뛰면 "건너뜀", 답했으면 "q1:love, love:crush". */
+export function followupLabel(f: { answers?: string[]; skipped?: boolean } | null): string {
+  if (!f) return "";
+  if (f.skipped || !f.answers?.length) return "건너뜀";
+  return f.answers.join(", ");
 }

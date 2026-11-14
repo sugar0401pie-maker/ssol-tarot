@@ -7,6 +7,7 @@ import { parseStoryApply } from "../tarot/assembleReport.js";
 import { parseE } from "../tarot/validateV4.js";
 import { runCase } from "../tarot/fixtures/runCase.mjs";
 import { applyCardGist } from "./cardGist.ts";
+import { applyReportLines } from "./reportLines.ts";
 import { picksFromSlots, createShuffle } from "../tarot/deck.js";
 import { parseFrame, parseC } from "../tarot/validateV4.js";
 import { screenText, mergeSafety } from "../tarot/safety.js";
@@ -138,7 +139,10 @@ test("결제 후 10쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   const P = buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C, sa, E });
   assert.equal(P.length, 10); // v4.2: 패키지가 처음부터 10쪽
   // 패키지 흐름 + 우리가 5쪽 첫 줄 뒤에 붙이는 종합 한 문장(owner 2026-10-27) — 그 밖은 그대로
-  const refPaid = reorderSecret(applyCardGist(ref.paid, lean, "세 장을 종합하면 이렇습니다", { hideSummary: false }), { paid: true, name: cs.name, cls: cs.ai, frame, lean, picks });
+  // + 문장 DB(v2.3.15~17, 2026-11-14) — 5쪽 머리 문장·카드별 한 줄·7쪽 조건문 등(lib/tarot-glue/reportLines.ts)
+  const ordered = reorderSecret(applyCardGist(ref.paid, lean, "세 장을 종합하면 이렇습니다", { hideSummary: false }), { paid: true, name: cs.name, cls: cs.ai, frame, lean, picks });
+  const seed = picks.reduce((n: number, p: { card: { no: number }; reversed: boolean }) => n + p.card.no * 7 + (p.reversed ? 3 : 0), 0);
+  const refPaid = applyReportLines(ordered, { paid: true, frame, lean, picks, cls: cs.ai, safety, worryText: cs.worry, tables, seed });
   assert.equal(P[3].card.name, picks[2].card.name, "결제 후 4쪽 = 세 번째 카드 앞면");
   assert.match(String(P[4].body), /카드 내용을 종합하면 .+ 모양입니다\./);
   assert.deepEqual(P.map((p: { body?: string }) => p.body), refPaid.map((p: { body?: string }) => p.body));

@@ -81,6 +81,7 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
   }
 
   const subs = (subDb as { subs: Record<string, { name?: string }> }).subs;
+  const frames = (subDb as { frames?: Record<string, { name?: string }> }).frames ?? {};
   // 결제분 파일: 실제 결제 주문이 있는 결과만(관리자 지정 무료 열람 제외), 고객이 보는 화면과 같은 조립으로 리포트 전문을 붙인다(AI 호출 없음).
   const picked = range === "paid" ? sessions.filter((s) => orders.has(s.id)) : sessions;
   const reports = new Map<string, string>();
@@ -99,7 +100,7 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
     }
   }
   const rows = picked.map((s) => {
-    const row = exportRow(s, s.user_id ? users.get(s.user_id) : null, orders.get(s.id), subs);
+    const row = exportRow(s, s.user_id ? users.get(s.user_id) : null, orders.get(s.id), subs, frames);
     return range === "paid" ? [...row, reports.get(s.id) ?? ""] : row;
   });
   // 누가 언제 몇 건을 내려받았는지만 기록(내용·이메일은 남기지 않음)
