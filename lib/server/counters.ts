@@ -14,3 +14,16 @@ export async function countEvent(metric: CountMetric): Promise<void> {
     console.warn("누적 집계 실패:", metric, e instanceof Error ? e.message : "unknown");
   }
 }
+
+// 광고 소재(UTM)별 날짜 숫자(owner 2026-11-14, 표 tarot_utm_counts — 마이그레이션 20261114000000). utm이 없는 결과는 세지 않는다.
+// 사람·고민 정보 없이 광고 이름표와 숫자만. 실패해도(표 없음 등) 흐름은 그대로, 경고만.
+export type UtmMetric = "visit" | "started" | "worry" | "skip" | "result" | "paid" | "paid_krw" | "paid_usd_cents";
+export async function countUtm(utm: { source?: string; campaign?: string; content?: string } | null | undefined, metric: UtmMetric, by = 1): Promise<void> {
+  if (!utm?.source) return;
+  try {
+    const { error } = await createAdminClient().rpc("tarot_utm_inc", { p_source: utm.source, p_campaign: utm.campaign ?? "", p_content: utm.content ?? "", p_metric: metric, p_by: by });
+    if (error) console.warn("광고 소재 집계 실패:", metric, error.message);
+  } catch (e) {
+    console.warn("광고 소재 집계 실패:", metric, e instanceof Error ? e.message : "unknown");
+  }
+}

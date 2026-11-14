@@ -18,6 +18,7 @@ export type ExportSession = {
   paid_at?: string | null;
   report_status?: string | null;
   locale?: string | null;
+  utm?: { source?: string; campaign?: string; content?: string } | null;
 };
 export type ExportUser = { email: string | null; provider: string | null; providers?: string[] | null };
 export type ExportOrder = { session_id: string; amount: number; currency?: string | null; paid_at: string | null };
@@ -27,8 +28,10 @@ export const EXPORT_HEADER = [
   "고민 영역", "세부 고민", "점수표", "안전 단계", "결과 상태", "결제 여부", "결제 시각(한국)", "결제 금액", "통화", "리포트 상태",
   // v2.3.14(2026-11-14): 결과 틀(두 단계 고르기) · 짧은 고민에 다시 묻기(A/B — 결과 번호로 반씩)
   "결과 틀", "다시 묻기",
+  // 2026-11-14: 첫 방문 주소의 광고 소재(utm) — 비어 있으면 빈칸
+  "utm_source", "utm_campaign", "utm_content",
 ];
-export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22];
+export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 18, 18];
 
 const PROVIDER: Record<string, string> = { email: "이메일", kakao: "카카오", "custom:naver": "네이버", naver: "네이버", google: "구글", apple: "애플" };
 export function providerLabel(u: ExportUser | null | undefined, userId: string | null): string {
@@ -76,6 +79,9 @@ export function exportRow(
     REPORT[s.report_status ?? ""] ?? s.report_status ?? "",
     s.frame?.frame_id ? `${frameNames[s.frame.frame_id]?.name ?? ""} (${s.frame.frame_id})`.trim() : "",
     followupLabel(s.frame?.followup ?? null),
+    s.utm?.source ?? "",
+    s.utm?.campaign ?? "",
+    s.utm?.content ?? "",
   ];
 }
 
@@ -85,4 +91,26 @@ export function followupLabel(f: { answers?: string[]; skipped?: boolean; guesse
   if (f.skipped || !f.answers?.length) return "건너뜀";
   // guessed = 첫 질문(분야)을 비슷한 고민으로 짐작해 건너뜀(2026-11-14)
   return f.answers.map((a, i) => (i === 0 && f.guessed ? `${a}(짐작)` : a)).join(", ");
+}
+
+// 광고 소재별 집계 엑셀(2026-11-14, 표 tarot_utm_counts). 한 줄 = 날짜 × utm_source × utm_campaign × utm_content.
+export type UtmCountRow = { day: string; source: string; campaign: string; content: string; metric: string; value: number };
+export const UTM_HEADER = ["날짜", "utm_source", "utm_campaign", "utm_content", "방문", "타로 시작", "고민 씀", "고민 건너뜀", "결과까지 봄", "결제 건수", "결제 금액(원)", "결제 금액(달러)"];
+export const UTM_WIDTHS = [12, 12, 22, 22, 8, 10, 9, 11, 11, 9, 13, 13];
+const UTM_METRICS = ["visit", "started", "worry", "skip", "result", "paid", "paid_krw", "paid_usd_cents"] as const;
+export function utmSummaryRows(counts: UtmCountRow[]): Cell[][] {
+  const groups = new Map<string, Record<string, number> & { _k: string[] }>();
+  for (const c of counts) {
+    const k = [c.day, c.source, c.campaign, c.content];
+    const id = k.join("\u0000");
+    const g = groups.get(id) ?? Object.assign({} as Record<string, number>, { _k: k });
+    g[c.metric] = (g[c.metric] ?? 0) + c.value;
+    groups.set(id, g);
+  }
+  return [...groups.values()]
+    .sort((a, b) => a._k.join("|").localeCompare(b._k.join("|")))
+    .map((g) => [
+      g._k[0], g._k[1] || "없음", g._k[2] || "없음", g._k[3] || "없음",
+      ...UTM_METRICS.map((m) => (m === "paid_usd_cents" ? (g[m] ?? 0) / 100 : g[m] ?? 0)),
+    ]);
 }

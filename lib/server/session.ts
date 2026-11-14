@@ -37,7 +37,8 @@ import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
 import { frameCall, guessArea, type FrameVote } from "./frameExamples";
 import { GuestLimitError, checkGuestStart } from "./guestLimit";
-import { countEvent } from "./counters";
+import { countEvent, countUtm } from "./counters";
+import { sanitizeUtm, type Utm } from "@/lib/tarot-glue/utm";
 import { MERGED_CLASSIFY_SYSTEM, mergedClassifyEnabled, splitMerged } from "./mergedClassify";
 import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
 import { CLASSIFY_SYSTEM_EN, FRAME_SYSTEM_EN, C_SYSTEM_EN, D_SYSTEM_EN, E1_SYSTEM_EN, E2_SYSTEM_EN } from "./prompts_en";
@@ -154,9 +155,14 @@ function assertNotSafety(s: SessionRow) {
   if (s.safety_level === "urgent" || s.result_status === "safety") throw new TarotError(409, "safety");
 }
 
+/** 결과에 저장된 광고 소재(칸이 없거나 비면 null) */
+function utmOf(s: object | null | undefined): Utm | null {
+  return s ? sanitizeUtm((s as { utm?: unknown }).utm) : null;
+}
+
 // ---------- 1. 세션 시작 ----------
 
-export async function createSession(input: { nickname: unknown; experience: unknown; userId: string | null; headers: { get(name: string): string | null }; locale?: unknown; termsConsent?: unknown }) {
+export async function createSession(input: { nickname: unknown; experience: unknown; userId: string | null; headers: { get(name: string): string | null }; locale?: unknown; termsConsent?: unknown; utm?: unknown }) {
   const locale = toLocale(input.locale);
   const copy = bundleFor(locale).data.copy;
   // 영문판: 18세 이상·이용약관·개인정보처리방침 동의(정책 문서 08 ①) — 화면에서 체크해도 서버가 한 번 더 확인한다.
@@ -175,6 +181,9 @@ export async function createSession(input: { nickname: unknown; experience: unkn
     }
   }
   const key = randomBytes(24).toString("hex");
+  // 광고 소재(owner 2026-11-14): 브라우저가 보낸 첫 방문 utm을 다시 검사해 저장(칸이 없으면 — 마이그레이션 20261114000000 전 — 빼고 다시 저장)
+  const utm = sanitizeUtm(input.utm);
+  let withUtm = Boolean(utm);
   const insert = (withLocale: boolean) =>
     db()
       .from("tarot_sessions")
@@ -183,13 +192,19 @@ export async function createSession(input: { nickname: unknown; experience: unkn
         user_id: input.userId,
         nickname: nickname.slice(0, copy.welcome.max_len),
         experience,
+        ...(withUtm ? { utm } : {}),
         ...(withLocale ? { locale, terms_consent_at: new Date().toISOString(), consent_version: CONSENT_EN_VERSION } : {}),
       })
       .select("id")
       .single();
   // 한국어 세션은 locale 칸을 쓰지 않는다(칸 기본값 'ko' — 마이그레이션 전에도 그대로 동작).
   // 영문 세션은 칸이 없으면 만들지 않는다 — 언어가 빠진 채 저장되면 뒤 단계가 한국어로 돌아가므로(fail closed).
-  const { data: row, error } = await insert(locale === "en");
+  let { data: row, error } = await insert(locale === "en");
+  if (error && withUtm && /utm/.test(error.message)) {
+    console.warn("tarot_sessions.utm 칸 없음(마이그레이션 20261114000000 실행 필요) — 광고 소재 없이 저장");
+    withUtm = false;
+    ({ data: row, error } = await insert(locale === "en"));
+  }
   if (error && locale === "en" && /locale|consent/.test(error.message)) {
     console.error("tarot_sessions.locale 칸 없음(마이그레이션 20261105000100 실행 필요) — 영문 세션을 만들지 않음");
     throw new TarotError(503, "잠시 후 다시 시도해 주세요.");
@@ -199,6 +214,7 @@ export async function createSession(input: { nickname: unknown; experience: unkn
     throw new TarotError(500, "잠시 후 다시 시도해 주세요.");
   }
   await countEvent("started");
+  await countUtm(withUtm ? utm : null, "started");
   return { id: row.id as string, key };
 }
 
@@ -221,6 +237,7 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
       frame: null,
       result_status: "drawing",
     });
+    await countUtm(utmOf(s), "skip");
     return { urgent: false, needsClassification: false };
   }
   const text = String(body.text ?? "").trim();
@@ -246,6 +263,7 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
     result_status: urgent ? "safety" : "drawing",
   });
   if (urgent) await countEvent("safety");
+  await countUtm(utmOf(s), "worry");
   if (ask) return { urgent, needsClassification: false, followup: await followupStart(worry) };
   return { urgent, needsClassification: !urgent && aiConfigured() };
 }
@@ -501,6 +519,7 @@ export async function prepareResult(sessionId: string) {
   }
   await update(sessionId, { links, result_status: "ready" });
   await countEvent("result");
+  await countUtm(utmOf(s), "result");
   await writeChatSummary(sessionId);
 }
 
@@ -753,6 +772,12 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   const now = new Date().toISOString();
   await update(order.session_id, { paid_at: now, report_status: "generating", report_started_at: now });
   await countEvent("paid");
+  {
+    const { data: srow } = await db().from("tarot_sessions").select("*").eq("id", order.session_id).maybeSingle();
+    const u = utmOf(srow as SessionRow | null);
+    await countUtm(u, "paid");
+    await countUtm(u, currency === "USD" ? "paid_usd_cents" : "paid_krw", Number(order.amount) || 0);
+  }
   // 영문(달러) 주문은 결제가 처음 완료될 때 한 번 주문 확인 이메일(08 §4) — 보내는 일은 라우트가 응답 뒤(after)에
   const orderEmail = currency === "USD" ? { orderId, userId, method, tossEmail, paidAt: new Date(now) } : null;
   return { ok: true, sessionId: order.session_id, generate: true, orderEmail };

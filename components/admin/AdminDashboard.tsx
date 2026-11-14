@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const [day, setDay] = useState(() => kstToday());
   const [data, setData] = useState<Summary | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"" | "day" | "until" | "paid">("");
+  const [busy, setBusy] = useState<"" | "day" | "until" | "paid" | "utm">("");
   const [pass, setPass] = useState<string | null>(null);
   const [passInput, setPassInput] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
     return () => clearTimeout(t);
   }, [day, pass, load]);
 
-  const download = async (range: "day" | "until" | "paid") => {
+  const download = async (range: "day" | "until" | "paid" | "utm") => {
     setBusy(range);
     setErr(null);
     try {
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `ssol-tarot_${range === "day" ? day : range === "paid" ? `paid_until_${day}` : `until_${day}`}.xlsx`;
+      a.download = `ssol-tarot_${range === "day" ? day : range === "paid" ? `paid_until_${day}` : range === "utm" ? `utm_until_${day}` : `until_${day}`}.xlsx`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
             <h2 className="mb-1 font-semibold">참가자 데이터 엑셀</h2>
             <p className="mb-3 text-xs leading-relaxed text-slate-500">
               참가 시각·이메일·로그인 수단·고민 글·고민 영역·안전 단계·결제 여부가 들어 있어요. 고객의 민감한 글이 담긴 파일이니 공유·보관에 주의해 주세요.
-              로그인 없이 본 결과는 보관 기간이 지나면 지워져서 파일에 없을 수 있어요. ‘결제 리포트 전문’은 실제 결제한 결과만, 고객이 본 리포트 글 전체(쪽마다 한 줄)를 마지막 칸에 담아요.
+              로그인 없이 본 결과는 보관 기간이 지나면 지워져서 파일에 없을 수 있어요. ‘결제 리포트 전문’은 실제 결제한 결과만, 고객이 본 리포트 글 전체(쪽마다 한 줄)를 마지막 칸에 담아요. ‘광고 소재별 집계’는 utm 주소로 들어온 방문·시작·고민 씀/건너뜀·결과·결제(건수·금액)를 날짜 × utm_source × utm_campaign × utm_content로 묶어요(2026-11-14부터 쌓임). 결과별 utm은 위 두 파일의 마지막 칸에 있어요.
             </p>
             <div className="flex flex-wrap gap-2">
               <button type="button" disabled={busy !== ""} onClick={() => void download("day")} className="rounded bg-slate-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
@@ -213,6 +213,9 @@ export default function AdminDashboard() {
               </button>
               <button type="button" disabled={busy !== ""} onClick={() => void download("paid")} className="rounded border border-amber-700 px-4 py-2 text-sm font-semibold text-amber-800 disabled:opacity-50">
                 {busy === "paid" ? "만드는 중…" : `${day}까지 결제 리포트 전문 내려받기`}
+              </button>
+              <button type="button" disabled={busy !== ""} onClick={() => void download("utm")} className="rounded border border-sky-700 px-4 py-2 text-sm font-semibold text-sky-800 disabled:opacity-50">
+                {busy === "utm" ? "만드는 중…" : `${day}까지 광고 소재별 집계 내려받기`}
               </button>
             </div>
           </section>

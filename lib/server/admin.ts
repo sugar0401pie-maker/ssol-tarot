@@ -6,7 +6,7 @@ import { isAdminEmail } from "@/lib/admin/access";
 import { checkAdminPassword } from "@/lib/admin/password";
 import { addDays, kstDayBounds } from "@/lib/admin/kstDay";
 import { buildFunnel, recentDays, type DailyCount } from "@/lib/admin/funnel";
-import { EXPORT_HEADER, EXPORT_WIDTHS, exportRow, type ExportOrder, type ExportSession, type ExportUser } from "@/lib/admin/exportRows";
+import { EXPORT_HEADER, EXPORT_WIDTHS, UTM_HEADER, UTM_WIDTHS, exportRow, utmSummaryRows, type ExportOrder, type ExportSession, type ExportUser, type UtmCountRow } from "@/lib/admin/exportRows";
 import { buildXlsx } from "@/lib/admin/xlsx";
 import subDb from "@/data/worry_subtopics.json";
 
@@ -50,12 +50,17 @@ async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ dat
  *  "paid" = 처음부터 그 날까지 중 실제 결제한 결과만 + 리포트 전문 칸(owner 2026-11-10). */
 export async function adminExport(day: string, range: "day" | "until" | "paid", admin: { id: string }) {
   const { start, end } = kstDayBounds(day);
-  const cols = "id, created_at, user_id, nickname, experience, worry_text, worry_skipped, classification, frame, safety_level, result_status, paid_at, report_status, locale";
-  const sessions = await readAll<ExportSession>((from, to) => {
+  const baseCols = "id, created_at, user_id, nickname, experience, worry_text, worry_skipped, classification, frame, safety_level, result_status, paid_at, report_status, locale";
+  const read = (cols: string) => readAll<ExportSession>((from, to) => {
     let q = db().from("tarot_sessions").select(cols).lt("created_at", end);
     if (range === "day") q = q.gte("created_at", start);
     if (range === "paid") q = q.not("paid_at", "is", null);
     return q.order("created_at", { ascending: true }).range(from, to) as unknown as PromiseLike<{ data: ExportSession[] | null; error: { message: string } | null }>;
+  });
+  // 광고 소재 칸(utm, 마이그레이션 20261114000000)이 아직 없으면 그 칸 없이 읽는다(엑셀의 utm 칸은 빈칸)
+  const sessions = await read(`${baseCols}, utm`).catch((e) => {
+    if (e instanceof TarotError && /utm/.test(e.message)) return read(baseCols);
+    throw e;
   });
 
   // 결제 완료 주문(결과별 하나)
@@ -110,4 +115,18 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
   const widths = range === "paid" ? [...EXPORT_WIDTHS, 100] : EXPORT_WIDTHS;
   const file = buildXlsx(title, header, rows, widths);
   return { file, count: rows.length };
+}
+
+/** 광고 소재별 집계 엑셀(owner 2026-11-14): 처음부터 그 날까지, 날짜 × utm_source × utm_campaign × utm_content(표 tarot_utm_counts). */
+export async function adminUtmExport(day: string, admin: { id: string }) {
+  const counts = await readAll<UtmCountRow>((from, to) =>
+    db().from("tarot_utm_counts").select("day, source, campaign, content, metric, value").lte("day", day)
+      .order("day", { ascending: true }).range(from, to) as unknown as PromiseLike<{ data: UtmCountRow[] | null; error: { message: string } | null }>,
+  ).catch((e) => {
+    if (e instanceof TarotError && /tarot_utm_counts/.test(e.message)) throw new TarotError(503, "광고 소재 표가 아직 없어요(마이그레이션 20261114000000 실행 필요).");
+    throw e;
+  });
+  const rows = utmSummaryRows(counts.map((c) => ({ ...c, day: String(c.day).slice(0, 10), value: Number(c.value) })));
+  console.info("관리자 광고 소재 엑셀 내려받기:", { admin: admin.id, day, rows: rows.length });
+  return { file: buildXlsx(`${day}까지 광고 소재별`, UTM_HEADER, rows, UTM_WIDTHS), count: rows.length };
 }

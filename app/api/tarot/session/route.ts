@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const { userId } = await authFrom(req);
     // 고민 쓰기 전에 비슷한 고민 색인을 미리 읽어 둔다(응답 뒤, 같은 서버 인스턴스면 제출 때 바로 씀).
     after(() => warmFrameIndexes(body.locale === "en" ? "en" : "ko"));
-    return NextResponse.json(await createSession({ nickname: body.nickname, experience: body.experience, userId, headers: req.headers, locale: body.locale, termsConsent: body.termsConsent }));
+    return NextResponse.json(await createSession({ nickname: body.nickname, experience: body.experience, userId, headers: req.headers, locale: body.locale, termsConsent: body.termsConsent, utm: body.utm }));
   } catch (e) {
     return fail(e, req);
   }

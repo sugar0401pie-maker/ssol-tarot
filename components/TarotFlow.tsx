@@ -31,6 +31,7 @@ import { DrawBoard } from "./DrawBoard";
 import { SafetyScreen } from "./SafetyScreen";
 import { nextQuestion, firstQuestion, type FollowupView } from "@/lib/tarot/followup.js";
 import followupDb from "@/data/followup_questions.json";
+import { storedUtm, UTM_STORE_KEY, type Utm } from "@/lib/tarot-glue/utm";
 
 // 시작 흐름 → 셔플 → 뽑기 → (대기). 화면 이동 규칙은 패키지 원본 상태 기계(lib/tarot/flow.js의 next)를 그대로 쓴다.
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
@@ -146,7 +147,14 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   }, [pathname]);
 
   function startSession(nickname: string, experience: string) {
-    const p = api<{ id: string; key: string }>("/api/tarot/session", { body: { nickname, experience, locale, termsConsent: locale === "en" ? true : undefined } }).then((s) => {
+    // 광고 소재(owner 2026-11-14): 첫 방문 때 받아 둔 utm(30일 안)을 같이 보낸다 — 서버가 다시 검사해 저장
+    let utm: Utm | null = null;
+    try {
+      utm = storedUtm(localStorage.getItem(UTM_STORE_KEY));
+    } catch {
+      /* 저장소를 못 쓰면 없이 */
+    }
+    const p = api<{ id: string; key: string }>("/api/tarot/session", { body: { nickname, experience, locale, termsConsent: locale === "en" ? true : undefined, utm: utm ?? undefined } }).then((s) => {
       saveKey(s.id, s.key);
       setSession(s);
       try {

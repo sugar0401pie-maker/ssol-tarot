@@ -88,3 +88,19 @@ test("관리자 입장 암호: 요약값과 맞는 암호만 통과(시험용 �
   assert.equal(checkAdminPassword("x".repeat(500), salt, hash), false);
   assert.equal(checkAdminPassword("wrong"), false); // 실제 요약값에도 엉뚱한 암호는 통과 못 함
 });
+
+import { utmSummaryRows, UTM_HEADER } from "./exportRows.ts";
+test("광고 소재별 집계: 날짜 × 소재로 묶고 빈 값은 '없음', 달러는 센트를 달러로", () => {
+  const rows = utmSummaryRows([
+    { day: "2026-11-14", source: "x", campaign: "nov", content: "", metric: "visit", value: 10 },
+    { day: "2026-11-14", source: "x", campaign: "nov", content: "", metric: "paid", value: 2 },
+    { day: "2026-11-14", source: "x", campaign: "nov", content: "", metric: "paid_krw", value: 1980 },
+    { day: "2026-11-14", source: "x", campaign: "nov", content: "", metric: "paid_usd_cents", value: 199 },
+    { day: "2026-11-13", source: "x", campaign: "", content: "a", metric: "started", value: 3 },
+  ]);
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0][0], "2026-11-13");
+  assert.deepEqual(rows[0].slice(1, 4), ["x", "없음", "a"]);
+  assert.deepEqual(rows[1], ["2026-11-14", "x", "nov", "없음", 10, 0, 0, 0, 0, 2, 1980, 1.99]);
+  assert.equal(rows[1].length, UTM_HEADER.length);
+});
