@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient, getAuthUser } from "./supabaseAdmin";
-import { TarotError, getResult, type SessionRow } from "./session";
+import { TarotError, analysisFor, getResult, type SessionRow } from "./session";
+import reportLinesDb from "@/data/report_lines.json";
 import { reportText } from "@/lib/tarot-glue/chatSummary";
 import { isAdminEmail } from "@/lib/admin/access";
 import { checkAdminPassword } from "@/lib/admin/password";
@@ -50,18 +51,27 @@ async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ dat
  *  "paid" = 처음부터 그 날까지 중 실제 결제한 결과만 + 리포트 전문 칸(owner 2026-11-10). */
 export async function adminExport(day: string, range: "day" | "until" | "paid", admin: { id: string }) {
   const { start, end } = kstDayBounds(day);
-  const baseCols = "id, created_at, user_id, nickname, experience, worry_text, worry_skipped, classification, frame, safety_level, result_status, paid_at, report_status, locale";
+  // 분석 칸(고민 유형·카드 모양·영역 문장)을 다시 계산하려고 카드·폭력 신호·두 번째 의견도 읽는다
+  const baseCols = "id, created_at, user_id, nickname, experience, worry_text, worry_skipped, classification, frame, safety_level, result_status, paid_at, report_status, locale, picks, violence, fear";
   const read = (cols: string) => readAll<ExportSession>((from, to) => {
     let q = db().from("tarot_sessions").select(cols).lt("created_at", end);
     if (range === "day") q = q.gte("created_at", start);
     if (range === "paid") q = q.not("paid_at", "is", null);
     return q.order("created_at", { ascending: true }).range(from, to) as unknown as PromiseLike<{ data: ExportSession[] | null; error: { message: string } | null }>;
   });
-  // 광고 소재 칸(utm, 마이그레이션 20261114000000)이 아직 없으면 그 칸 없이 읽는다(엑셀의 utm 칸은 빈칸)
-  const sessions = await read(`${baseCols}, utm`).catch((e) => {
-    if (e instanceof TarotError && /utm/.test(e.message)) return read(baseCols);
-    throw e;
-  });
+  // 나중에 마이그레이션으로 생긴 칸(utm 20261114000000, frame_vote 20261022000000)이 아직 없으면 그 칸 없이 읽는다
+  // (엑셀의 utm 칸은 빈칸, 카드 모양은 두 번째 의견 없이 계산).
+  const optional = ["utm", "frame_vote"];
+  const tryRead = async (extra: string[]): Promise<ExportSession[]> => {
+    try {
+      return await read([baseCols, ...extra].join(", "));
+    } catch (e) {
+      const miss = e instanceof TarotError ? extra.find((c) => e.message.includes(c)) : undefined;
+      if (!miss) throw e;
+      return tryRead(extra.filter((c) => c !== miss));
+    }
+  };
+  const sessions = await tryRead(optional);
 
   // 결제 완료 주문(결과별 하나)
   const orders = new Map<string, ExportOrder>();
@@ -87,6 +97,7 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
 
   const subs = (subDb as { subs: Record<string, { name?: string }> }).subs;
   const frames = (subDb as { frames?: Record<string, { name?: string }> }).frames ?? {};
+  const variantNames = (reportLinesDb as unknown as { area_variants: { variants: Record<string, { name?: string }> } }).area_variants.variants;
   // 결제분 파일: 실제 결제 주문이 있는 결과만(관리자 지정 무료 열람 제외), 고객이 보는 화면과 같은 조립으로 리포트 전문을 붙인다(AI 호출 없음).
   const picked = range === "paid" ? sessions.filter((s) => orders.has(s.id)) : sessions;
   const reports = new Map<string, string>();
@@ -105,7 +116,7 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
     }
   }
   const rows = picked.map((s) => {
-    const row = exportRow(s, s.user_id ? users.get(s.user_id) : null, orders.get(s.id), subs, frames);
+    const row = exportRow(s, s.user_id ? users.get(s.user_id) : null, orders.get(s.id), subs, frames, analysisFor(s as unknown as SessionRow), variantNames);
     return range === "paid" ? [...row, reports.get(s.id) ?? ""] : row;
   });
   // 누가 언제 몇 건을 내려받았는지만 기록(내용·이메일은 남기지 않음)

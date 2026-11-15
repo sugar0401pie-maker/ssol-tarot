@@ -40,3 +40,14 @@ test("결제 전에는 1·2쪽 영역 문장·고민 인용만 — 5쪽 이후�
   const out3 = applyReportLines(pages, { paid: false, frame: { sub_id: "WK-QUIT", confidence: "high" }, lean: null, picks, cls: null, safety: { level: "watch" }, worryText: "x", tables: {} });
   assert.equal(out3[0].body, pages[0].body); // 안전 주의면 공통 문장
 });
+
+test("분석 칸: 고민 유형·카드 모양·영역 문장(owner 2026-11-15)", async () => {
+  const { analysisFields } = await import("./reportLines.ts");
+  const none = analysisFields({ frame: null, lean: null });
+  assert.deepEqual(none, { worry_type: "SITUATION", card_pattern: null, area_variant: "COMMON" });
+  const lean = { side: "move", cards: [{ score: 2 }, { score: 1 }, { score: 3 }] };
+  assert.equal(analysisFields({ frame: { table: "job", want: "which" }, lean }).card_pattern, "ALL");
+  assert.equal(analysisFields({ frame: null, lean: { side: "move", cards: [{ score: -1 }, { score: -2 }, { score: 2 }] } }).card_pattern, "KEY_ALONE");
+  // 안전 주의·폭력이면 영역 문장 없이 공통
+  assert.equal(analysisFields({ frame: { sub_id: "WK-MOVE" }, lean: null, safety: { level: "watch" } }).area_variant, "COMMON");
+});

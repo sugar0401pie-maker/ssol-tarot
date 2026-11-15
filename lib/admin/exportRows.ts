@@ -31,10 +31,12 @@ export const EXPORT_HEADER = [
   "결과 틀", "다시 묻기",
   // v2.3.21 여러 고민 고르기 — 물은 묶음과 고른 방식(예: asked:work,love|picked:love)
   "여러 고민",
+  // v2.3.15 분석용(2026-11-15): 고민 유형 · 카드 모양(결론 쪽과 같은 카드) · 영역 문장 묶음 — 저장 안 하고 내려받을 때 계산
+  "고민 유형", "카드 모양", "영역 문장",
   // 2026-11-14: 첫 방문 주소의 광고 소재(utm) — 비어 있으면 빈칸
   "utm_source", "utm_campaign", "utm_content",
 ];
-export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 18, 18];
+export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 9, 16, 18, 18, 18];
 
 const PROVIDER: Record<string, string> = { email: "이메일", kakao: "카카오", "custom:naver": "네이버", naver: "네이버", google: "구글", apple: "애플" };
 export function providerLabel(u: ExportUser | null | undefined, userId: string | null): string {
@@ -49,12 +51,18 @@ const SAFETY: Record<string, string> = { none: "보통", watch: "주의", urgent
 const RESULT: Record<string, string> = { ready: "결과 나옴", safety: "안전 안내", started: "고민 쓰기 전·중", drawing: "카드 뽑는 중", preparing: "결과 만드는 중" };
 const REPORT: Record<string, string> = { none: "", generating: "만드는 중", ready: "완성", failed: "실패" };
 
+export type ExportAnalysis = { worry_type: string; card_pattern: string | null; area_variant: string } | null;
+const WORRY_TYPE: Record<string, string> = { OUTCOME: "결과형", CHOICE: "선택형", SITUATION: "상황형" };
+const CARD_PATTERN: Record<string, string> = { ALL: "세 장 모두", TWO_KEY: "세 번째 + 한 장", TWO_NOKEY: "앞 두 장(세 번째 반대)", KEY_ALONE: "세 번째만", MIXED: "섞임" };
+
 export function exportRow(
   s: ExportSession,
   u: ExportUser | null | undefined,
   order: ExportOrder | null | undefined,
   subNames: Record<string, { name?: string }> = {},
   frameNames: Record<string, { name?: string }> = {},
+  analysis: ExportAnalysis = null,
+  variantNames: Record<string, { name?: string }> = {},
 ): Cell[] {
   const area = s.frame?.area ?? s.classification?.domain ?? null;
   const sub = s.frame?.sub_id ?? null;
@@ -83,6 +91,9 @@ export function exportRow(
     s.frame?.frame_id ? `${frameNames[s.frame.frame_id]?.name ?? ""} (${s.frame.frame_id})`.trim() : "",
     followupLabel(s.frame?.followup ?? null),
     multiEvent(s.frame?.focus ?? null) ?? "",
+    analysis ? (WORRY_TYPE[analysis.worry_type] ?? analysis.worry_type) : "",
+    analysis?.card_pattern ? `${CARD_PATTERN[analysis.card_pattern] ?? ""} (${analysis.card_pattern})` : "",
+    analysis ? `${variantNames[analysis.area_variant]?.name ?? ""} (${analysis.area_variant})` : "",
     s.utm?.source ?? "",
     s.utm?.campaign ?? "",
     s.utm?.content ?? "",

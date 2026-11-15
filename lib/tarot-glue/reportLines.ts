@@ -245,3 +245,16 @@ export function applyReportLines(pages: Page[], ctx: LinesCtx): Page[] {
   }
   return out;
 }
+
+// v2.3.15 분석용 기록 칸(worry_type·card_pattern·area_variant) — 화면 조립과 같은 함수로 계산한다(owner 2026-11-15).
+// 저장하지 않고 관리자 엑셀을 만들 때 다시 계산(결정론적). lean이 없으면(방향 없음·카드 3장 전) 카드 모양은 null.
+export function analysisFields({ frame, lean, safety }: { frame: any | null; lean: any | null; safety?: LinesCtx["safety"] }): {
+  worry_type: "OUTCOME" | "CHOICE" | "SITUATION"; card_pattern: string | null; area_variant: string;
+} {
+  const scores = lean ? (lean.cards ?? []).map((c: any) => Number(c.score) || 0) : [];
+  return {
+    worry_type: typeOf(frame),
+    card_pattern: lean && scores.length === 3 ? cardPattern(scores, pickSignOf(lean)) : null,
+    area_variant: frame ? areaVariant(frame.sub_id, { confidence: frame.confidence ?? "high", safety: safetyLevel(safety ?? null) }, RL) : "COMMON",
+  };
+}

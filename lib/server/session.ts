@@ -26,6 +26,7 @@ import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { parseFrameV43 } from "@/lib/tarot/v43.js";
 import { composeWorry, applyFollowup, firstQuestion, nextQuestion } from "@/lib/tarot/followup.js";
 import { lintReport } from "@/lib/tarot/reportLint.js";
+import { analysisFields } from "@/lib/tarot-glue/reportLines";
 import { FOLLOWUP_DB, shouldAskFollowup, checkAnswers, type FollowupAnswer } from "@/lib/tarot-glue/followup";
 import { MULTI_DB, multiFor, checkChoice } from "@/lib/tarot-glue/multiWorry";
 import { composeFocus, applyFocus, multiQuestion } from "@/lib/tarot/multiWorry.js";
@@ -570,6 +571,21 @@ async function logReportLint(sessionId: string) {
     if (out.block.length || out.warn.length) console.info("리포트 검사:", "차단", out.block.map((x) => x.code).join(",") || "-", "· 기록", out.warn.map((x) => x.code).join(",") || "-");
   } catch (e) {
     console.warn("리포트 검사 실패:", e instanceof Error ? e.message : "unknown");
+  }
+}
+
+/** 관리자 엑셀용 분석 칸(고민 유형·카드 모양·영역 문장). 결과 화면과 같은 재료로 다시 계산 — 한국어판·카드 3장일 때만. */
+export function analysisFor(s: SessionRow): ReturnType<typeof analysisFields> | null {
+  if (localeOf(s) === "en") return null;
+  try {
+    const cls = classificationForReport(s.classification);
+    const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
+    const frame = prepareFrame(s.frame ?? null, cls, "ko", { level: s.safety_level, violence: s.violence });
+    const picks = (s.picks ?? []).length === 3 ? expandPicks(s.picks, "ko") : [];
+    const lean = picks.length === 3 ? decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null, locale: "ko" }).lean : null;
+    return analysisFields({ frame, lean, safety });
+  } catch {
+    return null;
   }
 }
 
