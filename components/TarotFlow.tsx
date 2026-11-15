@@ -12,7 +12,7 @@ import { CardBack, CardFace, CardCaption, FrameCorners, Stars } from "./Cards";
 import { SceneArt } from "./SceneArt";
 import { MysticOrbit, RotatingLine } from "./Mystic";
 import PageFoot from "./PageFoot";
-import { STEP_PATH, stepFromPath, canFollow, entryStep, type Step } from "@/lib/client/steps";
+import { STEP_PATH, stepFromPath, canFollow, entryStep, worryStep, type Step } from "@/lib/client/steps";
 import { localePath, splitLocale, type Locale } from "@/lib/i18n/locale";
 import { uiText } from "@/lib/i18n/ui";
 import { CONSENT_EN } from "@/lib/i18n/consentEn";
@@ -74,7 +74,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   // v2.3.14 짧은 고민에 다시 묻기(서버가 B칸·짧은 글일 때만 첫 질문을 돌려줌). 고민 쓰기 화면 안에서 고르기 질문 최대 2개.
   // guessed: 서버가 비슷한 고민으로 분야를 짐작해 첫 질문을 건너뛴 경우("{분야} 고민으로 읽었어요." + [다른 분야예요]) — 2026-11-14
   type Guess = { id: string; line: string; change: string };
-  const [followup, setFollowup] = useState<{ text: string; intro: string; skip: string; q: FollowupView; answers: { q: string; id: string }[]; guessed: Guess | null; multi?: boolean } | null>(null);
+  const [followup, setFollowup] = useState<{ text: string; intro: string; skip: string; q: FollowupView; answers: { q: string; id: string }[]; guessed: Guess | null; multi?: boolean; shown: number } | null>(null);
 
   const go = useCallback(
     (action: Action) => {
@@ -126,21 +126,39 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     setBooting(false);
   }, [booting]);
   // 화면이 바뀌면 주소를 그 화면 것으로(pushState — 뒤로 가기가 이전 화면 주소로 간다). 결과 화면은 /result/{id}로 따로 이동.
-  const screenRef = useRef(state.screen);
-  screenRef.current = state.screen;
+  // 고민 쓰기 뒤 질문(여러 고민 고르기·다시 묻기)은 화면 상태는 worry 그대로, 주소만 장면마다 따로(owner 2026-11-15 hard rule).
+  const displayStep: string = state.screen === "worry" ? worryStep(followup) : state.screen;
+  const screenRef = useRef(displayStep);
+  screenRef.current = displayStep;
   useEffect(() => {
     if (booting) return;
-    const raw = STEP_PATH[state.screen as Step];
+    const raw = STEP_PATH[displayStep as Step];
     const path = raw ? localePath(raw, locale) : null;
     if (path && window.location.pathname !== path) window.history.pushState(null, "", path);
-  }, [state.screen, booting, locale]);
+  }, [displayStep, booting, locale]);
   // 뒤로/앞으로 가기로 주소가 바뀐 경우: 고민을 내기 전 단계 안에서 뒤로 가는 것만 따라가고, 그 밖에는 지금 화면 주소로 되돌린다.
   useEffect(() => {
     if (booting) return;
     const cur = screenRef.current as Step;
     const to = stepFromPath(splitLocale(pathname).path);
     if (!to || to === cur || !STEP_PATH[cur]) return;
-    if (canFollow(cur, to)) setState((st) => (to === "intro" ? initialState() : { ...st, screen: to }) as FlowState);
+    if (canFollow(cur, to)) {
+      // 질문 장면에서 뒤로: 둘째 질문 → 첫 질문, 그 밖에는 질문을 닫고 고민 쓰기(또는 더 앞 화면)로
+      if (cur === "worry_more_2" && to === "worry_more") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- 뒤로 가기(주소 변화)를 화면에 따라 반영
+        setFollowup((f) => {
+          if (!f) return f;
+          const first = firstQuestion(followupDb);
+          return first ? { ...f, q: first, answers: [], guessed: null, shown: 0 } : null;
+        });
+        return;
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 뒤로 가기(주소 변화)를 화면에 따라 반영
+      setFollowup(null);
+      if (to.startsWith("worry")) return;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 뒤로 가기(주소 변화)를 화면에 따라 반영
+      setState((st) => (to === "intro" ? initialState() : { ...st, screen: to }) as FlowState);
+    }
     else window.history.pushState(null, "", L(STEP_PATH[cur]));
     // 주소가 바뀔 때만 본다(화면 상태가 먼저 바뀐 경우까지 보면 방금 누른 이동을 되돌려 버린다)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -212,12 +230,12 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
       const r = await api<{ urgent: boolean; followup: { intro: string; skip: string; first: FollowupView; guessed?: Guess | null } | null; multi?: { ask: string; small: string; options: { id: string; label: string }[] } | null }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
       // v2.3.21 여러 고민을 한꺼번에 썼으면 '어느 고민으로 카드를 뽑을까요?' — 다시 묻기 화면 모양 그대로(건너뛰기 없음)
       if (!skip && !r.urgent && r.multi?.options?.length) {
-        setFollowup({ text, intro: r.multi.small, skip: "", q: { key: "multi", ask: r.multi.ask, options: r.multi.options }, answers: [], guessed: null, multi: true });
+        setFollowup({ text, intro: r.multi.small, skip: "", q: { key: "multi", ask: r.multi.ask, options: r.multi.options }, answers: [], guessed: null, multi: true, shown: 0 });
         return;
       }
       if (!skip && !r.urgent && r.followup?.first) {
         const g = r.followup.guessed ?? null;
-        setFollowup({ text, intro: r.followup.intro, skip: r.followup.skip, q: r.followup.first, answers: g ? [{ q: "q1", id: g.id }] : [], guessed: g });
+        setFollowup({ text, intro: r.followup.intro, skip: r.followup.skip, q: r.followup.first, answers: g ? [{ q: "q1", id: g.id }] : [], guessed: g, shown: 0 });
         return;
       }
       go(skip ? { type: "SKIP_WORRY" } : { type: "SUBMIT_WORRY", text, localUrgent: r.urgent });
@@ -247,7 +265,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     }
     const answers = optionId ? [...followup.answers, { q: followup.q.key, id: optionId }] : followup.answers;
     const q = optionId ? nextQuestion(followupDb, answers) : null;
-    if (q) return setFollowup({ ...followup, q, answers });
+    if (q) return setFollowup({ ...followup, q, answers, shown: followup.shown + 1 });
     setBusy(true);
     try {
       await api(`/api/tarot/session/${session.id}/followup`, { key: session.key, body: { answers, guessed: Boolean(followup.guessed) } });
@@ -387,7 +405,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
               guess={followup.guessed && followup.answers[0]?.id === followup.guessed.id ? followup.guessed : null}
               onChangeArea={() => {
                 const first = firstQuestion(followupDb);
-                if (first) setFollowup({ ...followup, q: first, answers: [], guessed: null });
+                if (first) setFollowup({ ...followup, q: first, answers: [], guessed: null, shown: 0 });
               }}
             />
           ) : (
