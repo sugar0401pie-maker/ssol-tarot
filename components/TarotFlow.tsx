@@ -602,8 +602,7 @@ function WorryScreen({
     <div className="fade-up flex flex-col gap-3">
       {/* owner 줄바꿈("…고민을 / 편하게 작성해주세요.")이 휴대폰에서 세 줄로 밀리지 않게 화면 폭에 맞춰 글자 크기를 줄인다(최대 22px) */}
       <h1 className="whitespace-pre-line break-keep text-center font-serif text-[clamp(16px,4.8vw,22px)] font-bold leading-snug text-gold-soft">{fill(copy.worry.title, { nickname })}</h1>
-      <p className="text-center text-[14px] leading-relaxed text-moon/90">{copy.worry.sub}</p>
-      {abHint && <p className="text-center text-[13px] leading-relaxed text-gold-soft/90">{abHint}</p>}
+      <p className="whitespace-pre-line break-keep text-center text-[14px] leading-relaxed text-moon/90">{copy.worry.sub}</p>
       <div className="relative mt-4">
         <textarea
           className="input-night h-40 w-full resize-none px-4 py-3 text-[15px] leading-relaxed"
@@ -618,6 +617,8 @@ function WorryScreen({
           {text.length} / {copy.worry.max_len}
         </span>
       </div>
+      {/* 입력 칸 바로 아래 주석처럼 작은 글씨(owner 2026-11-15) */}
+      {abHint && <p className="-mt-1 whitespace-pre-line break-keep pl-1 text-[12px] leading-relaxed text-moon/65">※ {abHint}</p>}
       {en && <p className="text-[12px] leading-relaxed text-moon/70">{CONSENT_EN.worryNames}</p>}
       {/* 영문판 ② 고민 글 이용 동의 — 쓰기 시작하면 나타나고, 체크해야 제출(정책 문서 08 2장) */}
       {en && text.trim().length > 0 && (
