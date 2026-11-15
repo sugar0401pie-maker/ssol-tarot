@@ -11,6 +11,7 @@
 // 원본 패키지 코드는 바꾸지 않는다. 어느 단계든 실패하면 그 쪽은 원래 글 그대로.
 import { worryType, cardPattern, page5Head, aliasFor, cardLine, areaVariant, page7Cond, fallbackQuote, planLine, cueFor, pickPractices, type Practice } from "../tarot/reportLines.js";
 import { hasBatchim, hasRieulBatchim } from "../tarot/josa.js";
+import { userAliases } from "./optionAlias.ts";
 import rlJson from "../../data/report_lines.json" with { type: "json" };
 import subDb from "../../data/worry_subtopics.json" with { type: "json" };
 import type { ExpandedPick } from "../tarot/types";
@@ -81,7 +82,8 @@ export function namesFor(ctx: Pick<LinesCtx, "frame" | "lean">): Names[] {
   const { frame, lean } = ctx;
   if (!frame || !lean) return [];
   const type = typeOf(frame);
-  if (frame.decision_source === "explicit" && !frame.forecast) return []; // 사용자가 직접 쓴 선택지는 별칭을 만들지 않는다(AI 별칭은 아직 없음)
+  // 사용자가 직접 쓴 선택지: A2가 함께 낸 별칭(option_aliases) 중 검사를 통과한 것만(2026-11-15 — optionAlias.ts). 없으면 정식 이름 그대로.
+  if (frame.decision_source === "explicit" && !frame.forecast) return userAliases(frame).filter((n) => [lean.option, lean.other].includes(n.full));
   const out: Names[] = [];
   for (const side of [0, 1]) {
     const a = aliasFor({ type: type === "SITUATION" ? "OUTCOME" : type, table: lean.table, side }, RL);

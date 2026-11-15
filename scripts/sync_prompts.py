@@ -28,9 +28,27 @@ def blocks(md: Path) -> list[str]:
 SUB_BLOCK_POINTER = "  (결과 틀 후보·그 안의 세부 고민과 그 밖의 틀 목록은 사용자 입력 맨 앞의 [결과 틀 후보] 블록에 있어요.)"
 
 
+# 개발 쪽 덧붙임(owner 2026-11-15, 패키지 v2.3.15 요청): 고객이 직접 쓴 선택지의 짧은 별칭. 기획 원문 파일은 고치지 않고
+# 출력 형식 바로 앞에 규칙 한 줄을 넣고 출력 예시에 칸을 더한다(검사는 lib/tarot-glue/optionAlias.ts — 안 맞으면 정식 이름).
+ALIAS_RULE = (
+    "- option_aliases: decision_source가 \"explicit\"(사용자가 고를 것을 직접 씀)일 때만, options_ranked와 같은 순서·같은 개수로 "
+    "각 선택지의 짧은 이름(띄어쓰기 빼고 2~8자)을 씀. 사용자가 쓴 말만 줄이고 새 뜻·평가·결론을 넣지 않음. 두 이름은 서로 달라야 함. "
+    "선택지가 이미 8자 이하면 그대로 씀. 예) [\"연봉 높은 회사로 옮기기\",\"지금 회사에 남아서 승진을 기다리기\"] → [\"연봉 따라 이직\",\"남아서 승진\"]. "
+    "explicit가 아니면 null."
+)
+OUT_HEAD = "[출력 — 이 형식만]"
+OUT_FIELD = ('"options_ranked":["...","..."],', '"options_ranked":["...","..."],"option_aliases":null,')
+
+
+def add_alias_rule(text: str) -> str:
+    if text.count(OUT_HEAD) != 1 or text.count(OUT_FIELD[0]) != 1:
+        sys.exit("A2 원문에서 출력 형식 자리를 못 찾음 — 별칭 규칙을 넣을 곳을 다시 확인")
+    return text.replace(OUT_HEAD, ALIAS_RULE + "\n\n" + OUT_HEAD).replace(OUT_FIELD[0], OUT_FIELD[1])
+
+
 def source(doc: str, idx) -> str:
     if idx is None:  # 전문 파일
-        return (ROOT / doc).read_text(encoding="utf-8").strip().replace("\n{SUB_BLOCK}\n", "\n" + SUB_BLOCK_POINTER + "\n").replace("아래 {SUB_BLOCK} 후보 줄 끝", "[결과 틀 후보] 블록의 후보 줄 끝")
+        return add_alias_rule((ROOT / doc).read_text(encoding="utf-8").strip().replace("\n{SUB_BLOCK}\n", "\n" + SUB_BLOCK_POINTER + "\n").replace("아래 {SUB_BLOCK} 후보 줄 끝", "[결과 틀 후보] 블록의 후보 줄 끝"))
     return blocks(ROOT / doc)[idx]
 
 

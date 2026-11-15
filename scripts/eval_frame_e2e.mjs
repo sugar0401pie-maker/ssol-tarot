@@ -86,7 +86,7 @@ async function worker() {
     inTok += r.usage?.input_tokens ?? 0; outTok += r.usage?.output_tokens ?? 0;
     // v2.3.14: 서비스와 같게 결과 틀·세부를 맞춘 뒤 채점(resolveFrame — 어긋나면 틀을 믿음)
     const f = resolveFrame(r.frame ?? {}, subDb) ?? {};
-    out.push({ mode, grp, id: q.id, gold: { sub_id: q.sub_id, sub2: q.sub2 ?? null, table: q.tables ?? [tableOf(q)], area: q.area }, pred: { sub_id: f.sub_id ?? null, sub2: f.sub2 ?? null, frame_id: f.frame_id ?? null, fix: f.frame_fix?.how ?? null, table: f.table ?? null, area: f.area ?? null }, candHit: cands.includes(q.sub_id), vote: voteTable(all.slice(0, FEWSHOT_K))?.table ?? null, err: r.err ?? null });
+    out.push({ mode, grp, id: q.id, gold: { sub_id: q.sub_id, sub2: q.sub2 ?? null, table: q.tables ?? [tableOf(q)], area: q.area }, pred: { sub_id: f.sub_id ?? null, sub2: f.sub2 ?? null, frame_id: f.frame_id ?? null, fix: f.frame_fix?.how ?? null, table: f.table ?? null, area: f.area ?? null, decision_source: f.decision_source ?? null, options: f.options_ranked ?? f.options ?? null, option_aliases: f.option_aliases ?? null }, candHit: cands.includes(q.sub_id), vote: voteTable(all.slice(0, FEWSHOT_K))?.table ?? null, err: r.err ?? null });
     if (out.length % 20 === 0) console.error(`${out.length}/${jobs.length}`);
   }
 }
