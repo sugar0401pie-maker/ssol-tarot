@@ -14,6 +14,8 @@ import { normalizeFrameV43, resolveFrame, applyForecastOptions, applySubDefaults
 import subDbKo from "../../data/worry_subtopics.json" with { type: "json" };
 import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
+import { focusLine } from "../tarot/multiWorry.js";
+import { MULTI_DB } from "./multiWorry.ts";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Frame = any;
@@ -201,6 +203,8 @@ export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, pick
     teaser: locale === "en" || !CR.v43 ? null : teaserLine({ frame, lean, name, data }),
     areaPhrase: locale === "en" ? null : areaPhraseFor(frame, midKey, CR.v43?.area_phrases),
     subTeaser4: locale === "en" || !frame?.sub_id ? null : CR.v43?.sub_teasers?.[frame.sub_id]?.p4 ?? null,
+    // v2.3.21 여러 고민 중 고른 고민(frame.focus) — 3쪽 첫 줄. 한국어판만.
+    focus: locale === "en" ? null : focusLine((frame as any)?.focus, MULTI_DB),
   });
 }
 const summaryTitle = (locale?: Locale) => String((bd(locale).data.copy.result as any).v4?.summary_title ?? "세 장을 종합하면 이렇습니다");

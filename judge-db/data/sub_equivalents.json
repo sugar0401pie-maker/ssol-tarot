@@ -1,0 +1,51 @@
+{
+ "version": "v2 (2026-11-15, CR-DISTANCE/CR-CHANCE 뺌 — CSO: 사정은 겉으로 든 예이고 이어질지에 더 가까움)",
+ "note": "채점할 때 둘 중 어느 쪽이 나와도 정답으로 치는 세부 짝. CSO가 검수 표본에서 \"둘 다 됨\"으로 판정한 것. 틀이 다른 짝도 있음(결과 글은 달라짐). 판별 자체를 바꾸지 않고 채점에만 씀.",
+ "pairs": [
+  {
+   "a": "CR-WAIT",
+   "b": "CR-SIGNAL",
+   "sample_no": 1
+  },
+  {
+   "a": "JB-WAIT",
+   "b": "JB-APPLY",
+   "sample_no": 2
+  },
+  {
+   "a": "JB-WHERE",
+   "b": "PT-WHAT",
+   "sample_no": 20
+  },
+  {
+   "a": "JB-RETURN",
+   "b": "JB-WHEN",
+   "sample_no": 34
+  },
+  {
+   "a": "RL-CONTACT",
+   "b": "RL-TRUE",
+   "sample_no": 72
+  },
+  {
+   "a": "EX2-LONG",
+   "b": "EX2-WAIT",
+   "sample_no": 80
+  },
+  {
+   "a": "CR-CHANCE",
+   "b": "CR-MIND",
+   "sample_no": 83
+  },
+  {
+   "a": "CR-DEFINE",
+   "b": "CR-MIND",
+   "sample_no": 91
+  },
+  {
+   "a": "MR-WHETHER",
+   "b": "MR-THIS",
+   "sample_no": 38
+  }
+ ]
+}

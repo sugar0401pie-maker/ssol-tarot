@@ -2,6 +2,7 @@
 // 순수 함수: DB에서 읽은 결과·계정·주문을 받아 엑셀 칸으로 바꾼다(테스트 있음).
 import type { Cell } from "./xlsx.ts";
 import { kstStamp } from "./kstDay.ts";
+import { multiEvent, type MultiFocus } from "../tarot/multiWorry.js";
 
 export type ExportSession = {
   id: string;
@@ -12,7 +13,7 @@ export type ExportSession = {
   worry_text: string | null;
   worry_skipped?: boolean | null;
   classification?: { domain?: string | null } | null;
-  frame?: { area?: string | null; sub_id?: string | null; table?: string | null; frame_id?: string | null; followup?: { answers?: string[]; skipped?: boolean; guessed?: boolean } | null } | null;
+  frame?: { area?: string | null; sub_id?: string | null; table?: string | null; frame_id?: string | null; followup?: { answers?: string[]; skipped?: boolean; guessed?: boolean } | null; focus?: MultiFocus | null } | null;
   safety_level?: string | null;
   result_status?: string | null;
   paid_at?: string | null;
@@ -28,10 +29,12 @@ export const EXPORT_HEADER = [
   "고민 영역", "세부 고민", "점수표", "안전 단계", "결과 상태", "결제 여부", "결제 시각(한국)", "결제 금액", "통화", "리포트 상태",
   // v2.3.14(2026-11-14): 결과 틀(두 단계 고르기) · 짧은 고민에 다시 묻기(A/B — 결과 번호로 반씩)
   "결과 틀", "다시 묻기",
+  // v2.3.21 여러 고민 고르기 — 물은 묶음과 고른 방식(예: asked:work,love|picked:love)
+  "여러 고민",
   // 2026-11-14: 첫 방문 주소의 광고 소재(utm) — 비어 있으면 빈칸
   "utm_source", "utm_campaign", "utm_content",
 ];
-export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 18, 18];
+export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 18, 18];
 
 const PROVIDER: Record<string, string> = { email: "이메일", kakao: "카카오", "custom:naver": "네이버", naver: "네이버", google: "구글", apple: "애플" };
 export function providerLabel(u: ExportUser | null | undefined, userId: string | null): string {
@@ -79,6 +82,7 @@ export function exportRow(
     REPORT[s.report_status ?? ""] ?? s.report_status ?? "",
     s.frame?.frame_id ? `${frameNames[s.frame.frame_id]?.name ?? ""} (${s.frame.frame_id})`.trim() : "",
     followupLabel(s.frame?.followup ?? null),
+    multiEvent(s.frame?.focus ?? null) ?? "",
     s.utm?.source ?? "",
     s.utm?.campaign ?? "",
     s.utm?.content ?? "",

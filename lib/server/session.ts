@@ -27,6 +27,8 @@ import { parseFrameV43 } from "@/lib/tarot/v43.js";
 import { composeWorry, applyFollowup, firstQuestion, nextQuestion } from "@/lib/tarot/followup.js";
 import { lintReport } from "@/lib/tarot/reportLint.js";
 import { FOLLOWUP_DB, shouldAskFollowup, checkAnswers, type FollowupAnswer } from "@/lib/tarot-glue/followup";
+import { MULTI_DB, multiFor, checkChoice } from "@/lib/tarot-glue/multiWorry";
+import { composeFocus, applyFocus, multiQuestion } from "@/lib/tarot/multiWorry.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { mergeE } from "@/lib/tarot/validateV4.js";
 import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, variantKeyFor, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
@@ -247,7 +249,9 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
   const worry = text.slice(0, copy.worry.max_len);
   const local = screenFor(localeOf(s), worry);
   const urgent = local.level === "urgent";
-  const ask = !urgent && aiConfigured() && shouldAskFollowup(s.id, worry, { urgent, locale: localeOf(s) });
+  // v2.3.21 여러 고민을 한꺼번에 썼으면 뽑기 전에 하나를 고르게 한다. 이 질문이 나가면 짧은 고민 다시 묻기는 건너뜀(질문 화면은 한 번만).
+  const multi = !urgent && aiConfigured() ? multiFor(worry, { urgent, locale: localeOf(s) }) : null;
+  const ask = !urgent && aiConfigured() && (Boolean(multi) || shouldAskFollowup(s.id, worry, { urgent, locale: localeOf(s) }));
   await update(s.id, {
     worry_text: worry,
     worry_skipped: false,
@@ -264,6 +268,7 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
   });
   if (urgent) await countEvent("safety");
   await countUtm(utmOf(s), "worry");
+  if (multi) return { urgent, needsClassification: false, multi: multiQuestion(multi, MULTI_DB, s.nickname ?? "") };
   if (ask) return { urgent, needsClassification: false, followup: await followupStart(worry) };
   return { urgent, needsClassification: !urgent && aiConfigured() };
 }
@@ -284,12 +289,15 @@ async function followupStart(worry: string) {
 
 // v2.3.14 다시 묻기 답(또는 건너뛰기 = 빈 목록). 답을 받은 뒤에만 분류를 시작한다.
 // 반환값 start=true면 라우트가 after()로 runClassification(id, answers)를 돌린다.
-export async function submitFollowup(s: SessionRow, body: { answers?: unknown; guessed?: unknown }): Promise<{ start: boolean; answers: FollowupAnswer[]; guessed: boolean }> {
-  if (s.classification_status !== "followup") return { start: false, answers: [], guessed: false }; // 이미 시작됨(연타·섞기 먼저)
-  const answers = checkAnswers(body.answers ?? []) ?? [];
+// v2.3.21 여러 고민 고르기도 같은 길로 받는다: {multi: 선택 id}. 선택 id는 저장된 고민 글로 선택지를 다시 만들어 검사(맞지 않으면 고르지 않은 것으로).
+export async function submitFollowup(s: SessionRow, body: { answers?: unknown; guessed?: unknown; multi?: unknown }): Promise<{ start: boolean; answers: FollowupAnswer[] | null; guessed: boolean; multi: string | null }> {
+  if (s.classification_status !== "followup") return { start: false, answers: [], guessed: false, multi: null }; // 이미 시작됨(연타·섞기 먼저)
   await update(s.id, { classification_status: "pending" });
+  const detect = multiFor(s.worry_text, { urgent: s.safety_level === "urgent", locale: localeOf(s) });
+  if (detect) return { start: true, answers: null, guessed: false, multi: checkChoice(detect, body.multi) };
+  const answers = checkAnswers(body.answers ?? []) ?? [];
   // guessed = 첫 질문(분야)을 서버가 짐작해 건너뛰었고 사람이 바꾸지 않음 — 기록(frame.followup.guessed)에만 남긴다
-  return { start: true, answers, guessed: body.guessed === true && answers[0]?.q === "q1" };
+  return { start: true, answers, guessed: body.guessed === true && answers[0]?.q === "q1", multi: null };
 }
 
 // 백그라운드: 고민 분류(A)와 고민 틀(A2)을 함께. 각각 실패 → 1회 재시도 → 그래도 실패면
@@ -318,12 +326,16 @@ function parseFrameFor(locale: Locale, raw: unknown): { frame: unknown; errors: 
 // followup: 다시 묻기를 보여 준 세션이면 고른 답(건너뛰면 []), 보여 주지 않았으면 null.
 //   답은 고민 글 뒤에 "(덧붙임: …)"으로 붙여 AI(A·A2)와 비슷한 예시 찾기에 넘기고(composeWorry — 저장된 고민 글은 그대로),
 //   고민 틀이 나온 뒤 빈 칸만 채운다(applyFollowup). 안전 키워드 검사는 원문으로.
-export async function runClassification(sessionId: string, followup: FollowupAnswer[] | null = null, guessed = false) {
+// multiChoice: 여러 고민 질문에서 고른 id(고르지 않고 섞기로 넘어왔으면 null). 여러 고민 글인지는 저장된 글로 다시 판단한다.
+//   고른 고민은 "(고른 고민: 연애)"로 AI 글에만 붙이고(composeFocus — 저장된 고민 글은 그대로), 고민 틀에 focus를 단다(applyFocus).
+export async function runClassification(sessionId: string, followup: FollowupAnswer[] | null = null, guessed = false, multiChoice: string | null = null) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const original = row?.worry_text as string | null;
   if (!original) return;
-  const worry = followup && followup.length ? composeWorry(original, followup, FOLLOWUP_DB) : original;
   const locale = localeOf(row as SessionRow);
+  const multi = followup && followup.length ? null : multiFor(original, { urgent: row?.safety_level === "urgent", locale });
+  if (multi) followup = null; // 여러 고민 질문을 보낸 세션(섞기로 넘어오면 []가 옴) — 다시 묻기 기록을 남기지 않는다
+  const worry = followup && followup.length ? composeWorry(original, followup, FOLLOWUP_DB) : multi ? composeFocus(original, multiChoice, multi, MULTI_DB) : original;
   const { data } = bundleFor(locale);
   const P = promptsFor(locale);
   const msg = worryUserMessage(worry);
@@ -363,6 +375,7 @@ export async function runClassification(sessionId: string, followup: FollowupAns
   // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety — v4.1: none < watch < urgent, CSO 2026-10-22).
   // urgent만 카드를 멈추고, watch는 결과 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄. 분류에 실패해도 키워드 결과는 유지.
   if (frame && followup) frame = followup.length ? applyFollowup(frame, followup, FOLLOWUP_DB) : { ...(frame as object), followup: { answers: [], filled: [], skipped: true } };
+  if (frame && multi) frame = applyFocus(frame, multi, multiChoice, MULTI_DB);
   if (frame && guessed) { const f = frame as { followup?: Record<string, unknown> }; if (f.followup) f.followup = { ...f.followup, guessed: true }; }
   const merged = mergeSafety(screenFor(locale, original), cls);
   const patch: Partial<SessionRow> = {

@@ -41,9 +41,9 @@ export function optionsSlash(options: string[]): string | null {
 }
 
 /** 3쪽(고민 풀어보기) 본문 줄글 — pageBlocks 규칙: "### " 큰 소제목 · "!! " 첫 문장 굵게(남색) 문단 · "◦ " 목록 */
-export function worryPageBody({ name, oldPage1, reading: reading0, frame, lean, picks, copy, frameTitle, mid = null, domain = null, teaser = null, areaPhrase = null, pageTitle = null }: {
+export function worryPageBody({ name, oldPage1, reading: reading0, frame, lean, picks, copy, frameTitle, mid = null, domain = null, teaser = null, areaPhrase = null, pageTitle = null, focus = null }: {
   name: string; oldPage1: string; reading: string; frame: FrameLike; lean: LeanLike; picks: Card[]; copy: SecretCopy; frameTitle: string;
-  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null; pageTitle?: string | null;
+  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null; pageTitle?: string | null; focus?: string | null;
 }): string {
   const chunks = String(oldPage1 || "").split(/\n\s*\n/);
   const strip = chunks.find((c) => c.trim().startsWith("[카드 이미지")) ?? null;
@@ -64,6 +64,8 @@ export function worryPageBody({ name, oldPage1, reading: reading0, frame, lean, 
   // v2.3.2부터 쪽 제목(h1)이 곧 '{name}님의 고민 풀어보기'라 같은 말이면 본문 소제목은 겹쳐 쓰지 않는다.
   const heading = fill(copy.worry_title, { name });
   if (heading !== pageTitle) out.push(`### ${heading}`);
+  // v2.3.21 여러 고민 중 하나를 골랐으면 어떤 고민으로 읽었는지 먼저 한 줄(multiWorry.focusLine)
+  if (focus) out.push(focus);
   out.push(lead);
   if (box) out.push(box.trim());
   const two = (lean?.cards ?? []).slice(0, 2);
@@ -104,9 +106,9 @@ export function keyLine(text: string): string {
   return text.includes(KEY_SENTENCE) ? `!! ${text.replace(KEY_SENTENCE, `**${KEY_SENTENCE}**`)}` : text;
 }
 
-export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null, teaser = null, areaPhrase = null, subTeaser4 = null }: {
+export function secretThird(pages: any[], { paid, name, reading, frame, lean, picks, copy, frameTitle, teaser5 = null, mid = null, domain = null, teaser = null, areaPhrase = null, subTeaser4 = null, focus = null }: {
   paid: boolean; name: string; reading: string; frame: FrameLike; lean: LeanLike; picks: Card[]; copy: SecretCopy; frameTitle: string; teaser5?: string | null;
-  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null; subTeaser4?: string | null;
+  mid?: MidDb | null; domain?: string | null; teaser?: string | null; areaPhrase?: string | null; subTeaser4?: string | null; focus?: string | null;
 }): any[] {
   const by = (n: number) => pages.find((p) => p.page === n);
   const [p1, p2, p3, p4] = [by(1), by(2), by(3), by(4)];
@@ -118,7 +120,7 @@ export function secretThird(pages: any[], { paid, name, reading, frame, lean, pi
   const second = { ...p3, page: 2, back };
   const worry = {
     page: 3, title: p1.title, access: "무료", back, next: copy.next_button,
-    body: worryPageBody({ name, oldPage1: p1.body, reading, frame, lean, picks, copy, frameTitle, mid, domain, teaser, areaPhrase, pageTitle: p1.title }),
+    body: worryPageBody({ name, oldPage1: p1.body, reading, frame, lean, picks, copy, frameTitle, mid, domain, teaser, areaPhrase, pageTitle: p1.title, focus }),
   };
   const slash = frame?.forecast ? null : optionsSlash(frame?.options ?? []);
   const opts = (frame?.options ?? []).map(cleanOption).filter(Boolean);

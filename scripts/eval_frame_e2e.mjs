@@ -1,7 +1,7 @@
 // 4-(b) 끝까지 측정(2026-11-09): 실제 고민(판별 DB의 R-·R2- 익명판) 중 연애 50·직장 50건을 고민 틀 AI(A2)까지 실제로 돌려
 // 세부 고민(sub_id)·점수표·영역을 정답과 비교한다. v2.3.14부터 A2 v4.12(결과 틀 먼저)·resolveFrame 뒤 채점. 같은 100건을 '의미 검색 + 글자 검색(지금)'과 '글자 검색만(예전)'으로 각각 돌린다(AI 200회).
 //   실행: node --conditions=react-server --experimental-strip-types scripts/eval_frame_e2e.mjs [건수/영역=50]
-//   필요: OPENAI_API_KEY, judge-db/data/frame_gold_v2.9.emb.*(build_embed_index.mjs가 만듦)
+//   필요: OPENAI_API_KEY, judge-db/data/frame_gold_v2.10.emb.*(build_embed_index.mjs가 만듦)
 //   공정하게 하려고 시험 100건은 두 색인 모두에서 뺀다. 질문 임베딩은 캐시된 자기 벡터(서버와 같은 정리·모델)를 쓴다.
 //   결과 전체(고민 글 포함)는 scripts/.cache/에만 남기고, 커밋하는 요약에는 id와 맞음/틀림만 적는다.
 import fs from "node:fs";
@@ -12,18 +12,21 @@ import { buildNormalizer } from "../lib/tarot/normalize.js";
 import { buildFrameUserBlock, FEWSHOT_K } from "../lib/tarot/frameInput.js";
 import { decodeIndex } from "../lib/tarot-glue/embedSearch.ts";
 import { parseFrameV43, subPromptBlockFrames, resolveFrame, scoreSub } from "../lib/tarot/v43.js";
-import { FRAME_SYSTEM } from "../lib/server/prompts.ts";
+import { FRAME_SYSTEM as FRAME_NOW } from "../lib/server/prompts.ts";
+import { sameSub } from "../judge-db/subEquiv.mjs";
+// 2026-11-15 v2.3.24: A2_FROM=예전 prompts.ts 경로를 주면 그 FRAME_SYSTEM으로 잰다(예: v4.12와 v4.16 비교). TAG는 요약 파일 이름 끝에 붙음
+const FRAME_SYSTEM = process.env.A2_FROM ? (await import(path.resolve(process.env.A2_FROM))).FRAME_SYSTEM : FRAME_NOW;
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PER = Number(process.argv[2] || 50);
 const MODEL = process.env.TAROT_AI_MODEL || "gpt-5.6-luna";
-const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.9.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
+const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.10.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
 const subDb = JSON.parse(fs.readFileSync(path.join(ROOT, "data/worry_subtopics.json"), "utf8"));
 const norm = buildNormalizer(JSON.parse(fs.readFileSync(path.join(ROOT, "data/norm_dict.json"), "utf8")));
 // 판별 DB 의미 검색 색인(build_embed_index.mjs) — 줄 순서 그대로, id 목록이 같은지 확인
-const META = JSON.parse(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.9.emb.meta.json"), "utf8"));
+const META = JSON.parse(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.10.emb.meta.json"), "utf8"));
 if (META.ids.length !== rows.length || META.ids.some((id, i) => id !== rows[i].id)) throw new Error("색인과 판별 DB 줄이 다름 — build_embed_index.mjs를 다시 돌리세요");
-const V = decodeIndex(new Uint8Array(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.9.emb.f16.bin"))), META.dim);
+const V = decodeIndex(new Uint8Array(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.10.emb.f16.bin"))), META.dim);
 const tableOf = (r) => (r.tables ?? [r.table ?? null])[0] ?? null;
 
 // 고정 씨앗으로 고르기(다시 돌려도 같은 100건)
@@ -99,6 +102,7 @@ for (const mode of MODES) for (const grp of [...GROUPS, "전체"]) {
   const xs = out.filter((o) => o.mode === mode && (grp === "전체" || o.grp === grp));
   summary[`${mode === "hybrid" ? "의미+글자(지금)" : "글자만(예전)"} · ${grp}`] = {
     "세부 고민 정답": pct(xs.filter((o) => o.pred.sub_id === o.gold.sub_id).length, xs.length),
+    "세부 고민 정답(채점 짝 인정, v2.3.22)": pct(xs.filter((o) => o.pred.sub_id && sameSub(o.gold.sub_id, o.pred.sub_id)).length, xs.length),
     "세부 고민 정답(2순위 정답 포함)": pct(xs.filter((o) => o.pred.sub_id && [o.gold.sub_id, o.gold.sub2].includes(o.pred.sub_id)).length, xs.length),
     "결과 틀 기준 정답": pct(xs.filter((o) => o.pred.sub_id && (o.pred.sub_id === o.gold.sub_id || o.pred.sub_id === o.gold.sub2 || sameFrame(o.pred.sub_id, o.gold.sub_id))).length, xs.length),
     "결과 틀 id 일치(scoreSub frame)": pct(xs.filter((o) => scoreSub(o.pred, o.gold, subDb).frame).length, xs.length),
@@ -113,4 +117,4 @@ console.log(`모델 ${MODEL} · 연애 ${love.length} + 직장 ${work.length} + 
 console.table(summary);
 fs.mkdirSync(path.join(ROOT, "scripts/.cache"), { recursive: true });
 fs.writeFileSync(path.join(ROOT, "scripts/.cache/frame_e2e_detail.json"), JSON.stringify(out, null, 1));
-fs.writeFileSync(path.join(ROOT, `judge-db/eval/frame_e2e_${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)}.json`), JSON.stringify({ model: MODEL, n: test.length, tokens: { input: inTok, output: outTok }, summary, rows: out.map(({ mode, grp, id, gold, pred, candHit, err }) => ({ mode, grp, id, gold, pred, candHit, err })) }, null, 1));
+fs.writeFileSync(path.join(ROOT, `judge-db/eval/frame_e2e_${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)}${process.env.TAG ? "_" + process.env.TAG : ""}.json`), JSON.stringify({ model: MODEL, n: test.length, tokens: { input: inTok, output: outTok }, summary, rows: out.map(({ mode, grp, id, gold, pred, candHit, err }) => ({ mode, grp, id, gold, pred, candHit, err })) }, null, 1));

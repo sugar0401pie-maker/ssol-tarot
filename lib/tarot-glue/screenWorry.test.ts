@@ -4,10 +4,14 @@ import { screenWorry } from "./screenWorry.ts";
 
 test("데이터로 옮긴 위험 단어를 잡는다(v4.1 CSO 2026-10-22 기준)", () => {
   // urgent(카드 멈춤) = 죽음에 대한 직접 표현·자해 행동·작별 준비
-  assert.equal(screenWorry("요즘 그만 살려고요").level, "urgent");
+  // v2.3.20(CSO 2026-11-15): '그만 살려/래/까'·'삶을 끝내'·'뛰어내리' 등은 키워드로는 watch(109 안내) — 카드를 멈출지는 AI 분류([안전 판단])가 정한다.
+  assert.equal(screenWorry("요즘 그만 살려고요").level, "watch");
+  assert.equal(screenWorry("뛰어내리고 싶어요").level, "watch");
   assert.equal(screenWorry("차라리 죽을까 생각해요").level, "urgent");
   // 2026-11-15 owner(v2.3.18): 낱말만으로는 갈리는 표현은 키워드에서 빼고 AI 분류가 맡음, 문맥 규칙은 watch
-  assert.equal(screenWorry("가족한테 편지를 써 뒀어요").level, "none");
+  // v2.3.24 CSO 정답 세트: 문맥 규칙 7개 모두 watch(U4 '가족에게 편지를 써 뒀' 포함). 받는 사람이 없으면 낱말만으로는 none.
+  assert.equal(screenWorry("가족한테 편지를 써 뒀어요").level, "watch");
+  assert.equal(screenWorry("친구 생일이라 편지를 써 뒀어요").level, "none");
   assert.equal(screenWorry("이 집에서 그만 살고 싶어요").level, "none");
   assert.equal(screenWorry("더 버틸 이유가 없어요").level, "watch");
   assert.equal(screenWorry("강아지가 아픈데 죽을까요?").level, "watch");

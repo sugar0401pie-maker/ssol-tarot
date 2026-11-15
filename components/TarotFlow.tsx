@@ -74,7 +74,7 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   // v2.3.14 짧은 고민에 다시 묻기(서버가 B칸·짧은 글일 때만 첫 질문을 돌려줌). 고민 쓰기 화면 안에서 고르기 질문 최대 2개.
   // guessed: 서버가 비슷한 고민으로 분야를 짐작해 첫 질문을 건너뛴 경우("{분야} 고민으로 읽었어요." + [다른 분야예요]) — 2026-11-14
   type Guess = { id: string; line: string; change: string };
-  const [followup, setFollowup] = useState<{ text: string; intro: string; skip: string; q: FollowupView; answers: { q: string; id: string }[]; guessed: Guess | null } | null>(null);
+  const [followup, setFollowup] = useState<{ text: string; intro: string; skip: string; q: FollowupView; answers: { q: string; id: string }[]; guessed: Guess | null; multi?: boolean } | null>(null);
 
   const go = useCallback(
     (action: Action) => {
@@ -209,7 +209,12 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
     setNetError(null);
     try {
       const s = await ensureSession();
-      const r = await api<{ urgent: boolean; followup: { intro: string; skip: string; first: FollowupView; guessed?: Guess | null } | null }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
+      const r = await api<{ urgent: boolean; followup: { intro: string; skip: string; first: FollowupView; guessed?: Guess | null } | null; multi?: { ask: string; small: string; options: { id: string; label: string }[] } | null }>(`/api/tarot/session/${s.id}/worry`, { key: s.key, body: skip ? { skip: true } : { text, consent } });
+      // v2.3.21 여러 고민을 한꺼번에 썼으면 '어느 고민으로 카드를 뽑을까요?' — 다시 묻기 화면 모양 그대로(건너뛰기 없음)
+      if (!skip && !r.urgent && r.multi?.options?.length) {
+        setFollowup({ text, intro: r.multi.small, skip: "", q: { key: "multi", ask: r.multi.ask, options: r.multi.options }, answers: [], guessed: null, multi: true });
+        return;
+      }
       if (!skip && !r.urgent && r.followup?.first) {
         const g = r.followup.guessed ?? null;
         setFollowup({ text, intro: r.followup.intro, skip: r.followup.skip, q: r.followup.first, answers: g ? [{ q: "q1", id: g.id }] : [], guessed: g });
@@ -227,6 +232,19 @@ export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArt
   // 다시 묻기: 고르면 다음 질문(패키지 nextQuestion), 다 고르거나 [이대로 볼게요]면 답을 보내고 섞기로.
   async function answerFollowup(optionId: string | null) {
     if (!followup || !session) return;
+    if (followup.multi) {
+      setBusy(true);
+      try {
+        await api(`/api/tarot/session/${session.id}/followup`, { key: session.key, body: { multi: optionId } });
+      } catch {
+        /* 못 보내도 섞기에서 서버가 고르지 않은 것으로 보고 분류를 시작한다 */
+      } finally {
+        setBusy(false);
+      }
+      const text = followup.text;
+      setFollowup(null);
+      return go({ type: "SUBMIT_WORRY", text, localUrgent: false });
+    }
     const answers = optionId ? [...followup.answers, { q: followup.q.key, id: optionId }] : followup.answers;
     const q = optionId ? nextQuestion(followupDb, answers) : null;
     if (q) return setFollowup({ ...followup, q, answers });
@@ -651,9 +669,11 @@ function FollowupScreen({ intro, skip, q, busy, onAnswer, guess = null, onChange
           </button>
         ))}
       </div>
-      <button type="button" disabled={busy} className="mt-2 text-[13px] text-moon/70 underline underline-offset-4 disabled:opacity-60" onClick={() => onAnswer(null)}>
-        {skip}
-      </button>
+      {skip && (
+        <button type="button" disabled={busy} className="mt-2 text-[13px] text-moon/70 underline underline-offset-4 disabled:opacity-60" onClick={() => onAnswer(null)}>
+          {skip}
+        </button>
+      )}
     </div>
   );
 }
