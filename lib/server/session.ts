@@ -394,6 +394,26 @@ export async function runClassification(sessionId: string, followup: FollowupAns
   if (merged.level === "urgent") await countEvent("safety");
 }
 
+// 고민 분류(A) 마지막 재시도(12초, 1번). 성공하면 안전 단계를 키워드와 다시 합쳐(항상 높은 쪽) 저장하고 새 행을 돌려준다.
+// 실패해도 결과는 예전처럼 분류 없이 진행(3쪽은 고민을 쓴 사람용 문장 — reorderSecret wrote).
+async function retryClassification(s: SessionRow): Promise<SessionRow | null> {
+  const locale = localeOf(s);
+  const { data } = bundleFor(locale);
+  try {
+    const cls = parseClassification(await generateText(promptsFor(locale).A, worryUserMessage(s.worry_text ?? ""), { timeoutMs: 12000, maxOutputTokens: 800, label: "A-retry" }), data);
+    if (!cls) return null;
+    const merged = mergeSafety(screenFor(locale, s.worry_text ?? ""), cls);
+    const patch: Partial<SessionRow> = { classification: cls, classification_status: "done", safety_level: merged.level, violence: merged.violence, fear: merged.fear };
+    if (merged.level === "urgent") patch.result_status = "safety";
+    await update(s.id, patch);
+    if (merged.level === "urgent") await countEvent("safety");
+    return { ...s, ...patch } as SessionRow;
+  } catch (e) {
+    console.warn("고민 분류(A) 재시도 실패:", e instanceof Error ? e.message : "unknown");
+    return null;
+  }
+}
+
 // v4.1 두 번째 의견이 A2와 다를 때의 검수 대기 기록(README_v4 '운영 로그'). owner 결정(2026-10-22): 고민 원문도 함께 저장.
 // 서버 전용 표(tarot_frame_reviews) — 로그에는 남기지 않는다. 저장 실패해도 결과는 그대로 진행(검수 기록만 빠짐).
 async function saveFrameReview(s: SessionRow, reviewLog: Record<string, unknown>, lowered: boolean) {
@@ -495,6 +515,11 @@ export async function prepareResult(sessionId: string) {
       break;
     }
     await new Promise((r) => setTimeout(r, 800));
+  }
+  // 고민 분류(A)가 두 번 다 실패했으면(시간 초과·형식 오류) 결과를 만들기 전에 한 번 더 시도한다(2026-11-15 owner —
+  // 리포트 검사 '고민 미반영'의 원인). 기다리다 놓친 경우(classificationLost)·이미 30초 넘게 기다린 경우는 함수 시간 한도(60초 = 재시도 12초 + C 12초) 때문에 건너뛴다.
+  if (s && !classificationLost && Date.now() - started < 30000 && s.classification_status === "failed" && s.worry_text && s.result_status !== "safety" && s.safety_level !== "urgent" && aiConfigured()) {
+    s = (await retryClassification(s)) ?? s;
   }
   if (!s || s.result_status === "safety" || s.safety_level === "urgent") return;
   // v4: 결정형이면 카드 점수로 방향을 먼저 정하고(코드), C가 그 방향에 맞춰 한 줄·질문·teaser·이유를 쓴다.

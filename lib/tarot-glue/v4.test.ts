@@ -295,3 +295,10 @@ test("세부 고민 기본값·3쪽 영역 이름", () => {
   // 세부 고민의 영역이 고민 틀 영역과 어긋나면 세부 이름은 쓰지 않는다
   assert.equal(areaPhraseFor({ sub_id: "MR-REAL", area: "CAR" }, null, { CAR: "직장 이름" }), "직장 이름");
 });
+
+test("고민을 썼는데 분류(A)가 실패하면 3쪽은 '들려준 이야기' 문장(미작성용 문장 아님) — 2026-11-15", () => {
+  const p3 = (cls: unknown, worryText: string) => String(buildUnpaidPages({ name: cs.name, cls: cls as never, picks, safety, worryText, frame: null, lean: null, C: null }).find((p: { page: number }) => p.page === 3)?.body ?? "");
+  const wrote = p3(null, cs.worry);
+  assert.ok(wrote.includes("들려준 이야기를") && !wrote.includes("마음속으로 떠올린"));
+  assert.ok(p3(null, "").includes("마음속으로 떠올린"), "고민을 안 썼으면 예전 문장");
+});

@@ -15,6 +15,7 @@ import subDbKo from "../../data/worry_subtopics.json" with { type: "json" };
 import answerDbKo from "../../data/answer_first_db.json" with { type: "json" };
 import type { ExpandedPick, Safety } from "../tarot/types";
 import { focusLine } from "../tarot/multiWorry.js";
+import { fill } from "../client/text.ts";
 import { MULTI_DB } from "./multiWorry.ts";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -173,7 +174,7 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
   // 3쪽·5쪽 "카드 내용을 종합하면" 한 문장은 한국어 활용형을 바꾸는 코드라 영문판에는 쓰지 않는다.
   const gisted = locale === "en" ? pages : applyCardGist(pages, lean, summaryTitle(locale), { hideSummary: false });
   const af = answerFirstFor({ frame, lean, picks, now: now ?? new Date(), locale });
-  const ordered = reorderSecret(withAnswerFirst(gisted, af, frame), { paid: true, name, cls, frame, lean, picks, locale });
+  const ordered = reorderSecret(withAnswerFirst(gisted, af, frame), { paid: true, name, cls, frame, lean, picks, locale, wrote: Boolean(worryText?.trim()) });
   return withLines(ordered, { paid: true, frame, lean, picks, cls, safety, worryText, locale });
 }
 
@@ -185,13 +186,15 @@ function withLines(pages: any[], a: { paid: boolean; frame: Frame | null; lean: 
 }
 
 // 결과 쪽 순서 바꾸기 + 세 번째 카드 시크릿(owner 2026-11-02) — lib/tarot-glue/secretThird.ts
-export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, picks, locale }: { paid: boolean; name: string; cls: Cls | null; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; locale?: Locale }): any[] {
+export function reorderSecret(pages: any[], { paid, name, cls, frame, lean, picks, locale, wrote = false }: { paid: boolean; name: string; cls: Cls | null; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; locale?: Locale; wrote?: boolean }): any[] {
   const { data, midDb } = bd(locale);
   const CR = data.copy.result as any;
   const midKey: string | null = locale === "en" ? cls?.domain ?? null : midAreaKey(frame, cls, midDb, subDbKo);
   return secretThird(pages, {
     paid, name, frame: frame as any, lean: lean as any, picks,
-    reading: pkg(locale).assemble.readingSentence({ name, cls, data }),
+    // 고민을 썼는데 고민 분류(A)가 실패하면 패키지 문장은 '마음속으로 떠올린 고민'(미작성용)이 된다 —
+    // 고민을 쓴 사람에게는 쓴 이야기를 읽었다는 문장으로(2026-11-15, 리포트 검사 '고민 미반영' 원인). 문구는 데이터(Claude 초안).
+    reading: !cls && wrote && locale !== "en" && CR.secret3?.reading_no_cls ? fill(String(CR.secret3.reading_no_cls), { name }) : pkg(locale).assemble.readingSentence({ name, cls, data }),
     copy: CR.secret3 as SecretCopy,
     frameTitle: String(CR.v4?.frame_title ?? "**이번 고민에서 끝까지 함께 볼 것**"),
     teaser5: (CR.pages as { key: string; teaser?: string }[]).find((x) => x.key === "story")?.teaser ?? null,
@@ -241,7 +244,7 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
     const blur = fromSet || p.blur;
     return blur ? { ...p, blur: personalizeBlur(String(blur), name, names, locale) } : p;
   });
-  return withLines(reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, locale }), { paid: false, frame, lean, picks, cls, safety, worryText, locale });
+  return withLines(reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, locale, wrote: Boolean(worryText?.trim()) }), { paid: false, frame, lean, picks, cls, safety, worryText, locale });
 }
 
 /** 블러 고정 예시 속 이름(민준님)과 예시 카드 이름 세 장(자리 순서)을 이 사람의 것으로. */
