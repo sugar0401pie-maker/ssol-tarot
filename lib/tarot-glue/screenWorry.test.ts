@@ -4,9 +4,13 @@ import { screenWorry } from "./screenWorry.ts";
 
 test("데이터로 옮긴 위험 단어를 잡는다(v4.1 CSO 2026-10-22 기준)", () => {
   // urgent(카드 멈춤) = 죽음에 대한 직접 표현·자해 행동·작별 준비
-  assert.equal(screenWorry("요즘 그만 살고 싶어요").level, "urgent");
-  assert.equal(screenWorry("가족한테 편지를 써 뒀어요").level, "urgent");
-  assert.equal(screenWorry("더 버틸 이유가 없어요").level, "urgent");
+  assert.equal(screenWorry("요즘 그만 살려고요").level, "urgent");
+  assert.equal(screenWorry("차라리 죽을까 생각해요").level, "urgent");
+  // 2026-11-15 owner(v2.3.18): 낱말만으로는 갈리는 표현은 키워드에서 빼고 AI 분류가 맡음, 문맥 규칙은 watch
+  assert.equal(screenWorry("가족한테 편지를 써 뒀어요").level, "none");
+  assert.equal(screenWorry("이 집에서 그만 살고 싶어요").level, "none");
+  assert.equal(screenWorry("더 버틸 이유가 없어요").level, "watch");
+  assert.equal(screenWorry("강아지가 아픈데 죽을까요?").level, "watch");
   // watch(결과 그대로 + 마지막 쪽 109 안내) = 소극적 표현. v4.0까지는 urgent였다 — owner가 CSO 결정 그대로 따르기로 함(2026-10-22):
   // 한 번 적은 문장만으로 판별하는 테스트라 여러 차례 대화하는 쏘웰라와 기준이 같을 수 없다.
   assert.equal(screenWorry("요즘은 다 끝내고 싶다는 생각만 들어요").level, "watch");
