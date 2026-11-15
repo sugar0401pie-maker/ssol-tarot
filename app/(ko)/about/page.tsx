@@ -100,6 +100,11 @@ export default function AboutPage() {
 
         <H2>{HOW_TITLE}</H2>
         <p className="mt-3 text-[14px] leading-6 text-navy/85">{HOW}</p>
+        <p className="mt-2 text-[14px] leading-6">
+          <Link href="/cards" className="font-semibold text-navy underline underline-offset-2">
+            카드 22장의 뜻 모아 보기 →
+          </Link>
+        </p>
 
         <H2>{MAKERS_TITLE}</H2>
         <p className="mt-3 text-[14px] leading-6 text-navy/85">{MAKERS}</p>
