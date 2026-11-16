@@ -5,6 +5,7 @@ import { CARD_PAGES, CARDS_PATH, INDEX_DESC, INDEX_H1, INDEX_OG_DESC, INDEX_OG_T
 import { CardsFooter, CtaButton } from "./CardsChrome";
 import { SHUFFLE_PATH } from "@/lib/guide/shuffle";
 import { THREE_PATH } from "@/lib/guide/threeCard";
+import { OG_IMAGES } from "@/lib/seo/ogImage";
 
 // 카드 22장 모아 보기(SEO, owner 2026-11-15). 로그인 없이 빌드 때 만든 정적 HTML.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshouse.com";
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   title: { absolute: INDEX_TITLE },
   description: INDEX_DESC,
   alternates: { canonical: `${SITE}${CARDS_PATH}` },
-  openGraph: { title: INDEX_OG_TITLE, description: INDEX_OG_DESC, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${CARDS_PATH}` },
+  openGraph: { title: INDEX_OG_TITLE, description: INDEX_OG_DESC, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${CARDS_PATH}` , images: OG_IMAGES },
 };
 
 export default function CardsIndex() {

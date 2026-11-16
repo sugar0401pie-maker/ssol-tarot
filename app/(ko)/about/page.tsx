@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
 import { currentReportPrice, won } from "@/lib/billing/pricing";
 import { DISPLAY_PARTICIPANTS, asOfDots } from "@/lib/stats/participants";
+import { OG_IMAGES } from "@/lib/seo/ogImage";
 import {
   ABOUT_PATH,
   CTA,
@@ -37,7 +38,7 @@ export function generateMetadata(): Metadata {
     title: { absolute: aboutTitle },
     description,
     alternates: { canonical: `${SITE}${ABOUT_PATH}` },
-    openGraph: { title: aboutTitle, description, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${ABOUT_PATH}` },
+    openGraph: { title: aboutTitle, description, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${ABOUT_PATH}` , images: OG_IMAGES },
     twitter: { card: "summary_large_image", title: aboutTitle, description },
   };
 }

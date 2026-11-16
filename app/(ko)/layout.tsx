@@ -5,6 +5,7 @@ import "../auth.css";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
 import UtmCapture from "@/components/UtmCapture";
+import { OG_IMAGES } from "@/lib/seo/ogImage";
 
 // 글꼴 가볍게(쏠 아스트로 하우스 2026-10-18과 같은 방법): 한글 글꼴은 글자 범위별로 조각이 100개 가까이라
 // 미리 받기를 켜 두면 화면에 안 쓰는 조각까지 먼저 받는다 → preload: false(화면에 나온 글자 조각만 받음).
@@ -28,8 +29,8 @@ export const metadata: Metadata = {
   },
   title: "쏠 타로 하우스",
   description: DESCRIPTION,
-  openGraph: { title: "쏠 타로 하우스", description: DESCRIPTION, siteName: "쏠 타로 하우스", locale: "ko_KR", type: "website" },
-  twitter: { card: "summary_large_image", title: "쏠 타로 하우스", description: DESCRIPTION },
+  openGraph: { title: "쏠 타로 하우스", description: DESCRIPTION, siteName: "쏠 타로 하우스", locale: "ko_KR", type: "website" , images: OG_IMAGES },
+  twitter: { card: "summary_large_image", title: "쏠 타로 하우스", description: DESCRIPTION, images: ["/opengraph-image.jpg"] },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#012F53" };
