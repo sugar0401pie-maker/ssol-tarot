@@ -108,6 +108,10 @@ export default function AboutPage() {
           <Link href="/tarot-shuffle" className="font-semibold text-navy underline underline-offset-2">
             타로 셔플하는 법 →
           </Link>
+          <span className="mx-2 text-navy/40">·</span>
+          <Link href="/tarot-three-card" className="font-semibold text-navy underline underline-offset-2">
+            3장 배열 보는 법 →
+          </Link>
         </p>
 
         <H2>{MAKERS_TITLE}</H2>

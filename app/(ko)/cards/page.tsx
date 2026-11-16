@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { CARD_PAGES, CARDS_PATH, INDEX_DESC, INDEX_H1, INDEX_TITLE, indexJsonLd } from "@/lib/cards/content";
+import { CARD_PAGES, CARDS_PATH, INDEX_DESC, INDEX_H1, INDEX_OG_DESC, INDEX_OG_TITLE, INDEX_TITLE, indexJsonLd } from "@/lib/cards/content";
 import { CardsFooter, CtaButton } from "./CardsChrome";
 import { SHUFFLE_PATH } from "@/lib/guide/shuffle";
+import { THREE_PATH } from "@/lib/guide/threeCard";
 
 // 카드 22장 모아 보기(SEO, owner 2026-11-15). 로그인 없이 빌드 때 만든 정적 HTML.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshouse.com";
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   title: { absolute: INDEX_TITLE },
   description: INDEX_DESC,
   alternates: { canonical: `${SITE}${CARDS_PATH}` },
-  openGraph: { title: INDEX_TITLE, description: INDEX_DESC, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${CARDS_PATH}` },
+  openGraph: { title: INDEX_OG_TITLE, description: INDEX_OG_DESC, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${CARDS_PATH}` },
 };
 
 export default function CardsIndex() {
@@ -30,7 +31,11 @@ export default function CardsIndex() {
       <p className="mt-4 break-keep text-[15px] leading-7 text-moon/90">{INDEX_DESC}</p>
       <p className="mt-3 text-[14px]">
         <Link href={SHUFFLE_PATH} className="text-gold-soft underline underline-offset-4">
-          타로 셔플하는 법과 3장 뽑는 법 →
+          타로 셔플하는 법 →
+        </Link>
+        <span className="mx-2 text-moon/40">·</span>
+        <Link href={THREE_PATH} className="text-gold-soft underline underline-offset-4">
+          타로 3장 배열 보는 법 →
         </Link>
       </p>
       <CtaButton />

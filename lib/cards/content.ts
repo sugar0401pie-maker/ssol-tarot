@@ -62,12 +62,15 @@ export const cardH1 = (c: CardPage) => `${c.no}번 ${c.name}`;
 export const cardDescription = (c: CardPage) =>
   `타로 ${c.arcanaKo}(${c.arcanaEn}) 카드를 ${c.character}로 그린 쏠 타로 하우스의 '${c.name}'. ${c.upright.overview || c.upright.core}`.slice(0, 160);
 
-// 2026-11-16 owner: '바다 친구들 카드 모아 보기'는 빼고, 타로 리더들이 흔히 쓰는 방식(메이저 22장·셔플·3장 배열)이라는 점을
-// 앞에 — "타로, 타로 방식, 타로 셔플, 타로 셔플법" 검색을 겨냥. 셔플 방법 자체는 따로 /tarot-shuffle 페이지(lib/guide/shuffle.ts).
-export const INDEX_TITLE = "타로 카드 22장 뜻 — 메이저 아르카나 정방향·역방향 해석 | 쏠 타로 하우스";
+// 2026-11-16 owner(마케팅): 검색어 "타로 · 타로 정방향 · 역방향 · 무료 타로 · 타로 보는 법"에 걸리도록 페이지 제목·설명과
+// 오픈 그래프 제목·설명을 다듬음('바다 친구들 카드 모아 보기'는 뺌). 카드 뜻은 무료로 보고, 테스트도 무료로 시작한다(세 번째 카드·
+// 전체 리포트는 유료) — '무료'는 이 범위에서만 쓴다. 셔플 방법은 /tarot-shuffle, 3장 배열은 /tarot-three-card.
+export const INDEX_TITLE = "타로 카드 뜻 정방향·역방향 총정리 — 무료 타로 보는 법 | 쏠 타로 하우스";
 export const INDEX_H1 = "타로 카드 22장의 뜻";
 export const INDEX_DESC =
-  "타로 리더들이 흔히 쓰는 메이저 아르카나 22장(0번 바보부터 21번 세계까지)의 정방향·역방향 뜻을 정리했어요. 셔플한 카드에서 세 장을 골라 과거·현재·미래로 읽는 일반적인 방식 그대로, 카드마다 스스로에게 던져 볼 질문도 함께 볼 수 있어요.";
+  "타로 메이저 카드 22장의 정방향·역방향 뜻을 무료로 한눈에 정리했어요. 0번 바보부터 21번 세계까지 카드마다 키워드와 해석, 스스로에게 던져 볼 질문을 담았어요. 타로 리더들이 흔히 쓰는 3장 배열(과거·현재·미래)로 타로 보는 법도 알려 드려요.";
+export const INDEX_OG_TITLE = "타로 카드 뜻 총정리 — 정방향·역방향 무료 해석";
+export const INDEX_OG_DESC = "메이저 카드 22장의 정방향·역방향 뜻과 타로 보는 법을 무료로 확인하고, 내 고민으로 바로 카드 세 장을 뽑아 보세요.";
 
 /** 카드 페이지 구조화 데이터 — 화면에 보이는 글과 같은 값만. 가격·후기는 넣지 않는다. */
 export function cardJsonLd(site: string, c: CardPage) {
