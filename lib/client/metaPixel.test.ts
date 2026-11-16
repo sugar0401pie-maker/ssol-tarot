@@ -6,7 +6,7 @@ test("메타 픽셀 ID: 환경 변수 없으면 owner 픽셀(기본값), 숫자�
   const old = process.env.NEXT_PUBLIC_META_PIXEL_ID;
   delete process.env.NEXT_PUBLIC_META_PIXEL_ID;
   assert.equal(metaPixelId(), DEFAULT_META_PIXEL_ID);
-  assert.equal(DEFAULT_META_PIXEL_ID, "1509917721196311");
+  assert.equal(DEFAULT_META_PIXEL_ID, "28980812814878410");
   process.env.NEXT_PUBLIC_META_PIXEL_ID = "1234567890123456";
   assert.equal(metaPixelId(), "1234567890123456");
   process.env.NEXT_PUBLIC_META_PIXEL_ID = "abc');alert(1)//";

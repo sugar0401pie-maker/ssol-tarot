@@ -2,7 +2,7 @@ import Script from "next/script";
 import { metaPixelId } from "@/lib/client/metaPixel";
 
 // 메타(페이스북·인스타그램) 픽셀(owner 2026-11-16 — 메타 광고를 '랜딩 페이지 조회'로 최적화하려면 필요).
-// 픽셀 ID = owner가 준 1509917721196311(코드 기본값, lib/client/metaPixel.ts) — Vercel 환경 변수 NEXT_PUBLIC_META_PIXEL_ID가 있으면 그 값.
+// 픽셀 ID = owner가 준 28980812814878410(코드 기본값, lib/client/metaPixel.ts) — Vercel 환경 변수 NEXT_PUBLIC_META_PIXEL_ID가 있으면 그 값.
 // 기본 PageView는 픽셀이 화면 주소 바뀜(pushState)도 자동으로 센다. 고민 글·닉네임·이메일은 보내지 않는다.
 export default function MetaPixel() {
   const id = metaPixelId();
