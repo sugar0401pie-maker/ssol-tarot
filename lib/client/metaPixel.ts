@@ -1,7 +1,9 @@
 // 메타 픽셀 표준 이벤트 보내기(owner 2026-11-16). 픽셀이 없으면(ID 없음·차단) 아무것도 하지 않는다.
 // 보내는 것: 이벤트 이름 + 금액·통화·콘텐츠 이름뿐(고민 글·닉네임·이메일·카드 이름은 보내지 않음).
+// owner가 준 픽셀 ID(2026-11-16)를 기본값으로 — Vercel 환경 변수 NEXT_PUBLIC_META_PIXEL_ID가 있으면 그 값이 우선.
+export const DEFAULT_META_PIXEL_ID = "1509917721196311";
 export function metaPixelId(): string | null {
-  const id = (process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "").trim();
+  const id = (process.env.NEXT_PUBLIC_META_PIXEL_ID || DEFAULT_META_PIXEL_ID).trim();
   return /^\d{6,20}$/.test(id) ? id : null;
 }
 
