@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CARD_PAGES, CARDS_PATH, INDEX_DESC, INDEX_H1, INDEX_TITLE, indexJsonLd } from "@/lib/cards/content";
 import { CardsFooter, CtaButton } from "./CardsChrome";
+import { SHUFFLE_PATH } from "@/lib/guide/shuffle";
 
 // 카드 22장 모아 보기(SEO, owner 2026-11-15). 로그인 없이 빌드 때 만든 정적 HTML.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshouse.com";
@@ -27,6 +28,11 @@ export default function CardsIndex() {
       </p>
       <h1 className="mt-2 break-keep text-center font-serif text-[24px] font-bold leading-snug text-gold-soft">{INDEX_H1}</h1>
       <p className="mt-4 break-keep text-[15px] leading-7 text-moon/90">{INDEX_DESC}</p>
+      <p className="mt-3 text-[14px]">
+        <Link href={SHUFFLE_PATH} className="text-gold-soft underline underline-offset-4">
+          타로 셔플하는 법과 3장 뽑는 법 →
+        </Link>
+      </p>
       <CtaButton />
       <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {CARD_PAGES.map((c) => (

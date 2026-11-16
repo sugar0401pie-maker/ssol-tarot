@@ -102,7 +102,11 @@ export default function AboutPage() {
         <p className="mt-3 text-[14px] leading-6 text-navy/85">{HOW}</p>
         <p className="mt-2 text-[14px] leading-6">
           <Link href="/cards" className="font-semibold text-navy underline underline-offset-2">
-            카드 22장의 뜻 모아 보기 →
+            카드 22장의 뜻 보기 →
+          </Link>
+          <span className="mx-2 text-navy/40">·</span>
+          <Link href="/tarot-shuffle" className="font-semibold text-navy underline underline-offset-2">
+            타로 셔플하는 법 →
           </Link>
         </p>
 
