@@ -82,3 +82,11 @@ test("v3.1 앞단 강조: 1쪽 덧줄·2쪽 기저 생각·3쪽 신호/묻는 �
   const a = analysisFields({ frame: { ...frame, sub2: "MN-WHEN" }, lean: null, picks, worryText: hard });
   assert.equal(a.sub2, "MN-WHEN"); assert.equal(a.deep?.deep_level, 2);
 });
+
+test("더 세게 신호 넓힘(owner 2026-11-16, CSO 판정은 유지)", async () => {
+  const { intensityOf } = await import("../tarot/deepRead.js");
+  const DR = (await import("../../data/deep_read.json", { with: { type: "json" } })).default;
+  for (const x of ["회사 그만둘까요 그냥 다닐까요", "헤어진 남친과 다시 만나고파", "지금 하는 일이 저랑 안 맞는 것 같아요", "앞으로 뭘 해야 할지 모르겠어요"]) assert.equal(intensityOf(x, {}, DR).level, 2, x);
+  // CSO 판정 '지금 정도' — 사정 없는 시기 질문·설렘·해 보고 싶다
+  for (const x of ["이직 언제 될까요", "둘 다 너무너무 하고 싶은데 붙을 수 있을까요?", "이상형인 사람과 사귀어 보고 싶어요"]) assert.equal(intensityOf(x, {}, DR).level, 1, x);
+});
