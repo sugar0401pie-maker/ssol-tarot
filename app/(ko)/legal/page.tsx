@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { guestYearRetentionActive } from "@/lib/tarot-glue/guestLimit";
+import { pageMeta } from "@/lib/seo/pages";
+import { OG_IMAGES } from "@/lib/seo/ogImage";
 
 // 2026-10-21 owner 요청: astro.ssolwellnesshouse.com/legal 내용을 그대로 가져와 이 사이트의 별도 페이지로 두고
 // 사이트 이름을 '쏠 타로 하우스'로. 원문(쏠 아스트로 하우스 저장소 app/legal/page.tsx)은 같은 사업자 전체 서비스의 약관이라
@@ -8,7 +10,14 @@ import { guestYearRetentionActive } from "@/lib/tarot-glue/guestLimit";
 // 쏘웰라 연결)은 실제 점성술 서비스에 대한 설명이라 이름만 바꾸면 사실과 달라져서 그대로 두었다(owner 확인 대기).
 // 타로 고유 항목(고민 글·뽑은 카드 등)을 추가할지는 owner·법률 검토 후 결정.
 // 어두운 배경 위 흰 긴 글 금지(디자인 가이드) → 본문은 크림 상자 위 남색 글자. 색 이름만 이 사이트 것으로(cream → moon/card-cream).
-export const metadata: Metadata = { title: "쏠 타로 하우스 — 약관 및 정책" };
+// 검색·미리보기 문구는 owner 시트(lib/seo/pages.ts, 2026-11-16).
+const LEGAL_META = pageMeta("/legal")!;
+export const metadata: Metadata = {
+  title: { absolute: LEGAL_META.title },
+  description: LEGAL_META.description,
+  alternates: { canonical: "/legal" },
+  openGraph: { title: LEGAL_META.ogTitle, description: LEGAL_META.ogDescription, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: "/legal", images: OG_IMAGES },
+};
 // 2-3항 보관 기간이 시행일(2026-12-06)에 저절로 바뀌도록 1시간마다 다시 만든다.
 export const revalidate = 3600;
 

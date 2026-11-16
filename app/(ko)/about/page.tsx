@@ -4,6 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { currentReportPrice, won } from "@/lib/billing/pricing";
 import { DISPLAY_PARTICIPANTS, asOfDots } from "@/lib/stats/participants";
 import { OG_IMAGES } from "@/lib/seo/ogImage";
+import { pageMeta } from "@/lib/seo/pages";
 import {
   ABOUT_PATH,
   CTA,
@@ -16,9 +17,7 @@ import {
   SOWELLA_URL,
   MAKERS,
   MAKERS_TITLE,
-  aboutDescription,
   aboutJsonLd,
-  aboutTitle,
   atAGlance,
   faqGroups,
   participantsLine,
@@ -33,13 +32,14 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshous
 const HOME = "https://tarot.ssolwellnesshouse.com/";
 
 export function generateMetadata(): Metadata {
-  const description = aboutDescription(won(currentReportPrice()));
+  // 검색·미리보기 문구는 owner 시트(lib/seo/pages.ts, 2026-11-16). 구조화 데이터는 예전 문구(aboutTitle·aboutDescription) 그대로.
+  const m = pageMeta(ABOUT_PATH)!;
   return {
-    title: { absolute: aboutTitle },
-    description,
+    title: { absolute: m.title },
+    description: m.description,
     alternates: { canonical: `${SITE}${ABOUT_PATH}` },
-    openGraph: { title: aboutTitle, description, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${ABOUT_PATH}` , images: OG_IMAGES },
-    twitter: { card: "summary_large_image", title: aboutTitle, description },
+    openGraph: { title: m.ogTitle, description: m.ogDescription, type: "website", locale: "ko_KR", siteName: "쏠 타로 하우스", url: `${SITE}${ABOUT_PATH}` , images: OG_IMAGES },
+    twitter: { card: "summary_large_image", title: m.ogTitle, description: m.ogDescription },
   };
 }
 

@@ -4,10 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CARD_PAGES, CARDS_PATH, type CardSide, cardBySlug, cardDescription, cardH1, cardJsonLd, cardTitle, neighbors } from "@/lib/cards/content";
 import { CardsFooter, CtaButton } from "../CardsChrome";
+import { pageMeta } from "@/lib/seo/pages";
 
 // 카드 한 장 소개(SEO, owner 2026-11-15 "카드마다 따로 페이지"). 22장 모두 빌드 때 정적 HTML로 만든다.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshouse.com";
 
+// 검색·미리보기 문구에 리포트 가격이 들어 있어(lib/seo/pages.ts) 1시간마다 다시 만든다.
+export const revalidate = 3600;
 export const dynamicParams = false;
 export function generateStaticParams() {
   return CARD_PAGES.map((c) => ({ slug: c.slug }));
@@ -18,15 +21,15 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const c = cardBySlug((await params).slug);
   if (!c) return {};
-  const title = cardTitle(c);
-  const description = cardDescription(c);
   const url = `${SITE}${CARDS_PATH}/${c.slug}`;
+  // owner 시트 문구(2026-11-16). 표에 없으면 예전 자동 문구.
+  const m = pageMeta(`${CARDS_PATH}/${c.slug}`) ?? { title: cardTitle(c), description: cardDescription(c), ogTitle: cardTitle(c), ogDescription: cardDescription(c) };
   return {
-    title: { absolute: title },
-    description,
+    title: { absolute: m.title },
+    description: m.description,
     alternates: { canonical: url },
-    openGraph: { title, description, type: "article", locale: "ko_KR", siteName: "쏠 타로 하우스", url, images: [{ url: `${SITE}${c.image}` }] },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: { title: m.ogTitle, description: m.ogDescription, type: "article", locale: "ko_KR", siteName: "쏠 타로 하우스", url, images: [{ url: `${SITE}${c.image}` }] },
+    twitter: { card: "summary_large_image", title: m.ogTitle, description: m.ogDescription },
   };
 }
 
