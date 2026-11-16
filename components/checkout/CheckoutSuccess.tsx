@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/client/api";
 import { Stars } from "../Cards";
 import { CHECKOUT_EN } from "@/lib/i18n/checkoutEn";
+import { metaTrack } from "@/lib/client/metaPixel";
 
 const KO = { missingInfo: "결제 정보를 확인하지 못했어요.", confirmFailed: "결제를 확인하지 못했어요.", backToReading: "결과로 돌아가기", checkAgain: "결제 다시 확인하기", stuck: "이미 결제가 됐는데 이 화면이 보이면, 결제한 기기·브라우저에서 다시 열어 보시거나 contact@ssolwellness.com으로 알려 주세요.", confirming: "결제를 확인하고 있어요…" };
 
@@ -35,6 +36,11 @@ export default function CheckoutSuccess({ locale = "ko" }: { locale?: "ko" | "en
     }
     api<{ ok: boolean; sessionId: string }>("/api/tarot/checkout/confirm", { body: { paymentKey, orderId, amount: Number(amount) } })
       // opened=1: 결과 화면에서 세 번째 카드를 그 자리에서 뒤집어 보여 준다(owner 2026-11-02)
+      .then((d) => {
+        // 메타 광고 성과 측정(owner 2026-11-16): 승인된 결제만, 주문 번호로 한 번만. 원화 화면만(영문판은 별도 저장소).
+        if (locale !== "en") metaTrack("Purchase", { value: Number(amount), currency: "KRW", content_name: "tarot_full_report" }, orderId);
+        return d;
+      })
       .then((d) => router.replace(`${P}/result/${d.sessionId}/${page}?opened=1`))
       .catch((e) => {
         setError(e instanceof ApiError ? e.message : T.confirmFailed);

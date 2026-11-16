@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { metaTrack } from "@/lib/client/metaPixel";
 import { api, ApiError, claimIfGuest } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
 import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, TERMS_CHECK_AFTER, TERMS_CHECK_BEFORE, TERMS_CHECK_LINK, won } from "@/lib/billing/pricing";
@@ -52,6 +53,8 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
       setClientKey(cfg?.clientKey ?? null);
       setCustomerKey(s.user.id);
       setChecked(true);
+      // 메타 광고 측정(owner 2026-11-16): 결제 화면 열기 — 결과 번호로 한 번만
+      metaTrack("InitiateCheckout", { content_name: "tarot_full_report", currency: "KRW" }, id);
     });
   }, [router, id, page]);
 
