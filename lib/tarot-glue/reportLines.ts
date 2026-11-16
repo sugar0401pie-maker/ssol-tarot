@@ -1,7 +1,8 @@
 // v2.3.15~17 문장 DB(data/report_lines.json, 고르는 함수는 패키지 lib/tarot/reportLines.js)를 결과 쪽에 끼운다(owner 2026-11-14 "3번 전부").
 // 쪽 번호는 화면 순서(reorderSecret 뒤): 1·2 카드 · 3 고민 풀어보기 · 4 세 번째 카드 · 5 세 장 이야기 · 7 방향 · 8 처방 · 9 실천.
 // 끼우는 곳(패키지 문장DB_v2.3.15.md '끼울 자리'):
-//   ① 1·2쪽 카드 문장의 셋째 문장 → 고민 영역 문장(areaVariant·scene) — 결제 전에도
+//   ① 1·2쪽 카드 문장의 셋째 문장 → 고민 영역 문장(areaVariant·scene, 글에 힘든 신호가 있으면 scene_strong — v3.1) — 결제 전에도
+//   ①-2 v3.0·3.1 앞단 강조(deepRead): 1쪽 끝 덧줄 · 2쪽 끝 기저 생각 · 3쪽 고민 읽기 아래 신호 줄과 2순위(sub2)/묻는 꼴 줄 — 결제 전에도
 //   ② 3쪽(고민 틀을 못 만든 경우) 고민 한 번 인용(fallbackQuote) — 결제 전에도
 //   ③ 5쪽 머리 문장(page5Head — '생각보다 분명한 답' 대신), 카드별 한 줄(cardLine) — 결제 후
 //   ④ 선택지 이름: DB 선택지(예측·암시)면 정식 이름은 3·7·10쪽 첫 번째만, 나머지는 별칭(aliasFor) — 결제 후. 사용자가 직접 쓴 선택지는 그대로
@@ -11,8 +12,10 @@
 // 원본 패키지 코드는 바꾸지 않는다. 어느 단계든 실패하면 그 쪽은 원래 글 그대로.
 import { worryType, cardPattern, page5Head, aliasFor, cardLine, areaVariant, page7Cond, fallbackQuote, planLine, cueFor, pickPractices, type Practice } from "../tarot/reportLines.js";
 import { hasBatchim, hasRieulBatchim } from "../tarot/josa.js";
+import { deepRead, deepEvent, type DeepRead } from "../tarot/deepRead.js";
 import { userAliases } from "./optionAlias.ts";
 import rlJson from "../../data/report_lines.json" with { type: "json" };
+import drJson from "../../data/deep_read.json" with { type: "json" };
 import subDb from "../../data/worry_subtopics.json" with { type: "json" };
 import type { ExpandedPick } from "../tarot/types";
 
@@ -23,6 +26,7 @@ export type LinesCtx = {
   safety: { level?: string | null; violence?: boolean } | null; worryText: string; tables: any; seed?: number;
 };
 const RL = rlJson as any;
+const DR = drJson as any;
 export const REPORT_LINES = RL;
 const SUBS = (subDb as any).subs as Record<string, any>;
 const POS = ["now", "hold"] as const;
@@ -46,17 +50,56 @@ export function replaceThirdSentence(chunk: string, line: string): string {
   if (third.includes("**")) return chunk;
   return `${chunk.slice(0, ends[1])} ${line}${chunk.slice(ends[2])}`;
 }
+const variantOf = (subId: string | null | undefined, frame: any, safety: LinesCtx["safety"]) =>
+  areaVariant(subId ?? null, { confidence: frame?.confidence ?? "high", safety: safetyLevel(safety) }, RL);
+
+/** v2.3.29~v3.1 앞단 강조·기저 생각(패키지 deepRead). 세부가 없거나·확신이 낮거나·안전 표시가 있으면 level 0(아무것도 안 붙임). */
+export function deepOf(ctx: Pick<LinesCtx, "frame" | "picks" | "safety" | "worryText">): DeepRead | null {
+  const f = ctx.frame;
+  if (!f?.sub_id) return null;
+  const variant = variantOf(f.sub_id, f, ctx.safety);
+  // 2순위 세부(A2 sub2) — 같은 세부거나 없으면 null. 묶음이 공통이면 2순위 문구가 없어 deepRead가 묻는 꼴 줄로 넘어간다.
+  const sub2 = typeof f.sub2 === "string" && f.sub2 && f.sub2 !== f.sub_id && SUBS[f.sub2] ? f.sub2 : null;
+  const variant2 = sub2 ? variantOf(sub2, f, ctx.safety) : null;
+  return deepRead(
+    { text: ctx.worryText, variant, subId: f.sub_id, variant2, cards: { now: cardKey(ctx.picks[0]), hold: cardKey(ctx.picks[1]) }, safety: safetyLevel(ctx.safety), confidence: f.confidence ?? "high" },
+    DR,
+  );
+}
+
+// ① 1·2쪽 카드 문장의 셋째 문장 → 영역 문장(세기 2면 '더 세게' 판 scene_strong, v3.1)
+//   + 1쪽 끝에 덧줄(tail), 2쪽 끝에 기저 생각(thought) — deep_read.json place
 function applyScenes(pages: Page[], ctx: LinesCtx): Page[] {
   const f = ctx.frame;
   if (!f?.sub_id) return pages;
-  const variant = areaVariant(f.sub_id, { confidence: f.confidence ?? "high", safety: safetyLevel(ctx.safety) }, RL);
-  if (variant === "COMMON") return pages;
+  const variant = variantOf(f.sub_id, f, ctx.safety);
+  const deep = deepOf(ctx);
+  const level = deep?.level ?? 0;
   return pages.map((p) => {
     if ((p.page !== 1 && p.page !== 2) || !p.body) return p;
-    const line = RL.scene[cardKey(ctx.picks[p.page - 1])]?.[variant]?.[POS[p.page - 1]];
-    if (!line) return p;
+    const key = cardKey(ctx.picks[p.page - 1]), pos = POS[p.page - 1];
+    const strong = level >= 2 && variant !== "COMMON" ? RL.scene_strong?.[key]?.[variant]?.[pos] : null;
+    const line = strong || (variant !== "COMMON" ? RL.scene[key]?.[variant]?.[pos] : null);
+    const extra = p.page === 1 ? deep?.page1_tail : deep?.page2_thought;
+    if (!line && !extra) return p;
     const chunks = String(p.body).split(/\n\s*\n/);
-    chunks[0] = replaceThirdSentence(chunks[0], line);
+    if (line) chunks[0] = replaceThirdSentence(chunks[0], line);
+    if (extra) chunks[0] = `${chunks[0].trimEnd()} ${extra}`;
+    return { ...p, body: chunks.join("\n\n") };
+  });
+}
+
+// ①-2 3쪽 고민 읽기("!! " 첫 문단) 바로 아래: 세기 2면 신호 줄, 그다음 2순위 줄(없으면 묻는 꼴 줄)
+function applyDeep3(pages: Page[], ctx: LinesCtx): Page[] {
+  const deep = deepOf(ctx);
+  const lines = [deep?.page3_signal, deep?.page3_line].filter((x): x is string => !!x);
+  if (!lines.length) return pages;
+  return pages.map((p) => {
+    if (p.page !== 3 || !p.body) return p;
+    const chunks = String(p.body).split(/\n\s*\n/);
+    const at = chunks.findIndex((c) => c.startsWith("!! "));
+    if (at < 0) return p;
+    chunks.splice(at + 1, 0, ...lines);
     return { ...p, body: chunks.join("\n\n") };
   });
 }
@@ -194,10 +237,12 @@ function practiceItem(slot: string, p: Practice, cue: string): string {
   const how = /때$/.test(cue) ? `\n다음에 ${cue} 해 보세요.` : "";
   return `• ${slot}: ${p.title} (${p.min}분)${how}`;
 }
-function cueOf(frame: any): string {
+function cueOf(frame: any, safety = "none"): string {
   const sid = frame?.sub_id;
   const scene = sid ? Object.values((RL.cue.scene ?? {}) as Record<string, { cue: string; subs: string[] }>).find((s) => s.subs.includes(sid)) : null;
-  return cueFor({ subId: sid, frameId: frame?.frame_id, sceneCue: scene?.cue ?? null }, RL);
+  // v2.3.28: 영역 묶음(variant)의 앞머리를 세부·틀보다 먼저
+  const variant = sid ? areaVariant(sid, { confidence: frame?.confidence ?? "high", safety }, RL) : null;
+  return cueFor({ subId: sid, frameId: frame?.frame_id, sceneCue: scene?.cue ?? null, variant }, RL);
 }
 function applyPage9(pages: Page[], ctx: LinesCtx): Page[] {
   const { frame, lean } = ctx;
@@ -207,7 +252,7 @@ function applyPage9(pages: Page[], ctx: LinesCtx): Page[] {
   const exclude = p8?.body ? [...String(p8.body).matchAll(/^• (.+)$/gm)].map((m) => m[1].trim()) : [];
   const emotion = (ctx.cls?.emotions ?? []).includes("TIR") ? "TIR" : null;
   const { today, three } = pickPractices({ frameId: frame.frame_id, variant, emotion, safety: safetyLevel(ctx.safety), pickSign: lean ? pickSignOf(lean) : 1, exclude }, RL);
-  const cue = cueOf(frame);
+  const cue = cueOf(frame, safetyLevel(ctx.safety));
   const plan = planLine(frame.frame_id, lean ? pickSignOf(lean) : 1, RL);
   return pages.map((p) => {
     if (p.page !== 9 || !p.body) return p;
@@ -235,7 +280,7 @@ function applyPage9(pages: Page[], ctx: LinesCtx): Page[] {
 
 /** 화면 순서로 정리된 쪽들에 문장 DB를 끼운다. 한국어판만(영문판은 문장 DB가 없음). */
 export function applyReportLines(pages: Page[], ctx: LinesCtx): Page[] {
-  const steps: ((p: Page[], c: LinesCtx) => Page[])[] = [applyScenes, applyQuote];
+  const steps: ((p: Page[], c: LinesCtx) => Page[])[] = [applyScenes, applyDeep3, applyQuote];
   if (ctx.paid) steps.push(applyPage5, applyPage7, applyPage9, applyAliases);
   let out = pages;
   for (const step of steps) {
@@ -250,13 +295,18 @@ export function applyReportLines(pages: Page[], ctx: LinesCtx): Page[] {
 
 // v2.3.15 분석용 기록 칸(worry_type·card_pattern·area_variant) — 화면 조립과 같은 함수로 계산한다(owner 2026-11-15).
 // 저장하지 않고 관리자 엑셀을 만들 때 다시 계산(결정론적). lean이 없으면(방향 없음·카드 3장 전) 카드 모양은 null.
-export function analysisFields({ frame, lean, safety }: { frame: any | null; lean: any | null; safety?: LinesCtx["safety"] }): {
+export function analysisFields({ frame, lean, safety, picks = [], worryText = "" }: { frame: any | null; lean: any | null; safety?: LinesCtx["safety"]; picks?: ExpandedPick[]; worryText?: string }): {
   worry_type: "OUTCOME" | "CHOICE" | "SITUATION"; card_pattern: string | null; area_variant: string;
+  sub2: string | null; deep: ReturnType<typeof deepEvent> | null;
 } {
+  // v3.0 기록 칸: sub2 · deep_level · deep_signal · deep_thought_sub · deep_source(앞단 강조가 어떻게 나갔는지)
+  const deep = frame && picks.length >= 2 ? deepOf({ frame, picks, safety: safety ?? null, worryText }) : null;
   const scores = lean ? (lean.cards ?? []).map((c: any) => Number(c.score) || 0) : [];
   return {
     worry_type: typeOf(frame),
     card_pattern: lean && scores.length === 3 ? cardPattern(scores, pickSignOf(lean)) : null,
     area_variant: frame ? areaVariant(frame.sub_id, { confidence: frame.confidence ?? "high", safety: safetyLevel(safety ?? null) }, RL) : "COMMON",
+    sub2: typeof frame?.sub2 === "string" && frame.sub2 ? frame.sub2 : null,
+    deep: deep ? deepEvent(deep) : null,
   };
 }

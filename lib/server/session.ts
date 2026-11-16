@@ -373,6 +373,16 @@ export async function runClassification(sessionId: string, followup: FollowupAns
   } else {
     [cls, frame] = await Promise.all([callA(), callA2()]);
   }
+  // v3.0 개발 요청 1: 세부(sub_id)가 비면 한 번 더 판별(운영 11/9~15 세부 없음 5.3%, 긴 글·여러 고민 글에 몰림).
+  // 다시 부른 결과에 세부가 있을 때만 바꾼다(없거나 실패하면 처음 것 그대로). 한국어만 — 영문판은 세부가 없다.
+  if (locale === "ko" && frame && !(frame as { sub_id?: unknown }).sub_id) {
+    try {
+      const again = parseFrameFor(locale, await generateText(P.A2, (await fcP).user, { timeoutMs: 15000, maxOutputTokens: 800, label: "A2-sub" })).frame;
+      if (again && (again as { sub_id?: unknown }).sub_id) frame = again;
+    } catch (e) {
+      console.warn("고민 틀(A2) 세부 다시 판별 실패:", e instanceof Error ? e.message : "unknown");
+    }
+  }
   // 안전 단계는 서버 키워드와 AI 중 항상 높은 쪽(mergeSafety — v4.1: none < watch < urgent, CSO 2026-10-22).
   // urgent만 카드를 멈추고, watch는 결과 그대로 + 마지막 쪽 맨 아래 109 안내 한 줄. 분류에 실패해도 키워드 결과는 유지.
   if (frame && followup) frame = followup.length ? applyFollowup(frame, followup, FOLLOWUP_DB) : { ...(frame as object), followup: { answers: [], filled: [], skipped: true } };
@@ -608,7 +618,7 @@ export function analysisFor(s: SessionRow): ReturnType<typeof analysisFields> | 
     const frame = prepareFrame(s.frame ?? null, cls, "ko", { level: s.safety_level, violence: s.violence });
     const picks = (s.picks ?? []).length === 3 ? expandPicks(s.picks, "ko") : [];
     const lean = picks.length === 3 ? decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null, locale: "ko" }).lean : null;
-    return analysisFields({ frame, lean, safety });
+    return analysisFields({ frame, lean, safety, picks, worryText: s.worry_text ?? "" });
   } catch {
     return null;
   }

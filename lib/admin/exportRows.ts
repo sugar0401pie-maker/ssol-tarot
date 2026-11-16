@@ -33,10 +33,12 @@ export const EXPORT_HEADER = [
   "여러 고민",
   // v2.3.15 분석용(2026-11-15): 고민 유형 · 카드 모양(결론 쪽과 같은 카드) · 영역 문장 묶음 — 저장 안 하고 내려받을 때 계산
   "고민 유형", "카드 모양", "영역 문장",
+  // v3.0(2026-11-16): 2순위 세부(A2 sub2) · 앞단 강조 세기·신호·기저 생각 세부·3쪽 줄 출처(deepRead)
+  "2순위 세부", "강조 세기", "강조 신호", "기저 생각 세부", "3쪽 줄",
   // 2026-11-14: 첫 방문 주소의 광고 소재(utm) — 비어 있으면 빈칸
   "utm_source", "utm_campaign", "utm_content",
 ];
-export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 9, 16, 18, 18, 18];
+export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 9, 16, 18, 24, 9, 10, 14, 9, 18, 18, 18];
 
 const PROVIDER: Record<string, string> = { email: "이메일", kakao: "카카오", "custom:naver": "네이버", naver: "네이버", google: "구글", apple: "애플" };
 export function providerLabel(u: ExportUser | null | undefined, userId: string | null): string {
@@ -51,8 +53,10 @@ const SAFETY: Record<string, string> = { none: "보통", watch: "주의", urgent
 const RESULT: Record<string, string> = { ready: "결과 나옴", safety: "안전 안내", started: "고민 쓰기 전·중", drawing: "카드 뽑는 중", preparing: "결과 만드는 중" };
 const REPORT: Record<string, string> = { none: "", generating: "만드는 중", ready: "완성", failed: "실패" };
 
-export type ExportAnalysis = { worry_type: string; card_pattern: string | null; area_variant: string } | null;
+export type ExportAnalysis = { worry_type: string; card_pattern: string | null; area_variant: string; sub2?: string | null; deep?: { deep_level: number; deep_signal: string | null; deep_thought_sub: string | null; deep_source: string | null } | null } | null;
 const WORRY_TYPE: Record<string, string> = { OUTCOME: "결과형", CHOICE: "선택형", SITUATION: "상황형" };
+const DEEP_LEVEL: Record<number, string> = { 0: "안 붙임", 1: "지금 정도", 2: "더 세게" };
+const DEEP_SOURCE: Record<string, string> = { second: "2순위", form: "묻는 꼴" };
 const CARD_PATTERN: Record<string, string> = { ALL: "세 장 모두", TWO_KEY: "세 번째 + 한 장", TWO_NOKEY: "앞 두 장(세 번째 반대)", KEY_ALONE: "세 번째만", MIXED: "섞임" };
 
 export function exportRow(
@@ -94,6 +98,11 @@ export function exportRow(
     analysis ? (WORRY_TYPE[analysis.worry_type] ?? analysis.worry_type) : "",
     analysis?.card_pattern ? `${CARD_PATTERN[analysis.card_pattern] ?? ""} (${analysis.card_pattern})` : "",
     analysis ? `${variantNames[analysis.area_variant]?.name ?? ""} (${analysis.area_variant})` : "",
+    analysis?.sub2 ? `${subNames[analysis.sub2]?.name ?? ""} (${analysis.sub2})`.trim() : "",
+    analysis?.deep ? (DEEP_LEVEL[analysis.deep.deep_level] ?? String(analysis.deep.deep_level)) : "",
+    analysis?.deep?.deep_signal ?? "",
+    analysis?.deep?.deep_thought_sub ?? "",
+    analysis?.deep?.deep_source ? (DEEP_SOURCE[analysis.deep.deep_source] ?? analysis.deep.deep_source) : "",
     s.utm?.source ?? "",
     s.utm?.campaign ?? "",
     s.utm?.content ?? "",

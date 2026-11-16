@@ -1,5 +1,5 @@
 {
- "version": "v2 (2026-11-15, CR-DISTANCE/CR-CHANCE 뺌 — CSO: 사정은 겉으로 든 예이고 이어질지에 더 가까움)",
+ "version": "v5 (2026-11-16, v2.3.35)",
  "note": "채점할 때 둘 중 어느 쪽이 나와도 정답으로 치는 세부 짝. CSO가 검수 표본에서 \"둘 다 됨\"으로 판정한 것. 틀이 다른 짝도 있음(결과 글은 달라짐). 판별 자체를 바꾸지 않고 채점에만 씀.",
  "pairs": [
   {
@@ -46,6 +46,52 @@
    "a": "MR-WHETHER",
    "b": "MR-THIS",
    "sample_no": 38
+  },
+  {
+   "a": "UF-ANXIOUS",
+   "b": "SF-MIND",
+   "sample_no": "2차 Q11"
+  },
+  {
+   "a": "WK-MOVE",
+   "b": "WK-SWITCH",
+   "sample_no": "2차 시트4 #28·#48"
+  },
+  {
+   "a": "CR-CHANCE",
+   "b": "CR-ONEWAY",
+   "sample_no": null,
+   "note": "v2.3.32 새 세부와 옛 세부 — 같은 틀, 기존 정답과 맞추려고 둘 다 정답"
+  },
+  {
+   "a": "CR-CHANCE",
+   "b": "CR-COND",
+   "sample_no": null,
+   "note": "v2.3.32 새 세부와 옛 세부 — 같은 틀, 기존 정답과 맞추려고 둘 다 정답"
+  },
+  {
+   "a": "RL-STAY",
+   "b": "RL-COND",
+   "sample_no": null,
+   "note": "v2.3.32 새 세부와 옛 세부 — 같은 틀, 기존 정답과 맞추려고 둘 다 정답"
+  },
+  {
+   "a": "ML-LIFE",
+   "b": "ML-FIGHT",
+   "sample_no": null,
+   "note": "v2.3.32 새 세부와 옛 세부 — 같은 틀, 기존 정답과 맞추려고 둘 다 정답"
+  },
+  {
+   "a": "WK-ADAPT",
+   "b": "WK-PERFORM",
+   "sample_no": null,
+   "note": "v2.3.35 새 세부(같은 틀 F25)"
+  },
+  {
+   "a": "PT-WHAT",
+   "b": "PT-PATH",
+   "sample_no": null,
+   "note": "v2.3.35 새 세부(같은 틀 F35)"
   }
  ]
 }

@@ -44,10 +44,41 @@ test("결제 전에는 1·2쪽 영역 문장·고민 인용만 — 5쪽 이후�
 test("분석 칸: 고민 유형·카드 모양·영역 문장(owner 2026-11-15)", async () => {
   const { analysisFields } = await import("./reportLines.ts");
   const none = analysisFields({ frame: null, lean: null });
-  assert.deepEqual(none, { worry_type: "SITUATION", card_pattern: null, area_variant: "COMMON" });
+  assert.deepEqual(none, { worry_type: "SITUATION", card_pattern: null, area_variant: "COMMON", sub2: null, deep: null });
   const lean = { side: "move", cards: [{ score: 2 }, { score: 1 }, { score: 3 }] };
   assert.equal(analysisFields({ frame: { table: "job", want: "which" }, lean }).card_pattern, "ALL");
   assert.equal(analysisFields({ frame: null, lean: { side: "move", cards: [{ score: -1 }, { score: -2 }, { score: 2 }] } }).card_pattern, "KEY_ALONE");
   // 안전 주의·폭력이면 영역 문장 없이 공통
   assert.equal(analysisFields({ frame: { sub_id: "WK-MOVE" }, lean: null, safety: { level: "watch" } }).area_variant, "COMMON");
+});
+
+test("v3.1 앞단 강조: 1쪽 덧줄·2쪽 기저 생각·3쪽 신호/묻는 꼴 줄, 세기 2면 '더 세게' 장면 문장", async () => {
+  const { deepOf, analysisFields, REPORT_LINES } = await import("./reportLines.ts");
+  const picks = [{ card: { no: 5 }, reversed: false }, { card: { no: 9 }, reversed: false }, { card: { no: 2 }, reversed: false }] as never;
+  const frame = { sub_id: "WK-QUIT", confidence: "high" };
+  const pages = [
+    { page: 1, body: "**하나예요.** 둘이에요. 셋입니다." },
+    { page: 2, body: "**하나예요.** 둘이에요. 셋입니다." },
+    { page: 3, body: "!! **읽었어요.** 이어서.\n\n다음 문단." },
+  ];
+  const hard = "회사 그만둘지 3년째 고민돼요 너무 지쳤어요";
+  const d = deepOf({ frame, picks, safety: null, worryText: hard })!;
+  assert.equal(d.level, 2);
+  const out = applyReportLines(pages, { paid: false, frame, lean: null, picks, cls: null, safety: null, worryText: hard, tables: {} });
+  assert.ok(String(out[0].body).endsWith(d.page1_tail) && d.page1_tail);
+  assert.ok(String(out[1].body).endsWith(d.page2_thought) && d.page2_thought.startsWith("이 카드가 짚는 건"));
+  const strong = REPORT_LINES.scene_strong["5_up"];
+  const v = Object.keys(strong).find((k) => String(out[0].body).includes(strong[k].now));
+  assert.ok(v, "세기 2면 scene_strong");
+  const c3 = String(out[2].body).split("\n\n");
+  assert.equal(c3[1], d.page3_signal); // 고민 읽기 바로 아래 신호 줄
+  // 안전 주의·확신 낮음·세부 없음이면 아무것도 안 붙음
+  assert.equal(deepOf({ frame, picks, safety: { level: "watch" }, worryText: hard })!.level, 0);
+  assert.equal(deepOf({ frame: { ...frame, confidence: "low" }, picks, safety: null, worryText: hard })!.level, 0);
+  assert.equal(deepOf({ frame: {}, picks, safety: null, worryText: hard }), null);
+  // 2순위 세부가 다른 묶음이면 3쪽 줄 출처가 2순위
+  const d2 = deepOf({ frame: { ...frame, sub2: "MN-WHEN" }, picks, safety: null, worryText: "회사 그만둘까요 돈이 걱정" })!;
+  assert.equal(d2.source, "second");
+  const a = analysisFields({ frame: { ...frame, sub2: "MN-WHEN" }, lean: null, picks, worryText: hard });
+  assert.equal(a.sub2, "MN-WHEN"); assert.equal(a.deep?.deep_level, 2);
 });
