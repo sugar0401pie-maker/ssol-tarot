@@ -17,7 +17,8 @@ test("카드 소개 페이지: 22장, 주소가 겹치지 않고 모든 칸이 �
 
 test("카드 소개 페이지: '운명·예언·맞힌다'를 쓰지 않고, 결제 리포트용 처방·성향·변화 신호 문장은 싣지 않음", () => {
   for (const c of CARD_PAGES) for (const t of cardTexts(c)) assert.ok(!hasForbidden(t), `${c.no} ${t}`);
-  assert.equal(cardBySlug("wheel-of-fortune")?.arcanaKo, "수레바퀴");
+  assert.equal(cardBySlug("wheel-of-fortune")?.arcanaKo, "운명의 수레바퀴");
+  assert.ok(hasForbidden("운명이 정해져 있어요"));
   const cards = data.cards as unknown as { no: number; tendency?: string; signs?: string[]; direct?: Record<string, { how?: string }> }[];
   for (const raw of cards) {
     const all = cardTexts(CARD_PAGES[raw.no]).join("\n");

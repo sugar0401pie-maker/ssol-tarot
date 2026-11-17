@@ -2,7 +2,7 @@
 // 문장은 모두 data/tarot_data.json의 카드 데이터에서 가져온다(결과 화면과 같은 문장 — 여기서 새로 쓰지 않음).
 // 넣지 않는 것: 결제 리포트에 들어가는 카드별 처방·실천(direct·practices)·성향(tendency)·변화 신호(signs)·깊이 읽기(deep) —
 //   무료로 다 풀면 결제 리포트와 겹친다. 자리별 해석(positions)도 결과 화면 고유 문장이라 넣지 않는다.
-// "운명"은 화면·메타에 쓰지 않는 원칙(CLAUDE.md 2장)이라 원래 카드 이름 '운명의 수레바퀴'는 '수레바퀴'로 쓴다(카드 데이터 about 문장과 같은 표기).
+// 원래 카드 이름 '운명의 수레바퀴'는 고유명사라 그대로 쓴다(owner 2026-11-17 — 그 밖의 '운명' 표현은 여전히 쓰지 않음).
 import data from "../../data/tarot_data.json" with { type: "json" };
 
 type Basic = { keywords?: string[]; desc?: string; overview?: string };
@@ -24,7 +24,7 @@ const FORBIDDEN = /운명|예언|맞힌다|맞혀/;
 
 export function arcanaParts(arcana: string): { ko: string; en: string } {
   const m = /^(.*?)\s*\((.*)\)\s*$/.exec(arcana);
-  const ko = (m ? m[1] : arcana).replace(/^운명의\s*/, "");
+  const ko = m ? m[1] : arcana;
   return { ko, en: m ? m[2] : "" };
 }
 
@@ -107,4 +107,6 @@ export function cardTexts(c: CardPage): string[] {
   const s = (x: CardSide) => [x.core, x.overview, x.desc, ...x.keywords, ...x.asks];
   return [cardTitle(c), cardH1(c), cardDescription(c), c.when, c.origin, c.arcanaKo, ...s(c.upright), ...s(c.reversed)];
 }
-export const hasForbidden = (t: string) => FORBIDDEN.test(t);
+// 카드 고유명사 '운명의 수레바퀴'만 허용하고 그 밖의 '운명'은 막는다.
+export const PROPER_NOUN_OK = /운명의 ?수레바퀴/g;
+export const hasForbidden = (t: string) => FORBIDDEN.test(t.replace(PROPER_NOUN_OK, ""));
