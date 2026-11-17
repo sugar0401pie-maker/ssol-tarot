@@ -14,6 +14,7 @@ import { decodeIndex } from "../lib/tarot-glue/embedSearch.ts";
 import { parseFrameV43, subPromptBlockFrames, resolveFrame, scoreSub } from "../lib/tarot/v43.js";
 import { FRAME_SYSTEM as FRAME_NOW } from "../lib/server/prompts.ts";
 import { sameSub } from "../judge-db/subEquiv.mjs";
+import { deepOf } from "../lib/tarot-glue/reportLines.ts";
 // 2026-11-15 v2.3.24: A2_FROM=예전 prompts.ts 경로를 주면 그 FRAME_SYSTEM으로 잰다(예: v4.12와 v4.16 비교). TAG는 요약 파일 이름 끝에 붙음
 const FRAME_SYSTEM = process.env.A2_FROM ? (await import(path.resolve(process.env.A2_FROM))).FRAME_SYSTEM : FRAME_NOW;
 
@@ -38,18 +39,26 @@ const work = pick((r) => r.area === "CAR" || r.area === "JOB", PER);
 // 2026-11-10 v2.3.13 검토 요청: 시험·돈 영역도 각 50건(연애·직장 표본은 앞과 같게 — 뒤에 고른다)
 const exam = pick((r) => r.area === "EDU", PER);
 const money = pick((r) => r.area === "LIF", PER);
-const GROUPS = ["연애", "직장", "시험", "돈"];
-const test = [...love.map((x) => [...x, "연애"]), ...work.map((x) => [...x, "직장"]), ...exam.map((x) => [...x, "시험"]), ...money.map((x) => [...x, "돈"])];
+// 2026-11-17 POOL=R3: 영역을 고르지 않고 R3(가장 최근에 들어온 실제 고민 익명판) 중 PER×4건을 무작위로 — 실제 고민 비율 그대로의 표본.
+//   영역별 고정 표본(R·R2)과 겹치지 않는 별도 표본으로, 실제 손님 분포에서의 정확도·분류 비율을 본다.
+const POOL = process.env.POOL || "";
+const GROUP_OF = (a) => (a === "LOV" ? "연애" : a === "CAR" || a === "JOB" ? "직장" : a === "EDU" ? "시험" : a === "LIF" ? "돈" : "기타");
+const GROUPS = POOL ? ["연애", "직장", "시험", "돈", "기타"] : ["연애", "직장", "시험", "돈"];
+const test = POOL
+  ? rows.map((r, i) => [r, i]).filter(([r]) => r.id.startsWith(POOL + "-")).map((x) => [rnd(), x]).sort((a, b) => a[0] - b[0]).slice(0, PER * 4).map(([, x]) => [...x, GROUP_OF(x[0].area)])
+  : [...love.map((x) => [...x, "연애"]), ...work.map((x) => [...x, "직장"]), ...exam.map((x) => [...x, "시험"]), ...money.map((x) => [...x, "돈"])];
 const testIds = new Set(test.map(([r]) => r.id));
 const keep = rows.map((_, i) => i).filter((i) => !testIds.has(rows[i].id));
 const charIdx = buildIndex(keep.map((i) => rows[i]), { normalize: norm });
 const dot = (a, b) => { let s = 0; for (let j = 0; j < a.length; j++) s += a[j] * b[j]; return s; };
 const nb = (i, score) => { const r = rows[i]; return { id: r.id, score, text: r.text, table: tableOf(r), tables: r.tables, mode: r.mode ?? null, ranked: r.ranked ?? [], sub_id: r.sub_id ?? null, sub2: r.sub2 ?? null, area: r.area ?? null, want: r.want ?? null, love_status: r.love_status ?? null, love_topic: r.love_topic ?? null }; };
 
+// NB·SUBN(2026-11-17): 이웃 수·세부 후보 수를 바꿔 시험(서비스 기본 20·8)
+const NB = Number(process.env.NB || 20), SUBN = Number(process.env.SUBN || 8);
 function neighbors(mode, q, qi) {
-  if (mode === "char") return charIdx.nearest(q.text, 20);
+  if (mode === "char") return charIdx.nearest(q.text, NB);
   const cs = new Map(charIdx.nearest(q.text, 50).map((x) => [x.id, x.score]));
-  return keep.map((i) => nb(i, 0.7 * dot(V[qi], V[i]) + 0.3 * (cs.get(rows[i].id) || 0))).sort((a, b) => b.score - a.score).slice(0, 20);
+  return keep.map((i) => nb(i, 0.7 * dot(V[qi], V[i]) + 0.3 * (cs.get(rows[i].id) || 0))).sort((a, b) => b.score - a.score).slice(0, NB);
 }
 
 async function a2(user) {
@@ -80,13 +89,13 @@ async function worker() {
   while (k < jobs.length) {
     const { mode, q, qi, grp } = jobs[k++];
     const all = neighbors(mode, q, qi);
-    const cands = subCandidates(all, 8);
+    const cands = subCandidates(all, SUBN);
     const user = `${subPromptBlockFrames(cands, subDb)}\n\n${buildFrameUserBlock({ worryText: q.text, examples: all.slice(0, FEWSHOT_K) })}`;
     const r = await a2(user);
     inTok += r.usage?.input_tokens ?? 0; outTok += r.usage?.output_tokens ?? 0;
     // v2.3.14: 서비스와 같게 결과 틀·세부를 맞춘 뒤 채점(resolveFrame — 어긋나면 틀을 믿음)
     const f = resolveFrame(r.frame ?? {}, subDb) ?? {};
-    out.push({ mode, grp, id: q.id, gold: { sub_id: q.sub_id, sub2: q.sub2 ?? null, table: q.tables ?? [tableOf(q)], area: q.area }, pred: { sub_id: f.sub_id ?? null, sub2: f.sub2 ?? null, frame_id: f.frame_id ?? null, fix: f.frame_fix?.how ?? null, table: f.table ?? null, area: f.area ?? null, decision_source: f.decision_source ?? null, options: f.options_ranked ?? f.options ?? null, option_aliases: f.option_aliases ?? null }, candHit: cands.includes(q.sub_id), vote: voteTable(all.slice(0, FEWSHOT_K))?.table ?? null, err: r.err ?? null });
+    out.push({ mode, grp, id: q.id, gold: { sub_id: q.sub_id, sub2: q.sub2 ?? null, table: q.tables ?? [tableOf(q)], area: q.area }, deep: (() => { const d = deepOf({ frame: f, picks: [], safety: { level: "none" }, worryText: q.text }); return d ? { level: d.level, line3: Boolean(d.page3_line || d.page3_signal) } : null; })(), pred: { confidence: f.confidence ?? null, sub_id: f.sub_id ?? null, sub2: f.sub2 ?? null, frame_id: f.frame_id ?? null, fix: f.frame_fix?.how ?? null, table: f.table ?? null, area: f.area ?? null, decision_source: f.decision_source ?? null, options: f.options_ranked ?? f.options ?? null, option_aliases: f.option_aliases ?? null }, candHit: cands.includes(q.sub_id), vote: voteTable(all.slice(0, FEWSHOT_K))?.table ?? null, err: r.err ?? null });
     if (out.length % 20 === 0) console.error(`${out.length}/${jobs.length}`);
   }
 }
@@ -111,10 +120,15 @@ for (const mode of MODES) for (const grp of [...GROUPS, "전체"]) {
     "점수표 정답": pct(xs.filter((o) => o.gold.table.includes(o.pred.table)).length, xs.length),
     "영역 정답": pct(xs.filter((o) => o.pred.area === o.gold.area).length, xs.length),
     "AI 실패": xs.filter((o) => o.err).length,
+    // 분류 비율(2026-11-17): 정답과 상관없이 손님 결과에 실제로 무엇이 붙는지
+    "세부 고민을 고름(분류 비율)": pct(xs.filter((o) => o.pred.sub_id).length, xs.length),
+    "확신 낮음(low)": pct(xs.filter((o) => o.pred.confidence === "low").length, xs.length),
+    "앞단 강조가 붙음(세기 1·2)": pct(xs.filter((o) => (o.deep?.level ?? 0) >= 1).length, xs.length),
+    "'더 세게'(세기 2)": pct(xs.filter((o) => o.deep?.level === 2).length, xs.length),
   };
 }
-console.log(`모델 ${MODEL} · 연애 ${love.length} + 직장 ${work.length} + 시험 ${exam.length} + 돈 ${money.length} · 토큰 입력 ${inTok} / 출력 ${outTok}`);
+console.log(`모델 ${MODEL} · ${POOL ? `${POOL} 무작위 ${test.length}` : `연애 ${love.length} + 직장 ${work.length} + 시험 ${exam.length} + 돈 ${money.length}`} · 이웃 ${NB}·후보 ${SUBN} · 토큰 입력 ${inTok} / 출력 ${outTok}`);
 console.table(summary);
 fs.mkdirSync(path.join(ROOT, "scripts/.cache"), { recursive: true });
 fs.writeFileSync(path.join(ROOT, "scripts/.cache/frame_e2e_detail.json"), JSON.stringify(out, null, 1));
-fs.writeFileSync(path.join(ROOT, `judge-db/eval/frame_e2e_${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)}${process.env.TAG ? "_" + process.env.TAG : ""}.json`), JSON.stringify({ model: MODEL, n: test.length, tokens: { input: inTok, output: outTok }, summary, rows: out.map(({ mode, grp, id, gold, pred, candHit, err }) => ({ mode, grp, id, gold, pred, candHit, err })) }, null, 1));
+fs.writeFileSync(path.join(ROOT, `judge-db/eval/frame_e2e_${new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10)}${process.env.TAG ? "_" + process.env.TAG : ""}.json`), JSON.stringify({ model: MODEL, n: test.length, tokens: { input: inTok, output: outTok }, summary, rows: out.map(({ mode, grp, id, gold, pred, candHit, deep, err }) => ({ mode, grp, id, gold, pred, candHit, deep, err })) }, null, 1));
