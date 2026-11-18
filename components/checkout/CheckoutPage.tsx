@@ -105,7 +105,16 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
       });
     } catch (e) {
       if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return router.replace(back);
-      setError(e instanceof ApiError ? e.message : "결제창을 열지 못했어요. 잠시 후 다시 시도해 주세요.");
+      // 토스 결제창 오류는 토스가 준 코드·문구를 그대로 보여 준다(문의·원인 찾기용, 2026-11-18 카카오페이가 안 넘어가던 문제)
+      const t = e as { code?: unknown; message?: unknown };
+      if (!(e instanceof ApiError) && t?.code === "USER_CANCEL") return; // 사용자가 결제창을 닫음
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : typeof t?.code === "string"
+            ? `결제창을 열지 못했어요. ${typeof t.message === "string" ? t.message : ""} (오류 코드 ${t.code})`
+            : "결제창을 열지 못했어요. 잠시 후 다시 시도해 주세요.",
+      );
     } finally {
       setBusy(false);
     }
