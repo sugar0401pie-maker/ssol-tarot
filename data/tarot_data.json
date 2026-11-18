@@ -2030,6 +2030,8 @@
     "note": "3·4쪽 문구(개발 lib/tarot-glue/secretThird.ts와 같은 키). _source: 원문=대표님 원문, 제안=11-02 Claude 제안안(채택된 것으로 봄), 초안=Claude 초안. 운영 값이 다르면 운영 값을 남겨 주세요.",
     "p4_question": "{name}님의 앞으로 6개월과 ‘{q}’의 답이 이 카드에 있어요.",
     "p4_cta": "카드 뒤집고 결과 보기",
+    "p4_cta_kakaopay": "카카오페이로 결제하고 바로 보기",
+    "p4_pay_terms": "결제 시 쏠 타로 하우스 {terms}과 {privacy}에 동의합니다.",
     "p4_after_pay_note": "결제하면 이 자리에서 카드가 뒤집혀요.",
     "_source": {
      "intro": "원문(11-05 CSO: 마지막 문장 변경)",

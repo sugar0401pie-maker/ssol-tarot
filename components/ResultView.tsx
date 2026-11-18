@@ -478,6 +478,8 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
   const promo = usePromo() === true;
   // 영문판은 US$1.99, 할인 없음(owner 2026-11-05)
   const priceLabel = ctx.locale === "en" ? usd(REPORT_PRICE_USD) : won(promo ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE);
+  const S3 = c.secret3 as { p4_cta?: string; p4_cta_kakaopay?: string; p4_pay_terms?: string };
+  const kakao = ctx.locale !== "en" && ctx.r.kakaopay === true && Boolean(S3.p4_cta_kakaopay);
   return (
       <div className={standalone ? "pay standalone" : "pay"}>
         {/* 결정형이면 "세 장이 고른 쪽"이 가장 큰 결제 이유 — 데이터의 _decision 문구 */}
@@ -492,10 +494,51 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
         <ReviewRotator lines={(c as { paywall_reviews?: string[] }).paywall_reviews} />
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         {/* 4쪽(세 번째 카드 뒷면) 결제 버튼은 '카드 뒤집고 결과 보기'(v2.3.4 secret3.p4_cta, owner 2026-11-05 승인). 가격은 위 줄에 그대로. */}
-        <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
-          {standalone && (c.secret3 as { p4_cta?: string }).p4_cta ? (c.secret3 as { p4_cta?: string }).p4_cta : fill(c.paywall_button, { price: priceLabel })}
-        </button>
+        {/* 4쪽 + 카카오페이가 켜져 있으면(owner 2026-11-18): 카카오페이 색 버튼 + 가운데 카카오페이 아이콘 + 아래 작은 글씨 동의 안내 */}
+        {standalone && kakao ? (
+          <>
+            <button type="button" className="btn fill kakaopay" onClick={() => ctx.pay(page)}>
+              <KakaoPayMark />
+              <span>{S3.p4_cta_kakaopay}</span>
+            </button>
+            {S3.p4_pay_terms && <PayTerms text={S3.p4_pay_terms} />}
+          </>
+        ) : (
+          <button type="button" className="btn fill" onClick={() => ctx.pay(page)}>
+            {standalone && S3.p4_cta ? S3.p4_cta : fill(c.paywall_button, { price: priceLabel })}
+          </button>
+        )}
       </div>
+  );
+}
+
+// 카카오페이 표시(검정 말풍선 + pay) — 카카오페이 노란 버튼 가운데에 넣는다
+function KakaoPayMark() {
+  return (
+    <span className="kpmark" aria-label="카카오페이">
+      <svg width="20" height="18" viewBox="0 0 20 18" aria-hidden="true">
+        <path d="M10 0C4.48 0 0 3.52 0 7.86c0 2.8 1.86 5.26 4.66 6.65l-.95 3.5a.3.3 0 0 0 .46.33l4.1-2.72c.57.08 1.14.12 1.73.12 5.52 0 10-3.52 10-7.88S15.52 0 10 0Z" fill="#191919" />
+      </svg>
+      <b>pay</b>
+    </span>
+  );
+}
+
+// '결제 시 … {terms}과 {privacy}에 동의합니다.' — 두 자리를 약관·방침 링크로(새 창)
+function PayTerms({ text }: { text: string }) {
+  const parts = text.split(/(\{terms\}|\{privacy\})/);
+  return (
+    <small className="payterms">
+      {parts.map((t, i) =>
+        t === "{terms}" ? (
+          <a key={i} href="/legal#terms" target="_blank" rel="noopener">이용약관</a>
+        ) : t === "{privacy}" ? (
+          <a key={i} href="/legal#privacy" target="_blank" rel="noopener">개인정보 처리방침</a>
+        ) : (
+          <span key={i}>{t}</span>
+        ),
+      )}
+    </small>
   );
 }
 

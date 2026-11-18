@@ -115,6 +115,7 @@ export type ResultResponse =
       paid: boolean;
       decision?: boolean;
       saved: boolean;
+      kakaopay?: boolean;
     };
 
 /** 로그인한 상태에서 이 브라우저에 키가 있는 결과(로그인 없이 본 것)를 계정에 붙인다. 이미 붙어 있으면 그대로. 실패는 조용히(false). */

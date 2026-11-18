@@ -697,6 +697,8 @@ export async function getResult(s: SessionRow) {
     // 결정형 고민인지(세 장이 한쪽을 골랐는지)만 — 어느 쪽인지는 보내지 않는다. 결제 카드 문구를 고르는 데 쓴다.
     decision,
     saved: Boolean(s.user_id),
+    // 카카오페이 결제가 켜져 있는지(원화 결과만) — 4쪽 결제 버튼을 카카오페이 모양으로(owner 2026-11-18)
+    kakaopay: locale !== "en" && kakaopayEnabled(),
   };
 }
 
