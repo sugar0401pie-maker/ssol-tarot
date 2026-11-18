@@ -193,3 +193,5 @@
 .tv4 .pay .btn.kakaopay .kpmark b { font-family: inherit; font-size: 15px; font-weight: 800; color: #191919; margin: 0; display: inline; letter-spacing: -0.02em; }
 .tv4 .pay .payterms { display: block; margin-top: 8px; font-size: 10.5px; line-height: 1.5; opacity: 0.75; word-break: keep-all; }
 .tv4 .pay .payterms a { color: inherit; text-decoration: underline; }
+.tv4 .pay .payerr { margin-top: 8px; font-size: 12px; line-height: 1.5; color: #ffb4a8 !important; word-break: keep-all; }
+.tv4 .pay .btn.kakaopay:disabled { opacity: 0.8; }

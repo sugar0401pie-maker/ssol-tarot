@@ -1,6 +1,7 @@
 "use client";
 
 import { metaTrack } from "@/lib/client/metaPixel";
+import { startKakaoPay } from "@/lib/client/kakaopayStart";
 import { usePromo } from "@/lib/client/usePromo";
 import { PROMO_REPORT_PRICE, REPORT_LIST_PRICE, won, usd, REPORT_PRICE_USD } from "@/lib/billing/pricing";
 import { localePath, type Locale } from "@/lib/i18n/locale";
@@ -255,7 +256,30 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
 
   // 쪽 본문(줄 해석 포함)은 결과가 바뀔 때만 다시 그린다 — 넘길 때마다 모든 쪽을 다시 해석하지 않게.
   // [결제하고 이어 읽기] → 결제 화면(/checkout/{id}?page=쪽). 결제가 끝나면 누른 그 쪽으로 돌아온다.
-  const pay = useCallback((page: number) => router.push(`${L(`/checkout/${id}`)}?page=${page}`), [router, id, L]);
+  // 카카오페이가 켜져 있고 로그인돼 있으면 결제 화면을 거치지 않고 바로 카카오페이 결제창으로(owner 2026-11-18 "왜 전체 리포트 결제로 갔다가 연결되는지").
+  // 로그인 전이면 로그인 → /checkout이 곧바로 카카오페이로 넘긴다.
+  const [payBusy, setPayBusy] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+  const pay = useCallback(
+    async (page: number) => {
+      const checkout = `${L(`/checkout/${id}`)}?page=${page}`;
+      if (!(locale !== "en" && r.kakaopay === true)) return router.push(checkout);
+      if (!(await getAccessToken())) return router.push(`${L("/login")}?next=${encodeURIComponent(checkout)}`);
+      setPayError(null);
+      setPayBusy(true);
+      metaTrack("InitiateCheckout", { content_name: "tarot_full_report", currency: "KRW" }, id);
+      try {
+        const res = await startKakaoPay(id, page);
+        if (res) window.location.replace(`${L(`/result/${res.comp}/${page}`)}?opened=1`); // 무료 열람 계정
+        // 그 밖에는 카카오페이로 이동 중 — 버튼은 '이동하고 있어요' 그대로
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return window.location.reload();
+        setPayError(e instanceof ApiError ? e.message : "카카오페이 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
+        setPayBusy(false);
+      }
+    },
+    [router, id, L, locale, r.kakaopay],
+  );
   // [쏘웰라와 이어서 이야기하기]: 로그인 전이면 로그인 → 이 결과로 돌아와 자동 저장 → 쏘웰라(위 goSowella)
   const chat = useCallback(
     async (page: number) => {
@@ -264,7 +288,7 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
     },
     [router, id, L, locale],
   );
-  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay, chat, opened, locale }), [id, r, copy, opts, pay, chat, opened, locale]);
+  const ctx: Ctx = useMemo(() => ({ id, r, copy, opts, openZoom: setZoom, pay, payBusy, payError, chat, opened, locale }), [id, r, copy, opts, pay, payBusy, payError, chat, opened, locale]);
   const thirdHidden = Boolean(r.cards[2]?.hidden);
 
   return (
@@ -370,7 +394,7 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
   );
 }
 
-type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; chat: (page: number) => void; opened: boolean; locale: Locale };
+type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; payBusy?: boolean; payError?: string | null; chat: (page: number) => void; opened: boolean; locale: Locale };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
@@ -498,10 +522,15 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
             누르면 주문서 없이 바로 카카오페이로 이동(/checkout이 곧바로 넘겨 줌) */}
         {kakao ? (
           <>
-            <button type="button" className="btn fill kakaopay" onClick={() => ctx.pay(page)}>
+            <button type="button" className="btn fill kakaopay" disabled={ctx.payBusy} onClick={() => ctx.pay(page)}>
               <KakaoPayMark />
-              <span>{S3.p4_cta_kakaopay}</span>
+              <span>{ctx.payBusy ? "카카오페이로 이동하고 있어요…" : S3.p4_cta_kakaopay}</span>
             </button>
+            {ctx.payError && (
+              <p className="payerr" role="alert">
+                {ctx.payError}
+              </p>
+            )}
             {S3.p4_pay_terms && <PayTerms text={S3.p4_pay_terms} />}
           </>
         ) : (

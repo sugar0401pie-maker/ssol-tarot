@@ -8,9 +8,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { metaTrack } from "@/lib/client/metaPixel";
+import { startKakaoPay } from "@/lib/client/kakaopayStart";
 import { api, ApiError, claimIfGuest } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
-import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, NOTICE_AFTER, NOTICE_BEFORE, NOTICE_LINK, PAY_BUTTON_TERMS_VERSION, won } from "@/lib/billing/pricing";
+import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, NOTICE_AFTER, NOTICE_BEFORE, NOTICE_LINK, won } from "@/lib/billing/pricing";
 import { usePromo } from "@/lib/client/usePromo";
 import { TERMS_URL } from "@/lib/legal/urls";
 import { Stars } from "../Cards";
@@ -111,15 +112,11 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
     setError(null);
     setBusy(true);
     try {
-      const o = await ensureOrder(PAY_BUTTON_TERMS_VERSION);
-      if (!o) return;
-      const r = await api<{ redirectUrl: string }>("/api/tarot/checkout/kakaopay/ready", { body: { orderId: o.orderId, page } });
-      window.location.replace(r.redirectUrl);
-      return; // 이동하는 동안 '카카오페이로 이동하고 있어요' 그대로
+      const res = await startKakaoPay(id, page, { replace: true });
+      if (res) return router.replace(`/result/${res.comp}/${page}?opened=1`); // 무료 열람 계정
+      return; // 카카오페이로 이동하는 동안 '카카오페이로 이동하고 있어요' 그대로
     } catch (e) {
       if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return router.replace(back);
-      // 이미 처리된 주문이면(다른 결제 시도로 취소됨 등) 다음 시도에서 새 주문을 만든다
-      if (e instanceof ApiError && e.status === 409) setOrder(null);
       setError(e instanceof ApiError ? e.message : "카카오페이 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
     }
     setBusy(false);
@@ -164,11 +161,27 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
         <Link href={back} className="text-[13px] text-moon/80">
           ← 결과로 돌아가기
         </Link>
-        <h1 className="big">전체 리포트 결제</h1>
+        {/* 카카오페이로 바로 넘어가는 동안에는 '전체 리포트 결제' 제목을 그리지 않는다(owner 2026-11-18) — 토스 결제 화면일 때만 */}
         {checked === null ? (
-          <p className="small">확인하는 중…</p>
+          kakao ? (
+            error ? (
+              <div className="flex flex-col gap-4">
+                <p className="err" role="alert">
+                  {error}
+                </p>
+                <button type="button" className="btn block kakao" disabled={busy} onClick={payKakao}>
+                  {busy ? "카카오페이로 이동하고 있어요…" : "카카오페이로 다시 결제하기"}
+                </button>
+              </div>
+            ) : (
+              <p className="small mystic-line">카카오페이로 이동하고 있어요…</p>
+            )
+          ) : (
+            <p className="small">확인하는 중…</p>
+          )
         ) : (
           <>
+            <h1 className="big">전체 리포트 결제</h1>
             {kakao ? (
               <div className="flex flex-col gap-4">
                 {error ? (
