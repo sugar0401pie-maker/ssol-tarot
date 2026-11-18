@@ -61,7 +61,11 @@ export function reportPriceFor(locale: "ko" | "en", now: Date = new Date()): Rep
 // 결제 전 동의(owner 2026-11-02): 긴 청약철회 안내 상자 대신 "타로 하우스 이용 관련 약관에 동의합니다" 체크 한 줄 + 약관 링크.
 // 청약철회 제한(이용약관 제13조)은 약관 링크 안에 있다 — owner가 결정("약관 하이퍼링크 정도면 충분").
 // 문구를 바꾸면 버전도 바꾼다(누가 어떤 문구에 동의했는지 주문에 남긴다 — tarot_orders.withdrawal_version).
-export const WITHDRAWAL_NOTICE_VERSION = "tarot-terms-2026-11-02";
+// 2026-11-18 owner: 토스 결제창 안에 약관 동의가 따로 있어 우리 체크 칸은 없애고 안내 문구만(NOTICE_*) — 버전도 바꿔 주문에 남긴다.
+export const WITHDRAWAL_NOTICE_VERSION = "tarot-terms-notice-2026-11-18";
+export const NOTICE_BEFORE = "결제하면 타로 하우스 ";
+export const NOTICE_LINK = "이용 관련 약관";
+export const NOTICE_AFTER = "이 적용돼요(디지털 콘텐츠라 리포트를 연 뒤에는 청약철회가 제한돼요).";
 export const TERMS_CHECK_BEFORE = "타로 하우스 ";
 export const TERMS_CHECK_LINK = "이용 관련 약관";
 export const TERMS_CHECK_AFTER = "에 동의합니다";

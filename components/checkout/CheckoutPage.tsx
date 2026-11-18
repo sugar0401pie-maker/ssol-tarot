@@ -1,7 +1,7 @@
 "use client";
 
 // 결제 화면(/checkout/{결과}?page=쪽) — 쏠 아스트로 하우스 결제 화면과 같은 흐름:
-// 들어오자마자 토스 결제 위젯(결제 수단)을 보여 주고(owner 2026-11-04 "누르면 결제창 보이게"), 이용 약관에 동의한 뒤 [결제하기]를 누르면
+// 들어오자마자 토스 결제 위젯(결제 수단)을 보여 주고(owner 2026-11-04 "누르면 결제창 보이게"), [결제하기]를 누르면(약관 동의는 토스 결제창 안에서 — 2026-11-18)
 // 그때 서버가 주문을 만들고 금액을 정함 → 토스 결제 → 결제가 끝나면 토스가 /checkout/success로 보내고 그 화면이 서버에 승인 확인을 요청한다.
 // 주문은 동의한 뒤에만 만든다(주문에 약관 동의 버전을 기록하므로). 위젯 금액은 표시 가격으로 먼저 그리고, 주문 금액이 다르면 결제 직전에 맞춘다. 가짜 카운트다운·"지금만 할인" 같은 문구는 쓰지 않는다.
 import Link from "next/link";
@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { metaTrack } from "@/lib/client/metaPixel";
 import { api, ApiError, claimIfGuest } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
-import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, TERMS_CHECK_AFTER, TERMS_CHECK_BEFORE, TERMS_CHECK_LINK, won } from "@/lib/billing/pricing";
+import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, NOTICE_AFTER, NOTICE_BEFORE, NOTICE_LINK, won } from "@/lib/billing/pricing";
 import { usePromo } from "@/lib/client/usePromo";
 import { TERMS_URL } from "@/lib/legal/urls";
 import { Stars } from "../Cards";
@@ -30,7 +30,6 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   const [customerKey, setCustomerKey] = useState<string | null>(null); // 서버 주문의 customerKey와 같은 값(로그인 사용자 id)
   const [TOSS_CLIENT_KEY, setClientKey] = useState<string | null | undefined>(undefined); // undefined = 아직 모름
   const [busy, setBusy] = useState(false);
-  const [ack, setAck] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +81,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   }, [checked, customerKey, promoState, TOSS_CLIENT_KEY]);
 
   async function pay() {
-    if (!ack || !widgetRef.current || busy) return;
+    if (!widgetRef.current || busy) return;
     setError(null);
     setBusy(true);
     try {
@@ -148,19 +147,16 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
                 </div>
               );
             })()}
-            {/* 이용 약관 동의 한 줄(owner 2026-11-02) — 동의해야 [결제하기]가 눌린다(결제 수단은 먼저 보임). 청약철회 제한은 약관 제13조(링크) */}
-            <div className="px-1 text-sm text-moon/90">
-              <label className="flex items-start gap-2">
-                <input type="checkbox" className="mt-1" checked={ack} disabled={!!order} onChange={(e) => setAck(e.target.checked)} />
-                <span className="break-keep">
-                  [필수] {TERMS_CHECK_BEFORE}
-                  <Link href={TERMS_URL} target="_blank" className="underline">
-                    {TERMS_CHECK_LINK}
-                  </Link>
-                  {TERMS_CHECK_AFTER}
-                </span>
-              </label>
-              <p className="mt-2 break-keep pl-6 text-[11.5px] leading-relaxed text-moon/60">※ {STORAGE_NOTE}</p>
+            {/* 약관 안내(owner 2026-11-18): 동의는 토스 결제창의 약관 동의에서 받으므로 우리 체크 칸은 없애고 안내 문구만. 청약철회 제한은 약관 제13조(링크) */}
+            <div className="px-1 text-[12.5px] leading-relaxed text-moon/80">
+              <p className="break-keep">
+                ※ {NOTICE_BEFORE}
+                <Link href={TERMS_URL} target="_blank" className="underline">
+                  {NOTICE_LINK}
+                </Link>
+                {NOTICE_AFTER}
+              </p>
+              <p className="mt-1 break-keep">※ {STORAGE_NOTE}</p>
             </div>
             {TOSS_CLIENT_KEY === null && <p className="err">결제 설정이 아직 준비되지 않았어요.</p>}
             {/* 토스 위젯이 그려지는 자리(흰 바탕이 필요) */}
@@ -173,8 +169,8 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
                 {error}
               </p>
             )}
-            <button type="button" className="btn block" disabled={!ready || !ack || busy} onClick={pay}>
-              {!ready && TOSS_CLIENT_KEY ? "결제창을 불러오는 중…" : busy ? "결제창을 여는 중…" : ack ? `${won(shownAmount)} 결제하기` : "약관에 동의하면 결제할 수 있어요"}
+            <button type="button" className="btn block" disabled={!ready || busy} onClick={pay}>
+              {!ready && TOSS_CLIENT_KEY ? "결제창을 불러오는 중…" : busy ? "결제창을 여는 중…" : `${won(shownAmount)} 결제하기`}
             </button>
           </>
         )}
