@@ -4,7 +4,7 @@
 // (유료 리포트는 그 화면에서 만들어질 때까지 기다린다).
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { api, ApiError } from "@/lib/client/api";
+import { api, ApiError, loadKey } from "@/lib/client/api";
 import { Stars } from "../Cards";
 import { CHECKOUT_EN } from "@/lib/i18n/checkoutEn";
 import { metaTrack } from "@/lib/client/metaPixel";
@@ -34,7 +34,9 @@ export default function CheckoutSuccess({ locale = "ko" }: { locale?: "ko" | "en
       queueMicrotask(() => setError(T.missingInfo));
       return;
     }
-    api<{ ok: boolean; sessionId: string }>("/api/tarot/checkout/confirm", { body: { paymentKey, orderId, amount: Number(amount) } })
+    // 로그인 없이 결제한 경우(2026-11-18) 이 브라우저의 결과 접근 키로 확인받는다(successUrl의 id)
+    const sid = params.get("id");
+    api<{ ok: boolean; sessionId: string }>("/api/tarot/checkout/confirm", { key: sid && /^[0-9a-f-]{36}$/i.test(sid) ? loadKey(sid) : null, body: { paymentKey, orderId, amount: Number(amount) } })
       // opened=1: 결과 화면에서 세 번째 카드를 그 자리에서 뒤집어 보여 준다(owner 2026-11-02)
       .then((d) => {
         // 메타 광고 성과 측정(owner 2026-11-16): 승인된 결제만, 주문 번호로 한 번만. 원화 화면만(영문판은 별도 저장소).

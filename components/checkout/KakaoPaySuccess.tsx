@@ -4,7 +4,7 @@
 // 결제를 누른 결과 쪽으로 간다(토스 CheckoutSuccess와 같은 흐름 — 유료 리포트는 결과 화면에서 기다린다).
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { api, ApiError } from "@/lib/client/api";
+import { api, ApiError, loadKey } from "@/lib/client/api";
 import { metaTrack } from "@/lib/client/metaPixel";
 import { Stars } from "../Cards";
 
@@ -28,7 +28,9 @@ export default function KakaoPaySuccess() {
       queueMicrotask(() => setError("결제 정보를 확인하지 못했어요."));
       return;
     }
-    api<{ ok: boolean; sessionId: string; amount: number | null }>("/api/tarot/checkout/kakaopay/approve", { body: { orderId, pgToken } })
+    // 로그인 없이 결제한 경우(2026-11-18) 이 브라우저의 결과 접근 키로 확인받는다(approval_url의 id)
+    const sid = params.get("id");
+    api<{ ok: boolean; sessionId: string; amount: number | null }>("/api/tarot/checkout/kakaopay/approve", { key: sid && /^[0-9a-f-]{36}$/i.test(sid) ? loadKey(sid) : null, body: { orderId, pgToken } })
       .then((d) => {
         // 메타 광고 성과 측정: 승인된 결제만, 주문 번호로 한 번만(토스 결제와 같은 이벤트)
         if (d.amount) metaTrack("Purchase", { value: d.amount, currency: "KRW", content_name: "tarot_full_report" }, orderId);

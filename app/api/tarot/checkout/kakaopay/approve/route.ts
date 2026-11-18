@@ -9,8 +9,8 @@ export const maxDuration = 300;
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await authFrom(req);
-    const r = await kakaopayApproveOrder(userId, await readJson(req));
+    const auth = await authFrom(req); // 계정 또는 결과 접근 키(로그인 없이 결제)
+    const r = await kakaopayApproveOrder(auth, await readJson(req));
     if (r.generate) after(() => generateReport(r.sessionId));
     return NextResponse.json({ ok: true, sessionId: r.sessionId, amount: "amount" in r ? r.amount : null });
   } catch (e) {

@@ -9,8 +9,8 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await authFrom(req);
-    const r = await kakaopayReadyForOrder(userId, await readJson(req), {
+    const auth = await authFrom(req); // 계정 또는 결과 접근 키(로그인 없이 결제)
+    const r = await kakaopayReadyForOrder(auth, await readJson(req), {
       returnOrigin: kakaoReturnOrigin(new URL(req.url).origin, SITE_URL),
       userAgent: req.headers.get("user-agent") ?? "",
     });

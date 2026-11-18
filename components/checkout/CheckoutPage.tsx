@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { metaTrack } from "@/lib/client/metaPixel";
 import { startKakaoPay } from "@/lib/client/kakaopayStart";
-import { api, ApiError, claimIfGuest } from "@/lib/client/api";
+import { api, ApiError, claimIfGuest, loadKey } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
 import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, NOTICE_AFTER, NOTICE_BEFORE, NOTICE_LINK, won } from "@/lib/billing/pricing";
 import { usePromo } from "@/lib/client/usePromo";
@@ -19,6 +19,9 @@ import PageFoot from "../PageFoot";
 
 // 결제창 키는 서버가 주문 통화(이 화면은 원화)로 골라 준다(/api/tarot/session/{id}/pay-config) — 브라우저에 키를 박아 두지 않는다.
 type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null; kakaopay?: boolean };
+
+// 토스 결제위젯의 비회원 표시(@tosspayments/payment-widget-sdk ANONYMOUS와 같은 값 — SDK를 미리 불러오지 않으려고 값만 둠)
+const ANONYMOUS_KEY = "@@ANONYMOUS";
 
 type Order = { orderId: string; orderName: string; amount: number; customerKey: string };
 type Widget = Awaited<ReturnType<typeof import("@tosspayments/payment-widget-sdk")["loadPaymentWidget"]>>;
@@ -47,10 +50,12 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   // 로그인 없이 본 결과(2026-10-26)면 로그인한 지금 이 브라우저의 결과를 먼저 계정에 붙인다 — 주문은 계정 결과에만 만든다.
   useEffect(() => {
     void getRealSession().then(async (s) => {
-      if (!s) return router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
-      await claimIfGuest(id);
+      // 로그인 없이도 결제(owner 2026-11-18): 이 브라우저에 결과 접근 키가 있으면 그대로, 없으면 로그인으로
+      const key = loadKey(id);
+      if (!s && !key) return router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
+      if (s) await claimIfGuest(id);
       // 이 결과의 통화·키를 서버에 묻는다. 영문(달러) 결과면 영문 결제 화면으로(원화 상점으로 달러를 요청하지 않게)
-      const cfg = await api<PayConfig>(`/api/tarot/session/${id}/pay-config`).catch(() => null);
+      const cfg = await api<PayConfig>(`/api/tarot/session/${id}/pay-config`, { key }).catch(() => null);
       if (cfg?.currency === "USD") return router.replace(`/en/checkout/${id}?page=${page}`);
       setClientKey(cfg?.clientKey ?? null);
       setKakao(cfg?.kakaopay === true);
@@ -60,7 +65,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
         metaTrack("InitiateCheckout", { content_name: "tarot_full_report", currency: "KRW" }, id);
         return void payKakao();
       }
-      setCustomerKey(s.user.id);
+      setCustomerKey(s ? s.user.id : ANONYMOUS_KEY); // 로그인 없이 결제면 토스 '비회원' 표시
       setChecked(true);
       // 메타 광고 측정(owner 2026-11-16): 결제 화면 열기 — 결과 번호로 한 번만
       metaTrack("InitiateCheckout", { content_name: "tarot_full_report", currency: "KRW" }, id);
@@ -95,7 +100,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   // 주문은 결제 버튼을 누를 때 만든다 — 금액은 서버가 정한다. 무료 열람 계정이면 null(결과로 바로 이동).
   async function ensureOrder(consentVersion?: string): Promise<Order | null> {
     if (order) return order;
-    const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true, ...(consentVersion ? { consentVersion } : {}) } });
+    const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { key: loadKey(id), body: { withdrawalAck: true, ...(consentVersion ? { consentVersion } : {}) } });
     // 기간 한정 무료 열람 계정: 결제창 없이 바로 결과로(결제 직후와 같이 세 번째 카드가 뒤집히며 열림)
     if ("comp" in r) {
       router.replace(`/result/${r.sessionId}/${page}?opened=1`);
@@ -117,6 +122,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
       return; // 카카오페이로 이동하는 동안 '카카오페이로 이동하고 있어요' 그대로
     } catch (e) {
       if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return router.replace(back);
+      if (e instanceof ApiError && e.needLogin) return router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
       setError(e instanceof ApiError ? e.message : "카카오페이 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
     }
     setBusy(false);
@@ -134,11 +140,12 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
       await widgetRef.current.requestPayment({
         orderId: o.orderId,
         orderName: o.orderName,
-        successUrl: `${window.location.origin}/checkout/success?page=${page}`,
+        successUrl: `${window.location.origin}/checkout/success?page=${page}&id=${id}`, // id: 로그인 없이 결제한 경우 결과 접근 키를 찾으려고
         failUrl: `${window.location.origin}/checkout/fail?id=${id}&page=${page}`,
       });
     } catch (e) {
       if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return router.replace(back);
+      if (e instanceof ApiError && e.needLogin) return router.replace(`/login?next=${encodeURIComponent(`/checkout/${id}?page=${page}`)}`);
       // 토스 결제창 오류는 토스가 준 코드·문구를 그대로 보여 준다(문의·원인 찾기용, 2026-11-18 카카오페이가 안 넘어가던 문제)
       const t = e as { code?: unknown; message?: unknown };
       if (!(e instanceof ApiError) && t?.code === "USER_CANCEL") return; // 사용자가 결제창을 닫음

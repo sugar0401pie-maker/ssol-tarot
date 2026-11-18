@@ -10,8 +10,8 @@ export const maxDuration = 300;
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await authFrom(req);
-    const r = await confirmPayment(userId, await readJson(req));
+    const { userId, key } = await authFrom(req); // 계정 또는 결과 접근 키(로그인 없이 결제)
+    const r = await confirmPayment(userId, await readJson(req), key);
     if (r.generate) after(() => generateReport(r.sessionId));
     // 영문(달러) 주문: 결제 직후 주문 확인 이메일 한 번(08 §4 — EU·UK 청약철회 포기 확인)
     const mail = "orderEmail" in r ? r.orderEmail : null;

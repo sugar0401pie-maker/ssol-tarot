@@ -264,7 +264,8 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
     async (page: number) => {
       const checkout = `${L(`/checkout/${id}`)}?page=${page}`;
       if (!(locale !== "en" && r.kakaopay === true)) return router.push(checkout);
-      if (!(await getAccessToken())) return router.push(`${L("/login")}?next=${encodeURIComponent(checkout)}`);
+      // 로그인 없이도 결제(owner 2026-11-18) — 결과 접근 키가 이 브라우저에 없으면(다른 기기에서 연 결과 등) 로그인으로
+      if (!(await getAccessToken()) && !loadKey(id)) return router.push(`${L("/login")}?next=${encodeURIComponent(checkout)}`);
       setPayError(null);
       setPayBusy(true);
       metaTrack("InitiateCheckout", { content_name: "tarot_full_report", currency: "KRW" }, id);
@@ -274,6 +275,7 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
         // 그 밖에는 카카오페이로 이동 중 — 버튼은 '이동하고 있어요' 그대로
       } catch (e) {
         if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return window.location.reload();
+        if (e instanceof ApiError && e.needLogin) return router.push(`${L("/login")}?next=${encodeURIComponent(checkout)}`);
         setPayError(e instanceof ApiError ? e.message : "카카오페이 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
         setPayBusy(false);
       }
@@ -335,6 +337,12 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
                     {msg && (
                       <p className="toast" role="status">
                         {msg}
+                      </p>
+                    )}
+                    {/* 로그인 없이 결제한 리포트(owner 2026-11-18): 이 브라우저에서만 다시 열 수 있으니 계정에 저장하도록 권한다 */}
+                    {locale !== "en" && r.paid && !saved && !msg && (
+                      <p className="guestsave">
+                        결제한 리포트는 지금 이 브라우저에서만 다시 볼 수 있어요. [저장하기]를 눌러 로그인하면 계정에 보관돼 어디서든 다시 볼 수 있어요.
                       </p>
                     )}
                   </>

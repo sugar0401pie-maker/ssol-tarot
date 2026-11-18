@@ -707,7 +707,12 @@ export async function getResult(s: SessionRow) {
 export async function claim(s: SessionRow, userId: string | null) {
   if (!userId) throw new TarotError(401, "로그인이 필요해요.");
   if (s.user_id && s.user_id !== userId) throw new TarotError(409, "이미 다른 계정에 저장된 결과예요.");
-  if (!s.user_id) await update(s.id, { user_id: userId });
+  if (!s.user_id) {
+    await update(s.id, { user_id: userId });
+    // 로그인 없이 결제한 주문도 이 계정으로 채운다(내 결과·관리자 엑셀·문의 대응). 실패해도 저장은 그대로(결과 접근은 세션이 기준)
+    const { error } = await db().from("tarot_orders").update({ user_id: userId }).eq("session_id", s.id).is("user_id", null);
+    if (error) console.warn("주문 계정 연결 실패:", error.message);
+  }
   return { saved: true };
 }
 
@@ -716,7 +721,7 @@ export async function claim(s: SessionRow, userId: string | null) {
 // ③ 돈이 나갔을 수 있으면 절대 '취소'로 바꾸지 않는다(decideAfterConfirmFailure) ④ 같은 결과를 두 번 결제하면 두 번째를 토스에서 취소.
 
 // amount: 원화는 원, 달러는 센트(정수 칸). currency 칸은 영문 결제 마이그레이션(20261106000000) 전에는 없다 → 원화로 본다.
-type OrderRow = { id: string; user_id: string; session_id: string; amount: number; currency?: "KRW" | "USD" | null; status: "pending" | "paid" | "canceled"; payment_key: string | null };
+type OrderRow = { id: string; user_id: string | null; session_id: string; amount: number; currency?: "KRW" | "USD" | null; status: "pending" | "paid" | "canceled"; payment_key: string | null };
 const CONFIRM_RETRY_MESSAGE = "결제 확인이 늦어지고 있어요. 잠시 뒤 이 화면을 새로고침해 주세요. 계속되면 contact@ssolwellness.com으로 알려 주세요.";
 
 /**
@@ -732,7 +737,12 @@ export function payConfig(s: SessionRow) {
 }
 
 export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown; consentVersion?: unknown }, { email = null, country = null }: { email?: string | null; country?: string | null } = {}) {
-  if (!userId || s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
+  // 로그인 없이 결제(owner 2026-11-18): 계정에 안 붙은 결과는 결과 접근 키로 연 경우(loadSession이 이미 확인) 주문을 계정 없이 만든다.
+  // 계정에 붙은 결과는 예전처럼 그 계정으로 로그인한 본인만.
+  const guest = !s.user_id;
+  if (!guest && s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
+  // 영문(달러) 결제는 주문 확인 이메일을 계정 주소로 보내므로 지금처럼 로그인 필요
+  if (guest && localeOf(s) === "en") throw Object.assign(new TarotError(401, "로그인이 필요해요."), { needLogin: true });
   // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
   if (body.withdrawalAck !== true) throw new TarotError(400, "이용 관련 약관에 동의해 주세요.");
   if (s.safety_level === "urgent" || s.result_status === "safety") throw new TarotError(403, "이 결과는 결제할 수 없어요.");
@@ -750,17 +760,19 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
   const en = localeOf(s) === "en";
   if (en && !usdCheckoutEnabled()) throw new TarotError(503, "영문 결제는 아직 준비 중이에요.");
   const price = en ? reportPriceFor("en") : { currency: "KRW" as const, amount: currentReportPrice() };
-  const insert: Record<string, unknown> = { user_id: userId, session_id: s.id, amount: toMinor(price.currency, price.amount), withdrawal_version: en ? CHECKOUT_EN_VERSION : consentVersionFrom(body.consentVersion) };
+  const insert: Record<string, unknown> = { user_id: guest ? null : userId, session_id: s.id, amount: toMinor(price.currency, price.amount), withdrawal_version: en ? CHECKOUT_EN_VERSION : consentVersionFrom(body.consentVersion) };
   insert.currency = price.currency; // 주문 통화를 저장 — 승인·조회·취소 키를 이 값으로 고른다(마이그레이션 20261106000000 실행 완료)
   const { data: row, error } = await db().from("tarot_orders").insert(insert).select("id").single();
   const amount = price.amount;
+  // 마이그레이션(20261118000000, user_id 비워 두기) 전이면 계정 없는 주문이 막힌다 — 로그인 결제로 안내(예전 동작)
+  if (error?.code === "23502" && guest) throw Object.assign(new TarotError(401, "결제하려면 로그인이 필요해요."), { needLogin: true });
   if (error || !row) {
     console.error("tarot_orders 생성 실패:", error?.message);
     throw new TarotError(500, "주문을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
   }
   // country: 영문 PayPal 결제창(API 개별 연동 키)에 넘기는 나라 — 접속 국가, 모르거나 한국이면 US(아스트로와 같음)
   const payCountry = country && /^[A-Z]{2}$/.test(country) && country !== "KR" ? country : "US";
-  return { orderId: row.id as string, orderName: en ? REPORT_ORDER_NAME_EN : REPORT_ORDER_NAME, amount, currency: price.currency, clientKey: tossKeysFor(price.currency).clientKey, customerKey: userId, ...(en ? { country: payCountry } : {}) };
+  return { orderId: row.id as string, orderName: en ? REPORT_ORDER_NAME_EN : REPORT_ORDER_NAME, amount, currency: price.currency, clientKey: tossKeysFor(price.currency).clientKey, customerKey: guest ? null : userId, ...(en ? { country: payCountry } : {}) };
 }
 
 async function settleOrder(orderId: string, status: "canceled") {
@@ -778,6 +790,23 @@ async function markOrderPaid(orderId: string, v: { paymentKey: string; method: s
   throw new Error(`tarot_orders 결제 저장 실패: ${error.message}`);
 }
 
+/**
+ * 주문을 다룰 권한: 계정 주문은 그 계정 본인, 계정 없는 주문(로그인 없이 결제)은 그 결과의 접근 키 또는
+ * 그 뒤 결과를 저장한 계정. 둘 다 아니면 404(주문이 있는지도 알리지 않음).
+ */
+async function assertOrderAccess(order: OrderRow | null, auth: { userId: string | null; key: string | null }): Promise<OrderRow> {
+  if (!order) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
+  if (order.user_id) {
+    if (order.user_id !== auth.userId) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
+    return order;
+  }
+  const { data } = await db().from("tarot_sessions").select("user_id, access_key_hash").eq("id", order.session_id).maybeSingle();
+  const keyOk = Boolean(auth.key && data && hashKey(auth.key) === data.access_key_hash);
+  const userOk = Boolean(auth.userId && data?.user_id && data.user_id === auth.userId);
+  if (!keyOk && !userOk) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
+  return order;
+}
+
 /** 결제 완료 뒤 공통 기록(토스·카카오페이 같게): 결과에 결제 표시 → 리포트 만들기 시작, 결제 수·광고 소재별 결제 집계. */
 async function recordPaid(order: OrderRow, currency: "KRW" | "USD"): Promise<string> {
   const now = new Date().toISOString();
@@ -790,8 +819,7 @@ async function recordPaid(order: OrderRow, currency: "KRW" | "USD"): Promise<str
   return now;
 }
 
-export async function confirmPayment(userId: string | null, body: { paymentKey?: unknown; orderId?: unknown; amount?: unknown }) {
-  if (!userId) throw new TarotError(401, "로그인이 필요해요.");
+export async function confirmPayment(userId: string | null, body: { paymentKey?: unknown; orderId?: unknown; amount?: unknown }, key: string | null = null) {
   const paymentKey = typeof body.paymentKey === "string" ? body.paymentKey : "";
   const orderId = typeof body.orderId === "string" ? body.orderId : "";
   let amount = Number(body.amount);
@@ -799,8 +827,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
 
   // select("*"): currency 칸이 아직 없는 DB(마이그레이션 전)에서도 한국어 주문 조회가 깨지지 않게
   const { data: o } = await db().from("tarot_orders").select("*").eq("id", orderId).maybeSingle();
-  const order = o as OrderRow | null;
-  if (!order || order.user_id !== userId) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
+  const order = await assertOrderAccess(o as OrderRow | null, { userId, key });
   if (order.status === "paid") return { ok: true, sessionId: order.session_id, generate: false }; // 새로고침 등으로 다시 온 경우
   const currency = order.currency === "USD" ? "USD" : "KRW";
   // 토스가 돌려준 금액(달러면 1.99)을 센트로 바꿔 주문 금액(정수)과 비교한다
@@ -852,7 +879,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   }
   const now = await recordPaid(order, currency);
   // 영문(달러) 주문은 결제가 처음 완료될 때 한 번 주문 확인 이메일(08 §4) — 보내는 일은 라우트가 응답 뒤(after)에
-  const orderEmail = currency === "USD" ? { orderId, userId, method, tossEmail, paidAt: new Date(now) } : null;
+  const orderEmail = currency === "USD" && order.user_id ? { orderId, userId: order.user_id, method, tossEmail, paidAt: new Date(now) } : null;
   return { ok: true, sessionId: order.session_id, generate: true, orderEmail };
 }
 
@@ -861,19 +888,16 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
 // method는 '카카오페이'로 저장한다(새 칸·마이그레이션 없음). 승인 뒤 기록은 토스와 같은 recordPaid.
 const UUID_RE = /^[0-9a-f-]{36}$/i;
 
-async function loadOwnOrder(userId: string | null, orderId: unknown): Promise<OrderRow> {
-  if (!userId) throw new TarotError(401, "로그인이 필요해요.");
+async function loadOwnOrder(auth: { userId: string | null; key: string | null }, orderId: unknown): Promise<OrderRow> {
   if (typeof orderId !== "string" || !UUID_RE.test(orderId)) throw new TarotError(400, "결제 정보가 올바르지 않아요.");
   const { data } = await db().from("tarot_orders").select("*").eq("id", orderId).maybeSingle();
-  const order = data as OrderRow | null;
-  if (!order || order.user_id !== userId) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
-  return order;
+  return assertOrderAccess(data as OrderRow | null, auth);
 }
 
 /** 결제 준비: 카카오페이 결제 화면 주소를 돌려준다. returnOrigin은 라우트가 우리 사이트로 확인한 주소. */
-export async function kakaopayReadyForOrder(userId: string | null, body: { orderId?: unknown; page?: unknown }, ctx: { returnOrigin: string; userAgent: string }) {
+export async function kakaopayReadyForOrder(auth: { userId: string | null; key: string | null }, body: { orderId?: unknown; page?: unknown }, ctx: { returnOrigin: string; userAgent: string }) {
   if (!kakaopayEnabled()) throw new TarotError(503, "카카오페이 결제가 아직 준비되지 않았어요.");
-  const order = await loadOwnOrder(userId, body.orderId);
+  const order = await loadOwnOrder(auth, body.orderId);
   if (order.status !== "pending") throw Object.assign(new TarotError(409, "이미 처리된 주문이에요."), { sessionId: order.session_id });
   if (order.currency === "USD") throw new TarotError(400, "카카오페이는 원화 결제만 돼요.");
   const { data: sess } = await db().from("tarot_sessions").select("paid_at").eq("id", order.session_id).maybeSingle();
@@ -886,7 +910,7 @@ export async function kakaopayReadyForOrder(userId: string | null, body: { order
   const back = `id=${order.session_id}&page=${page}`;
   const r = await kakaoReady({
     orderId: order.id,
-    userRef: kakaoUserRef(order.user_id),
+    userRef: kakaoUserRef(order.user_id ?? `guest:${order.session_id}`),
     itemName: REPORT_ORDER_NAME,
     amount: order.amount,
     approvalUrl: `${o}/checkout/kakaopay?orderId=${order.id}&${back}`,
@@ -908,13 +932,13 @@ export async function kakaopayReadyForOrder(userId: string | null, body: { order
 }
 
 /** 결제 승인: 카카오페이가 돌려준 pg_token으로 승인 → 금액 확인 → 결제 완료 기록(토스와 같은 규칙). */
-export async function kakaopayApproveOrder(userId: string | null, body: { orderId?: unknown; pgToken?: unknown }) {
-  const order = await loadOwnOrder(userId, body.orderId);
+export async function kakaopayApproveOrder(auth: { userId: string | null; key: string | null }, body: { orderId?: unknown; pgToken?: unknown }) {
+  const order = await loadOwnOrder(auth, body.orderId);
   if (order.status === "paid") return { ok: true, sessionId: order.session_id, generate: false }; // 새로고침 등
   const pgToken = typeof body.pgToken === "string" && /^[A-Za-z0-9_-]{1,100}$/.test(body.pgToken) ? body.pgToken : "";
   const tid = order.payment_key ?? "";
   if (!pgToken || !tid) throw new TarotError(400, "결제 정보가 올바르지 않아요.");
-  const userRef = kakaoUserRef(order.user_id);
+  const userRef = kakaoUserRef(order.user_id ?? `guest:${order.session_id}`); // 준비 때와 같은 값이어야 한다
   const expect = { orderId: order.id, amount: order.amount };
 
   if (order.status === "pending") {

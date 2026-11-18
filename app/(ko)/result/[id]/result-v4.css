@@ -195,3 +195,4 @@
 .tv4 .pay .payterms a { color: inherit; text-decoration: underline; }
 .tv4 .pay .payerr { margin-top: 8px; font-size: 12px; line-height: 1.5; color: #ffb4a8 !important; word-break: keep-all; }
 .tv4 .pay .btn.kakaopay:disabled { opacity: 0.8; }
+.tv4 .guestsave { margin: 8px 4px 0; font-size: 12px; line-height: 1.55; color: var(--ink-soft, #5b6475); text-align: center; word-break: keep-all; }
