@@ -66,6 +66,13 @@ export const WITHDRAWAL_NOTICE_VERSION = "tarot-terms-notice-2026-11-18";
 export const NOTICE_BEFORE = "결제하면 타로 하우스 ";
 export const NOTICE_LINK = "이용 관련 약관";
 export const NOTICE_AFTER = "이 적용돼요(디지털 콘텐츠라 리포트를 연 뒤에는 청약철회가 제한돼요).";
+// 2026-11-18 owner: 토스 결제창을 숨기고 카카오페이 주문서로만 결제할 때는 토스 약관 동의가 없으므로 체크 칸을 다시 받는다(아래 문구).
+export const TERMS_CHECK_VERSION = "tarot-terms-check-2026-11-18";
+export const WITHDRAWAL_LINE = "디지털 콘텐츠 특성상 결제 후 리포트를 열람하면 청약철회가 제한돼요.";
+/** 주문에 남길 동의 문구 판: 화면이 보낸 이름이 알려진 것일 때만 그대로, 아니면 안내 문구 판. */
+export function consentVersionFrom(v: unknown): string {
+  return v === TERMS_CHECK_VERSION ? TERMS_CHECK_VERSION : WITHDRAWAL_NOTICE_VERSION;
+}
 export const TERMS_CHECK_BEFORE = "타로 하우스 ";
 export const TERMS_CHECK_LINK = "이용 관련 약관";
 export const TERMS_CHECK_AFTER = "에 동의합니다";

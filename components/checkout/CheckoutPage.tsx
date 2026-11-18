@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { metaTrack } from "@/lib/client/metaPixel";
 import { api, ApiError, claimIfGuest } from "@/lib/client/api";
 import { getRealSession } from "@/lib/supabase/browser";
-import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, NOTICE_AFTER, NOTICE_BEFORE, NOTICE_LINK, won } from "@/lib/billing/pricing";
+import { PROMO_LABEL, REPORT_LIST_PRICE, REPORT_ORDER_NAME, PROMO_REPORT_PRICE, STORAGE_NOTE, NOTICE_AFTER, NOTICE_BEFORE, NOTICE_LINK, TERMS_CHECK_AFTER, TERMS_CHECK_BEFORE, TERMS_CHECK_LINK, TERMS_CHECK_VERSION, WITHDRAWAL_LINE, won } from "@/lib/billing/pricing";
 import { usePromo } from "@/lib/client/usePromo";
 import { TERMS_URL } from "@/lib/legal/urls";
 import { Stars } from "../Cards";
@@ -31,6 +31,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   const [TOSS_CLIENT_KEY, setClientKey] = useState<string | null | undefined>(undefined); // undefined = 아직 모름
   const [busy, setBusy] = useState(false);
   const [kakao, setKakao] = useState(false); // 카카오페이 직접 결제 버튼(서버에 CID·Secret key가 있을 때만, owner 2026-11-18)
+  const [agreed, setAgreed] = useState(false); // 카카오페이 주문서의 [필수] 약관 동의(토스 결제창을 숨기면 토스 약관 동의가 없으므로)
   const [order, setOrder] = useState<Order | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +62,8 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
 
   // 결제 수단은 화면에 들어오자마자 그린다(할인 여부를 알고 난 뒤 — 표시 가격으로)
   useEffect(() => {
-    if (!checked || !customerKey || promoState === null || !TOSS_CLIENT_KEY || widgetRef.current) return;
+    // 카카오페이가 켜져 있으면 토스 결제창은 숨긴다(owner 2026-11-18) — 카카오페이가 꺼져 있을 때만 토스로 결제(결제 길이 막히지 않게)
+    if (!checked || kakao || !customerKey || promoState === null || !TOSS_CLIENT_KEY || widgetRef.current) return;
     let cancelled = false;
     const amount = promoState ? PROMO_REPORT_PRICE : REPORT_LIST_PRICE;
     void import("@tosspayments/payment-widget-sdk")
@@ -80,12 +82,12 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
     return () => {
       cancelled = true;
     };
-  }, [checked, customerKey, promoState, TOSS_CLIENT_KEY]);
+  }, [checked, kakao, customerKey, promoState, TOSS_CLIENT_KEY]);
 
   // 주문은 결제 버튼을 누를 때 만든다 — 금액은 서버가 정한다. 무료 열람 계정이면 null(결과로 바로 이동).
-  async function ensureOrder(): Promise<Order | null> {
+  async function ensureOrder(consentVersion?: string): Promise<Order | null> {
     if (order) return order;
-    const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } });
+    const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true, ...(consentVersion ? { consentVersion } : {}) } });
     // 기간 한정 무료 열람 계정: 결제창 없이 바로 결과로(결제 직후와 같이 세 번째 카드가 뒤집히며 열림)
     if ("comp" in r) {
       router.replace(`/result/${r.sessionId}/${page}?opened=1`);
@@ -99,10 +101,11 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   // 결제를 마치면 카카오페이가 /checkout/kakaopay로, 취소·실패면 /checkout/fail로 돌려보낸다.
   async function payKakao() {
     if (busy) return;
+    if (!agreed) return setError("이용 관련 약관에 동의해 주세요.");
     setError(null);
     setBusy(true);
     try {
-      const o = await ensureOrder();
+      const o = await ensureOrder(TERMS_CHECK_VERSION);
       if (!o) return;
       const r = await api<{ redirectUrl: string }>("/api/tarot/checkout/kakaopay/ready", { body: { orderId: o.orderId, page } });
       window.location.assign(r.redirectUrl);
@@ -160,6 +163,18 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
           <p className="small">확인하는 중…</p>
         ) : (
           <>
+            {kakao ? (
+              <KakaoOrderSheet
+                name={order?.orderName ?? REPORT_ORDER_NAME}
+                amount={shownAmount}
+                agreed={agreed}
+                onAgree={setAgreed}
+                busy={busy}
+                error={error}
+                onPay={payKakao}
+              />
+            ) : (
+              <>
             {/* 쏠 타로 하우스 결제 상자가 먼저(owner 2026-11-02). 금액은 주문이 생기면 서버가 정한 주문 금액, 그 전에는 같은 계산(lib/billing/pricing.ts)으로 표시만 */}
             {(() => {
               const amount = shownAmount;
@@ -201,16 +216,87 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
             <button type="button" className="btn block" disabled={!ready || busy} onClick={pay}>
               {!ready && TOSS_CLIENT_KEY ? "결제창을 불러오는 중…" : busy ? "결제창을 여는 중…" : `${won(shownAmount)} 결제하기`}
             </button>
-            {/* 카카오페이 직접 결제(토스 결제창 밖, owner 2026-11-18) — 카카오페이 공식 노랑·검정 글자 */}
-            {kakao && (
-              <button type="button" className="btn block kakao" disabled={busy} onClick={payKakao}>
-                {busy ? "결제창을 여는 중…" : `카카오페이로 ${won(shownAmount)} 결제하기`}
-              </button>
+              </>
             )}
           </>
         )}
       </div>
       <PageFoot />
     </main>
+  );
+}
+
+// 카카오페이 주문서(owner 2026-11-18 "토스 결제창 숨기고 카카오페이 결제창 주문서 형태로"): 주문 상품 → 결제 금액 → 결제 수단 → 동의 → 결제 버튼.
+// 금액은 표시용 — 실제 청구는 서버 주문 금액(카카오페이 결제 화면에도 그 금액이 뜬다).
+function KakaoOrderSheet({ name, amount, agreed, onAgree, busy, error, onPay }: { name: string; amount: number; agreed: boolean; onAgree: (v: boolean) => void; busy: boolean; error: string | null; onPay: () => void }) {
+  const discount = Math.max(0, REPORT_LIST_PRICE - amount);
+  const row = "flex items-center justify-between gap-3 text-[14px]";
+  return (
+    <div className="flex flex-col gap-4">
+      <section className="rounded-2xl border border-moon/25 px-4 py-4">
+        <h2 className="mb-2 text-[13px] font-bold text-moon/70">주문 상품</h2>
+        <div className={row}>
+          <span className="font-bold text-moon">{name}</span>
+          <span className="shrink-0 text-moon/70">1개</span>
+        </div>
+        <p className="mt-1 break-keep text-[12.5px] text-moon/60">세 번째 카드 · 카드가 가리키는 방향 · 웰니스 처방 · 이번 주 실천 카드</p>
+      </section>
+
+      <section className="rounded-2xl border border-moon/25 px-4 py-4">
+        <h2 className="mb-2 text-[13px] font-bold text-moon/70">결제 금액</h2>
+        <div className={row}>
+          <span className="text-moon/80">상품 금액</span>
+          <span className="text-moon">{won(REPORT_LIST_PRICE)}</span>
+        </div>
+        {discount > 0 && (
+          <div className={`${row} mt-1`}>
+            <span className="flex items-center gap-2 text-moon/80">
+              할인
+              <span className="inline-block rounded-full bg-gold px-2 py-0.5 text-[11px] font-bold text-night-deep">{PROMO_LABEL}</span>
+            </span>
+            <span className="text-gold">-{won(discount)}</span>
+          </div>
+        )}
+        <div className={`${row} mt-3 border-t border-moon/20 pt-3`}>
+          <span className="font-bold text-moon">최종 결제 금액</span>
+          <span className="text-[18px] font-bold text-gold">{won(amount)}</span>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-moon/25 px-4 py-4">
+        <h2 className="mb-2 text-[13px] font-bold text-moon/70">결제 수단</h2>
+        <div className="flex items-center gap-3 rounded-xl border-2 border-[#fee500] px-3 py-2.5" role="radio" aria-checked="true">
+          <span aria-hidden className="grid h-5 w-5 place-items-center rounded-full border-2 border-[#fee500]">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#fee500]" />
+          </span>
+          <span className="rounded-md bg-[#fee500] px-2 py-0.5 text-[13px] font-bold text-[#191919]">pay</span>
+          <span className="font-bold text-moon">카카오페이</span>
+        </div>
+      </section>
+
+      <section className="px-1 text-[12.5px] leading-relaxed text-moon/80">
+        <label className="flex cursor-pointer items-start gap-2 text-[14px] text-moon">
+          <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#d8b46a]" checked={agreed} onChange={(e) => onAgree(e.target.checked)} />
+          <span className="break-keep">
+            [필수] {TERMS_CHECK_BEFORE}
+            <Link href={TERMS_URL} target="_blank" className="underline">
+              {TERMS_CHECK_LINK}
+            </Link>
+            {TERMS_CHECK_AFTER}
+          </span>
+        </label>
+        <p className="mt-2 break-keep">※ {WITHDRAWAL_LINE}</p>
+        <p className="mt-1 break-keep">※ {STORAGE_NOTE}</p>
+      </section>
+
+      {error && (
+        <p className="err" role="alert">
+          {error}
+        </p>
+      )}
+      <button type="button" className="btn block kakao" disabled={busy || !agreed} onClick={onPay}>
+        {busy ? "결제창을 여는 중…" : `카카오페이로 ${won(amount)} 결제하기`}
+      </button>
+    </div>
   );
 }

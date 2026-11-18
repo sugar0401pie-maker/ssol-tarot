@@ -32,7 +32,7 @@ import { MULTI_DB, multiFor, checkChoice } from "@/lib/tarot-glue/multiWorry";
 import { composeFocus, applyFocus, multiQuestion } from "@/lib/tarot/multiWorry.js";
 import { buildChatSummary } from "@/lib/tarot-glue/chatSummary";
 import { mergeE } from "@/lib/tarot/validateV4.js";
-import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, variantKeyFor, WITHDRAWAL_NOTICE_VERSION } from "@/lib/billing/pricing";
+import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentReportPrice, reportPriceFor, toMajor, toMinor, tossKeyKind, tossKeysFor, usdCheckoutEnabled, variantKeyFor, consentVersionFrom } from "@/lib/billing/pricing";
 import { hasCompAccess } from "@/lib/billing/compAccess";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
@@ -729,7 +729,7 @@ export function payConfig(s: SessionRow) {
   return { currency, clientKey, keyKind: tossKeyKind(clientKey), variantKey: variantKeyFor(currency), kakaopay: currency === "KRW" && kakaopayEnabled() };
 }
 
-export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null, country = null }: { email?: string | null; country?: string | null } = {}) {
+export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown; consentVersion?: unknown }, { email = null, country = null }: { email?: string | null; country?: string | null } = {}) {
   if (!userId || s.user_id !== userId) throw new TarotError(401, "로그인한 본인 결과만 결제할 수 있어요.");
   // 청약철회 제한은 사전 고지 + 동의가 있어야 한다(약관 제13조 2항). 화면에서 체크해도 서버가 한 번 더 확인한다.
   if (body.withdrawalAck !== true) throw new TarotError(400, "이용 관련 약관에 동의해 주세요.");
@@ -748,7 +748,7 @@ export async function createOrder(s: SessionRow, userId: string | null, body: { 
   const en = localeOf(s) === "en";
   if (en && !usdCheckoutEnabled()) throw new TarotError(503, "영문 결제는 아직 준비 중이에요.");
   const price = en ? reportPriceFor("en") : { currency: "KRW" as const, amount: currentReportPrice() };
-  const insert: Record<string, unknown> = { user_id: userId, session_id: s.id, amount: toMinor(price.currency, price.amount), withdrawal_version: en ? CHECKOUT_EN_VERSION : WITHDRAWAL_NOTICE_VERSION };
+  const insert: Record<string, unknown> = { user_id: userId, session_id: s.id, amount: toMinor(price.currency, price.amount), withdrawal_version: en ? CHECKOUT_EN_VERSION : consentVersionFrom(body.consentVersion) };
   insert.currency = price.currency; // 주문 통화를 저장 — 승인·조회·취소 키를 이 값으로 고른다(마이그레이션 20261106000000 실행 완료)
   const { data: row, error } = await db().from("tarot_orders").insert(insert).select("id").single();
   const amount = price.amount;
