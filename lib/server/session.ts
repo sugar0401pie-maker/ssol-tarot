@@ -21,7 +21,7 @@ function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"],
   return safety.violence ? null : pkg(locale).assemble.buildSafetyNotice({ data: bundleFor(locale).data, safety });
 }
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
-import { prepareFrame, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
+import { prepareFrame, cleanSub2, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { parseFrameV43 } from "@/lib/tarot/v43.js";
 import { composeWorry, applyFollowup, firstQuestion, nextQuestion } from "@/lib/tarot/followup.js";
@@ -323,7 +323,8 @@ function parseFrameFor(locale: Locale, raw: unknown): { frame: unknown; errors: 
   if (locale === "en") return pkg(locale).validate.parseFrame(raw as string);
   const r = parseFrameV43(raw);
   if (r.salvaged) console.warn("고민 틀(A2) 부분 살리기:", r.fixed.length, "칸 고침");
-  return { frame: r.frame, errors: r.errors };
+  // 저장하기 전에도 2순위 세부를 정리(1순위와 같은 값·없는 id는 비움 — 관리자 엑셀·분석에 잘못된 값이 남지 않게)
+  return { frame: cleanSub2(r.frame as { sub_id?: unknown; sub2?: unknown } | null), errors: r.errors };
 }
 
 // followup: 다시 묻기를 보여 준 세션이면 고른 답(건너뛰면 []), 보여 주지 않았으면 null.

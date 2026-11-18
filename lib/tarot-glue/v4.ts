@@ -27,6 +27,17 @@ const bd = (locale?: Locale) => bundleFor(locale ?? "ko");
 // v2.3.4(v4.3): 저장된 고민 틀(A2 v4.7)을 쓰기 전에 새 칸 검사 + 예측 질문이면 선택지를 '될 흐름 / 어려운 흐름'으로.
 // 패키지 순서(v43.js 머리말) 그대로: normalizeFrameV43 → applyForecastOptions → lean. 예전 결과(새 칸 없음)는 그대로 지나간다.
 // 영문판은 아직 v4.3 데이터가 없어 손대지 않는다.
+/**
+ * 2순위 세부(sub2) 정리(CSO 2026-11-18 검토 — 저장된 2,454건 중 7건이 1순위와 같은 값): 세부 목록에 없는 값이나
+ * 1순위(sub_id)와 같은 값은 비운다. A2가 규칙을 어기거나, 결과 틀이 이겨 1순위가 대표 세부로 바뀐 뒤 같아지는 경우 모두.
+ */
+export function cleanSub2<T extends { sub_id?: unknown; sub2?: unknown } | null>(frame: T): T {
+  if (!frame || frame.sub2 == null) return frame;
+  const subs = (subDbKo as { subs: Record<string, unknown> }).subs;
+  const ok = typeof frame.sub2 === "string" && subs[frame.sub2] && frame.sub2 !== frame.sub_id;
+  return ok ? frame : ({ ...frame, sub2: null } as T);
+}
+
 export function prepareFrame(frame: Frame | null, cls: Cls | null, locale?: Locale, safety?: { level?: string | null; violence?: boolean } | null): Frame | null {
   if (!frame || locale === "en") return frame;
   // v2.3.8: A2가 고른 세부 고민(sub_id, v2.3.11부터 144개)의 기본값으로 빈 칸(영역·연애 단계·주제·듣고 싶은 답)을 채운다(없는 id면 sub_id만 지움).
@@ -34,7 +45,7 @@ export function prepareFrame(frame: Frame | null, cls: Cls | null, locale?: Loca
   //   세 곳(3장째 C·결과·유료 리포트)이 같은 safety를 넘겨야 같은 표가 나온다.
   const tables = bd(locale).tables;
   // v2.3.14: 결과 틀(frame_id, A2 v4.12)과 세부를 맞춘다(resolveFrame — 어긋나면 틀을 믿음). 예전 결과(frame_id 없음)는 세부의 틀만 채운다.
-  const sub = applySubDefaults(resolveFrame(normalizeFrameV43(frame, cls), subDbKo), subDbKo);
+  const sub = applySubDefaults(cleanSub2(resolveFrame(normalizeFrameV43(frame, cls), subDbKo)), subDbKo);
   return applyForecastOptions(resolveTable(sub, subDbKo, tables, { safety: safety ?? null }), tables);
 }
 
