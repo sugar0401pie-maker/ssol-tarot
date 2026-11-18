@@ -17,7 +17,7 @@ import { Stars } from "../Cards";
 import PageFoot from "../PageFoot";
 
 // 결제창 키는 서버가 주문 통화(이 화면은 원화)로 골라 준다(/api/tarot/session/{id}/pay-config) — 브라우저에 키를 박아 두지 않는다.
-type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null };
+type PayConfig = { currency: "KRW" | "USD"; clientKey: string | null; keyKind: "widget" | "api" | null; kakaopay?: boolean };
 
 type Order = { orderId: string; orderName: string; amount: number; customerKey: string };
 type Widget = Awaited<ReturnType<typeof import("@tosspayments/payment-widget-sdk")["loadPaymentWidget"]>>;
@@ -30,6 +30,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
   const [customerKey, setCustomerKey] = useState<string | null>(null); // 서버 주문의 customerKey와 같은 값(로그인 사용자 id)
   const [TOSS_CLIENT_KEY, setClientKey] = useState<string | null | undefined>(undefined); // undefined = 아직 모름
   const [busy, setBusy] = useState(false);
+  const [kakao, setKakao] = useState(false); // 카카오페이 직접 결제 버튼(서버에 CID·Secret key가 있을 때만, owner 2026-11-18)
   const [order, setOrder] = useState<Order | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +51,7 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
       const cfg = await api<PayConfig>(`/api/tarot/session/${id}/pay-config`).catch(() => null);
       if (cfg?.currency === "USD") return router.replace(`/en/checkout/${id}?page=${page}`);
       setClientKey(cfg?.clientKey ?? null);
+      setKakao(cfg?.kakaopay === true);
       setCustomerKey(s.user.id);
       setChecked(true);
       // 메타 광고 측정(owner 2026-11-16): 결제 화면 열기 — 결과 번호로 한 번만
@@ -80,20 +82,47 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
     };
   }, [checked, customerKey, promoState, TOSS_CLIENT_KEY]);
 
+  // 주문은 결제 버튼을 누를 때 만든다 — 금액은 서버가 정한다. 무료 열람 계정이면 null(결과로 바로 이동).
+  async function ensureOrder(): Promise<Order | null> {
+    if (order) return order;
+    const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } });
+    // 기간 한정 무료 열람 계정: 결제창 없이 바로 결과로(결제 직후와 같이 세 번째 카드가 뒤집히며 열림)
+    if ("comp" in r) {
+      router.replace(`/result/${r.sessionId}/${page}?opened=1`);
+      return null;
+    }
+    setOrder(r);
+    return r;
+  }
+
+  // 카카오페이 직접 결제(owner 2026-11-18): 주문 → 서버가 카카오페이 결제 준비 → 카카오페이 결제 화면으로 이동.
+  // 결제를 마치면 카카오페이가 /checkout/kakaopay로, 취소·실패면 /checkout/fail로 돌려보낸다.
+  async function payKakao() {
+    if (busy) return;
+    setError(null);
+    setBusy(true);
+    try {
+      const o = await ensureOrder();
+      if (!o) return;
+      const r = await api<{ redirectUrl: string }>("/api/tarot/checkout/kakaopay/ready", { body: { orderId: o.orderId, page } });
+      window.location.assign(r.redirectUrl);
+      return; // 이동하는 동안 버튼은 '여는 중'으로 둔다
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 409 && /이미 결제/.test(e.message)) return router.replace(back);
+      // 이미 처리된 주문이면(다른 결제 시도로 취소됨 등) 다음 시도에서 새 주문을 만든다
+      if (e instanceof ApiError && e.status === 409) setOrder(null);
+      setError(e instanceof ApiError ? e.message : "카카오페이 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
+    }
+    setBusy(false);
+  }
+
   async function pay() {
     if (!widgetRef.current || busy) return;
     setError(null);
     setBusy(true);
     try {
-      // 동의한 뒤에야 주문을 만든다 — 금액은 서버가 정한다
-      let o = order;
-      if (!o) {
-        const r = await api<Order | { comp: true; sessionId: string }>(`/api/tarot/session/${id}/checkout`, { body: { withdrawalAck: true } });
-        // 기간 한정 무료 열람 계정: 결제창 없이 바로 결과로(결제 직후와 같이 세 번째 카드가 뒤집히며 열림)
-        if ("comp" in r) return router.replace(`/result/${r.sessionId}/${page}?opened=1`);
-        o = r;
-        setOrder(r);
-      }
+      const o = await ensureOrder();
+      if (!o) return;
       // 위젯에 먼저 그린 표시 가격과 서버 주문 금액이 다르면(할인 경계 시각 등) 실제 청구 금액으로 맞춘다
       if (o.amount !== shownAmount) methodsRef.current?.updateAmount(o.amount);
       await widgetRef.current.requestPayment({
@@ -172,6 +201,12 @@ export default function CheckoutPage({ id, page }: { id: string; page: number })
             <button type="button" className="btn block" disabled={!ready || busy} onClick={pay}>
               {!ready && TOSS_CLIENT_KEY ? "결제창을 불러오는 중…" : busy ? "결제창을 여는 중…" : `${won(shownAmount)} 결제하기`}
             </button>
+            {/* 카카오페이 직접 결제(토스 결제창 밖, owner 2026-11-18) — 카카오페이 공식 노랑·검정 글자 */}
+            {kakao && (
+              <button type="button" className="btn block kakao" disabled={busy} onClick={payKakao}>
+                {busy ? "결제창을 여는 중…" : `카카오페이로 ${won(shownAmount)} 결제하기`}
+              </button>
+            )}
           </>
         )}
       </div>

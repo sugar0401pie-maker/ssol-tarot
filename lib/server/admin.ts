@@ -79,7 +79,7 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
   for (let i = 0; i < ids.length; i += 200) {
     const { data, error } = await db().from("tarot_orders").select("*").in("session_id", ids.slice(i, i + 200)).eq("status", "paid");
     if (error) throw new TarotError(500, `주문을 읽지 못했어요(${error.message}).`);
-    for (const o of data ?? []) orders.set(o.session_id, { session_id: o.session_id, amount: Number(o.amount), currency: o.currency ?? "KRW", paid_at: o.paid_at });
+    for (const o of data ?? []) orders.set(o.session_id, { session_id: o.session_id, amount: Number(o.amount), currency: o.currency ?? "KRW", paid_at: o.paid_at, method: o.method ?? null });
   }
 
   // 계정 이메일·로그인 수단(로그인한 결과만)

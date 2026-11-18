@@ -8,7 +8,7 @@ import { CHECKOUT_EN } from "@/lib/i18n/checkoutEn";
 
 const KO = { cancelTitle: "결제를 멈췄어요", failTitle: "결제가 완료되지 않았어요", cancelBody: "지금까지 본 결과는 그대로 남아 있어요.", failBody: "결제 금액은 청구되지 않았어요. 다시 시도하실 수 있어요.", tryAgain: "다시 결제하기", backToReading: "결과로 돌아가기" };
 
-const CANCEL_CODES = new Set(["PAY_PROCESS_CANCELED", "USER_CANCEL"]);
+const CANCEL_CODES = new Set(["PAY_PROCESS_CANCELED", "USER_CANCEL", "KAKAOPAY_CANCEL"]);
 
 export default function CheckoutFail({ locale = "ko" }: { locale?: "ko" | "en" }) {
   const T = locale === "en" ? CHECKOUT_EN : KO;

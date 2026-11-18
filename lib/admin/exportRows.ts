@@ -22,11 +22,11 @@ export type ExportSession = {
   utm?: { source?: string; campaign?: string; content?: string } | null;
 };
 export type ExportUser = { email: string | null; provider: string | null; providers?: string[] | null };
-export type ExportOrder = { session_id: string; amount: number; currency?: string | null; paid_at: string | null };
+export type ExportOrder = { session_id: string; amount: number; currency?: string | null; paid_at: string | null; method?: string | null };
 
 export const EXPORT_HEADER = [
   "참가 시각(한국)", "결과 번호", "언어", "닉네임", "이메일", "로그인 수단", "타로 경험", "고민 글", "고민 글자 수",
-  "고민 영역", "세부 고민", "점수표", "안전 단계", "결과 상태", "결제 여부", "결제 시각(한국)", "결제 금액", "통화", "리포트 상태",
+  "고민 영역", "세부 고민", "점수표", "안전 단계", "결과 상태", "결제 여부", "결제 시각(한국)", "결제 금액", "통화", "결제 수단", "리포트 상태",
   // v2.3.14(2026-11-14): 결과 틀(두 단계 고르기) · 짧은 고민에 다시 묻기(A/B — 결과 번호로 반씩)
   "결과 틀", "다시 묻기",
   // v2.3.21 여러 고민 고르기 — 물은 묶음과 고른 방식(예: asked:work,love|picked:love)
@@ -91,6 +91,8 @@ export function exportRow(
     kstStamp(order?.paid_at ?? s.paid_at ?? null),
     order ? (order.currency === "USD" ? order.amount / 100 : order.amount) : "",
     order ? (order.currency ?? "KRW") : "",
+    // 결제 수단(토스가 돌려준 수단 이름 또는 '카카오페이' — 카카오페이 직접 결제, 2026-11-18)
+    order?.method ?? "",
     REPORT[s.report_status ?? ""] ?? s.report_status ?? "",
     s.frame?.frame_id ? `${frameNames[s.frame.frame_id]?.name ?? ""} (${s.frame.frame_id})`.trim() : "",
     followupLabel(s.frame?.followup ?? null),

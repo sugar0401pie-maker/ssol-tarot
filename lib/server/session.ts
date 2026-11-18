@@ -36,6 +36,8 @@ import { REPORT_ORDER_NAME, REPORT_ORDER_NAME_EN, currencyForLocale, currentRepo
 import { hasCompAccess } from "@/lib/billing/compAccess";
 import { decideAfterConfirmFailure } from "@/lib/billing/confirmDecision";
 import { cancelTossPayment, confirmTossPayment, getTossPayment } from "./toss";
+import { kakaoApprove, kakaoCancel, kakaoOrder, kakaoReady, kakaoUserRef } from "./kakaopay";
+import { KAKAOPAY_METHOD, decideAfterKakaoApproveFailure, kakaopayEnabled, pickKakaoRedirect } from "@/lib/billing/kakaopay";
 import { createAdminClient } from "./supabaseAdmin";
 import { aiConfigured, generateText } from "./ai";
 import { frameCall, guessArea, type FrameVote } from "./frameExamples";
@@ -723,7 +725,8 @@ export function payConfig(s: SessionRow) {
   const currency = currencyForLocale(localeOf(s));
   const clientKey = tossKeysFor(currency).clientKey;
   // variantKey: 같은 결제위젯 키로 어느 MID(원화 DEFAULT / 달러 dollar.only)를 쓸지
-  return { currency, clientKey, keyKind: tossKeyKind(clientKey), variantKey: variantKeyFor(currency) };
+  // kakaopay: 카카오페이 직접 결제 버튼(원화만, CID·Secret key가 설정됐을 때만 — owner 2026-11-18)
+  return { currency, clientKey, keyKind: tossKeyKind(clientKey), variantKey: variantKeyFor(currency), kakaopay: currency === "KRW" && kakaopayEnabled() };
 }
 
 export async function createOrder(s: SessionRow, userId: string | null, body: { withdrawalAck?: unknown }, { email = null, country = null }: { email?: string | null; country?: string | null } = {}) {
@@ -771,6 +774,18 @@ async function markOrderPaid(orderId: string, v: { paymentKey: string; method: s
   if (!error) return "ok";
   if (error.code === "23505") return "duplicate";
   throw new Error(`tarot_orders 결제 저장 실패: ${error.message}`);
+}
+
+/** 결제 완료 뒤 공통 기록(토스·카카오페이 같게): 결과에 결제 표시 → 리포트 만들기 시작, 결제 수·광고 소재별 결제 집계. */
+async function recordPaid(order: OrderRow, currency: "KRW" | "USD"): Promise<string> {
+  const now = new Date().toISOString();
+  await update(order.session_id, { paid_at: now, report_status: "generating", report_started_at: now });
+  await countEvent("paid");
+  const { data: srow } = await db().from("tarot_sessions").select("*").eq("id", order.session_id).maybeSingle();
+  const u = utmOf(srow as SessionRow | null);
+  await countUtm(u, "paid");
+  await countUtm(u, currency === "USD" ? "paid_usd_cents" : "paid_krw", Number(order.amount) || 0);
+  return now;
 }
 
 export async function confirmPayment(userId: string | null, body: { paymentKey?: unknown; orderId?: unknown; amount?: unknown }) {
@@ -833,18 +848,115 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
     console.error(refunded ? "타로 중복 결제 취소함" : "타로 중복 결제 취소 실패(수동 확인 필요)", orderId);
     throw Object.assign(new TarotError(409, refunded ? "이미 결제한 결과라 이번 결제는 취소했어요." : CONFIRM_RETRY_MESSAGE), { sessionId: order.session_id });
   }
-  const now = new Date().toISOString();
-  await update(order.session_id, { paid_at: now, report_status: "generating", report_started_at: now });
-  await countEvent("paid");
-  {
-    const { data: srow } = await db().from("tarot_sessions").select("*").eq("id", order.session_id).maybeSingle();
-    const u = utmOf(srow as SessionRow | null);
-    await countUtm(u, "paid");
-    await countUtm(u, currency === "USD" ? "paid_usd_cents" : "paid_krw", Number(order.amount) || 0);
-  }
+  const now = await recordPaid(order, currency);
   // 영문(달러) 주문은 결제가 처음 완료될 때 한 번 주문 확인 이메일(08 §4) — 보내는 일은 라우트가 응답 뒤(after)에
   const orderEmail = currency === "USD" ? { orderId, userId, method, tossEmail, paidAt: new Date(now) } : null;
   return { ok: true, sessionId: order.session_id, generate: true, orderEmail };
+}
+
+// ── 카카오페이 직접 결제(owner 2026-11-18) ──────────────────────────────────────────────
+// 주문은 토스와 같은 createOrder로 만들고(금액은 서버가 정함), 준비 단계에서 받은 tid를 그 주문의 payment_key에,
+// method는 '카카오페이'로 저장한다(새 칸·마이그레이션 없음). 승인 뒤 기록은 토스와 같은 recordPaid.
+const UUID_RE = /^[0-9a-f-]{36}$/i;
+
+async function loadOwnOrder(userId: string | null, orderId: unknown): Promise<OrderRow> {
+  if (!userId) throw new TarotError(401, "로그인이 필요해요.");
+  if (typeof orderId !== "string" || !UUID_RE.test(orderId)) throw new TarotError(400, "결제 정보가 올바르지 않아요.");
+  const { data } = await db().from("tarot_orders").select("*").eq("id", orderId).maybeSingle();
+  const order = data as OrderRow | null;
+  if (!order || order.user_id !== userId) throw new TarotError(404, "주문 정보를 찾을 수 없어요.");
+  return order;
+}
+
+/** 결제 준비: 카카오페이 결제 화면 주소를 돌려준다. returnOrigin은 라우트가 우리 사이트로 확인한 주소. */
+export async function kakaopayReadyForOrder(userId: string | null, body: { orderId?: unknown; page?: unknown }, ctx: { returnOrigin: string; userAgent: string }) {
+  if (!kakaopayEnabled()) throw new TarotError(503, "카카오페이 결제가 아직 준비되지 않았어요.");
+  const order = await loadOwnOrder(userId, body.orderId);
+  if (order.status !== "pending") throw Object.assign(new TarotError(409, "이미 처리된 주문이에요."), { sessionId: order.session_id });
+  if (order.currency === "USD") throw new TarotError(400, "카카오페이는 원화 결제만 돼요.");
+  const { data: sess } = await db().from("tarot_sessions").select("paid_at").eq("id", order.session_id).maybeSingle();
+  if (sess?.paid_at) {
+    await settleOrder(order.id, "canceled");
+    throw Object.assign(new TarotError(409, "이미 결제한 리포트예요."), { paid: true, sessionId: order.session_id });
+  }
+  const page = Math.min(11, Math.max(1, Number.parseInt(String(body.page ?? "4"), 10) || 4));
+  const o = ctx.returnOrigin;
+  const back = `id=${order.session_id}&page=${page}`;
+  const r = await kakaoReady({
+    orderId: order.id,
+    userRef: kakaoUserRef(order.user_id),
+    itemName: REPORT_ORDER_NAME,
+    amount: order.amount,
+    approvalUrl: `${o}/checkout/kakaopay?orderId=${order.id}&${back}`,
+    cancelUrl: `${o}/checkout/fail?${back}&code=KAKAOPAY_CANCEL`,
+    failUrl: `${o}/checkout/fail?${back}&code=KAKAOPAY_FAIL&orderId=${order.id}`,
+  });
+  if (!r.ok) {
+    console.warn("카카오페이 준비 실패:", { code: r.code, network: r.network }); // 키·금액·사용자 정보는 남기지 않음
+    throw new TarotError(502, `카카오페이 결제를 시작하지 못했어요. ${r.message}${r.code ? ` (오류 코드 ${r.code})` : ""}`);
+  }
+  const redirectUrl = pickKakaoRedirect(ctx.userAgent, r.body);
+  if (!r.body.tid || !redirectUrl) throw new TarotError(502, "카카오페이 결제를 시작하지 못했어요.");
+  const { error } = await db().from("tarot_orders").update({ payment_key: r.body.tid, method: KAKAOPAY_METHOD }).eq("id", order.id).eq("status", "pending");
+  if (error) {
+    console.error("카카오페이 tid 저장 실패:", error.message);
+    throw new TarotError(500, "결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.");
+  }
+  return { redirectUrl };
+}
+
+/** 결제 승인: 카카오페이가 돌려준 pg_token으로 승인 → 금액 확인 → 결제 완료 기록(토스와 같은 규칙). */
+export async function kakaopayApproveOrder(userId: string | null, body: { orderId?: unknown; pgToken?: unknown }) {
+  const order = await loadOwnOrder(userId, body.orderId);
+  if (order.status === "paid") return { ok: true, sessionId: order.session_id, generate: false }; // 새로고침 등
+  const pgToken = typeof body.pgToken === "string" && /^[A-Za-z0-9_-]{1,100}$/.test(body.pgToken) ? body.pgToken : "";
+  const tid = order.payment_key ?? "";
+  if (!pgToken || !tid) throw new TarotError(400, "결제 정보가 올바르지 않아요.");
+  const userRef = kakaoUserRef(order.user_id);
+  const expect = { orderId: order.id, amount: order.amount };
+
+  if (order.status === "pending") {
+    const { data: sess } = await db().from("tarot_sessions").select("paid_at").eq("id", order.session_id).maybeSingle();
+    if (sess?.paid_at) {
+      // 승인 전이라 카카오페이에서 돈이 나가지 않는다
+      await settleOrder(order.id, "canceled");
+      throw Object.assign(new TarotError(409, "이미 결제한 결과예요. 결과 화면에서 바로 볼 수 있어요."), { sessionId: order.session_id });
+    }
+    const r = await kakaoApprove({ tid, orderId: order.id, userRef, pgToken });
+    if (r.ok) {
+      const total = r.body.amount?.total;
+      if (r.body.partner_order_id !== order.id || total !== order.amount) {
+        // 주문과 다른 결제가 승인됨 — 바로 전액 취소하고 멈춘다
+        const refunded = await kakaoCancel(tid, typeof total === "number" ? total : order.amount);
+        if (refunded) await settleOrder(order.id, "canceled");
+        console.error(refunded ? "카카오페이 금액 불일치 — 취소함" : "카카오페이 금액 불일치 — 취소 실패(수동 확인 필요)", order.id);
+        throw new TarotError(400, "결제 금액이 일치하지 않아 결제를 취소했어요.");
+      }
+    } else {
+      console.warn("카카오페이 승인 실패:", { code: r.code, network: r.network });
+      // 승인 응답이 실패여도 이미 승인됐을 수 있다 — 실제 상태를 물어 판단(돈이 나갔을 수 있으면 취소로 바꾸지 않음)
+      const d = decideAfterKakaoApproveFailure(await kakaoOrder(tid), expect);
+      if (d === "cancel") {
+        await settleOrder(order.id, "canceled");
+        throw new TarotError(502, `카카오페이 결제가 완료되지 않았어요. ${r.message}${r.code ? ` (오류 코드 ${r.code})` : ""}`);
+      }
+      if (d === "retry") throw new TarotError(503, CONFIRM_RETRY_MESSAGE);
+    }
+  } else {
+    // 'canceled' 주문: 잘못 취소됐을 수 있으니 실제로 결제됐는지만 확인(다시 승인하지 않음)
+    if (decideAfterKakaoApproveFailure(await kakaoOrder(tid), expect) !== "paid") throw new TarotError(409, "이미 처리된 주문이에요.");
+  }
+
+  // 여기부터는 카카오페이 결제가 확인됨
+  const saved = await markOrderPaid(order.id, { paymentKey: tid, method: KAKAOPAY_METHOD });
+  if (saved === "duplicate") {
+    const refunded = await kakaoCancel(tid, order.amount);
+    if (refunded) await settleOrder(order.id, "canceled");
+    console.error(refunded ? "타로 중복 결제(카카오페이) 취소함" : "타로 중복 결제(카카오페이) 취소 실패(수동 확인 필요)", order.id);
+    throw Object.assign(new TarotError(409, refunded ? "이미 결제한 결과라 이번 결제는 취소했어요." : CONFIRM_RETRY_MESSAGE), { sessionId: order.session_id });
+  }
+  await recordPaid(order, "KRW");
+  return { ok: true, sessionId: order.session_id, generate: true, amount: order.amount };
 }
 
 /** 로그인 계정의 이메일(auth). user_metadata는 사용자가 바꿀 수 있어 쓰지 않는다(아스트로 getAccountEmail과 같은 규칙). */
