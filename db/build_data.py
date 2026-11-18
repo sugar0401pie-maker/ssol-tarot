@@ -139,7 +139,7 @@ COPY = dict(
     urgent_body="적어 주신 이야기에서 많이 힘든 마음이 느껴졌어요. 당신은 충분히 소중한 존재입니다. 혼자 견디지 않아도 괜찮아요. 생각을 돌려보세요. 지금 바로 이야기 나눌 수 있는 곳이 있습니다.",
     urgent_contacts=[
       dict(name="자살예방상담전화", number="109", note="24시간, 전화나 문자로 바로 이야기할 수 있어요"),
-      dict(name="카카오톡 마들랜", number="", note="글로 편하게 상담할 수 있어요", url="https://apps.apple.com/kr/app/%EB%A7%88%EB%93%A4%EB%9E%9C-%EC%9E%90%EC%82%B4%EC%98%88%EB%B0%A9-sns-%EC%83%81%EB%8B%B4/id6633423223"),
+      dict(name="카카오톡 마들랜", number="", note="글로 편하게 상담할 수 있어요", url="https://pf.kakao.com/_DAxbYG"),
       dict(name="정신건강위기상담", number="1577-0199", note=""),
     ],
     urgent_emergency="지금 위험하다면 119에 연락해 주세요.",
