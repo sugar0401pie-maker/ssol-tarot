@@ -494,8 +494,9 @@ function PayBox({ ctx, page, standalone = false }: { ctx: Ctx; page: number; sta
         <ReviewRotator lines={(c as { paywall_reviews?: string[] }).paywall_reviews} />
         {/* 토스 결제(금액은 서버가 정함) → 서버 승인 확인 → 유료 리포트(D·E) 생성. 결제 전 유료 본문은 만들지 않는다. */}
         {/* 4쪽(세 번째 카드 뒷면) 결제 버튼은 '카드 뒤집고 결과 보기'(v2.3.4 secret3.p4_cta, owner 2026-11-05 승인). 가격은 위 줄에 그대로. */}
-        {/* 4쪽 + 카카오페이가 켜져 있으면(owner 2026-11-18): 카카오페이 색 버튼 + 가운데 카카오페이 아이콘 + 아래 작은 글씨 동의 안내 */}
-        {standalone && kakao ? (
+        {/* 카카오페이가 켜져 있으면(owner 2026-11-18, 모든 결제 상자): 카카오페이 색 버튼 + 가운데 카카오페이 아이콘 + 아래 작은 글씨 동의 안내.
+            누르면 주문서 없이 바로 카카오페이로 이동(/checkout이 곧바로 넘겨 줌) */}
+        {kakao ? (
           <>
             <button type="button" className="btn fill kakaopay" onClick={() => ctx.pay(page)}>
               <KakaoPayMark />
