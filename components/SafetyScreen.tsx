@@ -21,6 +21,20 @@ export function useHelplines(on: boolean): Helplines {
   return h;
 }
 
+// 본문 속 [글자](주소) 링크를 새 창 링크로(owner 문구의 ‘마들랜’ 링크). 그 밖의 글은 그대로.
+function withLinks(text: string) {
+  const out: React.ReactNode[] = [];
+  const re = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
+  let last = 0;
+  for (const m of text.matchAll(re)) {
+    out.push(text.slice(last, m.index));
+    out.push(<a key={m.index} href={m[2]} target="_blank" rel="noreferrer" className="font-bold text-navy underline">{m[1]}</a>);
+    last = (m.index ?? 0) + m[0].length;
+  }
+  out.push(text.slice(last));
+  return out;
+}
+
 export function SafetyScreen({ copy, locale = "ko" }: { copy: Pick<Copy, "safety">; locale?: Locale }) {
   const en = locale === "en";
   const h = useHelplines(en);
@@ -30,6 +44,8 @@ export function SafetyScreen({ copy, locale = "ko" }: { copy: Pick<Copy, "safety
     urgent_contacts: { name: string; number: string; note: string; url?: string }[];
     urgent_emergency?: string;
     urgent_image?: { src: string; alt: string };
+    urgent_groups?: { title: string; items: { name: string; action: string; href: string; note?: string }[] }[];
+    urgent_closing?: string;
   };
   const box = "flex items-center justify-between rounded-2xl border border-card-line/30 bg-white px-4 py-4";
   return (
@@ -41,7 +57,34 @@ export function SafetyScreen({ copy, locale = "ko" }: { copy: Pick<Copy, "safety
           <img src={s.urgent_image.src} alt={s.urgent_image.alt} width={417} height={417} className="mx-auto mb-6 w-full max-w-[280px] rounded-2xl" />
         )}
         <h1 className="font-serif text-[22px] font-bold leading-snug text-card-line">{s.urgent_title}</h1>
-        <p className="mt-4 text-[15px] leading-relaxed">{f(s.urgent_body)}</p>
+        <p className="mt-4 text-[15px] leading-relaxed">{withLinks(f(s.urgent_body))}</p>
+        {s.urgent_groups ? (
+          // owner 2026-11-19: 상황별 묶음(마음이 너무 힘들 때 / 폭력·통제가 걱정될 때 / 지금 위험할 때) + 맺음 문단
+          <>
+            {s.urgent_groups.map((g) => (
+              <section key={g.title} className="mt-7">
+                <h2 className="text-[15px] font-bold text-card-line">{g.title}</h2>
+                <ul className="mt-3 flex flex-col gap-3">
+                  {g.items.map((c) => {
+                    const external = c.href.startsWith("http");
+                    return (
+                      <li key={c.name}>
+                        <a href={c.href} {...(external ? { target: "_blank", rel: "noreferrer" } : {})} className={box}>
+                          <span>
+                            <span className="block text-[15px] font-bold text-card-line">{c.name}</span>
+                            {c.note && <span className="block text-[12px] text-ink/60">{c.note}</span>}
+                          </span>
+                          <span className="ml-3 shrink-0 text-right text-[15px] font-bold text-navy">{c.action}</span>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ))}
+            {s.urgent_closing && <p className="mt-7 text-[14px] leading-relaxed text-ink/80">{s.urgent_closing}</p>}
+          </>
+        ) : (
         <ul className="mt-6 flex flex-col gap-3">
           {s.urgent_contacts.map((c) => {
             const label = (
@@ -83,6 +126,7 @@ export function SafetyScreen({ copy, locale = "ko" }: { copy: Pick<Copy, "safety
             );
           })}
         </ul>
+        )}
         {en ? (
           // 영문판: 나라별 정신건강 도움 찾기(국제 목록) — 데이터 urgent_cta 문구
           (s as { urgent_cta?: string }).urgent_cta && (
@@ -91,7 +135,7 @@ export function SafetyScreen({ copy, locale = "ko" }: { copy: Pick<Copy, "safety
             </a>
           )
         ) : (
-          s.urgent_emergency && (
+          s.urgent_emergency && !s.urgent_groups && (
             <a href="tel:119" className="mt-5 block text-center text-[15px] font-bold text-card-line">
               {s.urgent_emergency}
             </a>
