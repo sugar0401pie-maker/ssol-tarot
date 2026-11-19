@@ -6,7 +6,7 @@ import { addDays, isValidDay, kstDayBounds, kstStamp, kstToday } from "./kstDay.
 import { buildXlsx, colName, crc32, xmlText } from "./xlsx.ts";
 import { exportRow, providerLabel, EXPORT_HEADER } from "./exportRows.ts";
 
-test("관리자 이메일: seotaiji0124@naver.com 하나만, 빈 목록이면 아무도 안 됨", () => {
+test("관리자 이메일: owner 지정 목록만, 빈 목록이면 아무도 안 됨", () => {
   assert.equal(isAdminEmail("seotaiji0124@naver.com"), true);
   assert.equal(isAdminEmail(" SeoTaiji0124@Naver.com "), true);
   assert.equal(isAdminEmail("sugar0401pie@gmail.com"), false);
@@ -14,7 +14,8 @@ test("관리자 이메일: seotaiji0124@naver.com 하나만, 빈 목록이면 �
   assert.equal(isAdminEmail(""), false);
   assert.equal(isAdminEmail(null), false);
   assert.equal(isAdminEmail("a@b.com", []), false);
-  assert.deepEqual([...ADMIN_EMAILS], ["seotaiji0124@naver.com"]);
+  assert.deepEqual([...ADMIN_EMAILS], ["seotaiji0124@naver.com", "sneaker112@naver.com"]);
+  assert.equal(isAdminEmail(" Sneaker112@Naver.com "), true);
 });
 
 test("한국 시간 날짜", () => {
