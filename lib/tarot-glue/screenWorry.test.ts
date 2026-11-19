@@ -38,13 +38,17 @@ test("예전부터 있던 단어와 오탐 방지 규칙은 그대로", () => {
 
 test("카드 멈춤은 자기 죽음의 구체적 시기·장소를 말할 때만(owner 2026-11-19)", () => {
   // 시기
-  for (const t of ["내일 죽으려고요", "이번 주말에 자살할 거예요", "언제 죽을지 고민 중이에요", "죽을 날을 정했어요", "오늘 밤에 뛰어내리려고요"])
+  for (const t of ["내일 죽으려고요", "이번 주말에 자살할 거예요", "언제 죽을지 고민 중이에요", "죽을 날을 정했어요", "오늘 밤에 죽으려고요"])
     assert.equal(screenWorry(t).level, "urgent", t);
   // 장소
-  for (const t of ["어디서 죽어야 할지 찾아보고 있어요", "죽을 곳을 알아보는 중이에요", "한강 다리에서 뛰어내릴까 해요", "옥상에서 죽으려고요"])
+  for (const t of ["어디서 죽어야 할지 찾아보고 있어요", "죽을 곳을 알아보는 중이에요", "한강 다리에서 죽으려고요", "옥상에서 죽으려고요"])
     assert.equal(screenWorry(t).level, "urgent", t);
   // 시기·장소 없는 직접 표현·관용 표현·남 이야기는 멈추지 않음
   assert.equal(screenWorry("회사 너무 힘들어서 죽고 싶어요").level, "watch");
+  assert.equal(screenWorry("한강 다리에서 뛰어내릴까 해요").level === "urgent", false);
+  assert.equal(screenWorry("옥상에서 뛰어내리고 싶다").level === "urgent", false);
+  assert.equal(screenWorry("내일 밤에 뛰어내리려고요").level === "urgent", false);
+  assert.equal(screenWorry("결혼 날짜를 정했어요").level, "none");
   assert.equal(screenWorry("내일 시험이라 죽겠어요").level, "none");
   assert.equal(screenWorry("내일 발표인데 죽을 것 같아요").level, "none");
   assert.equal(screenWorry("인생 언제 죽을지 모르니까 하고 싶은 거 해야죠").level, "watch");
