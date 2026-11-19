@@ -140,3 +140,13 @@ export function utmSummaryRows(counts: UtmCountRow[]): Cell[][] {
       ...UTM_METRICS.map((m) => (m === "paid_usd_cents" ? (g[m] ?? 0) / 100 : g[m] ?? 0)),
     ]);
 }
+
+// 분석용 메일 첨부(2026-11-19): 사람을 알아볼 수 있는 칸(닉네임·이메일·로그인 수단)은 빼고 보낸다.
+// 고민 글은 분석 목적이라 남긴다(owner 요청 — 고민 누적 분석).
+export const ANALYSIS_DROP = ["닉네임", "이메일", "로그인 수단"] as const;
+const DROP_IDX = new Set(ANALYSIS_DROP.map((h) => EXPORT_HEADER.indexOf(h)));
+export const ANALYSIS_HEADER = EXPORT_HEADER.filter((_, i) => !DROP_IDX.has(i));
+export const ANALYSIS_WIDTHS = EXPORT_WIDTHS.filter((_, i) => !DROP_IDX.has(i));
+export function analysisRow(row: Cell[]): Cell[] {
+  return row.filter((_, i) => !DROP_IDX.has(i));
+}

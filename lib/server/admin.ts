@@ -7,9 +7,12 @@ import { isAdminEmail } from "@/lib/admin/access";
 import { checkAdminPassword } from "@/lib/admin/password";
 import { addDays, kstDayBounds } from "@/lib/admin/kstDay";
 import { buildFunnel, recentDays, type DailyCount } from "@/lib/admin/funnel";
-import { EXPORT_HEADER, EXPORT_WIDTHS, UTM_HEADER, UTM_WIDTHS, exportRow, utmSummaryRows, type ExportOrder, type ExportSession, type ExportUser, type UtmCountRow } from "@/lib/admin/exportRows";
+import { ANALYSIS_HEADER, ANALYSIS_WIDTHS, analysisRow, EXPORT_HEADER, EXPORT_WIDTHS, UTM_HEADER, UTM_WIDTHS, exportRow, utmSummaryRows, type ExportOrder, type ExportSession, type ExportUser, type UtmCountRow } from "@/lib/admin/exportRows";
 import { buildXlsx } from "@/lib/admin/xlsx";
 import subDb from "@/data/worry_subtopics.json";
+import { deflateRawSync } from "node:zlib";
+import { dailyReportText, isWorryExportDay, utmTop, type UtmDay } from "@/lib/admin/dailyReport";
+import { sendEmail } from "@/lib/email/resend";
 
 // 관리자 화면(/admin, owner 2026-11-09). 로그인 이메일이 lib/admin/access.ts ADMIN_EMAILS(seotaiji0124@naver.com)여야 한다.
 export async function requireAdmin(req: Request): Promise<{ id: string; email: string }> {
@@ -49,7 +52,7 @@ async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ dat
 
 /** 엑셀 파일: range "day" = 그 날 하루에 시작한 결과, "until" = 처음부터 그 날까지,
  *  "paid" = 처음부터 그 날까지 중 실제 결제한 결과만 + 리포트 전문 칸(owner 2026-11-10). */
-export async function adminExport(day: string, range: "day" | "until" | "paid", admin: { id: string }) {
+export async function adminExport(day: string, range: "day" | "until" | "paid", admin: { id: string }, opts: { analysis?: boolean } = {}) {
   const { start, end } = kstDayBounds(day);
   // 분석 칸(고민 유형·카드 모양·영역 문장)을 다시 계산하려고 카드·폭력 신호·두 번째 의견도 읽는다
   const baseCols = "id, created_at, user_id, nickname, experience, worry_text, worry_skipped, classification, frame, safety_level, result_status, paid_at, report_status, locale, picks, violence, fear";
@@ -84,7 +87,8 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
 
   // 계정 이메일·로그인 수단(로그인한 결과만)
   const users = new Map<string, ExportUser | null>();
-  const userIds = [...new Set(sessions.map((s) => s.user_id).filter((x): x is string => Boolean(x)))];
+  // 분석용(메일 첨부)은 이메일·로그인 수단 칸을 빼므로 계정을 읽지 않는다
+  const userIds = opts.analysis ? [] : [...new Set(sessions.map((s) => s.user_id).filter((x): x is string => Boolean(x)))];
   for (let i = 0; i < userIds.length; i += 10) {
     await Promise.all(
       userIds.slice(i, i + 10).map(async (uid) => {
@@ -117,10 +121,15 @@ export async function adminExport(day: string, range: "day" | "until" | "paid", 
   }
   const rows = picked.map((s) => {
     const row = exportRow(s, s.user_id ? users.get(s.user_id) : null, orders.get(s.id), subs, frames, analysisFor(s as unknown as SessionRow), variantNames);
+    if (opts.analysis) return analysisRow(row);
     return range === "paid" ? [...row, reports.get(s.id) ?? ""] : row;
   });
   // 누가 언제 몇 건을 내려받았는지만 기록(내용·이메일은 남기지 않음)
-  console.info("관리자 엑셀 내려받기:", { admin: admin.id, day, range, rows: rows.length });
+  console.info("관리자 엑셀 내려받기:", { admin: admin.id, day, range, analysis: Boolean(opts.analysis), rows: rows.length });
+  if (opts.analysis) {
+    const file = buildXlsx(`${day}까지 고민 분석용`, ANALYSIS_HEADER, rows, ANALYSIS_WIDTHS, (b) => new Uint8Array(deflateRawSync(b)));
+    return { file, count: rows.length };
+  }
   const title = range === "day" ? `${day} 참가자` : range === "paid" ? `${day}까지 결제 리포트` : `${day}까지 참가자`;
   const header = range === "paid" ? [...EXPORT_HEADER, "리포트 전문"] : EXPORT_HEADER;
   const widths = range === "paid" ? [...EXPORT_WIDTHS, 100] : EXPORT_WIDTHS;
@@ -140,4 +149,40 @@ export async function adminUtmExport(day: string, admin: { id: string }) {
   const rows = utmSummaryRows(counts.map((c) => ({ ...c, day: String(c.day).slice(0, 10), value: Number(c.value) })));
   console.info("관리자 광고 소재 엑셀 내려받기:", { admin: admin.id, day, rows: rows.length });
   return { file: buildXlsx(`${day}까지 광고 소재별`, UTM_HEADER, rows, UTM_WIDTHS), count: rows.length };
+}
+
+/** 매일 관리자 메일(owner 2026-11-19, Vercel cron → /api/cron/admin-report).
+ *  sendDay = 보내는 날(한국 시간), 보고하는 날 = 그 전날. 월·목(또는 withWorries)에는 처음부터 그 전날까지의
+ *  고민 분석용 엑셀(닉네임·이메일·로그인 수단 뺌, 압축)을 붙인다. 받는 사람은 ADMIN_REPORT_TO(없으면 owner 주소). */
+export const ADMIN_REPORT_TO_DEFAULT = "sugar0401pie@gmail.com";
+const MAX_ATTACH_BYTES = 20 * 1024 * 1024; // Resend 한도(40MB, base64 뒤)보다 넉넉히 아래
+
+export async function sendAdminDailyReport(sendDay: string, opts: { withWorries?: boolean } = {}) {
+  const day = addDays(sendDay, -1);
+  const summary = await adminSummary(day);
+  const { data: utmData, error: utmErr } = await db().from("tarot_utm_counts").select("source, campaign, content, metric, value").eq("day", day);
+  if (utmErr) console.warn("관리자 메일: 광고 소재 표를 읽지 못함:", utmErr.code ?? utmErr.message);
+  const utm = utmTop(((utmData ?? []) as UtmDay[]).map((r) => ({ ...r, value: Number(r.value) })));
+
+  const wantWorries = opts.withWorries || isWorryExportDay(sendDay);
+  let attachment: { filename: string; content: string } | null = null;
+  let worryNote: string | null = null;
+  if (wantWorries) {
+    try {
+      const { file, count } = await adminExport(day, "until", { id: "cron" }, { analysis: true });
+      if (file.length > MAX_ATTACH_BYTES) worryNote = `파일이 너무 커서(${Math.round(file.length / 1048576)}MB) 붙이지 못했어요 — 관리자 화면에서 내려받아 주세요.`;
+      else {
+        attachment = { filename: `ssol-tarot_worries_until_${day}.xlsx`, content: Buffer.from(file).toString("base64") };
+        worryNote = `처음부터 ${day}까지 ${count.toLocaleString("en-US")}건 첨부(닉네임·이메일·로그인 수단 제외).`;
+      }
+    } catch (e) {
+      console.error("관리자 메일: 고민 엑셀 실패:", e instanceof Error ? e.message.slice(0, 120) : "unknown");
+      worryNote = "만들지 못했어요 — 관리자 화면에서 내려받아 주세요.";
+    }
+  }
+  const { subject, text } = dailyReportText({ day, funnel: summary.funnel, recent: summary.recent, utm, worryNote });
+  const to = process.env.ADMIN_REPORT_TO?.trim() || ADMIN_REPORT_TO_DEFAULT;
+  const r = await sendEmail({ to, subject, text, ...(attachment ? { attachments: [attachment] } : {}) });
+  console.info("관리자 메일:", { day, ok: r.ok, reason: r.reason ?? null, attached: Boolean(attachment) });
+  return { day, ok: r.ok, reason: r.reason ?? null, attached: Boolean(attachment) };
 }

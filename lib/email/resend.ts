@@ -4,7 +4,8 @@ import "server-only";
 // 보내는 주소는 쏘웰라와 같은 인증된 도메인(RESEND_FROM_EMAIL로 바꿀 수 있음).
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "쏠 타로 하우스 <noreply@ssolwellnesshouse.com>";
 
-export async function sendEmail(params: { to: string; subject: string; text: string; html?: string; from?: string }): Promise<{ ok: boolean; reason?: string }> {
+// attachments: Resend 첨부(content = base64) — 관리자 고민 엑셀용(2026-11-19).
+export async function sendEmail(params: { to: string; subject: string; text: string; html?: string; from?: string; attachments?: { filename: string; content: string }[] }): Promise<{ ok: boolean; reason?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn("RESEND_API_KEY가 없어 메일 발송을 건너뜁니다.");
@@ -14,7 +15,7 @@ export async function sendEmail(params: { to: string; subject: string; text: str
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: params.from ?? FROM_EMAIL, to: [params.to], subject: params.subject, text: params.text, ...(params.html ? { html: params.html } : {}) }),
+      body: JSON.stringify({ from: params.from ?? FROM_EMAIL, to: [params.to], subject: params.subject, text: params.text, ...(params.html ? { html: params.html } : {}), ...(params.attachments?.length ? { attachments: params.attachments } : {}) }),
     });
     // 받는 주소·본문은 로그에 남기지 않는다(개인정보) — 상태 코드만.
     if (!res.ok) {

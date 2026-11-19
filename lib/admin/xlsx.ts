@@ -58,35 +58,39 @@ export function crc32(b: Uint8Array): number {
   return (c ^ 0xffffffff) >>> 0;
 }
 
-export function zipStore(files: { name: string; data: Uint8Array }[]): Uint8Array {
+/** deflate: 넘기면 파일마다 압축(방식 8)해 넣는다 — 메일 첨부 크기를 줄이려고(2026-11-19). 서버에서 node:zlib deflateRawSync를 넘긴다. */
+export function zipStore(files: { name: string; data: Uint8Array }[], deflate?: (b: Uint8Array) => Uint8Array): Uint8Array {
   const parts: Uint8Array[] = [];
   const central: Uint8Array[] = [];
   let offset = 0;
   for (const f of files) {
     const name = enc.encode(f.name);
     const crc = crc32(f.data);
+    const body = deflate ? deflate(f.data) : f.data;
+    const method = deflate ? 8 : 0;
     const local = new DataView(new ArrayBuffer(30));
     local.setUint32(0, 0x04034b50, true);
     local.setUint16(4, 20, true);
     local.setUint16(6, 0x0800, true); // 파일 이름 UTF-8
-    local.setUint16(8, 0, true); // 압축 없음
+    local.setUint16(8, method, true); // 0 = 압축 없음, 8 = deflate
     local.setUint32(14, crc, true);
-    local.setUint32(18, f.data.length, true);
+    local.setUint32(18, body.length, true);
     local.setUint32(22, f.data.length, true);
     local.setUint16(26, name.length, true);
-    parts.push(new Uint8Array(local.buffer), name, f.data);
+    parts.push(new Uint8Array(local.buffer), name, body);
     const cd = new DataView(new ArrayBuffer(46));
     cd.setUint32(0, 0x02014b50, true);
     cd.setUint16(4, 20, true);
     cd.setUint16(6, 20, true);
     cd.setUint16(8, 0x0800, true);
+    cd.setUint16(10, method, true);
     cd.setUint32(16, crc, true);
-    cd.setUint32(20, f.data.length, true);
+    cd.setUint32(20, body.length, true);
     cd.setUint32(24, f.data.length, true);
     cd.setUint16(28, name.length, true);
     cd.setUint32(42, offset, true);
     central.push(new Uint8Array(cd.buffer), name);
-    offset += 30 + name.length + f.data.length;
+    offset += 30 + name.length + body.length;
   }
   const cdSize = central.reduce((s, p) => s + p.length, 0);
   const end = new DataView(new ArrayBuffer(22));
@@ -106,7 +110,7 @@ export function zipStore(files: { name: string; data: Uint8Array }[]): Uint8Arra
 }
 
 /** 시트 하나짜리 .xlsx 파일 바이트. */
-export function buildXlsx(sheetName: string, header: string[], rows: Cell[][], widths: number[] = []): Uint8Array {
+export function buildXlsx(sheetName: string, header: string[], rows: Cell[][], widths: number[] = [], deflate?: (b: Uint8Array) => Uint8Array): Uint8Array {
   const name = xmlText(sheetName.replace(/[\\/?*[\]:]/g, " ").slice(0, 31) || "Sheet1");
   const files: Record<string, string> = {
     "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
@@ -116,5 +120,5 @@ export function buildXlsx(sheetName: string, header: string[], rows: Cell[][], w
     "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`,
     "xl/worksheets/sheet1.xml": sheetXml(header, rows, widths),
   };
-  return zipStore(Object.entries(files).map(([n, s]) => ({ name: n, data: enc.encode(s) })));
+  return zipStore(Object.entries(files).map(([n, s]) => ({ name: n, data: enc.encode(s) })), deflate);
 }
