@@ -164,7 +164,9 @@ export async function sendAdminDailyReport(sendDay: string, opts: { withWorries?
   if (utmErr) console.warn("관리자 메일: 광고 소재 표를 읽지 못함:", utmErr.code ?? utmErr.message);
   const utm = utmTop(((utmData ?? []) as UtmDay[]).map((r) => ({ ...r, value: Number(r.value) })));
 
-  const wantWorries = opts.withWorries || isWorryExportDay(sendDay);
+  // 드라이브 설정이 없으면(지금 꺼 둔 상태 — docs/ops/고민엑셀_드라이브_자동화.md) 엑셀을 만들지도 않고 메일에도 적지 않는다.
+  const driveOn = Boolean(process.env.DRIVE_UPLOAD_URL?.trim() && process.env.DRIVE_UPLOAD_SECRET?.trim());
+  const wantWorries = driveOn && (opts.withWorries || isWorryExportDay(sendDay));
   let worryNote: string | null = null;
   let uploaded = false;
   if (wantWorries) {
