@@ -146,7 +146,6 @@ COPY = dict(
       dict(name="정신건강위기상담", number="1577-0199", note=""),
     ],
     urgent_emergency="지금 위험하다면 119에 연락해 주세요.",
-    urgent_image=dict(src="/images/tarot/safety/kkakdugi.jpg", alt="0120 당신은 웃는모습이 가장 보기좋답니다 당신을 언제나 지켜보고있는 깍두기"),
     watch_box="요즘 마음이 많이 무거우셨던 것 같아요. 카드 해석과 함께, 필요할 때 언제든 기댈 수 있는 곳도 적어 둘게요.",
     violence_box="혹시 상대가 무섭게 느껴지거나 통제받는다고 느낀다면, 그건 혼자 해결해야 할 고민이 아니에요. 여성긴급전화 1366(24시간), 긴급 시 112에서 도움받을 수 있어요."),
   cta_chat=dict(
