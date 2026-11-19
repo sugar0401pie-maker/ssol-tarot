@@ -51,7 +51,7 @@ export function dailyReportText(input: {
   lines.push("", "■ 광고 소재별 (방문 많은 순, 방문 · 시작 · 결과 · 결제)");
   if (input.utm.length === 0) lines.push("- (그 날 광고 소재 기록 없음)");
   for (const u of input.utm) lines.push(`- ${u.key}: ${n(u.visit)} · ${n(u.started)} · ${n(u.result)} · ${n(u.paid)}`);
-  if (input.worryNote) lines.push("", `■ 고민 누적 엑셀: ${input.worryNote}`);
+  if (input.worryNote) lines.push("", `■ 고민 누적 엑셀(드라이브): ${input.worryNote}`);
   lines.push("", "관리자 화면: https://tarot.ssolwellnesshouse.com/admin");
   return { subject: `[쏠 타로] ${input.day} 시작 ${n(started)} · 결제 ${n(paid)}`, text: lines.join("\n") };
 }

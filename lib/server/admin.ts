@@ -13,6 +13,7 @@ import subDb from "@/data/worry_subtopics.json";
 import { deflateRawSync } from "node:zlib";
 import { dailyReportText, isWorryExportDay, utmTop, type UtmDay } from "@/lib/admin/dailyReport";
 import { sendEmail } from "@/lib/email/resend";
+import { uploadToDrive } from "./driveUpload";
 
 // 관리자 화면(/admin, owner 2026-11-09). 로그인 이메일이 lib/admin/access.ts ADMIN_EMAILS(seotaiji0124@naver.com)여야 한다.
 export async function requireAdmin(req: Request): Promise<{ id: string; email: string }> {
@@ -153,9 +154,8 @@ export async function adminUtmExport(day: string, admin: { id: string }) {
 
 /** 매일 관리자 메일(owner 2026-11-19, Vercel cron → /api/cron/admin-report).
  *  sendDay = 보내는 날(한국 시간), 보고하는 날 = 그 전날. 월·목(또는 withWorries)에는 처음부터 그 전날까지의
- *  고민 분석용 엑셀(닉네임·이메일·로그인 수단 뺌, 압축)을 붙인다. 받는 사람은 ADMIN_REPORT_TO(없으면 owner 주소). */
+ *  고민 분석용 엑셀(닉네임·이메일·로그인 수단 뺌, 압축)을 구글 드라이브에 올리고 메일엔 그 사실만 적는다. 받는 사람은 ADMIN_REPORT_TO(없으면 owner 주소). */
 export const ADMIN_REPORT_TO_DEFAULT = "sugar0401pie@gmail.com";
-const MAX_ATTACH_BYTES = 20 * 1024 * 1024; // Resend 한도(40MB, base64 뒤)보다 넉넉히 아래
 
 export async function sendAdminDailyReport(sendDay: string, opts: { withWorries?: boolean } = {}) {
   const day = addDays(sendDay, -1);
@@ -165,15 +165,19 @@ export async function sendAdminDailyReport(sendDay: string, opts: { withWorries?
   const utm = utmTop(((utmData ?? []) as UtmDay[]).map((r) => ({ ...r, value: Number(r.value) })));
 
   const wantWorries = opts.withWorries || isWorryExportDay(sendDay);
-  let attachment: { filename: string; content: string } | null = null;
   let worryNote: string | null = null;
+  let uploaded = false;
   if (wantWorries) {
     try {
       const { file, count } = await adminExport(day, "until", { id: "cron" }, { analysis: true });
-      if (file.length > MAX_ATTACH_BYTES) worryNote = `파일이 너무 커서(${Math.round(file.length / 1048576)}MB) 붙이지 못했어요 — 관리자 화면에서 내려받아 주세요.`;
+      // 메일 첨부 대신 구글 드라이브 폴더에 올린다(owner 2026-11-19). 고민 글은 메일로 보내지 않는다.
+      const up = await uploadToDrive(file, `ssol-tarot_worries_until_${day}.xlsx`);
+      uploaded = up.ok;
+      if (up.ok) worryNote = `처음부터 ${day}까지 ${count.toLocaleString("en-US")}건을 구글 드라이브에 올렸어요(닉네임·이메일·로그인 수단 제외).${up.url ? `\n${up.url}` : ""}`;
+      else if (up.reason === "not_configured") worryNote = "드라이브 올리기 설정(DRIVE_UPLOAD_URL·DRIVE_UPLOAD_SECRET)이 아직 없어요.";
       else {
-        attachment = { filename: `ssol-tarot_worries_until_${day}.xlsx`, content: Buffer.from(file).toString("base64") };
-        worryNote = `처음부터 ${day}까지 ${count.toLocaleString("en-US")}건 첨부(닉네임·이메일·로그인 수단 제외).`;
+        console.error("관리자 메일: 드라이브 올리기 실패:", up.reason);
+        worryNote = "드라이브에 올리지 못했어요 — 관리자 화면에서 내려받아 주세요.";
       }
     } catch (e) {
       console.error("관리자 메일: 고민 엑셀 실패:", e instanceof Error ? e.message.slice(0, 120) : "unknown");
@@ -182,7 +186,7 @@ export async function sendAdminDailyReport(sendDay: string, opts: { withWorries?
   }
   const { subject, text } = dailyReportText({ day, funnel: summary.funnel, recent: summary.recent, utm, worryNote });
   const to = process.env.ADMIN_REPORT_TO?.trim() || ADMIN_REPORT_TO_DEFAULT;
-  const r = await sendEmail({ to, subject, text, ...(attachment ? { attachments: [attachment] } : {}) });
-  console.info("관리자 메일:", { day, ok: r.ok, reason: r.reason ?? null, attached: Boolean(attachment) });
-  return { day, ok: r.ok, reason: r.reason ?? null, attached: Boolean(attachment) };
+  const r = await sendEmail({ to, subject, text });
+  console.info("관리자 메일:", { day, ok: r.ok, reason: r.reason ?? null, uploaded });
+  return { day, ok: r.ok, reason: r.reason ?? null, uploaded };
 }
