@@ -18,6 +18,8 @@ import type { Copy } from "./TarotFlow";
 import { SafetyScreen, useHelplines } from "./SafetyScreen";
 import { fillHelplinesDeep } from "@/lib/safety/helplinesEn";
 import { ShareSheet } from "./share/ShareSheet";
+import { preloadKakao, shareKakaoCard } from "@/lib/client/kakaoShare";
+import { shareCard } from "@/lib/client/shareCard";
 import KakaoTalkLogo from "./share/KakaoTalkLogo";
 import AuthFooterLink from "./auth/AuthFooterLink";
 import { EN_IMPRINT_URL, enLegalUrl } from "@/lib/legal/en";
@@ -163,6 +165,17 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
   }, []);
   const [sharing, setSharing] = useState(false);
   const closeShare = useCallback(() => setSharing(false), []);
+  // [공유하기]는 바로 카카오톡 카드 보내기(owner 2026-11-20). 카카오를 못 열 때(키·도메인 미등록·SDK 실패)만
+  // 예전 공유 창(링크 복사·다른 앱)을 연다. 누르는 순간 바로 열리게 결과 화면에서 SDK를 미리 불러 둔다.
+  const canShare = locale === "ko" && !r.cards[2]?.hidden;
+  useEffect(() => {
+    if (canShare) preloadKakao();
+  }, [canShare]);
+  const shareNow = useCallback(async () => {
+    const third = r.cards[2];
+    if (third && (await shareKakaoCard(shareCard(copy.share_card, third, Boolean(r.decision))))) return;
+    setSharing(true);
+  }, [r.cards, r.decision, copy.share_card]);
   // 결과 쪽 맨 위 장면 그림 목록(빌드 때 만든 정적 목록). 못 받으면 그림 없이 그대로.
   const [sceneArt, setSceneArt] = useState<SceneArtMap | null>(null);
   useEffect(() => {
@@ -322,7 +335,7 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
                       {/* 공유 카드는 세 번째 카드 그림이라 결제 전(세 번째 카드 비밀)에는 공유 버튼을 숨긴다 */}
                       {/* 영문판 공유 화면은 3단계에서(카카오·네이버 블로그는 한국용) */}
                       {!thirdHidden && locale === "ko" && (
-                        <button type="button" className="btn sns sm" onClick={() => setSharing(true)}>
+                        <button type="button" className="btn sns sm" onClick={() => void shareNow()}>
                           <KakaoTalkLogo size={24} />
                           {U.share}
                         </button>
