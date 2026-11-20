@@ -167,15 +167,17 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
   const closeShare = useCallback(() => setSharing(false), []);
   // [공유하기]는 바로 카카오톡 카드 보내기(owner 2026-11-20). 카카오를 못 열 때(키·도메인 미등록·SDK 실패)만
   // 예전 공유 창(링크 복사·다른 앱)을 연다. 누르는 순간 바로 열리게 결과 화면에서 SDK를 미리 불러 둔다.
-  const canShare = locale === "ko" && !r.cards[2]?.hidden;
+  // 결제 전(세 번째 카드 비밀)에는 첫 번째 카드(지나온 길)를 공유한다(owner 2026-11-20) — 세 번째 카드는 결제 뒤에만.
+  const shareFirst = Boolean(r.cards[2]?.hidden);
+  const shared = shareFirst ? r.cards[0] : r.cards[2];
+  const canShare = locale === "ko" && Boolean(shared);
   useEffect(() => {
     if (canShare) preloadKakao();
   }, [canShare]);
   const shareNow = useCallback(async () => {
-    const third = r.cards[2];
-    if (third && (await shareKakaoCard(shareCard(copy.share_card, third, Boolean(r.decision))))) return;
+    if (shared && (await shareKakaoCard(shareCard(copy.share_card, shared, Boolean(r.decision), undefined, shareFirst)))) return;
     setSharing(true);
-  }, [r.cards, r.decision, copy.share_card]);
+  }, [shared, shareFirst, r.decision, copy.share_card]);
   // 결과 쪽 맨 위 장면 그림 목록(빌드 때 만든 정적 목록). 못 받으면 그림 없이 그대로.
   const [sceneArt, setSceneArt] = useState<SceneArtMap | null>(null);
   useEffect(() => {
@@ -332,9 +334,9 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
                   <>
                     <div className="sharerow">
                       {/* 아스트로 하우스와 같은 두 버튼(owner 2026-10-21): 카카오 노랑 [SNS 공유하기] + 금색 [저장하기] */}
-                      {/* 공유 카드는 세 번째 카드 그림이라 결제 전(세 번째 카드 비밀)에는 공유 버튼을 숨긴다 */}
+                      {/* 결제 전(세 번째 카드 비밀)에는 첫 번째 카드를 공유한다(owner 2026-11-20) */}
                       {/* 영문판 공유 화면은 3단계에서(카카오·네이버 블로그는 한국용) */}
-                      {!thirdHidden && locale === "ko" && (
+                      {canShare && (
                         <button type="button" className="btn sns sm" onClick={() => void shareNow()}>
                           <KakaoTalkLogo size={24} />
                           {U.share}
@@ -404,8 +406,8 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
         </div>
         {/* 아래 ‹ 쪽 수 › 막대는 없앴다(owner 2026-10-21) — 쪽 이동은 각 쪽의 [돌아가기][다음으로]·옆으로 넘기기·위 점 표시로 */}
       </div>
-      {r.cards[2] && !thirdHidden && (
-        <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={r.cards[2]} decision={Boolean(r.decision)} nickname={r.nickname} />
+      {shared && (
+        <ShareSheet open={sharing} onClose={closeShare} copy={copy.share_card} third={shared} decision={Boolean(r.decision)} nickname={r.nickname} first={shareFirst} />
       )}
       <button type="button" className={`zoom ${zoom ? "on" : ""}`} onClick={() => setZoom(null)} aria-label={U.zoomClose} tabIndex={zoom ? 0 : -1}>
         {/* eslint-disable-next-line @next/next/no-img-element -- 시안과 같은 단순 확대(고정 크기 이미지) */}

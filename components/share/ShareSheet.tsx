@@ -41,6 +41,7 @@ export function ShareSheet({
   third,
   decision,
   nickname,
+  first = false,
 }: {
   open: boolean;
   onClose: () => void;
@@ -48,6 +49,8 @@ export function ShareSheet({
   third: { name: string; image: string; reversed: boolean; positionName: string };
   decision: boolean;
   nickname: string;
+  /** 결제 전: 세 번째 카드 대신 첫 번째 카드(지나온 길)를 공유 */
+  first?: boolean;
 }) {
   const [note, setNote] = useState<string | null>(null);
   const [png, setPng] = useState<Blob | null>(null);
@@ -85,8 +88,8 @@ export function ShareSheet({
   );
 
   if (!open) return null;
-  const card = shareCard(copy, third, decision);
-  const message = shareMessage(copy, third, decision);
+  const card = shareCard(copy, third, decision, undefined, first);
+  const message = shareMessage(copy, third, decision, first);
   const file = png ? new File([png], "ssol-tarot.png", { type: "image/png" }) : null;
   const canShareFile = !!file && typeof navigator !== "undefined" && !!navigator.canShare?.({ files: [file] });
 

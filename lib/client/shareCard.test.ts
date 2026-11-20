@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { kakaoImagePath, shareCard, shareUrl } from "./shareCard.ts";
+import { kakaoImagePath, shareCard, shareMessage, shareUrl } from "./shareCard.ts";
 
 const data = JSON.parse(fs.readFileSync(new URL("../../data/tarot_data.json", import.meta.url), "utf8"));
 const C = data.copy.share_card;
@@ -35,4 +35,12 @@ test("공유 이미지 글자와 SNS 글: 카드 이름·위치·사이트만", 
   const m = shareMessage({ kakao_title: "내 앞으로의 열쇠는 ‘{card}’", kakao_desc: "고민을 비추는 웰니스 타로,\n나도 세 장을 뽑아 보세요.", kakao_desc_decision: "x", button: "b" }, { name: "물과 뭍 사이" }, false);
   assert.equal(m, "내 앞으로의 열쇠는 ‘물과 뭍 사이’\n고민을 비추는 웰니스 타로, 나도 세 장을 뽑아 보세요.");
   assert.equal(shareUrl("naver_blog", "https://t.example"), "https://t.example/?utm_source=naver_blog&utm_medium=share");
+});
+
+test("결제 전에는 첫 번째 카드(지나온 길)로 공유 카드 제목을 만든다(owner 2026-11-20)", () => {
+  const c = { kakao_title: "내 앞으로의 열쇠는 ‘{card}’", kakao_title_first: "내 지나온 길은 ‘{card}’", kakao_desc: "d", kakao_desc_decision: "dd", button: "b" };
+  const card = { name: "바위 위의 쉼", image: "/images/tarot/card-04-rest.webp", reversed: false };
+  assert.equal(shareCard(c, card, false, "https://x", true).title, "내 지나온 길은 ‘바위 위의 쉼’");
+  assert.equal(shareCard(c, card, false, "https://x").title, "내 앞으로의 열쇠는 ‘바위 위의 쉼’");
+  assert.match(shareMessage(c, card, false, true), /^내 지나온 길은/);
 });

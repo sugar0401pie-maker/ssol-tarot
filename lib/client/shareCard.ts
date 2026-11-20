@@ -2,7 +2,7 @@
 // (결과 주소는 본인만 열 수 있어 공유하지 않고, 사이트 첫 화면 주소를 공유한다).
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://tarot.ssolwellnesshouse.com";
 
-export type ShareCopy = { kakao_title: string; kakao_desc: string; kakao_desc_decision: string; button: string };
+export type ShareCopy = { kakao_title: string; kakao_title_first?: string; kakao_desc: string; kakao_desc_decision: string; button: string };
 
 /** 카카오 카드 그림: 세 번째 카드(앞으로의 열쇠). /images/tarot/card-14-between.webp → /images/tarot/kakao/card-14-between(-rev).jpg */
 export function kakaoImagePath(cardImage: string, reversed: boolean): string {
@@ -18,9 +18,14 @@ export function shareUrl(channel: ShareChannel, site = SITE_URL): string {
   return `${site}/?utm_source=${channel}&utm_medium=share`;
 }
 
-export function shareCard(c: ShareCopy, third: { name: string; image: string; reversed: boolean }, decision: boolean, site = SITE_URL) {
+/** 공유 카드 제목: 세 번째 카드면 "내 앞으로의 열쇠는…", 결제 전 첫 번째 카드면 "내 지나온 길은…"(owner 2026-11-20). */
+function titleFor(c: ShareCopy, name: string, first: boolean): string {
+  return ((first && c.kakao_title_first) || c.kakao_title).replace("{card}", name);
+}
+
+export function shareCard(c: ShareCopy, third: { name: string; image: string; reversed: boolean }, decision: boolean, site = SITE_URL, first = false) {
   return {
-    title: c.kakao_title.replace("{card}", third.name),
+    title: titleFor(c, third.name, first),
     description: decision ? c.kakao_desc_decision : c.kakao_desc,
     imageUrl: site + kakaoImagePath(third.image, third.reversed),
     url: shareUrl("kakao", site),
@@ -38,6 +43,6 @@ export function shareImageTexts(third: { name: string; reversed: boolean; positi
 }
 
 /** SNS 글(카드 이름 + 첫 화면 안내). 고민·닉네임 없음. */
-export function shareMessage(c: ShareCopy, third: { name: string }, decision: boolean): string {
-  return `${c.kakao_title.replace("{card}", third.name)}\n${(decision ? c.kakao_desc_decision : c.kakao_desc).replace("\n", " ")}`;
+export function shareMessage(c: ShareCopy, third: { name: string }, decision: boolean, first = false): string {
+  return `${titleFor(c, third.name, first)}\n${(decision ? c.kakao_desc_decision : c.kakao_desc).replace("\n", " ")}`;
 }
