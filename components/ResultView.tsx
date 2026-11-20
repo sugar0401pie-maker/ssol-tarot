@@ -330,7 +330,8 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
                   <SceneArt map={sceneArt} id={RESULT_PAGE_SCENE[p.page]!} className="scene" sizes="(max-width: 400px) 92vw, 364px" reserve />
                 )}
                 <PageBody p={p} ctx={ctx} />
-                {p.page >= 4 && (
+                {/* 공유·저장 버튼은 무료 마지막 쪽(3쪽 고민 풀어보기)부터(owner 2026-11-20, 예전엔 4쪽부터) */}
+                {p.page >= 3 && (
                   <>
                     <div className="sharerow">
                       {/* 아스트로 하우스와 같은 두 버튼(owner 2026-10-21): 카카오 노랑 [SNS 공유하기] + 금색 [저장하기] */}
