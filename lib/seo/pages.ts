@@ -11,8 +11,8 @@ export type PageMeta = { title: string; description: string; ogTitle: string; og
 
 export const PAGE_META: Record<string, PageMeta> = {
   "/": {
-    "title": "너무 정확해서 소름돋아요 | 내 마음을 들여다보는 {price} 타로",
-    "description": "그 사람 마음, 이 회사에 남을지, 계속 맴도는 그 고민. 한 줄로 적고 카드 세 장을 뽑아 보세요. 출시 2주 만에 10만 명이 뽑은 쏠 타로 하우스 웰니스 타로가 전문 심리상담사의 시선으로 내 고민을 다시 읽고, 이번 주에 해 볼 실천까지 {price}에 알려드려요.",
+    "title": "쏠 타로 하우스 | 심리상담 전문 타로마스터가 풀어주는 소름돋는 타로",
+    "description": "무의식중의 속마음까지 간파하는 정확한 타로, 지금 바로 카드 2장까지 무료로 뽑아보세요. 단돈 990원에 심리학자의 타로 결과 해설과 제안까지 읽어볼 수 있어요.",
     "ogTitle": "고민 한 줄, 카드 세 장 | 쏠 타로 하우스",
     "ogDescription": "{price} 타로, 출시 2주 만에 10만 명이 뽑았어요. 고민 한 줄 적고 카드 세 장, 운세 말고 내 고민을 다시 보는 웰니스 타로예요. 전문 심리상담사가 만들었어요."
   },

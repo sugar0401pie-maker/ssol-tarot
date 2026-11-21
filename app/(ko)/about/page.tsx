@@ -17,6 +17,7 @@ import {
   SOWELLA_URL,
   MAKERS,
   MAKERS_TITLE,
+  REVIEW_LINE,
   aboutJsonLd,
   atAGlance,
   faqGroups,
@@ -117,6 +118,7 @@ export default function AboutPage() {
 
         <H2>{MAKERS_TITLE}</H2>
         <p className="mt-3 text-[14px] leading-6 text-navy/85">{MAKERS}</p>
+        <p className="mt-2 break-keep text-[12px] leading-5 text-navy/60">{REVIEW_LINE}</p>
 
         <H2>자주 묻는 질문</H2>
         {faqGroups(price).map((g) => (
