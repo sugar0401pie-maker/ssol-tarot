@@ -30,14 +30,14 @@ import { IntroCardSpin } from "./IntroCardSpin";
 import { DrawBoard } from "./DrawBoard";
 import { SafetyScreen } from "./SafetyScreen";
 import { nextQuestion, firstQuestion, type FollowupView } from "@/lib/tarot/followup.js";
-import followupDb from "@/data/followup_questions.json";
+import type { ClientFollowup } from "@/lib/server/clientData";
 import { storedUtm, UTM_STORE_KEY, type Utm } from "@/lib/tarot-glue/utm";
 
 // 시작 흐름 → 셔플 → 뽑기 → (대기). 화면 이동 규칙은 패키지 원본 상태 기계(lib/tarot/flow.js의 next)를 그대로 쓴다.
 // 결과는 /result/[id]로 넘어간다(이 앱은 서브도메인이라 루트가 테스트 시작).
 
 export type Copy = (typeof import("@/data/tarot_data.json"))["copy"];
-export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap; initialStep?: Step | null; locale?: Locale };
+export type FlowProps = { copy: Omit<Copy, "cta_chat">; pickCount: number; friends: Friend[]; sceneArt?: SceneArtMap; initialStep?: Step | null; locale?: Locale; followup?: ClientFollowup };
 
 type FlowState = FlowStateBase;
 type Action = FlowAction;
@@ -47,6 +47,7 @@ const SHUFFLE_MIN_MS = 6000; // 스펙 7.4는 최소 3초. 3초마다 바뀌는 
 const AGAIN_KEY = "ssol_tarot_again";
 
 const NO_SCENE_ART: SceneArtMap = {};
+const NO_FOLLOWUP: ClientFollowup = { max_questions: 2, questions: {} };
 // 섞기·뽑기·다 뽑음·대기는 아래에 누를 것(버튼·22장 보드)이 많아서, 그림 높이를 화면의 약 1/4로 줄여(가운데 기준으로 위아래만 잘림)
 // 휴대폰 한 화면 안에서 스크롤 없이 진행할 수 있게 한다. 다른 장면은 그림 비율 그대로.
 const COMPACT_SCENES = new Set<string>([]);
@@ -56,7 +57,7 @@ const NO_ART_SCENES = new Set<string>(["shuffle", "draw", "reveal", "loading"]);
 // 금선 테두리가 있는 화면은 그림을 테두리 안쪽 맨 위에 둔다(Framed의 art).
 const FRAMED_SCENES = new Set<string>(["welcome", "experience", "first_time", "worry"]);
 
-export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArtRaw = NO_SCENE_ART, initialStep = null, locale = "ko" }: FlowProps) {
+export default function TarotFlow({ copy, pickCount, friends, sceneArt: sceneArtRaw = NO_SCENE_ART, initialStep = null, locale = "ko", followup: followupDb = NO_FOLLOWUP }: FlowProps) {
   // 영문판(/en…)은 같은 화면에 영어 문구·/en 주소(2026-11-05).
   const L = (path: string) => localePath(path, locale);
   const ui = uiText(locale);

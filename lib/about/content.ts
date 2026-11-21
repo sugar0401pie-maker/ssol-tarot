@@ -54,7 +54,7 @@ export const MAKERS =
 
 /** 카드 해석 최종 검수일(owner 2026-11-21 요청문 v1.2 — 서비스 공개 2026.10.30의 전날).
  * 카드 해석을 실제로 다시 검수하거나 크게 고칠 때만 이 날짜를 바꾼다. 화면 문구로만 쓰고 JSON-LD에는 넣지 않는다. */
-export const REVIEW_DATE = "2026.10.29";
+export const REVIEW_DATE = "2026.11.19";
 export const REVIEW_LINE = `카드 해석 최종 검수일: ${REVIEW_DATE} · CEO(상담심리사 및 청소년상담사 자격 보유)와 CSO(산업심리상담사 자격 보유)가 항상 검수해요.`;
 
 export const faqGroups = (price: string): FaqGroup[] => [

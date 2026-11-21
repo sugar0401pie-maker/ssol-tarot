@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import TarotFlow from "@/components/TarotFlow";
-import { clientCopy, introFriends, PICK_COUNT } from "@/lib/server/clientData";
+import { clientCopy, clientFollowup, introFriends, PICK_COUNT } from "@/lib/server/clientData";
 import { loadSceneArt } from "@/lib/server/sceneArt";
 import { homeMeta } from "@/lib/seo/home";
 import { OG_IMAGES } from "@/lib/seo/ogImage";
@@ -20,5 +20,5 @@ export function generateMetadata(): Metadata {
 }
 
 export default function Home() {
-  return <TarotFlow copy={clientCopy()} pickCount={PICK_COUNT} friends={introFriends()} sceneArt={loadSceneArt()} />;
+  return <TarotFlow copy={clientCopy()} pickCount={PICK_COUNT} friends={introFriends()} sceneArt={loadSceneArt()} followup={clientFollowup()} />;
 }

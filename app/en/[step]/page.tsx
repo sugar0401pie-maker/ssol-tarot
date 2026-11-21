@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import TarotFlow from "@/components/TarotFlow";
-import { clientCopy, introFriends, PICK_COUNT } from "@/lib/server/clientData";
+import { clientCopy, clientFollowup, introFriends, PICK_COUNT } from "@/lib/server/clientData";
 import { loadSceneArt } from "@/lib/server/sceneArt";
 import { STEP_PATH, stepFromPath } from "@/lib/client/steps";
 
@@ -16,5 +16,5 @@ export default async function EnStepPage({ params }: PageProps<"/en/[step]">) {
   const { step } = await params;
   const s = stepFromPath(`/${step}`);
   if (!s) notFound();
-  return <TarotFlow locale="en" copy={clientCopy("en")} pickCount={PICK_COUNT} friends={introFriends("en")} sceneArt={loadSceneArt()} initialStep={s} />;
+  return <TarotFlow locale="en" copy={clientCopy("en")} pickCount={PICK_COUNT} friends={introFriends("en")} sceneArt={loadSceneArt()} followup={clientFollowup()} initialStep={s} />;
 }
