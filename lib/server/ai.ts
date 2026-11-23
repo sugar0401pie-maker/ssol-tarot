@@ -2,6 +2,7 @@ import "server-only";
 import OpenAI from "openai";
 import type { ReasoningEffort } from "openai/resources/shared";
 import { EMBED_MODEL_DEFAULT, EMBED_DIM_DEFAULT } from "@/lib/tarot-glue/embedSearch";
+import { recordAiUsage } from "./aiUsage";
 
 // 타로 앱에서 AI를 부르는 유일한 곳. 모델·회사를 바꿀 때 여기만 고친다.
 // 스펙은 "저비용 모델 [확인필요]" — 쏘웰라가 쓰는 모델을 기본값으로 두고 env로 바꿀 수 있게 했다.
@@ -44,10 +45,13 @@ export async function generateText(
   }
   // 건당 비용 확인용(스펙 12장 체크리스트): 토큰 수와 모델만 남긴다 — 고민 원문·응답 문장은 절대 로그에 넣지 않는다.
   const u = response.usage;
-  if (u) console.info(`[tarot-ai] ${label} model=${MODEL} in=${u.input_tokens} out=${u.output_tokens} reasoning=${u.output_tokens_details?.reasoning_tokens ?? 0}`);
+  if (u) console.info(`[tarot-ai] ${label} model=${response.model ?? MODEL} in=${u.input_tokens} out=${u.output_tokens} reasoning=${u.output_tokens_details?.reasoning_tokens ?? 0}`);
   // 길이 한도 등으로 잘린 응답(incomplete)은 쓰지 않는다(스펙 체크리스트 — 저장·노출 금지).
-  if (response.status && response.status !== "completed") throw new Error(`AI 응답이 완료되지 않음(${response.status})`);
   const text = response.output_text?.trim();
+  const ok = (!response.status || response.status === "completed") && Boolean(text);
+  // 실제 토큰 수를 DB에 남긴다(owner 2026-11-23) — 쓰지 못한 응답도 토큰은 청구되므로 ok=false로 함께 기록. 글은 남기지 않는다.
+  if (u) await recordAiUsage({ kind: "text", stage: label, model: response.model ?? MODEL, inputTokens: u.input_tokens, cachedInputTokens: u.input_tokens_details?.cached_tokens, outputTokens: u.output_tokens, reasoningTokens: u.output_tokens_details?.reasoning_tokens, ok });
+  if (response.status && response.status !== "completed") throw new Error(`AI 응답이 완료되지 않음(${response.status})`);
   if (!text) throw new Error("AI가 빈 응답을 반환함");
   return text;
 }
@@ -59,6 +63,7 @@ export const EMBED_DIM = Number(process.env.TAROT_EMBED_DIM || EMBED_DIM_DEFAULT
 export async function embedText(text: string, { timeoutMs = 4000 }: { timeoutMs?: number } = {}): Promise<number[]> {
   const res = await new OpenAI({ timeout: timeoutMs, maxRetries: 0 }).embeddings.create({ model: EMBED_MODEL, input: text, dimensions: EMBED_DIM });
   console.info(`[tarot-ai] embed model=${EMBED_MODEL} in=${res.usage?.prompt_tokens ?? 0}`);
+  await recordAiUsage({ kind: "embed", stage: "embed", model: res.model || EMBED_MODEL, inputTokens: res.usage?.prompt_tokens });
   const v = res.data?.[0]?.embedding;
   if (!v || v.length !== EMBED_DIM) throw new Error("임베딩 길이가 색인과 다름");
   return v;

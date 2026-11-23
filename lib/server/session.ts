@@ -1,4 +1,5 @@
 import "server-only";
+import { setAiLocale, withAiSession } from "./aiUsage";
 import { createHash, randomBytes } from "node:crypto";
 import { bundleFor } from "@/lib/i18n/bundle";
 import { toLocale, type Locale } from "@/lib/i18n/locale";
@@ -272,7 +273,7 @@ export async function submitWorry(s: SessionRow, body: { text?: unknown; skip?: 
   if (urgent) await countEvent("safety");
   await countUtm(utmOf(s), "worry");
   if (multi) return { urgent, needsClassification: false, multi: multiQuestion(multi, MULTI_DB, s.nickname ?? "") };
-  if (ask) return { urgent, needsClassification: false, followup: await followupStart(worry) };
+  if (ask) return { urgent, needsClassification: false, followup: await withAiSession(s.id, localeOf(s), () => followupStart(worry)) };
   return { urgent, needsClassification: !urgent && aiConfigured() };
 }
 
@@ -332,11 +333,16 @@ function parseFrameFor(locale: Locale, raw: unknown): { frame: unknown; errors: 
 //   고민 틀이 나온 뒤 빈 칸만 채운다(applyFollowup). 안전 키워드 검사는 원문으로.
 // multiChoice: 여러 고민 질문에서 고른 id(고르지 않고 섞기로 넘어왔으면 null). 여러 고민 글인지는 저장된 글로 다시 판단한다.
 //   고른 고민은 "(고른 고민: 연애)"로 AI 글에만 붙이고(composeFocus — 저장된 고민 글은 그대로), 고민 틀에 focus를 단다(applyFocus).
-export async function runClassification(sessionId: string, followup: FollowupAnswer[] | null = null, guessed = false, multiChoice: string | null = null) {
+// AI 사용량 기록(tarot_ai_usage)에 이 결과 번호가 붙도록 맥락을 연다(owner 2026-11-23).
+export function runClassification(sessionId: string, followup: FollowupAnswer[] | null = null, guessed = false, multiChoice: string | null = null) {
+  return withAiSession(sessionId, null, () => runClassificationInner(sessionId, followup, guessed, multiChoice));
+}
+async function runClassificationInner(sessionId: string, followup: FollowupAnswer[] | null = null, guessed = false, multiChoice: string | null = null) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const original = row?.worry_text as string | null;
   if (!original) return;
   const locale = localeOf(row as SessionRow);
+  setAiLocale(locale);
   const multi = followup && followup.length ? null : multiFor(original, { urgent: row?.safety_level === "urgent", locale });
   if (multi) followup = null; // 여러 고민 질문을 보낸 세션(섞기로 넘어오면 []가 옴) — 다시 묻기 기록을 남기지 않는다
   const worry = followup && followup.length ? composeWorry(original, followup, FOLLOWUP_DB) : multi ? composeFocus(original, multiChoice, multi, MULTI_DB) : original;
@@ -411,6 +417,7 @@ export async function runClassification(sessionId: string, followup: FollowupAns
 // 실패해도 결과는 예전처럼 분류 없이 진행(3쪽은 고민을 쓴 사람용 문장 — reorderSecret wrote).
 async function retryClassification(s: SessionRow): Promise<SessionRow | null> {
   const locale = localeOf(s);
+  setAiLocale(locale);
   const { data } = bundleFor(locale);
   try {
     const cls = parseClassification(await generateText(promptsFor(locale).A, worryUserMessage(s.worry_text ?? ""), { timeoutMs: 12000, maxOutputTokens: 800, label: "A-retry" }), data);
@@ -510,7 +517,11 @@ export async function pick(s: SessionRow, body: { shuffleId?: unknown; slot?: un
 
 // 백그라운드(3장째 직후): 분류가 끝나길 잠깐 기다린 뒤 카드별 고민 연결 한 줄(C)을 만들고 결과를 'ready'로.
 // 무료 1~3번 본문은 읽을 때마다 같은 재료(picks·분류·links)로 조립하므로 따로 저장하지 않는다.
-export async function prepareResult(sessionId: string) {
+// AI 사용량 기록(tarot_ai_usage)에 이 결과 번호가 붙도록 맥락을 연다(owner 2026-11-23).
+export function prepareResult(sessionId: string) {
+  return withAiSession(sessionId, null, () => prepareResultInner(sessionId));
+}
+async function prepareResultInner(sessionId: string) {
   const started = Date.now();
   let s: SessionRow | null = null;
   // 분류(A)가 셔플·뽑기 동안 안 끝났으면 끝날 때까지 기다린다(안전 우선 — 스펙 6장·7.3).
@@ -540,6 +551,7 @@ export async function prepareResult(sessionId: string) {
   const cls = classificationForReport(s.classification);
   if (s.worry_text && aiConfigured()) {
     const locale = localeOf(s);
+    setAiLocale(locale);
     const picks = expandPicks(s.picks, locale);
     const frame = prepareFrame(s.frame ?? null, cls, locale, { level: s.safety_level, violence: s.violence });
     const { decision, lean, review_log, lowered } = decide({ frame, cls, picks, name: s.nickname, safety: { violence: s.violence }, vote: s.frame_vote ?? null, locale });
@@ -662,6 +674,7 @@ export async function getResult(s: SessionRow) {
     return { status: "preparing" as const };
   }
   const locale = localeOf(s);
+  setAiLocale(locale);
   const picks = expandPicks(s.picks, locale);
   const cls = classificationForReport(s.classification);
   const safety = { level: s.safety_level, violence: s.violence, fear: Boolean(s.fear) };
@@ -1030,7 +1043,11 @@ export async function sendOrderEmailEn(sessionId: string, m: { orderId: string; 
 // owner 2026-10-22 "검수하지마": 검수 단계는 없다. 안전·형식 검사는 그대로(parseStoryApply·parseE part E1/E2).
 // 9쪽 '오늘' 실천과 카드별 이유는 AI가 쓰지 않는다(DB — pagesV4.todayFromDb, decision.lean().cards[].reason).
 // 검증에서 떨어지면 그 부분만 1회 다시 부르고, 그래도 안 되면 그 부분은 패키지 대체 경로(DB 문장) — README_v4.
-export async function generateReport(sessionId: string) {
+// AI 사용량 기록(tarot_ai_usage)에 이 결과 번호가 붙도록 맥락을 연다(owner 2026-11-23).
+export function generateReport(sessionId: string) {
+  return withAiSession(sessionId, null, () => generateReportInner(sessionId));
+}
+async function generateReportInner(sessionId: string) {
   const { data: row } = await db().from("tarot_sessions").select("*").eq("id", sessionId).maybeSingle();
   const s = row as SessionRow | null;
   if (!s || !s.paid_at) return;
@@ -1040,6 +1057,7 @@ export async function generateReport(sessionId: string) {
     const cls = classificationForReport(s.classification);
     if (s.worry_text && cls && aiConfigured()) {
       const locale = localeOf(s);
+      setAiLocale(locale);
       const P = promptsFor(locale);
       const picks = expandPicks(s.picks, locale);
       const frame = prepareFrame(s.frame ?? null, cls, locale, { level: s.safety_level, violence: s.violence });
