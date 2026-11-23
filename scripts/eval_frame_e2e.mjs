@@ -1,7 +1,7 @@
 // 4-(b) 끝까지 측정(2026-11-09): 실제 고민(판별 DB의 R-·R2- 익명판) 중 연애 50·직장 50건을 고민 틀 AI(A2)까지 실제로 돌려
 // 세부 고민(sub_id)·점수표·영역을 정답과 비교한다. v2.3.14부터 A2 v4.12(결과 틀 먼저)·resolveFrame 뒤 채점. 같은 100건을 '의미 검색 + 글자 검색(지금)'과 '글자 검색만(예전)'으로 각각 돌린다(AI 200회).
 //   실행: node --conditions=react-server --experimental-strip-types scripts/eval_frame_e2e.mjs [건수/영역=50]
-//   필요: OPENAI_API_KEY, judge-db/data/frame_gold_v2.15.emb.*(build_embed_index.mjs가 만듦)
+//   필요: OPENAI_API_KEY, judge-db/data/frame_gold_v2.18.emb.*(build_embed_index.mjs가 만듦)
 //   공정하게 하려고 시험 100건은 두 색인 모두에서 뺀다. 질문 임베딩은 캐시된 자기 벡터(서버와 같은 정리·모델)를 쓴다.
 //   결과 전체(고민 글 포함)는 scripts/.cache/에만 남기고, 커밋하는 요약에는 id와 맞음/틀림만 적는다.
 import fs from "node:fs";
@@ -11,7 +11,8 @@ import { buildIndex, voteTable, subCandidates } from "../lib/tarot/retrieve.js";
 import { buildNormalizer } from "../lib/tarot/normalize.js";
 import { buildFrameUserBlock, FEWSHOT_K } from "../lib/tarot/frameInput.js";
 import { decodeIndex } from "../lib/tarot-glue/embedSearch.ts";
-import { parseFrameV43, subPromptBlockFrames, resolveFrame, scoreSub } from "../lib/tarot/v43.js";
+import { parseFrameV43, subPromptBlockFrames, branchPromptBlock, resolveFrame, scoreSub } from "../lib/tarot/v43.js";
+import deepDb from "../data/deep_read.json" with { type: "json" };
 import { FRAME_SYSTEM as FRAME_NOW } from "../lib/server/prompts.ts";
 import { sameSub } from "../judge-db/subEquiv.mjs";
 import { deepOf } from "../lib/tarot-glue/reportLines.ts";
@@ -21,13 +22,13 @@ const FRAME_SYSTEM = process.env.A2_FROM ? (await import(path.resolve(process.en
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PER = Number(process.argv[2] || 50);
 const MODEL = process.env.TAROT_AI_MODEL || "gpt-5.6-luna";
-const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.15.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
+const rows = fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.18.jsonl"), "utf8").trim().split("\n").map(JSON.parse);
 const subDb = JSON.parse(fs.readFileSync(path.join(ROOT, "data/worry_subtopics.json"), "utf8"));
 const norm = buildNormalizer(JSON.parse(fs.readFileSync(path.join(ROOT, "data/norm_dict.json"), "utf8")));
 // 판별 DB 의미 검색 색인(build_embed_index.mjs) — 줄 순서 그대로, id 목록이 같은지 확인
-const META = JSON.parse(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.15.emb.meta.json"), "utf8"));
+const META = JSON.parse(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.18.emb.meta.json"), "utf8"));
 if (META.ids.length !== rows.length || META.ids.some((id, i) => id !== rows[i].id)) throw new Error("색인과 판별 DB 줄이 다름 — build_embed_index.mjs를 다시 돌리세요");
-const V = decodeIndex(new Uint8Array(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.15.emb.f16.bin"))), META.dim);
+const V = decodeIndex(new Uint8Array(fs.readFileSync(path.join(ROOT, "judge-db/data/frame_gold_v2.18.emb.f16.bin"))), META.dim);
 const tableOf = (r) => (r.tables ?? [r.table ?? null])[0] ?? null;
 
 // 고정 씨앗으로 고르기(다시 돌려도 같은 100건)
@@ -90,12 +91,14 @@ async function worker() {
     const { mode, q, qi, grp } = jobs[k++];
     const all = neighbors(mode, q, qi);
     const cands = subCandidates(all, SUBN);
-    const user = `${subPromptBlockFrames(cands, subDb)}\n\n${buildFrameUserBlock({ worryText: q.text, examples: all.slice(0, FEWSHOT_K) })}`;
+    // v3.6(A2 v4.28): 서비스와 같게 [갈래 후보] 블록도 붙인다(BRANCH=0이면 빼서 예전 프롬프트와 비교)
+    const br = process.env.BRANCH === "0" ? "" : `${branchPromptBlock(cands, subDb, deepDb, { maxSubs: 4 })}\n\n`;
+    const user = `${subPromptBlockFrames(cands, subDb)}\n\n${br}${buildFrameUserBlock({ worryText: q.text, examples: all.slice(0, FEWSHOT_K) })}`;
     const r = await a2(user);
     inTok += r.usage?.input_tokens ?? 0; outTok += r.usage?.output_tokens ?? 0;
     // v2.3.14: 서비스와 같게 결과 틀·세부를 맞춘 뒤 채점(resolveFrame — 어긋나면 틀을 믿음)
     const f = resolveFrame(r.frame ?? {}, subDb) ?? {};
-    out.push({ mode, grp, id: q.id, gold: { sub_id: q.sub_id, sub2: q.sub2 ?? null, table: q.tables ?? [tableOf(q)], area: q.area }, deep: (() => { const d = deepOf({ frame: f, picks: [], safety: { level: "none" }, worryText: q.text }); return d ? { level: d.level, line3: Boolean(d.page3_line || d.page3_signal) } : null; })(), pred: { confidence: f.confidence ?? null, sub_id: f.sub_id ?? null, sub2: f.sub2 ?? null, frame_id: f.frame_id ?? null, fix: f.frame_fix?.how ?? null, table: f.table ?? null, area: f.area ?? null, decision_source: f.decision_source ?? null, options: f.options_ranked ?? f.options ?? null, option_aliases: f.option_aliases ?? null }, candHit: cands.includes(q.sub_id), vote: voteTable(all.slice(0, FEWSHOT_K))?.table ?? null, err: r.err ?? null });
+    out.push({ mode, grp, id: q.id, gold: { sub_id: q.sub_id, sub2: q.sub2 ?? null, table: q.tables ?? [tableOf(q)], area: q.area }, deep: (() => { const d = deepOf({ frame: f, picks: [], safety: { level: "none" }, worryText: q.text }); return d ? { level: d.level, line3: Boolean(d.page3_line || d.page3_signal) } : null; })(), pred: { confidence: f.confidence ?? null, sub_id: f.sub_id ?? null, sub2: f.sub2 ?? null, frame_id: f.frame_id ?? null, fix: f.frame_fix?.how ?? null, table: f.table ?? null, area: f.area ?? null, decision_source: f.decision_source ?? null, options: f.options_ranked ?? f.options ?? null, option_aliases: f.option_aliases ?? null, branches: Array.isArray(f.branches) ? f.branches : null }, candHit: cands.includes(q.sub_id), vote: voteTable(all.slice(0, FEWSHOT_K))?.table ?? null, err: r.err ?? null });
     if (out.length % 20 === 0) console.error(`${out.length}/${jobs.length}`);
   }
 }
@@ -124,6 +127,7 @@ for (const mode of MODES) for (const grp of [...GROUPS, "전체"]) {
     "세부 고민을 고름(분류 비율)": pct(xs.filter((o) => o.pred.sub_id).length, xs.length),
     "확신 낮음(low)": pct(xs.filter((o) => o.pred.confidence === "low").length, xs.length),
     "앞단 강조가 붙음(세기 1·2)": pct(xs.filter((o) => (o.deep?.level ?? 0) >= 1).length, xs.length),
+    "갈래를 고름(branches 1개 이상)": pct(xs.filter((o) => (o.pred.branches ?? []).length > 0).length, xs.length),
     "'더 세게'(세기 2)": pct(xs.filter((o) => o.deep?.level === 2).length, xs.length),
   };
 }

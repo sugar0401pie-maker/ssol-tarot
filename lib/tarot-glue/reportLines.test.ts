@@ -44,7 +44,7 @@ test("결제 전에는 1·2쪽 영역 문장·고민 인용만 — 5쪽 이후�
 test("분석 칸: 고민 유형·카드 모양·영역 문장(owner 2026-11-15)", async () => {
   const { analysisFields } = await import("./reportLines.ts");
   const none = analysisFields({ frame: null, lean: null });
-  assert.deepEqual(none, { worry_type: "SITUATION", card_pattern: null, area_variant: "COMMON", sub2: null, deep: null });
+  assert.deepEqual(none, { worry_type: "SITUATION", card_pattern: null, area_variant: "COMMON", sub2: null, deep: null, sub_id: null, confidence: null });
   const lean = { side: "move", cards: [{ score: 2 }, { score: 1 }, { score: 3 }] };
   assert.equal(analysisFields({ frame: { table: "job", want: "which" }, lean }).card_pattern, "ALL");
   assert.equal(analysisFields({ frame: null, lean: { side: "move", cards: [{ score: -1 }, { score: -2 }, { score: 2 }] } }).card_pattern, "KEY_ALONE");

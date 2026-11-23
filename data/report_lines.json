@@ -1,5 +1,5 @@
 {
- "version": "v3.1",
+ "version": "v3.3",
  "date": "2026-11-14",
  "note": "문장 DB 묶음. 모든 문장은 Claude 초안이며 CSO 검수 전. 안전·위험 행동 기준은 상담사 검토 대상.",
  "worry_type": {
@@ -712,7 +712,12 @@
      "WK-STAY",
      "WK-OFFER",
      "WK-DEPT",
-     "WK-PAY"
+     "WK-PAY",
+     "WK-SHOULD",
+     "WK-PASSED",
+     "WK-NEGO",
+     "WK-QUITLAND",
+     "WK-REASSIGN"
     ]
    },
    "WORK_NOW": {
@@ -764,7 +769,10 @@
      "EX-"
     ],
     "subs": [
-     "CR-ENDED"
+     "CR-ENDED",
+     "CR-FRIENDOFFER",
+     "CR-REJECTED",
+     "CR-AFTERNO"
     ],
     "except": [
      "EX-NEWONE"
@@ -837,7 +845,11 @@
      "WK-NEWJOB",
      "WK-SECURE",
      "WK-PROMO",
-     "WK-PERFORM"
+     "WK-PERFORM",
+     "WK-SINK",
+     "WK-LETGO",
+     "WK-EXPIRE",
+     "WK-INDUSTRY"
     ],
     "partner": false,
     "since": "v2.3.28"
@@ -866,7 +878,15 @@
      "CR-DEFINE",
      "CR-TWO",
      "CR-ONEWAY",
-     "CR-COND"
+     "CR-COND",
+     "CR-ASKED",
+     "CR-WAITOTHER",
+     "CR-SETTLE",
+     "CR-REBOUND",
+     "CR-PUSHED",
+     "CR-DRIFT",
+     "CR-UNWANTED",
+     "CR-PASSING"
     ],
     "partner": false,
     "since": "v2.3.28"
@@ -896,7 +916,12 @@
      "WK-QUIT",
      "WK-AFTER",
      "WK-WHEN",
-     "WK-EXIT"
+     "WK-EXIT",
+     "WK-FORGOAL",
+     "WK-REST",
+     "WK-IMPULSE",
+     "WK-QUITOPEN",
+     "WK-RELEASE"
     ],
     "partner": false,
     "since": "v2.3.28"
@@ -905,7 +930,8 @@
     "name": "직장 · 이직이 될지",
     "subs": [
      "WK-MOVE",
-     "WK-PREP"
+     "WK-PREP",
+     "WK-JOINWAIT"
     ],
     "partner": false,
     "since": "v2.3.28"
@@ -926,7 +952,14 @@
      "CR-MIND",
      "CR-SIGNAL",
      "CR-WAIT",
-     "CR-FEEL"
+     "CR-FEEL",
+     "CR-WHATWANT",
+     "CR-ANSWERWAIT",
+     "CR-HOLD",
+     "CR-BLOWHOT",
+     "CR-SWEPT",
+     "CR-GHOSTED",
+     "CR-FULL"
     ],
     "partner": false,
     "since": "v2.3.28"
@@ -5780,10 +5813,20 @@
    "FM-BABY": "아이 이야기가 나올 때",
    "SB-FLOW": "일이 잘 풀릴지 걱정이 올라올 때",
    "ML-FIGHT": "다툰 뒤 마음이 가라앉지 않을 때",
-   "PT-PATH": "가고 싶은 길이 멀게 느껴질 때",
-   "WK-EXIT": "퇴사 이야기를 꺼내야 할 때",
    "WK-PERFORM": "일을 앞두고 긴장될 때",
-   "SF-BEHIND": "남들과 나를 견주게 될 때"
+   "WK-EXIT": "퇴사 이야기를 꺼내야 할 때",
+   "PT-PATH": "가고 싶은 길이 멀게 느껴질 때",
+   "SF-BEHIND": "남들과 나를 견주게 될 때",
+   "WK-REASSIGN": "인사 소식이 궁금해질 때",
+   "CR-WHATWANT": "내 마음이 헷갈릴 때",
+   "CR-ANSWERWAIT": "답장을 기다릴 때",
+   "CR-HOLD": "답장을 기다릴 때",
+   "CR-SWEPT": "내 마음이 헷갈릴 때",
+   "CR-FULL": "내 마음이 헷갈릴 때",
+   "CR-PASSING": "그 사람이 떠오를 때",
+   "FM-KID": "가족 걱정이 올라올 때",
+   "PR-REFUSE": "부탁을 받았을 때",
+   "SB-GIG": "일이 잘 풀릴지 걱정이 올라올 때"
   },
   "note": "순서: 세부의 장면(scene) 머리말 → 세부 머리말(sub) → 틀 머리말(frame). v2.3.17: scene(쏘웰라 장면 맥락 39개, 세부 묶음) → sub → frame 순.",
   "scene": {
@@ -6083,7 +6126,8 @@
     "subs": [
      "WK-HARD"
     ]
-   }
+   },
+   "bad_streak": "안 좋은 일이 자꾸 겹칠 때"
   },
   "variant": {
    "LOVE_MARRY": "결혼 이야기가 떠오를 때",

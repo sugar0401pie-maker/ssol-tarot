@@ -35,10 +35,12 @@ export const EXPORT_HEADER = [
   "고민 유형", "카드 모양", "영역 문장",
   // v3.0(2026-11-16): 2순위 세부(A2 sub2) · 앞단 강조 세기·신호·기저 생각 세부·3쪽 줄 출처(deepRead)
   "2순위 세부", "강조 세기", "강조 신호", "기저 생각 세부", "3쪽 줄",
+  // v3.6(2026-11-23): 판별 확신 · 기저 생각 갈래(A2 branches → deepRead) · 갈래 출처(글에서 잡힘 text / 기본 default)
+  "판별 확신", "기저 생각 갈래", "갈래 출처",
   // 2026-11-14: 첫 방문 주소의 광고 소재(utm) — 비어 있으면 빈칸
   "utm_source", "utm_campaign", "utm_content",
 ];
-export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 9, 16, 18, 24, 9, 10, 14, 9, 18, 18, 18];
+export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 9, 16, 18, 24, 9, 10, 14, 9, 8, 22, 18, 18, 18, 18];
 
 const PROVIDER: Record<string, string> = { email: "이메일", kakao: "카카오", "custom:naver": "네이버", naver: "네이버", google: "구글", apple: "애플" };
 export function providerLabel(u: ExportUser | null | undefined, userId: string | null): string {
@@ -53,7 +55,7 @@ const SAFETY: Record<string, string> = { none: "보통", watch: "주의", urgent
 const RESULT: Record<string, string> = { ready: "결과 나옴", safety: "안전 안내", started: "고민 쓰기 전·중", drawing: "카드 뽑는 중", preparing: "결과 만드는 중" };
 const REPORT: Record<string, string> = { none: "", generating: "만드는 중", ready: "완성", failed: "실패" };
 
-export type ExportAnalysis = { worry_type: string; card_pattern: string | null; area_variant: string; sub2?: string | null; deep?: { deep_level: number; deep_signal: string | null; deep_thought_sub: string | null; deep_source: string | null } | null } | null;
+export type ExportAnalysis = { worry_type: string; card_pattern: string | null; area_variant: string; sub2?: string | null; sub_id?: string | null; confidence?: string | null; deep?: { deep_level: number; deep_signal: string | null; deep_thought_sub: string | null; deep_source: string | null; deep_branches?: string[]; deep_branch_from?: string[] } | null } | null;
 const WORRY_TYPE: Record<string, string> = { OUTCOME: "결과형", CHOICE: "선택형", SITUATION: "상황형" };
 const DEEP_LEVEL: Record<number, string> = { 0: "안 붙임", 1: "지금 정도", 2: "더 세게" };
 const DEEP_SOURCE: Record<string, string> = { second: "2순위", form: "묻는 꼴" };
@@ -69,7 +71,8 @@ export function exportRow(
   variantNames: Record<string, { name?: string }> = {},
 ): Cell[] {
   const area = s.frame?.area ?? s.classification?.domain ?? null;
-  const sub = s.frame?.sub_id ?? null;
+  // v3.6: 결과 틀로 맞춘 뒤 실제로 쓰인 세부(없으면 저장된 값) — 2순위 세부와 같은 기준
+  const sub = analysis?.sub_id ?? s.frame?.sub_id ?? null;
   const paid = order ? "결제" : s.paid_at ? "무료 열람(관리자 지정)" : "안 함";
   const worry = s.worry_text ?? "";
   return [
@@ -105,6 +108,9 @@ export function exportRow(
     analysis?.deep?.deep_signal ?? "",
     analysis?.deep?.deep_thought_sub ?? "",
     analysis?.deep?.deep_source ? (DEEP_SOURCE[analysis.deep.deep_source] ?? analysis.deep.deep_source) : "",
+    analysis?.confidence === "low" ? "낮음" : analysis?.confidence === "high" ? "높음" : "",
+    (analysis?.deep?.deep_branches ?? []).join(", "),
+    (analysis?.deep?.deep_branch_from ?? []).map((x) => (x === "text" ? "글" : x === "default" ? "기본" : x)).join(", "),
     s.utm?.source ?? "",
     s.utm?.campaign ?? "",
     s.utm?.content ?? "",

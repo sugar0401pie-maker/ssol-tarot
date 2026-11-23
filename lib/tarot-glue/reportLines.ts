@@ -62,7 +62,7 @@ export function deepOf(ctx: Pick<LinesCtx, "frame" | "picks" | "safety" | "worry
   const sub2 = typeof f.sub2 === "string" && f.sub2 && f.sub2 !== f.sub_id && SUBS[f.sub2] ? f.sub2 : null;
   const variant2 = sub2 ? variantOf(sub2, f, ctx.safety) : null;
   return deepRead(
-    { text: ctx.worryText, variant, subId: f.sub_id, variant2, cards: { now: cardKey(ctx.picks[0]), hold: cardKey(ctx.picks[1]) }, safety: safetyLevel(ctx.safety), confidence: f.confidence ?? "high" },
+    { text: ctx.worryText, variant, subId: f.sub_id, variant2, cards: { now: cardKey(ctx.picks[0]), hold: cardKey(ctx.picks[1]) }, safety: safetyLevel(ctx.safety), confidence: f.confidence ?? "high", branches: Array.isArray((f as { branches?: unknown }).branches) ? ((f as { branches?: unknown[] }).branches as unknown[]).filter((x): x is string => typeof x === "string") : [] },
     DR,
   );
 }
@@ -297,7 +297,7 @@ export function applyReportLines(pages: Page[], ctx: LinesCtx): Page[] {
 // 저장하지 않고 관리자 엑셀을 만들 때 다시 계산(결정론적). lean이 없으면(방향 없음·카드 3장 전) 카드 모양은 null.
 export function analysisFields({ frame, lean, safety, picks = [], worryText = "" }: { frame: any | null; lean: any | null; safety?: LinesCtx["safety"]; picks?: ExpandedPick[]; worryText?: string }): {
   worry_type: "OUTCOME" | "CHOICE" | "SITUATION"; card_pattern: string | null; area_variant: string;
-  sub2: string | null; deep: ReturnType<typeof deepEvent> | null;
+  sub2: string | null; deep: ReturnType<typeof deepEvent> | null; sub_id: string | null; confidence: string | null;
 } {
   // v3.0 기록 칸: sub2 · deep_level · deep_signal · deep_thought_sub · deep_source(앞단 강조가 어떻게 나갔는지)
   const deep = frame && picks.length >= 2 ? deepOf({ frame, picks, safety: safety ?? null, worryText }) : null;
@@ -306,7 +306,10 @@ export function analysisFields({ frame, lean, safety, picks = [], worryText = ""
     worry_type: typeOf(frame),
     card_pattern: lean && scores.length === 3 ? cardPattern(scores, pickSignOf(lean)) : null,
     area_variant: frame ? areaVariant(frame.sub_id, { confidence: frame.confidence ?? "high", safety: safetyLevel(safety ?? null) }, RL) : "COMMON",
-    sub2: typeof frame?.sub2 === "string" && frame.sub2 ? frame.sub2 : null,
+    sub2: typeof frame?.sub2 === "string" && frame.sub2 && frame.sub2 !== frame.sub_id ? frame.sub2 : null,
     deep: deep ? deepEvent(deep) : null,
+    // v3.6: 화면에 실제로 쓰인(결과 틀로 맞춘 뒤) 세부와 판별 확신 — 엑셀 '세부 고민'이 원래 값을 보여 2순위와 같아 보이던 것 정리
+    sub_id: typeof frame?.sub_id === "string" && frame.sub_id ? frame.sub_id : null,
+    confidence: typeof frame?.confidence === "string" ? frame.confidence : null,
   };
 }

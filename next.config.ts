@@ -3,13 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // v4.1 고민 틀 예시(판별 DB 정답 490건)는 서버가 실행 중에 파일로 읽는다(lib/server/frameExamples.ts) — 배포본에 같이 싣는다.
   outputFileTracingIncludes: {
-    "/api/tarot/**": ["./judge-db/data/frame_gold_v2.15.jsonl", "./judge-db/data/frame_gold_v2.15.emb.f16.bin", "./judge-db/data/frame_gold_v2.15.emb.meta.json", "./judge-db/data/frame_gold_en_v1.2.jsonl"],
+    "/api/tarot/**": ["./judge-db/data/frame_gold_v2.18.jsonl", "./judge-db/data/frame_gold_v2.18.emb.f16.bin", "./judge-db/data/frame_gold_v2.18.emb.meta.json", "./judge-db/data/frame_gold_en_v1.2.jsonl"],
   },
   // 서버가 실행 중에 읽는 건 위 네 파일뿐 — 나머지 판별 DB(옛 정답 판·평가·검수표)는 함수에 싣지 않는다(2026-11-16, 함수 크기).
   outputFileTracingExcludes: {
     "/**": [
       "./judge-db/*.{xlsx,txt,md,mjs}", "./judge-db/{eval,review,build}/**/*",
-      "./judge-db/data/frame_gold_v{1,2.1,2.7,2.9,2.10,2.11,2.12,2.13,2.14}.*",
+      "./judge-db/data/frame_gold_v{1,2.1,2.7,2.9,2.10,2.11,2.12,2.13,2.14,2.15,2.16,2.17}.*",
       "./judge-db/data/{real_worries,love_qsub,root_need,ssol_need,safety_signals,worry_examples,sub_equivalents}*",
     ],
   },

@@ -4,7 +4,8 @@ import path from "node:path";
 import { buildIndex, voteTable, subCandidates } from "@/lib/tarot/retrieve.js";
 import { buildFrameUserBlock, FEWSHOT_K, FEWSHOT_HEAD, FEWSHOT_NOTE } from "@/lib/tarot/frameInput.js";
 import { buildNormalizer } from "@/lib/tarot/normalize.js";
-import { subPromptBlockFrames } from "@/lib/tarot/v43.js";
+import { subPromptBlockFrames, branchPromptBlock } from "@/lib/tarot/v43.js";
+import deepDb from "@/data/deep_read.json";
 import normDict from "@/data/norm_dict.json";
 import subDb from "@/data/worry_subtopics.json";
 import type { Locale } from "@/lib/i18n/locale";
@@ -20,8 +21,8 @@ import { GUESS_NEIGHBORS, pickGuess } from "@/lib/tarot-glue/followup";
 // 색인을 못 만들면(파일 없음 등) 예시 없이 예전처럼 고민만 보내고 두 번째 의견은 건너뛴다(README_v4 대체 경로).
 // 영문판은 같은 490건을 영어로 옮긴 judge-db/data/frame_gold_en_v1.2.jsonl(기획 전달본, text = 영어 고민).
 const GOLD: Record<Locale, string> = {
-  // v2.3.12: 판별 DB v2.7 — 4,695줄(합성 + 실제 고민 익명판 R-·R2-), 줄마다 세부 고민 sub_id(144개)
-  ko: path.join(process.cwd(), "judge-db/data/frame_gold_v2.15.jsonl"),
+  // v3.6(2026-11-23): 판별 DB v2.18. v2.3.12: 판별 DB v2.7 — 4,695줄(합성 + 실제 고민 익명판 R-·R2-), 줄마다 세부 고민 sub_id(144개)
+  ko: path.join(process.cwd(), "judge-db/data/frame_gold_v2.18.jsonl"),
   en: path.join(process.cwd(), "judge-db/data/frame_gold_en_v1.2.jsonl"),
 };
 
@@ -46,8 +47,8 @@ function getIndex(locale: Locale): Index | null {
 
 // v2.3.9 의미 검색 색인(한국어만) — scripts/build_embed_index.mjs가 만든 16비트 벡터. 모델·차원·줄 id가 지금 판별 DB와 다르면 쓰지 않는다.
 // 끄기: TAROT_EMBED_SEARCH=0. 색인이 없거나 질문 임베딩이 실패·4초 초과면 예전처럼 글자 검색만(결과가 멈추지 않게).
-const EMB_BIN = path.join(process.cwd(), "judge-db/data/frame_gold_v2.15.emb.f16.bin");
-const EMB_META = path.join(process.cwd(), "judge-db/data/frame_gold_v2.15.emb.meta.json");
+const EMB_BIN = path.join(process.cwd(), "judge-db/data/frame_gold_v2.18.emb.f16.bin");
+const EMB_META = path.join(process.cwd(), "judge-db/data/frame_gold_v2.18.emb.meta.json");
 let embIndex: { vecs: Float32Array[]; ids: string[] } | null | undefined;
 function getEmbIndex(): { vecs: Float32Array[]; ids: string[] } | null {
   if (embIndex !== undefined) return embIndex;
@@ -137,8 +138,11 @@ export async function frameCall(worryText: string, locale: Locale = "ko"): Promi
       : null;
     const base = buildFrameUserBlock({ worryText, examples: neighbors });
     if (locale === "en") return { user: toEnglishBlock(base), vote };
-    const subBlock = subPromptBlockFrames(subCandidates(all, SUB_CANDIDATES), subDb);
-    return { user: `${subBlock}\n\n${base}`, vote };
+    const cands = subCandidates(all, SUB_CANDIDATES);
+    const subBlock = subPromptBlockFrames(cands, subDb);
+    // v3.6(A2 v4.28): 세부 후보 앞 4개의 갈래(기저 생각) 후보 — A2가 branches로 고르고 deepRead가 쓴다.
+    const branchBlock = branchPromptBlock(cands, subDb, deepDb, { maxSubs: 4 });
+    return { user: `${subBlock}\n\n${branchBlock}\n\n${base}`, vote };
   } catch (e) {
     console.warn("비슷한 예시 찾기 실패 — 예시 없이 A2 호출:", e instanceof Error ? e.message : "unknown");
     return { user: worryUserMessage(worryText), vote: null };

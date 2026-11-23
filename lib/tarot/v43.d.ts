@@ -24,4 +24,5 @@ export function subPromptBlock(candidates: string[], subDb: any): string;
 export function frameOf(subId: string, subDb: any): string | null;
 export function resolveFrame(frame: any, subDb: any): any;
 export function subPromptBlockFrames(candidates: string[], subDb: any, opts?: { compact?: boolean }): string;
+export function branchPromptBlock(candidates: string[], subDb: any, deepDb: any, opts?: { maxSubs?: number; withVs?: boolean }): string;
 export function scoreSub(pred: any, gold: any, subDb: any): { strict: boolean; second: boolean; frame: boolean; frame_or_second: boolean };

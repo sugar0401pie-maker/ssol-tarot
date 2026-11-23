@@ -1,6 +1,6 @@
 {
- "version": "v14 (2026-11-16, v2.3.35: CSO 세부 판정 — 새 세부 WK-PERFORM·WK-EXIT·PT-PATH·SF-BEHIND, ED-SCHOOL 없앰, 구분 규칙 12곳)",
- "note": "A2 v4.9가 sub_id를 고르면 3쪽 첫 문장(phrase)·중간 결과 묶음(mid)·빈 칸(area·love_status·love_topic) 기본값으로 씀. | v2: 세부마다 table_rule{mode fixed·choose·none, default, allowed, choose_by}. 코드 resolveTable()이 A2의 table을 이 규칙으로 맞춤(영역이 세부와 같을 때만, 안전 주의면 표를 새로 붙이지 않음). | v3: result_key = 영역|기본 점수표|중간 결과 묶음. 세부를 틀려도 result_key가 같으면 결과 틀(점수표·3쪽 중간 결과)은 같음 → 정확도를 엄격/결과 기준 둘로 잼. | v4: frames = 결과 틀(영역·기본 점수표·중간 결과 묶음이 같은 세부 묶음). 세부마다 frame 칸. A2 v4.12는 틀을 먼저 고르고 그 안에서 세부를 고름. 코드 resolveFrame().",
+ "version": "v17",
+ "note": "A2 v4.9가 sub_id를 고르면 3쪽 첫 문장(phrase)·중간 결과 묶음(mid)·빈 칸(area·love_status·love_topic) 기본값으로 씀. | v2: 세부마다 table_rule{mode fixed·choose·none, default, allowed, choose_by}. 코드 resolveTable()이 A2의 table을 이 규칙으로 맞춤(영역이 세부와 같을 때만, 안전 주의면 표를 새로 붙이지 않음). | v3: result_key = 영역|기본 점수표|중간 결과 묶음. 세부를 틀려도 result_key가 같으면 결과 틀(점수표·3쪽 중간 결과)은 같음 → 정확도를 엄격/결과 기준 둘로 잼. | v4: frames = 결과 틀(영역·기본 점수표·중간 결과 묶음이 같은 세부 묶음). 세부마다 frame 칸. A2 v4.12는 틀을 먼저 고르고 그 안에서 세부를 고름. 코드 resolveFrame(). | v17(v3.5): 초안 세부 37개 추가(draft:true, parent). 세부 193.",
  "subs": {
   "LV-WHEN": {
    "group": "연애 시작",
@@ -609,8 +609,8 @@
    "group": "짝사랑·썸",
    "name": "두 사람 사이에서·마음이 덜 가는 상대",
    "definition": "두 사람 중 누구를 만날지, 또는 잘해 주는데 내 마음이 덜 가는 상대와 이어 갈지",
-   "clue": "둘 다·누굴 만나야·마음이 안 가는데·가치관이 안 맞는데 잘해 줘요",
-   "vs_neighbors": "CR-APPROACH는 한 사람에게 다가갈지",
+   "clue": "둘 다·누굴 만나야·마음이 안 가는데·가치관이 안 맞는데 잘해 줘요·고백받았는데 사귈지 말지",
+   "vs_neighbors": "CR-APPROACH는 한 사람에게 다가갈지 · 고백·대시를 받았는데 사귈지 말지도 이 세부 (v3.3)",
    "scene": "crush_unsure",
    "tarot_count": 10,
    "area": "LOV",
@@ -1320,9 +1320,9 @@
   "MR-THIS": {
    "group": "결혼",
    "name": "지금 연인과 결혼까지 갈 수 있을지",
-   "definition": "사귀는 사람이 있고 그 사람과 결혼 가능성을 물음",
+   "definition": "사귀는 사람이 있고 그 사람을 사랑하며 결혼까지 갈 수 있을지를 물음. 돈·직업·장거리 같은 현실 문제가 조금 신경 쓰여도 지금 결정에 크게 영향을 주는 수준은 아님 (v3.2 CSO 11/18)",
    "clue": "이 사람과 결혼할 수 있을까·결혼까지 갈까",
-   "vs_neighbors": "MR-WHEN은 상대 없이 시기 · 사귀는 사람이 있으면 \"결혼은 언제쯤\"을 물어도 이 세부(CSO 11/16) · MR-PARTNER는 상대의 결혼 생각 · 사귀는 사람이 있는지 분명하지 않은 “결혼하고 싶어요”는 이 세부가 아님 → MR-WHEN(v2.3.32, CSO 11/16: 1·2순위가 상대가 있다고 가정해서 안 맞음)",
+   "vs_neighbors": "MR-WHEN은 상대 없이 시기 · 사귀는 사람이 있으면 \"결혼은 언제쯤\"을 물어도 이 세부(CSO 11/16) · MR-PARTNER는 상대의 결혼 생각 · 사귀는 사람이 있는지 분명하지 않은 “결혼하고 싶어요”는 이 세부가 아님 → MR-WHEN(v2.3.32, CSO 11/16: 1·2순위가 상대가 있다고 가정해서 안 맞음) · 이 사람에게 걸리는 부분이나 '내가 결혼에 맞나'가 결정을 흔들면 MR-WHETHER (v3.2, CSO 11/18) · 걸리는 이유 없이 '결혼해도 될까요'만 있으면 이 세부, 걸리는 부분을 말하면 MR-WHETHER (v3.3)",
    "scene": "marry_decide",
    "tarot_count": 13,
    "area": "LOV",
@@ -1386,9 +1386,9 @@
   },
   "MR-WHETHER": {
    "group": "결혼",
-   "name": "결혼을 해야 할지(결혼 자체)",
-   "definition": "결혼이라는 선택 자체를 고민함",
-   "clue": "결혼을 해야 할까·꼭 해야 하나·아직 하고 싶지 않아요",
+   "name": "결혼을 해야 할지(결혼 자체·이 사람과 해도 될지)",
+   "definition": "결혼이라는 선택 자체를 고민함. 연인이 있어도 그 사람에게 걸리는 부분(성향·성격 차이·현실 조건)이나 '내가 결혼에 맞는 사람인가'가 지금 결정에 영향을 주면 이 세부 (v3.2 CSO 11/18)",
+   "clue": "결혼을 해야 할까·꼭 해야 하나·아직 하고 싶지 않아요·이 사람과 결혼해도 될까·결혼할까·미래가 안 그려져요·결혼하자는데 불안해요",
    "vs_neighbors": "MR-THIS는 특정 상대와의 가능성 · \"사귀는 사람과 결혼해도 될까\"는 둘 다 틀리지 않음",
    "scene": "marry_decide",
    "tarot_count": 3,
@@ -1521,7 +1521,7 @@
   "JB-WHEN": {
    "group": "취업",
    "name": "취업이 언제 될지",
-   "definition": "취업 준비 중. 특정 회사 없이 취업 시기·가능성을 물음. 가고 싶은 직무·분야를 말해도 \"올해 안에 될까·붙을 수 있을까\"를 물으면 이 세부",
+   "definition": "취업 준비 중. 특정 회사 없이 취업 시기·가능성을 물음. 가고 싶은 직무·분야를 말해도 \"올해 안에 될까·붙을 수 있을까\"를 물으면 이 세부 · v3.2(CSO 11/18): '언제·될까'와 정규직·좋은 회사·직무·지원한 곳이 함께 나오면 언제가 우선(취업 자체가 더 중요) — 조건은 2순위 JB-TERMS, 지원한 곳 결과는 2순위 JB-WAIT",
    "clue": "올해 안에 취업·언제 취직·언제쯤 될까·취업할 수 있을까·올해 안에 디자인 일로 취업될까·서류가 계속 안 붙어요",
    "vs_neighbors": "직무·분야를 말해도 될지·시기를 물으면 이 세부(CSO 11/16) · JB-TERMS는 정규직·급여·좋은 회사 같은 조건을 바라는 말이 중심일 때만 · \"언제, 어디로\"를 함께 물으면 이 세부(JB-WHERE 아님) · 재취업이어도 \"언제쯤\"이면 이 세부(JB-RETURN도 틀리지 않음) · JB-WAIT는 이미 지원·면접을 마친 특정한 곳의 결과 · JB-LATE는 나이·공백 압박이 중심 — 계속 지원하는데 떨어진다는 글은 이 세부",
    "scene": "job_seek_long",
@@ -1733,9 +1733,9 @@
   "JB-TERMS": {
    "group": "취업",
    "name": "원하는 조건·직무로 갈 수 있을지",
-   "definition": "정규직·급여·워라밸·좋은 회사 같은 조건, 적성에 맞는 직장, 구체적인 직무(인사·마케팅·기획·영업 등)를 바라는 글. 특정한 한 곳이 아님",
+   "definition": "'언제' 없이 원하는 조건·직무가 중심인 글: 정규직·급여·좋은 회사(정규직은 좋은 회사의 예시), 통근시간·거리·자율성·규칙성 같은 실질 조건, '전공을 살린'·구체적인 직무. 특정한 한 곳이 아님 (v3.2 CSO 11/18)",
    "clue": "정규직·월급·야근 적은 곳·좋은 회사·오래 다닐 곳·나랑 잘 맞는 회사·적성에 맞는 직장·마케팅 직무로 가고 싶어",
-   "vs_neighbors": "구체적인 직무나 적성에 맞는 직장을 말하면 \"적성\" 고민(PT-WHAT·WK-FIT)이 아니라 이 세부(CSO 11/16) · 다만 직무·분야를 말하고 \"올해 안에 될까·붙을 수 있을까\"처럼 될지·시기를 물으면 JB-WHEN · JB-APPLY는 가고 싶은 특정한 한 곳이 있음 · JB-WHERE는 분야를 아직 못 정함 · 지금 다니는 회사가 있으면 WK-MOVE",
+   "vs_neighbors": "구체적인 직무나 적성에 맞는 직장을 말하면 \"적성\" 고민(PT-WHAT·WK-FIT)이 아니라 이 세부(CSO 11/16) · 다만 직무·분야를 말하고 \"올해 안에 될까·붙을 수 있을까\"처럼 될지·시기를 물으면 JB-WHEN · JB-APPLY는 가고 싶은 특정한 한 곳이 있음 · JB-WHERE는 분야를 아직 못 정함 · 지금 다니는 회사가 있으면 WK-MOVE · '좋은 사람들과 어렵지 않은 일을 오래'처럼 가치관이면 PT-MEANING(v3.2, CSO 11/18)",
    "scene": "job_seek_long",
    "tarot_count": 10,
    "area": "JOB",
@@ -1802,9 +1802,9 @@
   "WK-QUIT": {
    "group": "이직·퇴사",
    "name": "그만둘지 말지(퇴사 자체)",
-   "definition": "지금 회사를 그냥 그만둘지를 고민. 옮길 곳이나 옮길 생각 같은 다른 선택지가 글에 없음",
+   "definition": "지금 회사를 그만둘지를 고민. 옮길 곳이나 옮길 생각 같은 다른 선택지가 뚜렷하지 않음. 지금 일의 힘듦(업무가 안 맞음·못 따라감·사람 충돌·통근·조건)에서 벗어나고 싶은 '도피성 퇴사'도 이 세부 — 그 원인을 2순위로(WK-PERFORM·WK-PEOPLE·WK-HARD·WK-LOAD·WK-FIT)",
    "clue": "퇴사할까·그만둘까·관둘까·옮길까 그냥 그만둘까·갈 곳 없이 그만둬도 괜찮을까·퇴사하려는데 지금 해도 괜찮을까",
-   "vs_neighbors": "선택지가 있는지로 가른다(CSO 11/16): 옮길 곳·옮길 생각이 있고 남는 쪽과 견주면 WK-STAY, \"이직해야 할까·이직이 될까\"처럼 이직을 물으면 WK-MOVE · WK-WHEN은 시기를 직접 물음 · WK-NEWJOB은 옮긴 지 얼마 안 된 회사 · 이미 그만둔 뒤라면 다음 일의 세부(JB-RETURN·PT-DREAM 등) · 기간 낱말(두세 달·1년 채우고·몇 년 더·퇴직금)이 있어도 나갈지 말지를 아직 못 정했으면 이 세부(v2.3.33, CSO 11/16) · 회사 다니는 것 자체에 회의감이 들어 막연히 다른 일(프리랜서 등)을 꿈꾸는 회피도 이 세부 · 시기 하나만 붙여 “연말에 그만둘까요?”라고 물어도 이 세부(v2.3.34, CSO 11/16)",
+   "vs_neighbors": "선택지가 있는지로 가른다(CSO 11/16): 옮길 곳·옮길 생각이 있고 남는 쪽과 견주면 WK-STAY, \"이직해야 할까·이직이 될까\"처럼 이직을 물으면 WK-MOVE · WK-WHEN은 시기를 직접 물음 · WK-NEWJOB은 옮긴 지 얼마 안 된 회사 · 이미 그만둔 뒤라면 다음 일의 세부(JB-RETURN·PT-DREAM 등) · 기간 낱말(두세 달·1년 채우고·몇 년 더·퇴직금)이 있어도 나갈지 말지를 아직 못 정했으면 이 세부(v2.3.33, CSO 11/16) · 회사 다니는 것 자체에 회의감이 들어 막연히 다른 일(프리랜서 등)을 꿈꾸는 회피도 이 세부 · 시기 하나만 붙여 “연말에 그만둘까요?”라고 물어도 이 세부(v2.3.34, CSO 11/16) · 도피성 퇴사(다른 선택지 없이 지금 일이 힘들어 나가고 싶음)는 WK-STAY가 아니라 이 세부, 원인은 2순위(v3.2, CSO 11/18) · 바로 이직할지 중간에 쉴지는 WK-WHEN · 다른 목표(시험·공부·준비)를 위해 그만둘지는 WK-FORGOAL, 쉬고 싶다는 말이 중심이면 WK-REST (v3.3)",
    "scene": "job_change",
    "tarot_count": 30,
    "area": "CAR",
@@ -1871,7 +1871,7 @@
    "name": "(재직 중) 이직이 될지·언제 될지",
    "definition": "지금 다니는 회사가 있고 이직을 생각함. 이직을 해야 할지, 될지, 언제 될지를 물음. 재직 중에 가고 싶은 회사에 지원하는 것도 포함",
    "clue": "이직해야 할까·이직할 수 있을까·이직 언제·환승이직·옮기고 싶은데 마땅한 곳이 없어·가고 싶은 회사 붙을까(지금 회사 다니는 중)",
-   "vs_neighbors": "JB-RETURN은 이미 회사를 나와 쉬는 중 · JB-APPLY·JB-WAIT는 재직 중이 아닌 취업 준비 · WK-PAY는 옮기려는 이유가 지금 회사의 돈·처우 · \"이직해야 할까요?\"만 물어도 이 세부(CSO 11/16) · 남는 쪽과 견주는 말(버틸까 옮길까)이 있으면 WK-STAY · 업종을 바꾸는 이야기면 WK-SWITCH(둘 다 틀리지 않음) · 이직 면접을 이미 봤고 결과를 기다리면 JB-WAIT(③ 이미 일어난 일이 먼저) · 곧 계약이 끝나 나가고 다음 일이 언제 될지면 JB-WHEN(v2.3.35)",
+   "vs_neighbors": "JB-RETURN은 이미 회사를 나와 쉬는 중 · JB-APPLY·JB-WAIT는 재직 중이 아닌 취업 준비 · WK-PAY는 옮기려는 이유가 지금 회사의 돈·처우 · \"이직해야 할까요?\"만 물어도 이 세부(CSO 11/16) · 남는 쪽과 견주는 말(버틸까 옮길까)이 있으면 WK-STAY · 업종을 바꾸는 이야기면 WK-SWITCH(둘 다 틀리지 않음) · 이직 면접을 이미 봤고 결과를 기다리면 JB-WAIT(③ 이미 일어난 일이 먼저) · 곧 계약이 끝나 나가고 다음 일이 언제 될지면 JB-WHEN(v2.3.35) · '이직해야 할까·해도 될까'처럼 결정을 물으면 WK-SHOULD (v3.3, CSO 11/18)",
    "scene": "job_change",
    "tarot_count": 42,
    "area": "CAR",
@@ -1906,7 +1906,7 @@
    "name": "남을지 옮길지 저울질",
    "definition": "옮길 곳이나 옮길 생각이 있고, 지금 회사에 남는 쪽과 떠나는 쪽을 견주며 결정 못 함. 회사 사정·결혼·돈 같은 걸림돌 때문에 망설이는 것도 포함",
    "clue": "버틸까 옮길까·남을까·더 다닐까·그만두고 싶은데 ~라서 쉽지 않아",
-   "vs_neighbors": "WK-QUIT은 다른 선택지 없이 그만둘지만 물음 · \"이직해야 할까요?\"처럼 남는 쪽 이야기 없이 이직만 물으면 WK-MOVE · WK-WHEN은 시기를 직접 물음 · WK-NEWJOB은 옮긴 지 얼마 안 된 회사 · WK-SECURE는 내가 나갈지가 아니라 회사가 나를 둘지 · 갈 곳 없이 지쳐서 “다 때려치우고 막연히 프리랜서 하고 싶다”는 옮기려는 게 아니라 피하고 싶은 마음 → WK-QUIT(v2.3.32, CSO 11/16) · “무엇을 위해 다니는지 모르겠다·두 갈래 진로”처럼 일의 방향이 중심이면 PT-WHAT(v2.3.35)",
+   "vs_neighbors": "WK-QUIT은 다른 선택지 없이 그만둘지만 물음 · \"이직해야 할까요?\"처럼 남는 쪽 이야기 없이 이직만 물으면 WK-MOVE · WK-WHEN은 시기를 직접 물음 · WK-NEWJOB은 옮긴 지 얼마 안 된 회사 · WK-SECURE는 내가 나갈지가 아니라 회사가 나를 둘지 · 갈 곳 없이 지쳐서 “다 때려치우고 막연히 프리랜서 하고 싶다”는 옮기려는 게 아니라 피하고 싶은 마음 → WK-QUIT(v2.3.32, CSO 11/16) · “무엇을 위해 다니는지 모르겠다·두 갈래 진로”처럼 일의 방향이 중심이면 PT-WHAT(v2.3.35) · 그만두고 다른 목표에 집중할지는 WK-FORGOAL, 쉬어 갈지는 WK-REST (v3.3)",
    "scene": "job_change",
    "tarot_count": 21,
    "area": "CAR",
@@ -1940,7 +1940,7 @@
    "name": "그만두면 먹고살 수 있을지",
    "definition": "퇴사 뒤 생계·재취업이 두려움",
    "clue": "그만두면 먹고살 수 있을까·재취업이 무서워요·대책 없나",
-   "vs_neighbors": "WK-QUIT은 결정 · 이 세부는 아직 다니는 중에 느끼는 두려움 · 이미 그만뒀으면 이 세부가 아니라 다음 일의 세부(JB-RETURN·PT-DREAM 등)",
+   "vs_neighbors": "WK-QUIT은 결정 · 이 세부는 아직 다니는 중에 느끼는 두려움 · 이미 그만뒀으면 이 세부가 아니라 다음 일의 세부(JB-RETURN·PT-DREAM 등) · 쉬어 갈지가 중심이면 WK-REST (v3.3)",
    "scene": "job_change",
    "tarot_count": 7,
    "area": "CAR",
@@ -2315,7 +2315,7 @@
    "name": "시험을 앞두고 불안함",
    "definition": "시험에 붙을지·잘 볼지를 물음. 시험이 코앞이든 내년이든, 어떤 시험이든 포함(CSO 11/16). 시험 종류 단서 없이 \"붙을까\"만 물을 때도 이 세부. 면접은 JB-INTERVIEW",
    "clue": "내일 시험·수능 잘 칠까·시험 불안·며칠 안 남았어요·내년 공무원 시험 붙겠죠·이번 시험 붙을 수 있을까",
-   "vs_neighbors": "EX2-STUDY는 공부가 안 되는 쪽 · EX2-LONG은 붙을지가 아니라 준비가 길어져 지쳤거나 계속할지를 물음 · 대학에 붙을지를 함께 물으면 EX2-UNI · 면접을 앞두고 있으면 JB-INTERVIEW",
+   "vs_neighbors": "EX2-STUDY는 공부가 안 되는 쪽 · EX2-LONG은 붙을지가 아니라 준비가 길어져 지쳤거나 계속할지를 물음 · 대학에 붙을지를 함께 물으면 EX2-UNI · 면접을 앞두고 있으면 JB-INTERVIEW · 시험 날짜가 코앞이면(수능·임용·공무원도) 이 세부, 오래 준비하는 과정이나 계속 준비할지는 EX2-LONG (v3.3)",
    "scene": "exam_before",
    "tarot_count": 14,
    "area": "EDU",
@@ -2384,7 +2384,7 @@
    "name": "오래 준비하는 시험(공무원·국가고시)",
    "definition": "공무원·임용·고시·전문 자격처럼 길게 준비하는 시험에서, 준비가 길어져 지쳤거나 이 시험을 계속할지, 준비하는 동안의 나를 물음",
    "clue": "몇 년째 준비·계속 봐도 될지·그만둘까·수험 생활이 지쳐요·합격할 때까지 내가 어떤 모습일지",
-   "vs_neighbors": "\"붙을까·붙겠죠·합격할 수 있을까\"처럼 붙을지를 물으면 오래 준비하는 시험이어도 EX2-BEFORE(CSO 11/16) · EX2-WAIT는 이미 본 시험 · 시험이 코앞이어도 \"계속 봐도 될지\"를 물으면 이 세부",
+   "vs_neighbors": "\"붙을까·붙겠죠·합격할 수 있을까\"처럼 붙을지를 물으면 오래 준비하는 시험이어도 EX2-BEFORE(CSO 11/16) · EX2-WAIT는 이미 본 시험 · 시험이 코앞이어도 \"계속 봐도 될지\"를 물으면 이 세부 · 시험이 코앞이고 잘 볼지·붙을지만 물으면 EX2-BEFORE (v3.3)",
    "scene": "exam_long",
    "tarot_count": 10,
    "area": "EDU",
@@ -2517,7 +2517,7 @@
    "name": "뭘 하고 살아야 할지 모르겠음",
    "definition": "진로 방향이 막연함(학생·취준생·쉬는 중) · v2.3.35(CSO 11/16): 지금 일하고 있어도 내 적성·역량에 맞는 일이 무엇인지, 일하는 목적·방향을 못 잡겠으면 이 세부(진로 방향)",
    "clue": "뭐 하고 살지·진로를 모르겠어요",
-   "vs_neighbors": "JB-WHERE는 취업 분야 선택(둘 다 틀리지 않음) · 고를 갈래를 적어 놓았으면 PT-TWO · 바꿀 직무·업종이 분명하고 바꿀지를 물으면 WK-SWITCH · 옮길 곳과 남는 쪽을 견주면 WK-STAY · 꿈은 분명한데 방법을 모르면 PT-PATH(v2.3.35)",
+   "vs_neighbors": "JB-WHERE는 취업 분야 선택(둘 다 틀리지 않음) · 고를 갈래를 적어 놓았으면 PT-TWO · 바꿀 직무·업종이 분명하고 바꿀지를 물으면 WK-SWITCH · 옮길 곳과 남는 쪽을 견주면 WK-STAY · 꿈은 분명한데 방법을 모르면 PT-PATH(v2.3.35) · 무작정 모름('어떻게 살아야 할까', '방향을 모르겠다')은 이 세부, 길·꿈·의미·가치를 찾고 싶다는 말이 있으면 PT-MEANING (v3.2, CSO 11/18)",
    "scene": "path_direction",
    "tarot_count": 9,
    "area": "DIR",
@@ -2651,10 +2651,10 @@
   },
   "PT-MEANING": {
    "group": "진로·방향",
-   "name": "의미 있게 살 일을 찾고 싶음",
-   "definition": "무엇을 해야 의미 있을지, 몰두할 일을 찾음",
-   "clue": "의미 있게·열정을 쏟을 일·뭘 향해",
-   "vs_neighbors": "UF-EMPTY는 공허함이 중심",
+   "name": "일의 의미·목적·꿈을 찾고 싶음",
+   "definition": "어떤 길·꿈·방향으로 가야 의미 있을지, 일에서 바라는 가치(좋은 사람들·오래 할 수 있는 일 등)를 찾음 — 가치관에 가까움 (v3.2 CSO 11/18)",
+   "clue": "어떤 길·꿈으로 가야 할까·의미 있게·열정을 쏟을 일·좋은 사람들과 오래 할 수 있는 일",
+   "vs_neighbors": "UF-EMPTY는 공허함이 중심 · 막연히 '어떻게 살아야 할까·방향을 모르겠다'는 PT-WHAT · 통근·자율성 같은 실질 조건은 JB-TERMS (v3.2, CSO 11/18)",
    "scene": "path_direction",
    "tarot_count": 4,
    "area": "DIR",
@@ -3773,7 +3773,7 @@
    "name": "결혼 이야기는 오가지만 현실 조건이 걸림",
    "definition": "연인과 결혼 이야기·제안이 나왔지만 살 곳·돈·이사·직장 위치 같은 현실 조건 때문에 결정을 못 함",
    "clue": "프러포즈 받았는데·결혼하자는데·집·전세·대출·이사·지방·직장 때문에",
-   "vs_neighbors": null,
+   "vs_neighbors": "결혼하기로 한 뒤 집·돈 같은 조건 때문에 진행이 막히면 이 세부, 결혼할지 자체를 망설이면 MR-WHETHER (v3.2)",
    "scene": null,
    "tarot_count": null,
    "area": "LOV",
@@ -4828,39 +4828,6 @@
    "result_key": "DIR|start|BIZ",
    "frame": "F36"
   },
-  "WK-PERFORM": {
-   "group": "이직·퇴사",
-   "name": "지금 하는 일을 잘 해낼 수 있을지",
-   "definition": "입사 시기와 상관없이 오늘·이번 일을 잘 해낼지, 실수·성과·숙련이 걱정됨(CSO 11/16: newbie / adapt 쪼개기)",
-   "clue": "오늘 업무 잘할 수 있을까·실수할까 봐·숙련도가 안 늘어요·기대에 못 미치면",
-   "vs_neighbors": "새로 들어간 곳(이직 포함)에 적응하는 것이 중심이면 WK-ADAPT · 일이 너무 많아 벅차면 WK-LOAD · 회사 전반이 힘들어 버티기 어려우면 WK-HARD",
-   "scene": null,
-   "tarot_count": null,
-   "area": "CAR",
-   "love_status": null,
-   "love_topic": null,
-   "table": null,
-   "want": "yesno",
-   "mid": "CAR",
-   "phrase": "지금 하는 일을 잘 해낼 수 있을지에 대한 고민",
-   "review": null,
-   "source": "v2.3.35 추가(CSO 2026-11-16 세부 판정 의견, 검수 전)",
-   "table_rule": {
-    "mode": "choose",
-    "default": null,
-    "allowed": [
-     null,
-     "job"
-    ],
-    "choose_by": "그만둘지·옮길지가 글에 드러나면 job, 아니면 표 없음",
-    "basis": "새 세부(Claude 제안)",
-    "gold": {}
-   },
-   "needs_cso": false,
-   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
-   "result_key": "CAR|none|CAR",
-   "frame": "F25"
-  },
   "CR-ONEWAY": {
    "group": "짝사랑·썸",
    "name": "신호가 거의 없는 짝사랑이 이어질지",
@@ -4933,69 +4900,41 @@
    "dedicated": true,
    "frame": "F02"
   },
-  "SF-BEHIND": {
-   "group": "나 자신",
-   "name": "남들과 비교해 뒤처질까 봐 불안",
-   "definition": "친구·동기·같은 처지의 사람들과 견주어 성과·성적·스펙에서 뒤처질까 봐 불안함(CSO 11/16)",
-   "clue": "다른 사람들은 ~하는데 나만·뒤처지는 건 아닐까·나만 뒤떨어질까 봐",
-   "vs_neighbors": "나이·공백 때문에 취업에서 뒤처진 것 같으면 JB-LATE · 제자리인 것 같은 정체감이면 UF-STUCK",
-   "scene": null,
+  "RL-COND": {
+   "group": "연애 중",
+   "name": "사람은 좋은데 현실 조건이 맞지 않아 계속 만날지",
+   "definition": "연인이 있고 나이 차·돈·직업·앞날 계획 같은 현실 조건이 맞지 않아 계속 만날지 고민(CSO 11/16: 생각보다 많아 따로 나눔)",
+   "clue": "사람은 좋은데·나이 차이·돈이·직업이·결혼하면·앞날이 걱정·조건이 안 맞아요",
+   "vs_neighbors": "조건 없이 계속 만날지면 RL-STAY · 다툼·성격 차이가 중심이면 RL-FIGHT · 결혼 이야기가 오가는 중 조건이 걸리면 MR-REAL",
+   "scene": "couple_conflict",
    "tarot_count": null,
-   "area": "SELF",
-   "love_status": null,
-   "love_topic": null,
-   "table": null,
-   "want": "comfort",
-   "mid": "NONE",
-   "phrase": "남들보다 뒤처질까 봐 불안한 고민",
+   "area": "LOV",
+   "love_status": "dating",
+   "love_topic": "breakup_consider",
+   "table": "continue",
+   "want": "which",
+   "mid": "LOV_BREAKUP",
+   "phrase": "연인과 현실 조건이 맞지 않아 계속 만날지에 대한 고민",
    "review": null,
-   "source": "v2.3.35 추가(CSO 2026-11-16 세부 판정 의견, 검수 전)",
-   "table_rule": {
-    "mode": "none",
-    "default": null,
-    "allowed": [
-     null
-    ],
-    "choose_by": null,
-    "basis": "새 세부(Claude 제안)",
-    "gold": {}
-   },
-   "needs_cso": false,
-   "result_key": "SELF|none|NONE",
-   "frame": "F48"
-  },
-  "WK-EXIT": {
-   "group": "이직·퇴사",
-   "name": "퇴사를 정했고 잘 마무리하고 나가고 싶음",
-   "definition": "이미 퇴사를 통보했거나 정했고, 면담·인수인계·남는 사람들과의 관계를 잘 마무리하고 싶음. 내가 나가서 일이 떠넘겨지거나 회사에 피해가 될까 걱정(CSO 11/16)",
-   "clue": "퇴사 통보했는데 면담·잘 마무리하고 싶어요·인수인계·좋게 나가고 싶어요",
-   "vs_neighbors": "나가는 시기를 고르면 WK-WHEN · 아직 나갈지 못 정했으면 WK-QUIT",
-   "scene": "job_change",
-   "tarot_count": null,
-   "area": "CAR",
-   "love_status": null,
-   "love_topic": null,
-   "table": "job",
-   "want": "how",
-   "mid": "CAR",
-   "phrase": "퇴사를 잘 마무리하고 싶은 고민",
-   "review": null,
-   "source": "v2.3.35 추가(CSO 2026-11-16 세부 판정 의견, 검수 전)",
+   "source": "v2.3.32 추가(CSO 2026-11-16 정합 분석 검수 의견, 검수 전)",
    "table_rule": {
     "mode": "fixed",
-    "default": "job",
+    "default": "continue",
     "allowed": [
-     "job"
+     "continue"
     ],
     "choose_by": null,
-    "basis": "정답 예시 다수결(42/42)",
+    "basis": "정답 예시 다수결(75/79)",
     "gold": {
-     "job": 42
+     "continue": 75,
+     "None": 2,
+     "boundary": 1,
+     "approach": 1
     }
    },
-   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
-   "result_key": "CAR|job|CAR",
-   "frame": "F22"
+   "result_key": "LOV|continue|LOV_BREAKUP",
+   "dedicated": true,
+   "frame": "F04"
   },
   "ML-FIGHT": {
    "group": "결혼",
@@ -5035,6 +4974,72 @@
    "result_key": "LOV|continue|LOV_MARRIED",
    "frame": "F07"
   },
+  "WK-PERFORM": {
+   "group": "이직·퇴사",
+   "name": "지금 하는 일을 잘 해낼 수 있을지",
+   "definition": "입사 시기와 상관없이 오늘·이번 일을 잘 해낼지, 실수·성과·숙련이 걱정됨(CSO 11/16: newbie / adapt 쪼개기)",
+   "clue": "오늘 업무 잘할 수 있을까·실수할까 봐·숙련도가 안 늘어요·기대에 못 미치면",
+   "vs_neighbors": "새로 들어간 곳(이직 포함)에 적응하는 것이 중심이면 WK-ADAPT · 일이 너무 많아 벅차면 WK-LOAD · 회사 전반이 힘들어 버티기 어려우면 WK-HARD",
+   "scene": null,
+   "tarot_count": null,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "지금 하는 일을 잘 해낼 수 있을지에 대한 고민",
+   "review": null,
+   "source": "v2.3.35 추가(CSO 2026-11-16 세부 판정 의견, 검수 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "job"
+    ],
+    "choose_by": "그만둘지·옮길지가 글에 드러나면 job, 아니면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|none|CAR",
+   "frame": "F25"
+  },
+  "WK-EXIT": {
+   "group": "이직·퇴사",
+   "name": "퇴사를 정했고 잘 마무리하고 나가고 싶음",
+   "definition": "이미 퇴사를 통보했거나 정했고, 면담·인수인계·남는 사람들과의 관계를 잘 마무리하고 싶음. 내가 나가서 일이 떠넘겨지거나 회사에 피해가 될까 걱정(CSO 11/16)",
+   "clue": "퇴사 통보했는데 면담·잘 마무리하고 싶어요·인수인계·좋게 나가고 싶어요",
+   "vs_neighbors": "나가는 시기를 고르면 WK-WHEN · 아직 나갈지 못 정했으면 WK-QUIT",
+   "scene": "job_change",
+   "tarot_count": null,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "how",
+   "mid": "CAR",
+   "phrase": "퇴사를 잘 마무리하고 싶은 고민",
+   "review": null,
+   "source": "v2.3.35 추가(CSO 2026-11-16 세부 판정 의견, 검수 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(42/42)",
+    "gold": {
+     "job": 42
+    }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
+  },
   "PT-PATH": {
    "group": "진로·방향",
    "name": "하고 싶은 일은 분명한데 가는 방법을 모름",
@@ -5068,41 +5073,1522 @@
    "result_key": "DIR|none|DIR",
    "frame": "F35"
   },
-  "RL-COND": {
-   "group": "연애 중",
-   "name": "사람은 좋은데 현실 조건이 맞지 않아 계속 만날지",
-   "definition": "연인이 있고 나이 차·돈·직업·앞날 계획 같은 현실 조건이 맞지 않아 계속 만날지 고민(CSO 11/16: 생각보다 많아 따로 나눔)",
-   "clue": "사람은 좋은데·나이 차이·돈이·직업이·결혼하면·앞날이 걱정·조건이 안 맞아요",
-   "vs_neighbors": "조건 없이 계속 만날지면 RL-STAY · 다툼·성격 차이가 중심이면 RL-FIGHT · 결혼 이야기가 오가는 중 조건이 걸리면 MR-REAL",
-   "scene": "couple_conflict",
+  "SF-BEHIND": {
+   "group": "나 자신",
+   "name": "남들과 비교해 뒤처질까 봐 불안",
+   "definition": "친구·동기·같은 처지의 사람들과 견주어 성과·성적·스펙에서 뒤처질까 봐 불안함(CSO 11/16)",
+   "clue": "다른 사람들은 ~하는데 나만·뒤처지는 건 아닐까·나만 뒤떨어질까 봐",
+   "vs_neighbors": "나이·공백 때문에 취업에서 뒤처진 것 같으면 JB-LATE · 제자리인 것 같은 정체감이면 UF-STUCK",
+   "scene": null,
    "tarot_count": null,
-   "area": "LOV",
-   "love_status": "dating",
-   "love_topic": "breakup_consider",
-   "table": "continue",
-   "want": "which",
-   "mid": "LOV_BREAKUP",
-   "phrase": "연인과 현실 조건이 맞지 않아 계속 만날지에 대한 고민",
+   "area": "SELF",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "comfort",
+   "mid": "NONE",
+   "phrase": "남들보다 뒤처질까 봐 불안한 고민",
    "review": null,
-   "source": "v2.3.32 추가(CSO 2026-11-16 정합 분석 검수 의견, 검수 전)",
+   "source": "v2.3.35 추가(CSO 2026-11-16 세부 판정 의견, 검수 전)",
    "table_rule": {
-    "mode": "fixed",
-    "default": "continue",
+    "mode": "none",
+    "default": null,
     "allowed": [
-     "continue"
+     null
     ],
     "choose_by": null,
-    "basis": "정답 예시 다수결(75/79)",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "SELF|none|NONE",
+   "frame": "F48"
+  },
+  "UF-BADLUCK": {
+   "group": "앞날·운세",
+   "name": "안 좋은 일이 계속 이어짐(겹침)",
+   "definition": "안 좋은 일이 연달아 겹쳐 생겨서 왜 그런지, 언제 끝날지 궁금함. 집·일·몸 어디서 생기든 하나로 묶음 (v3.2 CSO 11/18)",
+   "clue": "안 좋은 일이 계속 생겨요·일이 자꾸 꼬여요·왜 이렇게 안 풀리지·액운·뭐가 문제일까요",
+   "vs_neighbors": "특정한 일 없이 앞날이 불안하면 UF-ANXIOUS · 가족과의 사이가 힘들면 FM-FAMILY · 여러 고민을 늘어놓으면 UF-ALL (v3.2)",
+   "scene": "bad_streak",
+   "tarot_count": 5,
+   "area": "FORT",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "comfort",
+   "mid": "NONE",
+   "phrase": "안 좋은 일이 계속 겹치는 고민",
+   "review": null,
+   "source": "v3.2 CSO 11/18",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(32/32)",
     "gold": {
-     "continue": 75,
+     "None": 32
+    }
+   },
+   "result_key": "FORT|none|NONE",
+   "frame": "F49"
+  },
+  "WK-FORGOAL": {
+   "group": "이직·퇴사",
+   "name": "다른 목표(시험·공부·준비)를 위해 그만둘지",
+   "definition": "지금 일을 그만두고 시험·공부·포트폴리오·유학·창업 같은 다른 목표에 집중할지를 고민함. 그만두는 이유가 힘듦이 아니라 하고 싶은 다음 목표",
+   "clue": "관두고 공무원 시험 볼까·그만두고 공부에 집중할까·알바 그만두고 포폴 준비·퇴사하고 유학·대학원 가려고",
+   "vs_neighbors": "지금 일이 힘들어 벗어나고 싶은 도피성 퇴사는 WK-QUIT · 다니면서 이직 공부를 시작할지는 WK-PREP · 이미 그만두기로 했고 시기만 물으면 WK-WHEN (v3.3)",
+   "scene": "job_change",
+   "tarot_count": 30,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "다른 목표를 위해 그만둘지 고민",
+   "review": null,
+   "source": "v3.3 CSO 11/18",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(58/59)",
+    "gold": {
+     "job": 58,
+     "boundary": 1
+    }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
+  },
+  "WK-REST": {
+   "group": "이직·퇴사",
+   "name": "쉬어 갈지(휴직·쉼)",
+   "definition": "그만두거나 휴직하고 한동안 쉬어 갈지를 고민함. 쉼이 필요하다는 말이 중심",
+   "clue": "좀 쉬고 싶어요·쉬어도 될까요·휴직할까·몇 달 쉬었다가·쉼이 필요해요",
+   "vs_neighbors": "쉬고 나서 생활비·재취업이 걱정이면 WK-AFTER 2순위 · 쉬고 싶다는 말 없이 그만둘지만 물으면 WK-QUIT · 육아휴직 뒤 복직 고민은 이 세부 아님 · 이미 퇴사를 정했고 언제 쉴지면 WK-WHEN (v3.3)",
+   "scene": "job_change",
+   "tarot_count": 7,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "쉬어 갈지 고민",
+   "review": null,
+   "source": "v3.3 CSO 11/18",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "None": 1,
+     "job": 31,
+     "start": 3
+    }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
+  },
+  "WK-SHOULD": {
+   "group": "이직·퇴사",
+   "name": "이직해야 할지·해도 될지(결정)",
+   "definition": "남는 쪽 이야기 없이 '이직해야 할까·해도 될까·하는 게 맞을까'처럼 이직 결정을 물음. 이직이 될지·언제 될지(결과)는 WK-MOVE",
+   "clue": "이직해야 할까요·이직해도 될까요·이직하는 게 맞을까요·옳은 선택일까요",
+   "vs_neighbors": "'이직이 될까·언제 될까'는 WK-MOVE · 남을지 옮길지를 견주면 WK-STAY · 받은 제안을 받아들일지는 WK-OFFER (v3.3)",
+   "scene": "job_change",
+   "tarot_count": 21,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "이직해야 할지 고민",
+   "review": null,
+   "source": "v3.3 CSO 11/18",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(56/57)",
+    "gold": {
+     "job": 56,
+     "start": 1
+    }
+   },
+   "revised": "v2.3.13 (직장·취업 측정 50건 검토, Claude 제안 · CSO 검수 전)",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22"
+  },
+  "WK-PASSED": {
+   "group": "이직·퇴사",
+   "name": "옮기려고 준비해 붙은 곳이 있는데, 정말 갈지",
+   "definition": "옮기려고 준비해 붙은 곳이 있는데, 정말 갈지",
+   "clue": "붙긴 했는데 연봉이·조건이 생각보다 낮아요 · 막상 가려니 무서워요·가서 잘할 수 있을지 · 회사에 말을 어떻게 꺼내죠·미안해서 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "바란 적 없이 들어온 제안 → WK-OFFER / 아직 결과 전 → JB-WAIT · 이 상황이 분명하지 않으면 WK-OFFER",
+   "scene": "job_offer_decide",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "붙은 곳으로 갈지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/29)",
+    "gold": {
+     "job": 28,
+     "start": 1
+    }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22",
+   "draft": true,
+   "parent": "WK-OFFER",
+   "revised": "v3.5"
+  },
+  "WK-NEGO": {
+   "group": "이직·퇴사",
+   "name": "회사가 조건을 올려 주면 남을지(답을 기다리는 중)",
+   "definition": "회사가 조건을 올려 주면 남을지(답을 기다리는 중)",
+   "clue": "맞춰 준다더니 답이 없어요·기다리는 중 · 올려 줘도 이미 마음이 떠났어요·돈 문제가 아니라 · 말뿐일까·믿어도 될까·나중에 불이익이 있을까 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "붙잡는 말 없이 돈이 적어 옮기려 함 → WK-PAY / 다른 회사 제안과 견줌 → WK-OFFER · 이 상황이 분명하지 않으면 WK-STAY",
+   "scene": "job_change",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "which",
+   "mid": "CAR",
+   "phrase": "회사가 조건을 올려 주면 남을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(56/57)",
+    "gold": {
+     "job": 56,
+     "start": 1
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22",
+   "draft": true,
+   "parent": "WK-STAY"
+  },
+  "WK-SINK": {
+   "group": "이직·퇴사",
+   "name": "회사 사정이 기울어서 먼저 나가야 할지",
+   "definition": "회사 사정이 기울어서 먼저 나가야 할지",
+   "clue": "월급이 밀려요·일감이 줄어요·사람들이 나가요 · 버티면 위로금·퇴직금을 받을 수 있어서 · 나갈 곳이 아직 없어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "나갈지를 묻지 않고 불안만 말함 → WK-SECURE / 이미 문 닫는 날이 정해짐 → WK-EXPIRE(초안) · 이 상황이 분명하지 않으면 WK-SECURE",
+   "scene": "job_insecure",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR_INSECURE",
+   "phrase": "먼저 나가야 할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
      "None": 2,
-     "boundary": 1,
+     "job": 22,
+     "start": 2
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR_INSECURE",
+   "frame": "F23",
+   "draft": true,
+   "parent": "WK-SECURE"
+  },
+  "WK-IMPULSE": {
+   "group": "이직·퇴사",
+   "name": "홧김에 그만두겠다고 했는데 그다음이 없음",
+   "definition": "홧김에 그만두겠다고 했는데 그다음이 없음",
+   "clue": "홧김에·욱해서 말해 버렸어요·물릴 수 있을까요 · 계획이 없어요·쉬면서 뭘 하죠 · 주변에 뭐라고 말하죠·생각 없다고 볼까 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "계획하고 통보함 → WK-EXIT / 아직 말 안 함 → WK-QUIT · 이 상황이 분명하지 않으면 WK-AFTER",
+   "scene": "job_change",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "그만둔다고 한 뒤 어떻게 할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "None": 1,
+     "job": 31,
+     "start": 3
+    }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22",
+   "draft": true,
+   "parent": "WK-AFTER",
+   "revised": "v3.5"
+  },
+  "WK-QUITOPEN": {
+   "group": "이직·퇴사",
+   "name": "그만두기로 했고 다음을 이것저것 떠올리는 중(큰 방향은 없음)",
+   "definition": "그만두기로 했고 다음을 이것저것 떠올리는 중(큰 방향은 없음)",
+   "clue": "이것저것 떠올려 봐도 끌리는 게 없어요 · 하고 싶은 건 돈이 안 돼요·할 수 있는 건 하기 싫어요 · 얼마나 쉬어도 될까요·공백이 길어지면 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "한 가지 목표가 있음 → WK-FORGOAL / 아직 그만둘지 못 정함 → WK-QUIT · 이 상황이 분명하지 않으면 WK-WHEN",
+   "scene": "job_change",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "when",
+   "mid": "CAR",
+   "phrase": "그만둔 뒤 무엇을 할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(42/42)",
+    "gold": {
+     "job": 42
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22",
+   "draft": true,
+   "parent": "WK-WHEN"
+  },
+  "WK-QUITLAND": {
+   "group": "이직·퇴사",
+   "name": "그만두기로 했는데 바란 적 없는 자리가 들어옴",
+   "definition": "그만두기로 했는데 바란 적 없는 자리가 들어옴",
+   "clue": "급해서 덥석 잡는 건 아닌지 · 쉬고 싶었는데 놓치면 아까워서 · 그 일이 저한테 맞는지 모르겠어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "아직 다니는 중에 받은 제안 → WK-OFFER · 이 상황이 분명하지 않으면 WK-OFFER",
+   "scene": "job_offer_decide",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "들어온 자리를 받을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(28/29)",
+    "gold": {
+     "job": 28,
+     "start": 1
+    }
+   },
+   "result_key": "CAR|job|CAR",
+   "frame": "F22",
+   "draft": true,
+   "parent": "WK-OFFER",
+   "revised": "v3.5"
+  },
+  "WK-RELEASE": {
+   "group": "이직·퇴사",
+   "name": "그만두겠다고 했는데 회사가 놓아주지 않음",
+   "definition": "그만두겠다고 했는데 회사가 놓아주지 않음",
+   "clue": "후임이 없다고·날짜를 계속 미뤄요 · 붙잡으니까 흔들려요·필요하다고 해서 · 나쁘게 끝날까 봐·평판이 걱정 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "회사가 조건을 올려 붙잡음 → WK-NEGO(초안) / 인수인계·면담이 걱정 → WK-EXIT · 이 상황이 분명하지 않으면 WK-EXIT",
+   "scene": "job_change",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "how",
+   "mid": "CAR",
+   "phrase": "언제 나갈 수 있을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(42/42)",
+    "gold": {
+     "job": 42
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR",
+   "frame": "F22",
+   "draft": true,
+   "parent": "WK-EXIT"
+  },
+  "WK-JOINWAIT": {
+   "group": "이직·퇴사",
+   "name": "옮길 곳은 정해졌는데 그쪽 확정(날짜·처우)을 기다림",
+   "definition": "옮길 곳은 정해졌는데 그쪽 확정(날짜·처우)을 기다림",
+   "clue": "처우 안내가 늦어요·연락이 없어요(합격 뒤) · 입사일이 밀렸어요·붕 떴어요 · 구두로만 들었어요·서류를 못 받았어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "합격 전 → JB-WAIT / 갈지를 못 정함 → WK-PASSED(초안) · 이 상황이 분명하지 않으면 WK-MOVE",
+   "scene": "job_change",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "when",
+   "mid": "CAR_MOVE",
+   "phrase": "옮길 곳의 확정이 언제 날지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(70/72)",
+    "gold": {
+     "job": 70,
+     "start": 2
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR_MOVE",
+   "dedicated": true,
+   "frame": "F24",
+   "draft": true,
+   "parent": "WK-MOVE"
+  },
+  "WK-LETGO": {
+   "group": "이직·퇴사",
+   "name": "회사가 내보내기로 해서, 다음을 떠올리는 중",
+   "definition": "회사가 내보내기로 해서, 다음을 떠올리는 중",
+   "clue": "갑자기 통보받아서·뭐부터 해야 할지 · 내가 못해서 그런 건가 싶어요 · 위로금·조건을 받아들여야 할지 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "아직 소문·불안 → WK-SECURE / 계약 만료 → WK-EXPIRE(초안) · 이 상황이 분명하지 않으면 WK-SECURE",
+   "scene": "job_insecure",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR_INSECURE",
+   "phrase": "나온 뒤 어디로 갈지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 2,
+     "job": 22,
+     "start": 2
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR_INSECURE",
+   "frame": "F23",
+   "draft": true,
+   "parent": "WK-SECURE"
+  },
+  "WK-REASSIGN": {
+   "group": "이직·퇴사",
+   "name": "회사가 정한 이동·배치를 통보받음",
+   "definition": "회사가 정한 이동·배치를 통보받음",
+   "clue": "원하지 않는 부서·하기 싫은 업무를 맡으래요 · 싫다고 하면 불이익·찍힐까 봐 · 가서 버틸 수 있을지·처음부터 다시 배워야 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "내가 바라서 옮기려 함 → WK-DEPT / 그래서 그만둘지 → WK-QUIT · 이 상황이 분명하지 않으면 WK-DEPT",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR",
+   "phrase": "정해진 이동을 받아들일지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "CAR|job|CAR",
+   "frame": "F22",
+   "draft": true,
+   "parent": "WK-DEPT",
+   "revised": "v3.5"
+  },
+  "WK-EXPIRE": {
+   "group": "이직·퇴사",
+   "name": "계약 만료·폐업으로 떠나게 됨",
+   "definition": "계약 만료·폐업으로 떠나게 됨",
+   "clue": "연장될 줄 알았는데 안 된대요 · 다음 자리를 구할 시간이 모자라요 · 경력이 끊길까·짧은 이력이 흠이 될까 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "연장·전환 결과를 기다림 → WK-SECURE / 다음 취업 시기만 물음 → JB-WHEN · 이 상황이 분명하지 않으면 WK-SECURE",
+   "scene": "job_insecure",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR_INSECURE",
+   "phrase": "계약이 끝난 뒤 어떻게 될지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 2,
+     "job": 22,
+     "start": 2
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR_INSECURE",
+   "frame": "F23",
+   "draft": true,
+   "parent": "WK-SECURE"
+  },
+  "WK-INDUSTRY": {
+   "group": "이직·퇴사",
+   "name": "업계·경기가 나빠서 막연히 불안함",
+   "definition": "업계·경기가 나빠서 막연히 불안함",
+   "clue": "줄인다는 소식·다음은 나일까 · 내 일이 없어질 것 같아요·AI 때문에 · 나이 들면 갈 곳이 없을까 봐 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "우리 회사의 내 자리가 걱정 → WK-SECURE / 그래서 옮길지 → WK-SHOULD · 이 상황이 분명하지 않으면 WK-SECURE",
+   "scene": "job_insecure",
+   "tarot_count": 0,
+   "area": "CAR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "job",
+   "want": "yesno",
+   "mid": "CAR_INSECURE",
+   "phrase": "이 업계에 계속 있어도 될지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "job",
+    "allowed": [
+     "job"
+    ],
+    "choose_by": null,
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "None": 2,
+     "job": 22,
+     "start": 2
+    }
+   },
+   "revised": "v3.5",
+   "result_key": "CAR|job|CAR_INSECURE",
+   "frame": "F23",
+   "draft": true,
+   "parent": "WK-SECURE"
+  },
+  "CR-ASKED": {
+   "group": "짝사랑·썸",
+   "name": "좋아하던 사람이 먼저 다가왔는데 받을지 망설임",
+   "definition": "좋아하던 사람이 먼저 다가왔는데 받을지 망설임",
+   "clue": "막상 이루어지니 겁나요 · 진심일까·가볍게 한 말은 아닐까 · 사귀다 깨지면 지금 사이도 잃을까 봐 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "마음이 덜 가는 상대의 고백 → CR-TWO / 내가 고백할지 → CR-CONFESS · 이 상황이 분명하지 않으면 CR-TWO",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": null,
+   "want": "which",
+   "mid": "LOV_CRUSH",
+   "phrase": "그 사람의 마음을 받을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach",
+     "newlove"
+    ],
+    "choose_by": "두 사람 중 고르기면 표 없음(사용자가 쓴 선택지는 유지), 한 사람에게 다가갈지면 approach, 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 4,
+     "approach": 4,
+     "continue": 1,
+     "None": 12
+    }
+   },
+   "result_key": "LOV|none|LOV_CRUSH",
+   "frame": "F14",
+   "draft": true,
+   "parent": "CR-TWO",
+   "revised": "v3.5"
+  },
+  "CR-WHATWANT": {
+   "group": "짝사랑·썸",
+   "name": "어떻게 되고 싶은지 모르는 채로 다가갈지를 정해야 함",
+   "definition": "어떻게 되고 싶은지 모르는 채로 다가갈지를 정해야 함",
+   "clue": "외로워서 그런 건지 모르겠어요 · 친구로 남는 게 나을지 · 주변에서 잘 어울린다고 밀어 줘서 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "정할 것 없이 내 감정만 궁금 → CR-FEEL / 사귀고 싶은 마음은 분명 → CR-APPROACH · 이 상황이 분명하지 않으면 CR-FEEL",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "unknown",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "why",
+   "mid": "LOV_CRUSH",
+   "phrase": "다가갈지 말지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "approach",
+    "allowed": [
+     "approach",
+     null
+    ],
+    "choose_by": "대부분 approach(다가갈지·지켜볼지). 상대 이야기 없이 내 감정 정리만 물으면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "revised": "v3.5",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-FEEL"
+  },
+  "CR-ANSWERWAIT": {
+   "group": "짝사랑·썸",
+   "name": "마음을 전했고 답을 기다리는 중 — 더 기다릴지 접을지 떠올림",
+   "definition": "마음을 전했고 답을 기다리는 중 — 더 기다릴지 접을지 떠올림",
+   "clue": "고백했는데 답이 ○주째 없어요 · 재촉하면 싫어할까 봐 · 기다리다 지쳐요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "아직 고백 전 → CR-CONFESS / 거절당함 → CR-REJECTED(초안) · 이 상황이 분명하지 않으면 CR-WAIT",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "답이 언제 올지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-WAIT",
+   "revised": "v3.5"
+  },
+  "CR-WAITOTHER": {
+   "group": "짝사랑·썸",
+   "name": "답을 기다리는 사이에 다른 사람이 다가옴",
+   "definition": "답을 기다리는 사이에 다른 사람이 다가옴",
+   "clue": "기다리던 사람을 놓기 아까워요 · 다가온 사람에게 미안해요 · 누구 마음이 오래갈지 모르겠어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "기다리는 사람 없이 두 사람 사이 → CR-TWO · 이 상황이 분명하지 않으면 CR-TWO",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": null,
+   "want": "which",
+   "mid": "LOV_CRUSH",
+   "phrase": "누구 쪽으로 갈지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach",
+     "newlove"
+    ],
+    "choose_by": "두 사람 중 고르기면 표 없음(사용자가 쓴 선택지는 유지), 한 사람에게 다가갈지면 approach, 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 4,
+     "approach": 4,
+     "continue": 1,
+     "None": 12
+    }
+   },
+   "result_key": "LOV|none|LOV_CRUSH",
+   "frame": "F14",
+   "draft": true,
+   "parent": "CR-TWO",
+   "revised": "v3.5"
+  },
+  "CR-HOLD": {
+   "group": "짝사랑·썸",
+   "name": "상대가 시간을 달라고 했고, 그동안 나는 뭘 바라는지도 흐려짐",
+   "definition": "상대가 시간을 달라고 했고, 그동안 나는 뭘 바라는지도 흐려짐",
+   "clue": "시간을 달라는데 연락해도 되나요 · 돌려 말한 거절 같아요 · 기다리다 보니 내 마음도 식는 것 같아요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "바라는 것은 분명하고 답만 기다림 → CR-ANSWERWAIT(초안) · 이 상황이 분명하지 않으면 CR-WAIT",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "그 사람이 어떤 답을 줄지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-WAIT",
+   "revised": "v3.5"
+  },
+  "CR-BLOWHOT": {
+   "group": "짝사랑·썸",
+   "name": "상대가 다가왔다 멀어졌다 해서, 어떻게 할지 이것저것 떠올림",
+   "definition": "상대가 다가왔다 멀어졌다 해서, 어떻게 할지 이것저것 떠올림",
+   "clue": "어떤 날은 다정하고 어떤 날은 차가워요 · 나만 애쓰는 것 같아요 · 왜 그러냐고 물으면 깨질까 봐 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "반응이 줄어들기만 함 → CR-SIGNAL / 상대 마음만 궁금 → CR-MIND · 이 상황이 분명하지 않으면 CR-SIGNAL",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "their_mind",
+   "mid": "LOV_CRUSH",
+   "phrase": "그 사람 마음이 어느 쪽인지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(35/35)",
+    "gold": {
+     "approach": 35
+    }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-SIGNAL",
+   "revised": "v3.5"
+  },
+  "CR-FRIENDOFFER": {
+   "group": "짝사랑·썸",
+   "name": "상대가 친구로 지내자고 했는데, 받을지",
+   "definition": "상대가 친구로 지내자고 했는데, 받을지",
+   "clue": "친구로라도 곁에 있고 싶어요 · 친구로 지내면 더 힘들 것 같아요 · 싫다고 하면 아예 끊길까 봐 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "거절만 당함 → CR-REJECTED(초안) / 접을지 → CR-GIVEUP · 이 상황이 분명하지 않으면 CR-ENDED",
+   "scene": "crush_ended",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "reunion",
+   "table": "reunion",
+   "want": "yesno",
+   "mid": "LOV_CRUSH_ENDED",
+   "phrase": "친구로 지낼지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "reunion": 31,
+     "continue": 1,
+     "newlove": 2,
      "approach": 1
     }
    },
-   "result_key": "LOV|continue|LOV_BREAKUP",
-   "dedicated": true,
-   "frame": "F04"
+   "result_key": "LOV|reunion|LOV_CRUSH_ENDED",
+   "frame": "F19",
+   "draft": true,
+   "parent": "CR-ENDED",
+   "revised": "v3.5"
+  },
+  "CR-BEFORELEAVE": {
+   "group": "짝사랑·썸",
+   "name": "곧 떨어지게 되는데 그 전에 말할지",
+   "definition": "곧 떨어지게 되는데 그 전에 말할지",
+   "clue": "말하고 떠나면 어색하게 끝날까 봐 · 말 안 하면 후회할 것 같아요 · 떨어지면 어차피 못 이어 갈 것 같아요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "이미 떨어져 있음 → CR-DISTANCE / 날짜 없이 고백할지 → CR-CONFESS · 이 상황이 분명하지 않으면 CR-CONFESS",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "crush_progress",
+   "table": "express",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "가기 전에 말할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "express",
+    "allowed": [
+     "express",
+     "progress",
+     "approach"
+    ],
+    "choose_by": "말을 꺼낼지(고백) 자체면 express, 고백 뒤 사귀게 될지면 progress, 연락·다가가기면 approach",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "progress": 14,
+     "approach": 4,
+     "express": 25
+    }
+   },
+   "result_key": "LOV|express|LOV_CRUSH",
+   "frame": "F09",
+   "draft": true,
+   "parent": "CR-CONFESS",
+   "revised": "v3.5"
+  },
+  "CR-PICKWAY": {
+   "group": "짝사랑·썸",
+   "name": "말하기로 정했고, 떠올린 방법 가운데 고르는 중",
+   "definition": "말하기로 정했고, 떠올린 방법 가운데 고르는 중",
+   "clue": "만나서 할지 글로 할지·부담스러울까 · 때를 놓칠까 봐·언제가 좋을지 · 준비한 말이 어색할까 봐 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "방법을 전혀 모름 → CR-HOWTO / 말할지 못 정함 → CR-CONFESS · 이 상황이 분명하지 않으면 CR-HOWTO",
+   "scene": "dating_start",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "how",
+   "mid": "LOV_CRUSH",
+   "phrase": "어떻게 말할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/20)",
+    "gold": {
+     "approach": 20
+    }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-HOWTO",
+   "revised": "v3.5"
+  },
+  "CR-DATESET": {
+   "group": "짝사랑·썸",
+   "name": "다가가기로 정했고 만날 날이 잡혀 있음",
+   "definition": "다가가기로 정했고 만날 날이 잡혀 있음",
+   "clue": "그날 마음을 말해도 될까요 · 만나서 실망할까 봐 · 기대가 너무 커서 떨려요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "약속이 없음 → CR-APPROACH·CR-HOWTO · 이 상황이 분명하지 않으면 CR-HOWTO",
+   "scene": "dating_start",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "how",
+   "mid": "LOV_CRUSH",
+   "phrase": "그날이 잘될지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/20)",
+    "gold": {
+     "approach": 20
+    }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-HOWTO",
+   "revised": "v3.5"
+  },
+  "CR-SWEPT": {
+   "group": "짝사랑·썸",
+   "name": "얼떨결에 만나 보기로 했는데 내 마음을 모름",
+   "definition": "얼떨결에 만나 보기로 했는데 내 마음을 모름",
+   "clue": "거절을 못 해서 만나기로 했어요 · 만나다 보면 좋아질까 해서 · 이제 와서 무르기 미안해요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "아직 답 전 → CR-TWO / 내 마음만 궁금 → CR-FEEL · 이 상황이 분명하지 않으면 CR-FEEL",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "unknown",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "why",
+   "mid": "LOV_CRUSH",
+   "phrase": "이 만남을 이어 갈지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "approach",
+    "allowed": [
+     "approach",
+     null
+    ],
+    "choose_by": "대부분 approach(다가갈지·지켜볼지). 상대 이야기 없이 내 감정 정리만 물으면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "revised": "v3.5",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-FEEL"
+  },
+  "CR-PAUSE": {
+   "group": "짝사랑·썸",
+   "name": "일단 거리를 두기로 했고, 그 뒤는 이것저것 떠올림",
+   "definition": "일단 거리를 두기로 했고, 그 뒤는 이것저것 떠올림",
+   "clue": "아예 끊으면 후회할까 봐 · 보면 자꾸 흔들려요 · 다른 사람을 만나기에는 미안해요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "접을지 못 정함 → CR-GIVEUP / 완전히 끝남 → CR-ENDED · 이 상황이 분명하지 않으면 CR-GIVEUP",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "거리를 둔 뒤 어떻게 할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(30/34)",
+    "gold": {
+     "continue": 1,
+     "approach": 30,
+     "reunion": 2,
+     "progress": 1
+    }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-GIVEUP",
+   "revised": "v3.5"
+  },
+  "CR-SETTLE": {
+   "group": "짝사랑·썸",
+   "name": "나를 좋아해 주는 사람과 만나 보기로 했는데 마음은 다른 데 있음",
+   "definition": "나를 좋아해 주는 사람과 만나 보기로 했는데 마음은 다른 데 있음",
+   "clue": "좋아해 주는 사람이 편해서 · 다른 사람이 생각나서 미안해요 · 설레지 않는데 이대로 가도 되는지 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "아직 답 전 → CR-TWO · 이 상황이 분명하지 않으면 CR-TWO",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": null,
+   "want": "which",
+   "mid": "LOV_CRUSH",
+   "phrase": "이 사람과 만나도 될지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach",
+     "newlove"
+    ],
+    "choose_by": "두 사람 중 고르기면 표 없음(사용자가 쓴 선택지는 유지), 한 사람에게 다가갈지면 approach, 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 4,
+     "approach": 4,
+     "continue": 1,
+     "None": 12
+    }
+   },
+   "result_key": "LOV|none|LOV_CRUSH",
+   "frame": "F14",
+   "draft": true,
+   "parent": "CR-TWO",
+   "revised": "v3.5"
+  },
+  "CR-REJECTED": {
+   "group": "짝사랑·썸",
+   "name": "거절당했는데 마음이 그대로임",
+   "definition": "거절당했는데 마음이 그대로임",
+   "clue": "한 번 더 말해 볼까 싶어요 · 거절당했는데 계속 마주쳐야 해요 · 왜 안 됐는지 모르겠어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "썸이 흐지부지 끝남 → CR-ENDED / 답을 기다리는 중 → CR-ANSWERWAIT(초안) · 이 상황이 분명하지 않으면 CR-ENDED",
+   "scene": "crush_ended",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "reunion",
+   "table": "reunion",
+   "want": "yesno",
+   "mid": "LOV_CRUSH_ENDED",
+   "phrase": "이 마음을 접을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "reunion": 31,
+     "continue": 1,
+     "newlove": 2,
+     "approach": 1
+    }
+   },
+   "result_key": "LOV|reunion|LOV_CRUSH_ENDED",
+   "frame": "F19",
+   "draft": true,
+   "parent": "CR-ENDED",
+   "revised": "v3.5"
+  },
+  "CR-AFTERNO": {
+   "group": "짝사랑·썸",
+   "name": "거절당한 뒤 기다릴지·친구로 남을지·접을지 떠올리는 중",
+   "definition": "거절당한 뒤 기다릴지·친구로 남을지·접을지 떠올리는 중",
+   "clue": "시간이 지나면 달라질까요 · 친구로 남으면 기회가 있을까 · 들인 마음이 아까워요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "마음만 그대로이고 견주지 않음 → CR-REJECTED(초안) · 이 상황이 분명하지 않으면 CR-ENDED",
+   "scene": "crush_ended",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "reunion",
+   "table": "reunion",
+   "want": "yesno",
+   "mid": "LOV_CRUSH_ENDED",
+   "phrase": "기다릴지 접을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "reunion",
+    "allowed": [
+     "reunion"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(31/35)",
+    "gold": {
+     "reunion": 31,
+     "continue": 1,
+     "newlove": 2,
+     "approach": 1
+    }
+   },
+   "result_key": "LOV|reunion|LOV_CRUSH_ENDED",
+   "frame": "F19",
+   "draft": true,
+   "parent": "CR-ENDED",
+   "revised": "v3.5"
+  },
+  "CR-REBOUND": {
+   "group": "짝사랑·썸",
+   "name": "거절당했는데 다른 사람이 다가옴",
+   "definition": "거절당했는데 다른 사람이 다가옴",
+   "clue": "빈자리를 채우려는 건 아닌지 · 아직 마음이 남아 있어서 · 또 다칠까 봐 무서워요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "거절 전부터 두 사람 → CR-TWO · 이 상황이 분명하지 않으면 CR-TWO",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": null,
+   "want": "which",
+   "mid": "LOV_CRUSH",
+   "phrase": "다가온 사람을 받아도 될지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach",
+     "newlove"
+    ],
+    "choose_by": "두 사람 중 고르기면 표 없음(사용자가 쓴 선택지는 유지), 한 사람에게 다가갈지면 approach, 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 4,
+     "approach": 4,
+     "continue": 1,
+     "None": 12
+    }
+   },
+   "result_key": "LOV|none|LOV_CRUSH",
+   "frame": "F14",
+   "draft": true,
+   "parent": "CR-TWO",
+   "revised": "v3.5"
+  },
+  "CR-GHOSTED": {
+   "group": "짝사랑·썸",
+   "name": "상대가 연락을 끊어서, 어떻게 할지 떠올리는 중",
+   "definition": "상대가 연락을 끊어서, 어떻게 할지 떠올리는 중",
+   "clue": "갑자기 답이 끊겼어요·이유를 모르겠어요 · 한 번 더 연락해 볼까 고민돼요 · 기다리는 게 맞는지 모르겠어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "답이 줄어드는 중 → CR-SIGNAL / 내가 끊음 → CR-GIVEUP · 이 상황이 분명하지 않으면 CR-SIGNAL",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "their_mind",
+   "mid": "LOV_CRUSH",
+   "phrase": "다시 연락이 올지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(35/35)",
+    "gold": {
+     "approach": 35
+    }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-SIGNAL",
+   "revised": "v3.5"
+  },
+  "CR-PUSHED": {
+   "group": "짝사랑·썸",
+   "name": "상대가 사귀자고 밀어붙이는데 나는 마음을 모름",
+   "definition": "상대가 사귀자고 밀어붙이는데 나는 마음을 모름",
+   "clue": "속도가 너무 빨라요 · 싫다고 하기가 어려워요 · 좋은 사람인데 끌리지 않아요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "상대가 좋아하는데 나는 마음이 없음(정할 것 없음) → CR-UNWANTED(초안) / 이미 답함 → CR-SWEPT(초안) · 이 상황이 분명하지 않으면 CR-TWO",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": null,
+   "want": "which",
+   "mid": "LOV_CRUSH",
+   "phrase": "사귀자는 말을 받을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach",
+     "newlove"
+    ],
+    "choose_by": "두 사람 중 고르기면 표 없음(사용자가 쓴 선택지는 유지), 한 사람에게 다가갈지면 approach, 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 4,
+     "approach": 4,
+     "continue": 1,
+     "None": 12
+    }
+   },
+   "result_key": "LOV|none|LOV_CRUSH",
+   "frame": "F14",
+   "draft": true,
+   "parent": "CR-TWO",
+   "revised": "v3.5"
+  },
+  "CR-DRIFT": {
+   "group": "짝사랑·썸",
+   "name": "이사·졸업·퇴사로 자연히 멀어짐",
+   "definition": "이사·졸업·퇴사로 자연히 멀어짐",
+   "clue": "말 한마디 못 하고 멀어졌어요 · 이제 연락할 까닭이 없어요 · 나만 못 잊는 것 같아요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "아직 연락이 닿고 이어 가려 함 → CR-DISTANCE / 떠나기 전 → CR-BEFORELEAVE(초안) · 이 상황이 분명하지 않으면 CR-DISTANCE",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "distance",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "다시 이어질 수 있을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(17/20)",
+    "gold": {
+     "continue": 1,
+     "approach": 17,
+     "progress": 2
+    }
+   },
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-DISTANCE",
+   "revised": "v3.5"
+  },
+  "CR-FULL": {
+   "group": "짝사랑·썸",
+   "name": "좋아하는 마음이 너무 커서 일상이 흔들림",
+   "definition": "좋아하는 마음이 너무 커서 일상이 흔들림",
+   "clue": "하루 종일 생각나서 일이 안 돼요 · 연락 하나에 기분이 오르내려요 · 내가 너무 매달리는 것 같아요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "상대 마음을 물음 → CR-MIND / 접을지 → CR-GIVEUP · 이 상황이 분명하지 않으면 CR-FEEL",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "unknown",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "why",
+   "mid": "LOV_CRUSH",
+   "phrase": "이 마음을 어떻게 할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": "approach",
+    "allowed": [
+     "approach",
+     null
+    ],
+    "choose_by": "대부분 approach(다가갈지·지켜볼지). 상대 이야기 없이 내 감정 정리만 물으면 표 없음",
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "revised": "v3.5",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-FEEL"
+  },
+  "CR-UNWANTED": {
+   "group": "짝사랑·썸",
+   "name": "상대가 나를 좋아하는 것 같은데 나는 마음이 없어 부담됨",
+   "definition": "상대가 나를 좋아하는 것 같은데 나는 마음이 없어 부담됨",
+   "clue": "거절하면 상처받을까 봐 · 사이가 어색해질까 봐 · 내가 여지를 줬나 싶어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "마음이 조금은 가서 사귈지 고민 → CR-TWO / 상대가 밀어붙임 → CR-PUSHED(초안) · 이 상황이 분명하지 않으면 CR-TWO",
+   "scene": "crush_unsure",
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "some",
+   "love_topic": "crush_progress",
+   "table": null,
+   "want": "which",
+   "mid": "LOV_CRUSH",
+   "phrase": "어떻게 거절할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "choose",
+    "default": null,
+    "allowed": [
+     null,
+     "approach",
+     "newlove"
+    ],
+    "choose_by": "두 사람 중 고르기면 표 없음(사용자가 쓴 선택지는 유지), 한 사람에게 다가갈지면 approach, 새 사람을 만날지면 newlove",
+    "basis": "기준 정함(정답 예시가 갈림)",
+    "gold": {
+     "newlove": 4,
+     "approach": 4,
+     "continue": 1,
+     "None": 12
+    }
+   },
+   "result_key": "LOV|none|LOV_CRUSH",
+   "frame": "F14",
+   "draft": true,
+   "parent": "CR-TWO",
+   "revised": "v3.5"
+  },
+  "CR-PASSING": {
+   "group": "짝사랑·썸",
+   "name": "스쳐 간 사람이 계속 생각남(다시 볼 길이 없음)",
+   "definition": "스쳐 간 사람이 계속 생각남(다시 볼 길이 없음)",
+   "clue": "그때 말을 못 건 게 아쉬워요 · 요즘 설렐 일이 없어서 더 생각나요 · 다시 마주칠 수 있을까요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "다시 볼 수 있는 사이 → CR-ONEWAY / 인연이 언제 올지 → LV-WHEN · 이 상황이 분명하지 않으면 CR-LATE",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "LOV",
+   "love_status": "crush",
+   "love_topic": "crush_progress",
+   "table": "approach",
+   "want": "yesno",
+   "mid": "LOV_CRUSH",
+   "phrase": "그 사람을 다시 볼 수 있을지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "approach",
+    "allowed": [
+     "approach"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "LOV|approach|LOV_CRUSH",
+   "frame": "F01",
+   "draft": true,
+   "parent": "CR-LATE",
+   "revised": "v3.5"
+  },
+  "FM-KID": {
+   "group": "가족·출산",
+   "name": "아이의 일이 잘되길 바람",
+   "definition": "아이(자녀)의 시험·진로·생활이 잘되길 바라는 고민 — CSO 11-20: 가족의 일과 아이의 일은 별개라 나눔",
+   "clue": "우리 아이·아들이·딸이 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "부모·형제 등 다른 가족의 일이면 FM-FOR · 아이의 자립이 아니라 본인의 독립이면 LF-MOVE · 이 상황이 분명하지 않으면 FM-FOR",
+   "scene": "—",
+   "tarot_count": 0,
+   "area": "FAM",
+   "love_status": null,
+   "love_topic": null,
+   "table": null,
+   "want": "yesno",
+   "mid": "FAM",
+   "phrase": "아이 일이 잘될지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "none",
+    "default": null,
+    "allowed": [
+     null
+    ],
+    "choose_by": null,
+    "basis": "정답 예시 다수결(20/21)",
+    "gold": {
+     "express": 1,
+     "None": 20
+    }
+   },
+   "result_key": "FAM|none|FAM",
+   "frame": "F42",
+   "draft": true,
+   "parent": "FM-FOR",
+   "revised": "v3.5"
+  },
+  "PR-REFUSE": {
+   "group": "인간관계",
+   "name": "거절하기 어려움",
+   "definition": "싫다는 말·거절을 못 하는 고민 — 거절하는 법을 모르거나, 소심하거나, 상대가 상처받을까 걱정하는 것(CSO 11-20: PR-BOUNDARY에서 나눔)",
+   "clue": "거절 못 해·호구·부탁을 못 끊어요 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "맞서고 싶은데 참는 것이면 PR-BOUNDARY · 연인 사이면 RL-BALANCE · 이 상황이 분명하지 않으면 PR-BOUNDARY",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "SOC",
+   "love_status": null,
+   "love_topic": null,
+   "table": "boundary",
+   "want": "which",
+   "mid": "SOC",
+   "phrase": "어떻게 거절할지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "boundary",
+    "allowed": [
+     "boundary"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(Claude 제안)",
+    "gold": {}
+   },
+   "needs_cso": false,
+   "result_key": "SOC|boundary|SOC",
+   "frame": "F45",
+   "draft": true,
+   "parent": "PR-BOUNDARY",
+   "revised": "v3.5"
+  },
+  "SB-GIG": {
+   "group": "사업·창작",
+   "name": "맡은 일·계약(프리랜서·프로젝트)이 잘될지",
+   "definition": "프리랜서 일감·계약·프로젝트처럼 시작과 끝이 정해진, 실체가 있는 일이 잘될지(CSO 11-21: SB-FLOW에서 나눔)",
+   "clue": "프리랜서·외주·계약·의뢰인·프로젝트·일감 · [초안 세부 — 이 상황이 글에 분명히 적혀 있을 때만]",
+   "vs_neighbors": "막연히 잘 풀릴지만 물으면 SB-FLOW · 가게·매출이면 SB-RUN · 회사 일이면 WK-PERFORM · 이 상황이 분명하지 않으면 SB-FLOW",
+   "scene": null,
+   "tarot_count": 0,
+   "area": "DIR",
+   "love_status": null,
+   "love_topic": null,
+   "table": "start",
+   "want": "yesno",
+   "mid": "BIZ",
+   "phrase": "맡은 일이 잘될지 고민",
+   "review": null,
+   "source": "v3.5 초안 세부(쏘웰라 판정 기준 v1.6 · 간소 운영) — 틀·묶음·점수표는 parent 세부에서 물려받음(Claude가 짝지음, 확인 전)",
+   "table_rule": {
+    "mode": "fixed",
+    "default": "start",
+    "allowed": [
+     "start"
+    ],
+    "choose_by": null,
+    "basis": "새 세부(SB-RUN과 같은 틀)",
+    "gold": {}
+   },
+   "result_key": "DIR|start|BIZ",
+   "frame": "F36",
+   "draft": true,
+   "parent": "SB-FLOW",
+   "revised": "v3.5"
   }
  },
  "frames": {
@@ -5122,7 +6608,19 @@
     "CR-FEEL",
     "CR-WAIT",
     "CR-LATE",
-    "CR-TAKEN"
+    "CR-TAKEN",
+    "CR-WHATWANT",
+    "CR-ANSWERWAIT",
+    "CR-HOLD",
+    "CR-BLOWHOT",
+    "CR-PICKWAY",
+    "CR-DATESET",
+    "CR-SWEPT",
+    "CR-PAUSE",
+    "CR-GHOSTED",
+    "CR-DRIFT",
+    "CR-FULL",
+    "CR-PASSING"
    ],
    "rep": "CR-APPROACH"
   },
@@ -5220,7 +6718,8 @@
    "table": "express",
    "mid": "LOV_CRUSH",
    "subs": [
-    "CR-CONFESS"
+    "CR-CONFESS",
+    "CR-BEFORELEAVE"
    ],
    "rep": "CR-CONFESS"
   },
@@ -5286,7 +6785,13 @@
    "table": null,
    "mid": "LOV_CRUSH",
    "subs": [
-    "CR-TWO"
+    "CR-TWO",
+    "CR-ASKED",
+    "CR-WAITOTHER",
+    "CR-SETTLE",
+    "CR-REBOUND",
+    "CR-PUSHED",
+    "CR-UNWANTED"
    ],
    "rep": "CR-TWO"
   },
@@ -5345,7 +6850,10 @@
    "table": "reunion",
    "mid": "LOV_CRUSH_ENDED",
    "subs": [
-    "CR-ENDED"
+    "CR-ENDED",
+    "CR-FRIENDOFFER",
+    "CR-REJECTED",
+    "CR-AFTERNO"
    ],
    "rep": "CR-ENDED"
   },
@@ -5396,7 +6904,17 @@
     "WK-NEWJOB",
     "WK-PAY",
     "WK-DEPT",
-    "WK-EXIT"
+    "WK-EXIT",
+    "WK-FORGOAL",
+    "WK-REST",
+    "WK-SHOULD",
+    "WK-PASSED",
+    "WK-NEGO",
+    "WK-IMPULSE",
+    "WK-QUITOPEN",
+    "WK-QUITLAND",
+    "WK-RELEASE",
+    "WK-REASSIGN"
    ],
    "rep": "WK-STAY"
   },
@@ -5407,7 +6925,11 @@
    "table": "job",
    "mid": "CAR_INSECURE",
    "subs": [
-    "WK-SECURE"
+    "WK-SECURE",
+    "WK-SINK",
+    "WK-LETGO",
+    "WK-EXPIRE",
+    "WK-INDUSTRY"
    ],
    "rep": "WK-SECURE"
   },
@@ -5418,7 +6940,8 @@
    "table": "job",
    "mid": "CAR_MOVE",
    "subs": [
-    "WK-MOVE"
+    "WK-MOVE",
+    "WK-JOINWAIT"
    ],
    "rep": "WK-MOVE"
   },
@@ -5569,7 +7092,8 @@
    "mid": "BIZ",
    "subs": [
     "SB-RUN",
-    "SB-FLOW"
+    "SB-FLOW",
+    "SB-GIG"
    ],
    "rep": "SB-RUN"
   },
@@ -5653,7 +7177,8 @@
    "mid": "FAM",
    "subs": [
     "FM-FOR",
-    "FM-CARE"
+    "FM-CARE",
+    "FM-KID"
    ],
    "rep": "FM-FOR"
   },
@@ -5688,7 +7213,8 @@
    "mid": "SOC",
    "subs": [
     "PR-CUT",
-    "PR-BOUNDARY"
+    "PR-BOUNDARY",
+    "PR-REFUSE"
    ],
    "rep": "PR-CUT"
   },
@@ -5743,7 +7269,8 @@
     "UF-YEAR",
     "UF-ANXIOUS",
     "ET-LUCK",
-    "UF-WISH"
+    "UF-WISH",
+    "UF-BADLUCK"
    ],
    "rep": "UF-ALL"
   },
@@ -5759,7 +7286,6 @@
    "rep": "ET-FAN"
   }
  },
- "package": "v3.0 (2026-11-16)",
  "retired": {
   "ED-SCHOOL": {
    "name": "학교생활·성적·계속 다닐지",
@@ -5767,5 +7293,6 @@
    "why": "CSO: “ed-school 따로 분류 하지 말고 기존 분류로 다 넘기자. 학교를 그만두고자 하는 사람은 거의 없어..”",
    "map": "휴학·자퇴·계속 다닐지 → PT-TWO / 과제·실습·졸업·졸작을 잘 마칠지 → SB-FLOW / 성적·학점·졸업 시험 → EX2-BEFORE(이미 봤으면 EX2-WAIT) / 공부 의지 → EX2-STUDY / 연구 → EX2-GRAD / 일이 몰려 벅참 → SF-TIRED / 남과 비교 → SF-BEHIND / 연구실 사람들 시선 → PR-MIND / 막연한 힘듦 → UF-ANXIOUS / 대학 생활 방향 → PT-WHAT / 수업 하나 그만 들을지 → ET-SMALL"
   }
- }
+ },
+ "package": "v3.0 (2026-11-16)"
 }
