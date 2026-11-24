@@ -40,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="ko" className={`${notoSansKr.variable} ${gowunBatang.variable} h-full antialiased`}>
       <body className="min-h-full">
         {children}
-        <Analytics />
+        <Analytics ads />
         <MetaPixel />
         <UtmCapture />
       </body>
