@@ -16,6 +16,8 @@ import { deepRead, deepEvent, type DeepRead } from "../tarot/deepRead.js";
 import { userAliases } from "./optionAlias.ts";
 import rlJson from "../../data/report_lines.json" with { type: "json" };
 import drJson from "../../data/deep_read.json" with { type: "json" };
+import sdbJson from "../../data/situation_lines.json" with { type: "json" };
+import bcJson from "../../data/branch_cards.json" with { type: "json" };
 import subDb from "../../data/worry_subtopics.json" with { type: "json" };
 import type { ExpandedPick } from "../tarot/types";
 
@@ -24,6 +26,8 @@ type Page = any;
 export type LinesCtx = {
   paid: boolean; frame: any | null; lean: any | null; picks: ExpandedPick[]; cls: any | null;
   safety: { level?: string | null; violence?: boolean } | null; worryText: string; tables: any; seed?: number;
+  // v3.7 과제 1 2안: C가 쓴 '글에서 짚는 한 줄'(검사 전 날것 — deepRead가 checkFreeLine으로 거름)
+  freeLines?: { p1?: string; p2?: string } | null;
 };
 const RL = rlJson as any;
 const DR = drJson as any;
@@ -54,7 +58,7 @@ const variantOf = (subId: string | null | undefined, frame: any, safety: LinesCt
   areaVariant(subId ?? null, { confidence: frame?.confidence ?? "high", safety: safetyLevel(safety) }, RL);
 
 /** v2.3.29~v3.1 앞단 강조·기저 생각(패키지 deepRead). 세부가 없거나·확신이 낮거나·안전 표시가 있으면 level 0(아무것도 안 붙임). */
-export function deepOf(ctx: Pick<LinesCtx, "frame" | "picks" | "safety" | "worryText">): DeepRead | null {
+export function deepOf(ctx: Pick<LinesCtx, "frame" | "picks" | "safety" | "worryText" | "freeLines">): DeepRead | null {
   const f = ctx.frame;
   if (!f?.sub_id) return null;
   const variant = variantOf(f.sub_id, f, ctx.safety);
@@ -62,7 +66,9 @@ export function deepOf(ctx: Pick<LinesCtx, "frame" | "picks" | "safety" | "worry
   const sub2 = typeof f.sub2 === "string" && f.sub2 && f.sub2 !== f.sub_id && SUBS[f.sub2] ? f.sub2 : null;
   const variant2 = sub2 ? variantOf(sub2, f, ctx.safety) : null;
   return deepRead(
-    { text: ctx.worryText, variant, subId: f.sub_id, variant2, cards: { now: cardKey(ctx.picks[0]), hold: cardKey(ctx.picks[1]) }, safety: safetyLevel(ctx.safety), confidence: f.confidence ?? "high", branches: Array.isArray((f as { branches?: unknown }).branches) ? ((f as { branches?: unknown[] }).branches as unknown[]).filter((x): x is string => typeof x === "string") : [] },
+    { text: ctx.worryText, variant, subId: f.sub_id, variant2, cards: { now: cardKey(ctx.picks[0]), hold: cardKey(ctx.picks[1]) }, safety: safetyLevel(ctx.safety), confidence: f.confidence ?? "high", branches: Array.isArray((f as { branches?: unknown }).branches) ? ((f as { branches?: unknown[] }).branches as unknown[]).filter((x): x is string => typeof x === "string") : [],
+      // v3.7 과제 1: A2 v4.29 facts(글 속 사정) → 1·3쪽 사정 줄, C free_lines → 1·2쪽 AI 한 줄. v3.8 과제 2: 갈래 × 카드(데이터 enabled=false면 v3.7과 같음)
+      facts: (f as { facts?: any }).facts ?? null, freeLines: ctx.freeLines ?? null, sdb: sdbJson, bc: bcJson },
     DR,
   );
 }
@@ -80,7 +86,8 @@ function applyScenes(pages: Page[], ctx: LinesCtx): Page[] {
     const key = cardKey(ctx.picks[p.page - 1]), pos = POS[p.page - 1];
     const strong = level >= 2 && variant !== "COMMON" ? RL.scene_strong?.[key]?.[variant]?.[pos] : null;
     const line = strong || (variant !== "COMMON" ? RL.scene[key]?.[variant]?.[pos] : null);
-    const extra = p.page === 1 ? deep?.page1_tail : deep?.page2_thought;
+    // 2쪽: 카드 문장 뒤에 AI 한 줄(page2_free, 41자 이상 글·검사 통과만) → 기저 생각(v3.7 순서)
+    const extra = p.page === 1 ? deep?.page1_tail : [deep?.page2_free, deep?.page2_thought].filter(Boolean).join(" ");
     if (!line && !extra) return p;
     const chunks = String(p.body).split(/\n\s*\n/);
     if (line) chunks[0] = replaceThirdSentence(chunks[0], line);
@@ -295,12 +302,12 @@ export function applyReportLines(pages: Page[], ctx: LinesCtx): Page[] {
 
 // v2.3.15 분석용 기록 칸(worry_type·card_pattern·area_variant) — 화면 조립과 같은 함수로 계산한다(owner 2026-11-15).
 // 저장하지 않고 관리자 엑셀을 만들 때 다시 계산(결정론적). lean이 없으면(방향 없음·카드 3장 전) 카드 모양은 null.
-export function analysisFields({ frame, lean, safety, picks = [], worryText = "" }: { frame: any | null; lean: any | null; safety?: LinesCtx["safety"]; picks?: ExpandedPick[]; worryText?: string }): {
+export function analysisFields({ frame, lean, safety, picks = [], worryText = "", freeLines = null }: { frame: any | null; lean: any | null; safety?: LinesCtx["safety"]; picks?: ExpandedPick[]; worryText?: string; freeLines?: LinesCtx["freeLines"] }): {
   worry_type: "OUTCOME" | "CHOICE" | "SITUATION"; card_pattern: string | null; area_variant: string;
   sub2: string | null; deep: ReturnType<typeof deepEvent> | null; sub_id: string | null; confidence: string | null;
 } {
   // v3.0 기록 칸: sub2 · deep_level · deep_signal · deep_thought_sub · deep_source(앞단 강조가 어떻게 나갔는지)
-  const deep = frame && picks.length >= 2 ? deepOf({ frame, picks, safety: safety ?? null, worryText }) : null;
+  const deep = frame && picks.length >= 2 ? deepOf({ frame, picks, safety: safety ?? null, worryText, freeLines }) : null;
   const scores = lean ? (lean.cards ?? []).map((c: any) => Number(c.score) || 0) : [];
   return {
     worry_type: typeOf(frame),

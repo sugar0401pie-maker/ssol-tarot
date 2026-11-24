@@ -37,10 +37,12 @@ export const EXPORT_HEADER = [
   "2순위 세부", "강조 세기", "강조 신호", "기저 생각 세부", "3쪽 줄",
   // v3.6(2026-11-23): 판별 확신 · 기저 생각 갈래(A2 branches → deepRead) · 갈래 출처(글에서 잡힘 text / 기본 default)
   "판별 확신", "기저 생각 갈래", "갈래 출처",
+  // v3.8 묶음(2026-11-24, v3.7 과제 1): 1쪽 덧줄 출처(카드/사정/AI 한 줄) · 쓴 사정 칸(how_long·who·bind·event) · 2쪽 AI 한 줄 붙음
+  "1쪽 덧줄 출처", "사정 칸", "2쪽 AI 한 줄",
   // 2026-11-14: 첫 방문 주소의 광고 소재(utm) — 비어 있으면 빈칸
   "utm_source", "utm_campaign", "utm_content",
 ];
-export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 9, 16, 18, 24, 9, 10, 14, 9, 8, 22, 18, 18, 18, 18];
+export const EXPORT_WIDTHS = [17, 38, 6, 12, 28, 12, 10, 60, 10, 10, 24, 11, 9, 10, 18, 17, 10, 6, 10, 24, 22, 12, 22, 9, 16, 18, 24, 9, 10, 14, 9, 8, 22, 18, 12, 18, 10, 18, 18, 18];
 
 const PROVIDER: Record<string, string> = { email: "이메일", kakao: "카카오", "custom:naver": "네이버", naver: "네이버", google: "구글", apple: "애플" };
 export function providerLabel(u: ExportUser | null | undefined, userId: string | null): string {
@@ -55,10 +57,11 @@ const SAFETY: Record<string, string> = { none: "보통", watch: "주의", urgent
 const RESULT: Record<string, string> = { ready: "결과 나옴", safety: "안전 안내", started: "고민 쓰기 전·중", drawing: "카드 뽑는 중", preparing: "결과 만드는 중" };
 const REPORT: Record<string, string> = { none: "", generating: "만드는 중", ready: "완성", failed: "실패" };
 
-export type ExportAnalysis = { worry_type: string; card_pattern: string | null; area_variant: string; sub2?: string | null; sub_id?: string | null; confidence?: string | null; deep?: { deep_level: number; deep_signal: string | null; deep_thought_sub: string | null; deep_source: string | null; deep_branches?: string[]; deep_branch_from?: string[] } | null } | null;
+export type ExportAnalysis = { worry_type: string; card_pattern: string | null; area_variant: string; sub2?: string | null; sub_id?: string | null; confidence?: string | null; deep?: { deep_level: number; deep_signal: string | null; deep_thought_sub: string | null; deep_source: string | null; deep_branches?: string[]; deep_branch_from?: string[]; deep_facts?: string[]; deep_p1_source?: string | null; deep_p2_free?: boolean } | null } | null;
 const WORRY_TYPE: Record<string, string> = { OUTCOME: "결과형", CHOICE: "선택형", SITUATION: "상황형" };
 const DEEP_LEVEL: Record<number, string> = { 0: "안 붙임", 1: "지금 정도", 2: "더 세게" };
-const DEEP_SOURCE: Record<string, string> = { second: "2순위", form: "묻는 꼴" };
+const DEEP_SOURCE: Record<string, string> = { second: "2순위", form: "묻는 꼴", fact: "사정 줄", low_confidence_thought: "확신 낮음(기저 생각만)" };
+const P1_SOURCE: Record<string, string> = { card: "카드 덧줄", fact: "사정 줄", free: "AI 한 줄" };
 const CARD_PATTERN: Record<string, string> = { ALL: "세 장 모두", TWO_KEY: "세 번째 + 한 장", TWO_NOKEY: "앞 두 장(세 번째 반대)", KEY_ALONE: "세 번째만", MIXED: "섞임" };
 
 export function exportRow(
@@ -111,6 +114,9 @@ export function exportRow(
     analysis?.confidence === "low" ? "낮음" : analysis?.confidence === "high" ? "높음" : "",
     (analysis?.deep?.deep_branches ?? []).join(", "),
     (analysis?.deep?.deep_branch_from ?? []).map((x) => (x === "text" ? "글" : x === "default" ? "기본" : x)).join(", "),
+    analysis?.deep?.deep_p1_source ? (P1_SOURCE[analysis.deep.deep_p1_source] ?? analysis.deep.deep_p1_source) : "",
+    (analysis?.deep?.deep_facts ?? []).join(", "),
+    analysis?.deep ? (analysis.deep.deep_p2_free ? "붙음" : "") : "",
     s.utm?.source ?? "",
     s.utm?.campaign ?? "",
     s.utm?.content ?? "",

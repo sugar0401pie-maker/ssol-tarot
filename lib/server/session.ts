@@ -46,7 +46,9 @@ import { GuestLimitError, checkGuestStart } from "./guestLimit";
 import { countEvent, countUtm } from "./counters";
 import { sanitizeUtm, type Utm } from "@/lib/tarot-glue/utm";
 import { MERGED_CLASSIFY_SYSTEM, mergedClassifyEnabled, splitMerged } from "./mergedClassify";
-import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
+import { CLASSIFY_SYSTEM, FRAME_SYSTEM, C_SYSTEM, C_FREE_ADDENDUM, D_SYSTEM, E1_SYSTEM, E2_SYSTEM, worryUserMessage } from "./prompts";
+import { pickFreeLines, isLongWorry, type FreeLines } from "@/lib/tarot-glue/freeLines";
+import situationLines from "@/data/situation_lines.json";
 import { CLASSIFY_SYSTEM_EN, FRAME_SYSTEM_EN, C_SYSTEM_EN, D_SYSTEM_EN, E1_SYSTEM_EN, E2_SYSTEM_EN } from "./prompts_en";
 
 // 쏠 타로 세션의 모든 서버 동작(마스터 스펙 7.7의 API 순서). DB는 service_role로만 다룬다.
@@ -561,11 +563,17 @@ async function prepareResultInner(sessionId: string) {
     const deadline = Date.now() + 12000;
     const parse = (raw: string) => pkg(locale).validate.parseC(raw, { decision, strength: lean?.strength ?? null, frame, lean, violence: s.violence || classificationLost });
     let best: ReturnType<typeof parse> | null = null;
+    // v3.7 과제 1 2안: 41자 이상 고민이면 C 지시문 끝에 덧붙임을 붙여 1·2쪽 '글에서 짚는 한 줄'(free_lines)도 함께 받는다(한국어만).
+    const longWorry = locale !== "en" && isLongWorry(s.worry_text, situationLines.free_line.min_chars);
+    const cSystem = longWorry ? `${promptsFor(locale).C}\n\n${C_FREE_ADDENDUM}` : promptsFor(locale).C;
+    let freeLines: FreeLines | null = null;
     for (let attempt = 0; attempt < 2 && userBlock; attempt++) {
       const left = deadline - Date.now();
       if (left < 2000) break;
       try {
-        const r = parse(await generateText(promptsFor(locale).C, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C", reasoningEffort: "low" }));
+        const raw = await generateText(cSystem, userBlock, { timeoutMs: left, maxOutputTokens: 2000, label: "C", reasoningEffort: "low" });
+        const r = parse(raw);
+        if (longWorry && !freeLines) freeLines = pickFreeLines(raw);
         // 걸린 칸만 비고 나머지는 쓴다(README_v4). 한 줄(links)까지 통과했으면 재시도하지 않음.
         if (!best || (r.links && !best.links)) best = r;
         if (r.errors.length) console.warn("C 검증 탈락 칸:", r.errors.length, "건");
@@ -578,7 +586,7 @@ async function prepareResultInner(sessionId: string) {
     if (best) {
       const { errors: _errors, ...rest } = best;
       void _errors;
-      links = rest;
+      links = freeLines ? { ...rest, free_lines: freeLines } : rest;
     }
   }
   await update(sessionId, { links, result_status: "ready" });
@@ -633,7 +641,7 @@ export function analysisFor(s: SessionRow): ReturnType<typeof analysisFields> | 
     const frame = prepareFrame(s.frame ?? null, cls, "ko", { level: s.safety_level, violence: s.violence });
     const picks = (s.picks ?? []).length === 3 ? expandPicks(s.picks, "ko") : [];
     const lean = picks.length === 3 ? decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null, locale: "ko" }).lean : null;
-    return analysisFields({ frame, lean, safety, picks, worryText: s.worry_text ?? "" });
+    return analysisFields({ frame, lean, safety, picks, worryText: s.worry_text ?? "", freeLines: (s.links as { free_lines?: FreeLines } | null)?.free_lines ?? null });
   } catch {
     return null;
   }

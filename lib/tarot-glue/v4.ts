@@ -186,14 +186,14 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
   const gisted = locale === "en" ? pages : applyCardGist(pages, lean, summaryTitle(locale), { hideSummary: false });
   const af = answerFirstFor({ frame, lean, picks, now: now ?? new Date(), locale });
   const ordered = reorderSecret(withAnswerFirst(gisted, af, frame), { paid: true, name, cls, frame, lean, picks, locale, wrote: Boolean(worryText?.trim()) });
-  return withLines(ordered, { paid: true, frame, lean, picks, cls, safety, worryText, locale });
+  return withLines(ordered, { paid: true, frame, lean, picks, cls, safety, worryText, locale, freeLines: C?.free_lines ?? null });
 }
 
 // v2.3.15~17 문장 DB(owner 2026-11-14 "3번 전부") — lib/tarot-glue/reportLines.ts. 영문판은 문장 DB가 없어 그대로.
-function withLines(pages: any[], a: { paid: boolean; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; cls: Cls | null; safety: Partial<Safety> | null; worryText: string; locale?: Locale }): any[] {
+function withLines(pages: any[], a: { paid: boolean; frame: Frame | null; lean: Lean | null; picks: ExpandedPick[]; cls: Cls | null; safety: Partial<Safety> | null; worryText: string; locale?: Locale; freeLines?: { p1?: string; p2?: string } | null }): any[] {
   if (a.locale === "en") return pages;
   const seed = a.picks.reduce((n, p) => n + p.card.no * 7 + (p.reversed ? 3 : 0), 0);
-  return applyReportLines(pages, { paid: a.paid, frame: a.frame, lean: a.lean, picks: a.picks, cls: a.cls, safety: a.safety ?? null, worryText: a.worryText || "", tables: bd(a.locale).tables, seed });
+  return applyReportLines(pages, { paid: a.paid, frame: a.frame, lean: a.lean, picks: a.picks, cls: a.cls, safety: a.safety ?? null, worryText: a.worryText || "", tables: bd(a.locale).tables, seed, freeLines: a.freeLines ?? null });
 }
 
 // 결과 쪽 순서 바꾸기 + 세 번째 카드 시크릿(owner 2026-11-02) — lib/tarot-glue/secretThird.ts
@@ -255,7 +255,7 @@ export function buildUnpaidPages({ name, cls, picks, safety, worryText, frame, l
     const blur = fromSet || p.blur;
     return blur ? { ...p, blur: personalizeBlur(String(blur), name, names, locale) } : p;
   });
-  return withLines(reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, locale, wrote: Boolean(worryText?.trim()) }), { paid: false, frame, lean, picks, cls, safety, worryText, locale });
+  return withLines(reorderSecret(personalized, { paid: false, name, cls, frame, lean, picks, locale, wrote: Boolean(worryText?.trim()) }), { paid: false, frame, lean, picks, cls, safety, worryText, locale, freeLines: C?.free_lines ?? null });
 }
 
 /** 블러 고정 예시 속 이름(민준님)과 예시 카드 이름 세 장(자리 순서)을 이 사람의 것으로. */
