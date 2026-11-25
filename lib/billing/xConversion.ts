@@ -4,9 +4,11 @@
 
 export const X_PIXEL_ID_DEFAULT = "rk3w9";
 
-/** 결제 완료 이벤트 ID(X 이벤트 관리자에서 만든 'tw-rk3w9-…'). 비밀값이 아니라 NEXT_PUBLIC으로 — 브라우저 픽셀과 서버가 같은 값을 쓴다. */
+/** 결제 완료 이벤트 ID — owner가 준 X 이벤트 코드의 'tw-rk3w9-rk7qr'(2026-11-25)를 기본값으로. 비밀값이 아니다.
+ *  Vercel 환경 변수 NEXT_PUBLIC_X_PURCHASE_EVENT_ID가 있으면 그 값이 우선. 브라우저 픽셀과 서버가 같은 값을 쓴다. */
+export const X_PURCHASE_EVENT_ID_DEFAULT = "tw-rk3w9-rk7qr";
 export function xPurchaseEventId(): string | null {
-  const v = (process.env.NEXT_PUBLIC_X_PURCHASE_EVENT_ID || "").trim();
+  const v = (process.env.NEXT_PUBLIC_X_PURCHASE_EVENT_ID || X_PURCHASE_EVENT_ID_DEFAULT).trim();
   return /^tw-[a-z0-9]+-[a-z0-9]+$/i.test(v) ? v : null;
 }
 
