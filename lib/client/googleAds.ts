@@ -20,3 +20,21 @@ export function adsPurchase(amount: number, orderId: string) {
     /* 광고 측정 실패는 서비스에 영향 없게 */
   }
 }
+
+// 결제 화면(990원 결제 상자)이 처음 보이는 순간의 구글 광고 전환(owner 2026-11-25, 한국어 사이트).
+// 사이트 전체가 아니라 결제 상자가 있는 쪽(4쪽 세 번째 카드·잠긴 쪽)으로 넘어간 순간에만 — 결과 화면은 주소가 쪽마다 바뀌어도
+// 페이지를 새로 열지 않으므로 ResultView가 그 순간에 직접 부른다. 결과 하나에 한 번만(새로고침·다시 넘김에도 다시 안 보냄).
+export const ADS_PAYWALL_SEND_TO = "AW-18592628933/RUJeCInuh78dEMWB1KFF";
+export function adsPaywallView(resultId: string) {
+  if (typeof window === "undefined" || !resultId) return;
+  const gtag = (window as unknown as { gtag?: Gtag }).gtag;
+  if (typeof gtag !== "function") return;
+  const k = `ssol_ads_paywall_${resultId}`;
+  try {
+    if (window.sessionStorage.getItem(k)) return;
+    window.sessionStorage.setItem(k, "1");
+  } catch {}
+  try {
+    gtag("event", "conversion", { send_to: ADS_PAYWALL_SEND_TO });
+  } catch {}
+}

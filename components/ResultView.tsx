@@ -1,6 +1,7 @@
 "use client";
 
 import { metaTrack } from "@/lib/client/metaPixel";
+import { adsPaywallView } from "@/lib/client/googleAds";
 import { startKakaoPay } from "@/lib/client/kakaopayStart";
 import { usePromo } from "@/lib/client/usePromo";
 import { PROMO_REPORT_PRICE, REPORT_LIST_PRICE, won, usd, REPORT_PRICE_USD } from "@/lib/billing/pricing";
@@ -222,6 +223,13 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
     // 처음 한 번만 — 이후에는 사용자가 넘긴 쪽을 따른다
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // 990원 결제 상자가 있는 쪽(4쪽 세 번째 카드 뒷면·5쪽 결론 잠금·잠긴 쪽)이 화면에 보이는 순간 구글 광고 전환(owner 2026-11-25, 한국어만).
+  // 모든 쪽이 한꺼번에 그려져 있어서 결제 상자가 그려지는 때가 아니라 그 쪽으로 넘어온 때(idx)를 본다. 결과 하나에 한 번(adsPaywallView).
+  useEffect(() => {
+    if (locale === "en" || r.paid) return;
+    const p = r.pages[idx];
+    if (p && ((p.secret && !p.card) || (p.page === 5 && p.free) || isLocked(p, r.paid))) adsPaywallView(id);
+  }, [idx, id, locale, r.paid, r.pages]);
   useEffect(() => {
     const path = L(`/result/${id}/${idx + 1}`);
     if (window.location.pathname !== path) window.history.replaceState(null, "", path);
