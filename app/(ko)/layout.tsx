@@ -4,6 +4,7 @@ import "../globals.css";
 import "../auth.css";
 import Analytics from "@/components/Analytics";
 import MetaPixel from "@/components/MetaPixel";
+import XPixel from "@/components/XPixel";
 import UtmCapture from "@/components/UtmCapture";
 import { OG_IMAGES } from "@/lib/seo/ogImage";
 
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <Analytics ads />
         <MetaPixel />
+        <XPixel />
         <UtmCapture />
       </body>
     </html>
