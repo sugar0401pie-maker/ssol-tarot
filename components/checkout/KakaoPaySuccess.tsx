@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, ApiError, loadKey } from "@/lib/client/api";
 import { metaTrack } from "@/lib/client/metaPixel";
 import { adsPurchase } from "@/lib/client/googleAds";
+import { xPurchase } from "@/lib/client/xPixel";
 import { Stars } from "../Cards";
 
 const clampPage = (v: string | null) => Math.min(11, Math.max(1, Number.parseInt(v ?? "4", 10) || 4));
@@ -34,7 +35,7 @@ export default function KakaoPaySuccess() {
     api<{ ok: boolean; sessionId: string; amount: number | null }>("/api/tarot/checkout/kakaopay/approve", { key: sid && /^[0-9a-f-]{36}$/i.test(sid) ? loadKey(sid) : null, body: { orderId, pgToken } })
       .then((d) => {
         // 메타 광고 성과 측정: 승인된 결제만, 주문 번호로 한 번만(토스 결제와 같은 이벤트)
-        if (d.amount) { metaTrack("Purchase", { value: d.amount, currency: "KRW", content_name: "tarot_full_report" }, orderId); adsPurchase(Number(d.amount), orderId); }
+        if (d.amount) { metaTrack("Purchase", { value: d.amount, currency: "KRW", content_name: "tarot_full_report" }, orderId); adsPurchase(Number(d.amount), orderId); xPurchase(Number(d.amount), orderId); }
         router.replace(`/result/${d.sessionId}/${page}?opened=1`);
       })
       .catch((e) => {

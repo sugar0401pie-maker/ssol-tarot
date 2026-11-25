@@ -902,7 +902,7 @@ export async function confirmPayment(userId: string | null, body: { paymentKey?:
   const now = await recordPaid(order, currency);
   // 영문(달러) 주문은 결제가 처음 완료될 때 한 번 주문 확인 이메일(08 §4) — 보내는 일은 라우트가 응답 뒤(after)에
   const orderEmail = currency === "USD" && order.user_id ? { orderId, userId: order.user_id, method, tossEmail, paidAt: new Date(now) } : null;
-  return { ok: true, sessionId: order.session_id, generate: true, orderEmail };
+  return { ok: true, sessionId: order.session_id, generate: true, orderEmail, paidOrder: { orderId, amount: toMajor(currency, order.amount), currency } };
 }
 
 // ── 카카오페이 직접 결제(owner 2026-11-18) ──────────────────────────────────────────────
@@ -1004,7 +1004,7 @@ export async function kakaopayApproveOrder(auth: { userId: string | null; key: s
     throw Object.assign(new TarotError(409, refunded ? "이미 결제한 결과라 이번 결제는 취소했어요." : CONFIRM_RETRY_MESSAGE), { sessionId: order.session_id });
   }
   await recordPaid(order, "KRW");
-  return { ok: true, sessionId: order.session_id, generate: true, amount: order.amount };
+  return { ok: true, sessionId: order.session_id, generate: true, amount: order.amount, paidOrder: { orderId: order.id, amount: order.amount, currency: "KRW" as const } };
 }
 
 /** 로그인 계정의 이메일(auth). user_metadata는 사용자가 바꿀 수 있어 쓰지 않는다(아스트로 getAccountEmail과 같은 규칙). */

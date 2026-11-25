@@ -1,6 +1,7 @@
 import { NextResponse, after } from "next/server";
 import { confirmPayment, generateReport, sendOrderEmailEn } from "@/lib/server/session";
 import { authFrom, fail, readJson } from "@/lib/server/http";
+import { sendXPurchase } from "@/lib/server/xCapi";
 
 // 토스 결제창에서 돌아온 값(paymentKey·orderId·amount)을 그대로 믿지 않는다:
 // ① 내 주문·처리 전·금액 일치 확인 → ② 시크릿 키로 토스에 승인 요청 → ③ 승인됐을 때만 결제 완료 처리.
@@ -16,6 +17,9 @@ export async function POST(req: Request) {
     // 영문(달러) 주문: 결제 직후 주문 확인 이메일 한 번(08 §4 — EU·UK 청약철회 포기 확인)
     const mail = "orderEmail" in r ? r.orderEmail : null;
     if (mail) after(() => sendOrderEmailEn(r.sessionId, mail));
+    // X 전환 API(owner 2026-11-25, 한국어 원화 결제만) — 처음 결제 완료될 때 한 번
+    const paid = "paidOrder" in r ? r.paidOrder : null;
+    if (paid && paid.currency === "KRW") after(() => sendXPurchase(req, { ...paid, currency: "KRW" }));
     return NextResponse.json({ ok: true, sessionId: r.sessionId });
   } catch (e) {
     return fail(e, req);
