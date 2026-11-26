@@ -208,11 +208,12 @@
 .tv4 .cday .ctie, .tv4 .cday .chow, .tv4 .cday .chome { color: var(--muted); font-size: 13px !important; }
 .tv4 .cday .cproof { font-size: 12.5px !important; color: #7a5a12; background: var(--cream); border-radius: 8px; padding: 4px 8px; }
 .tv4 .cnote { font-size: 12.5px; color: var(--muted); margin: 6px 0 0 !important; }
-.tv4 .schat { background: var(--night); border-radius: 18px; padding: 14px 12px; margin: 0 0 16px; display: flex; flex-direction: column; gap: 8px; }
-.tv4 .schat .sbub { max-width: 82%; border-radius: 16px; padding: 8px 12px; }
-.tv4 .schat .sbub p { margin: 0 !important; font-size: 13.5px; line-height: 1.55; word-break: keep-all; }
-.tv4 .schat .sbub.user { align-self: flex-end; background: var(--gold); color: var(--night); border-bottom-right-radius: 4px; }
-.tv4 .schat .sbub.sowella { align-self: flex-start; background: var(--moon); color: var(--ink); border-bottom-left-radius: 4px; }
-.tv4 .schat .sname { display: block; font-size: 11px; font-weight: 700; color: var(--line); margin-bottom: 2px; }
+/* 쏘웰라 채팅 화면과 같은 모양·색(owner 2026-11-26 캡처): 흰 바탕, 쏘웰라 = 연한 회청색 왼쪽, 사용자 = 남색 오른쪽 */
+.tv4 .schat { background: #fff; border-radius: 18px; padding: 16px 12px; margin: 14px 0 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 10px #00000012; }
+.tv4 .schat .sbub { max-width: 84%; border-radius: 22px; padding: 12px 16px; }
+.tv4 .schat .sbub p { margin: 0 !important; font-size: 14px; line-height: 1.65; word-break: keep-all; }
+.tv4 .schat .sbub.user { align-self: flex-end; background: #163a62; color: #fff; }
+.tv4 .schat .sbub.user p { color: #fff; }
+.tv4 .schat .sbub.sowella { align-self: flex-start; background: #e3e9f1; color: #1c2b3a; }
 .tv4 .lbanner { display: block; margin: 8px 0 6px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 14px #00000022; }
 .tv4 .lbanner img { display: block; width: 100%; height: auto; }

@@ -96,16 +96,13 @@ export function applyStored(ch: Challenge, stored: any): Challenge {
 const hashOf = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
 export type SowellaChat = { from: "user" | "sowella"; text: string }[];
-/** 10쪽 맨 위 대화 그림: 사용자 고민 한 줄 → 쏘웰라가 챌린지를 물음 → 사용자 답(owner 문구 3개 중 1개). */
+/** 10쪽 대화 그림(owner 2026-11-26): 쏘웰라가 2일차 챌린지를 권함 → 사용자 답. 사용자 고민 말풍선은 없음(owner 결정). */
 export function sowellaChat(a: { name: string; worryText: string; ch: Challenge; ui: any; seed: string }): SowellaChat {
-  const line = String(a.worryText || "").split(/\n/).map((x) => x.trim()).find(Boolean) ?? "";
-  const max = Number(a.ui.worry_max ?? 28);
-  const worry = line ? (line.length > max ? `${line.slice(0, max).trim()}…` : line) : (CDB.sowella_chat[a.ch.domain] ?? CDB.sowella_chat["공통"]).q;
   const day2 = a.ch.days.find((d) => d.key === "day2");
   const ask = String(a.ui.sowella_ask).replaceAll("{name}", a.name || "").replace("{day2}", day2?.title ?? day2?.text ?? "");
   const replies: string[] = a.ui.user_replies ?? [];
-  const reply = replies.length ? replies[hashOf(a.seed || line || a.name) % replies.length] : "";
-  return [{ from: "user", text: worry }, { from: "sowella", text: ask }, ...(reply ? [{ from: "user" as const, text: reply }] : [])];
+  const reply = replies.length ? replies[hashOf(a.seed || a.name) % replies.length] : "";
+  return [{ from: "sowella", text: ask }, ...(reply ? [{ from: "user" as const, text: reply }] : [])];
 }
 
 /** 결제 후 9·10쪽을 챌린지·쏘웰라 대화 화면으로 바꾼다(한국어판만). 쪽 제목은 데이터(pages) 그대로. */

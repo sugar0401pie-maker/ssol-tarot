@@ -211,7 +211,7 @@ test("결과는 10쪽(옛 8쪽 없음), 8 처방 · 9 실천 · 10 쏘웰라(v4.
   assert.ok(!String(paid[8].body).includes("• 오늘"), "옛 실천 카드 없음");
   assert.equal(paid[9].title, "쏘웰라와 이어서 이야기하기");
   const chat = paid[9].chat as { from: string; text: string }[];
-  assert.deepEqual(chat.map((m) => m.from), ["user", "sowella", "user"]);
+  assert.deepEqual(chat.map((m) => m.from), ["sowella", "user"]);
   assert.ok((paid[9].lantern as { line: string }).line.includes("풍등"));
   assert.ok(String(paid[9].body).includes("[쏘웰라 3일 무료로 시작하기]"));
   const unpaid = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null }));

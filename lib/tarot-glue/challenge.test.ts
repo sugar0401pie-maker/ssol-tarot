@@ -53,17 +53,14 @@ test("저장된 AI 칸은 다시 열 때 같은 문장으로(applyStored)", () =
   assert.equal(applyStored(base(), null).days[0].text, base().days[0].text);
 });
 
-test("10쪽 대화: 사용자 고민 한 줄 → 쏘웰라가 챌린지를 물음 → 사용자 답(owner 문구 3개 중 1개, 결과마다 고정)", () => {
+test("10쪽 대화: 쏘웰라가 2일차 챌린지를 권함 → 사용자 답(owner 문구, 고민 말풍선 없음)", () => {
   const ch = base();
-  const worry = "회사를 그만두고 싶은데 연봉이 걸려서 계속 망설여져요. 어떻게 해야 할까요?\n둘째 줄";
-  const c1 = sowellaChat({ name: "도현", worryText: worry, ch, ui, seed: "abc" });
-  assert.deepEqual(c1.map((m) => m.from), ["user", "sowella", "user"]);
-  assert.ok(c1[0].text.endsWith("…") && c1[0].text.length <= 29, "고민은 한 줄로 짧게");
-  assert.ok(c1[1].text.includes("도현님") && c1[1].text.includes(ch.days[1].title!));
-  assert.ok((ui.user_replies as string[]).includes(c1[2].text));
-  assert.deepEqual(sowellaChat({ name: "도현", worryText: worry, ch, ui, seed: "abc" }), c1, "같은 결과는 같은 답");
-  const none = sowellaChat({ name: "", worryText: "", ch, ui, seed: "x" });
-  assert.ok(none[0].text.length > 0, "고민을 안 썼으면 영역 예시 질문");
+  const c1 = sowellaChat({ name: "도현", worryText: "회사 옮길까 그냥 다닐까", ch, ui, seed: "abc" });
+  assert.deepEqual(c1.map((m) => m.from), ["sowella", "user"]);
+  assert.ok(c1[0].text.startsWith("도현님, 오늘은 챌린지 2일차 ‘" + ch.days[1].title + "’ 해볼까요?!"));
+  assert.ok(c1[0].text.includes("과반수"));
+  assert.equal(c1[1].text, "좋아! 인증샷도 같이 올리려구");
+  assert.ok(!c1.some((m) => m.text.includes("회사 옮길까")), "고민 글은 넣지 않음");
 });
 
 test("E2 입력 db_challenge에는 활동과 다섯 칸 기본 문장", () => {

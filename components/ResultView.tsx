@@ -544,6 +544,7 @@ function ChallengeView({ c, p, ctx }: { c: ResultChallenge; p: ResultPage; ctx: 
   );
 }
 
+// 10쪽 순서(owner 2026-11-26): 기존 안내(제목 바로 밑) → 쏘웰라 대화 그림(쏘웰라 채팅 화면과 같은 모양·색) → 풍등 한 줄·배너 → [쏘웰라 3일 무료로 시작하기]
 function SowellaView({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const ui = challengeUi(ctx);
   const blocks = parseBlocks(p.body, ctx.opts);
@@ -551,15 +552,14 @@ function SowellaView({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const before = at < 0 ? blocks : blocks.slice(0, at), after = at < 0 ? [] : blocks.slice(at);
   return (
     <>
+      <Blocks blocks={before} ctx={ctx} />
       <div className="schat" aria-label={ui.chat_title ?? "쏘웰라"}>
         {(p.chat ?? []).map((m, i) => (
           <div key={i} className={`sbub ${m.from}`}>
-            {m.from === "sowella" && <span className="sname">{ui.chat_title ?? "쏘웰라"}</span>}
             <p>{m.text}</p>
           </div>
         ))}
       </div>
-      <Blocks blocks={before} ctx={ctx} />
       {p.lantern && (
         <>
           <p>
