@@ -4,6 +4,8 @@
 import { applyCardGist } from "./cardGist.ts";
 import { secretThird, type SecretCopy } from "./secretThird.ts";
 import { applyReportLines } from "./reportLines.ts";
+import { challengeFor, dbChallengeInput, applyStored, applyChallengePages } from "./challenge.ts";
+import type { Challenge } from "../tarot/challenge.js";
 import { bundleFor } from "../i18n/bundle.ts";
 import type { Locale } from "../i18n/locale.ts";
 import type { MidDb } from "./midResult.ts";
@@ -162,10 +164,13 @@ export function buildE1UserBlock(args: EArgs): string | null {
   const af = answerFirstFor({ frame: args.frame, lean: args.lean, picks: args.picks, now: args.now ?? new Date(), locale: args.locale });
   return base.replace("</user_data>", `answer_first=${JSON.stringify(af ? af.text : null)}\n</user_data>`);
 }
-export function buildE2UserBlock(args: EArgs): string | null {
+// 2026-11-26 owner: 9쪽이 작심삼일 챌린지로 바뀌어 E2 입력은 db_today(옛 9쪽 '오늘') 대신 db_challenge(코드가 고른 챌린지 기본 문장).
+// challenge를 안 넘기면(예전 호출·영문판) 예전처럼 db_today.
+export function buildE2UserBlock(args: EArgs & { challenge?: Challenge | null }): string | null {
   const { data } = bd(args.locale);
   const base = eBase(args);
   if (!base) return null;
+  if (args.challenge) return base.replace("</user_data>", `db_challenge=${JSON.stringify(dbChallengeInput(args.challenge))}\n</user_data>`);
   const key = args.picks[2];
   const today = key ? pkg(args.locale).pages.todayFromDb(data, { no: key.card.no, reversed: Boolean(key.reversed) }, args.lean) : null;
   return today ? base.replace("</user_data>", `db_today=${JSON.stringify({ title: today.title, how: today.how })}\n</user_data>`) : base;
@@ -173,8 +178,9 @@ export function buildE2UserBlock(args: EArgs): string | null {
 
 // 10쪽 조립(결제 후, v4.2 — 패키지가 처음부터 10쪽). sa = parseStoryApply 결과(D, 탈락 칸은 null → DB 문장), E = mergeE(E1, E2)(둘 다 탈락이면 null → 대체 경로).
 // 순서·인자는 패키지 fixtures/runCase.mjs와 같다.
-export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lean, C, sa, E, locale, now }: {
-  name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; sa: any | null; E: any | null; locale?: Locale; now?: Date;
+// challenge = 저장된 report.challenge(AI가 고쳐 쓴 칸 — 없으면 DB 문장), seed = 10쪽 대화의 사용자 답을 고르는 값(결과 번호).
+export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lean, C, sa, E, locale, now, challenge = null, seed = "" }: {
+  name: string; cls: Cls | null; picks: ExpandedPick[]; safety: Safety; worryText: string; frame: Frame | null; lean: Lean | null; C: any | null; sa: any | null; E: any | null; locale?: Locale; now?: Date; challenge?: any | null; seed?: string;
 }): any[] {
   const { data } = bd(locale);
   const base = pkg(locale).assemble.buildPages({
@@ -186,7 +192,11 @@ export function buildPaidPages({ name, cls, picks, safety, worryText, frame, lea
   const gisted = locale === "en" ? pages : applyCardGist(pages, lean, summaryTitle(locale), { hideSummary: false });
   const af = answerFirstFor({ frame, lean, picks, now: now ?? new Date(), locale });
   const ordered = reorderSecret(withAnswerFirst(gisted, af, frame), { paid: true, name, cls, frame, lean, picks, locale, wrote: Boolean(worryText?.trim()) });
-  return withLines(ordered, { paid: true, frame, lean, picks, cls, safety, worryText, locale, freeLines: C?.free_lines ?? null });
+  const lined = withLines(ordered, { paid: true, frame, lean, picks, cls, safety, worryText, locale, freeLines: C?.free_lines ?? null });
+  if (locale === "en") return lined;
+  // 2026-11-26 owner: 9쪽 = 작심삼일 챌린지, 10쪽 = 쏘웰라 대화 화면(lib/tarot-glue/challenge.ts)
+  const ch = applyStored(challengeFor({ frame, picks, safety, worryText, freeLines: C?.free_lines ?? null }), challenge);
+  return applyChallengePages(lined, { ch, name, worryText, ui: (data.copy.result as any).challenge_ui ?? {}, seed: seed || worryText });
 }
 
 // v2.3.15~17 문장 DB(owner 2026-11-14 "3번 전부") — lib/tarot-glue/reportLines.ts. 영문판은 문장 DB가 없어 그대로.
@@ -288,7 +298,7 @@ export function paceTeaser(pace: "near" | "step" | "slow", locale?: Locale): str
 // combo·map(점수·읽기 지도 — 결론을 짐작할 수 있음)은 빼고, 6~10쪽은 본문 없이 제목·예고·고정 예시(blur)만.
 // 블러는 CSS로 가리는 게 아니라 데이터가 없는 상태여야 한다(스펙 11장 5번).
 // fineprint = v4.1 watch(주의) 안내 한 줄 — 마지막 쪽 맨 아래 작은 글씨, 결제 전에도 보인다(README_v4).
-const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back", "intro", "secret", "note"] as const;
+const PAGE_KEYS = ["page", "title", "access", "question", "saysTitle", "says", "card", "body", "free", "teaser", "blur", "fineprint", "next", "back", "intro", "secret", "note", "challenge", "chat", "lantern"] as const;
 // 고민 틀의 선택지에는 원문에 없던 쪽이라는 표시 "(암시)"가 붙는데, AI가 그 이름을 그대로 옮겨 쓰면 본문에
 // "소송을 하지 않는 것 (암시)보다"처럼 보인다(owner 2026-10-22 실제 결제 리포트). 화면으로 보내는 글에서만 뗀다.
 const IMPLIED = /\s*\((?:암시|implied)\)/g;
@@ -312,7 +322,7 @@ export function tidyPages(pages: any[], ctx: TidyCtx = {}): any[] {
     .map((p) => (p.page === 5 && p.body ? { ...p, body: conclusionFirst(String(p.body)) } : p))
     .map((p) => (p.page === 6 && p.body ? { ...p, body: tidyApply(String(p.body), ctx.other ?? null) } : p))
     .map((p) => (p.page === DIRECTION_PAGE && p.body ? { ...p, body: tidyDirection(String(p.body)) } : p))
-    .map((p) => (p.page === PRACTICE_PAGE && p.body ? { ...p, body: closingFirst(String(p.body)) } : p));
+    .map((p) => (p.page === PRACTICE_PAGE && p.body && !p.challenge ? { ...p, body: closingFirst(String(p.body)) } : p));
 }
 
 // 5쪽(결제 후): "**세 장을 합치면 ‘…’ 쪽이 ….**" 결론 줄을 "세 장을 종합하면 이렇습니다" 바로 위로(owner 2026-10-22).
@@ -393,6 +403,8 @@ function movePlan(p: any, all: any[]): any {
   const found = src?.body ? splitPlan(String(src.body)) : null;
   if (!found?.plan) return p;
   if (p.page === DIRECTION_PAGE) return { ...p, body: found.rest };
+  // 2026-11-26 owner: 9쪽이 작심삼일 챌린지면 '이번 주에 이것부터' 계획도 챌린지가 가져간다(옮기지 않고 7쪽에서도 뺌)
+  if (p.page === PRACTICE_PAGE && p.challenge) return p;
   if (p.page === PRACTICE_PAGE && p.body) {
     const chunks = String(p.body).split(/\n\s*\n/);
     chunks.splice(Math.min(1, chunks.length), 0, [PLAN_MOVED_HEAD, ...found.plan].join("\n"));

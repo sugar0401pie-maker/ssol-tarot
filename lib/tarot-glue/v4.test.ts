@@ -145,7 +145,9 @@ test("결제 후 10쪽 = 패키지 예시 흐름(runCase)과 같은 결과 — �
   const refPaid = applyReportLines(ordered, { paid: true, frame, lean, picks, cls: cs.ai, safety, worryText: cs.worry, tables, seed });
   assert.equal(P[3].card.name, picks[2].card.name, "결제 후 4쪽 = 세 번째 카드 앞면");
   assert.match(String(P[4].body), /카드 내용을 종합하면 .+ 모양입니다\./);
-  assert.deepEqual(P.map((p: { body?: string }) => p.body), refPaid.map((p: { body?: string }) => p.body));
+  // 9·10쪽은 작심삼일 챌린지·쏘웰라 대화 화면으로 바뀜(owner 2026-11-26) — 1~8쪽만 패키지 흐름과 견줌
+  assert.deepEqual(P.slice(0, 8).map((p: { body?: string }) => p.body), refPaid.slice(0, 8).map((p: { body?: string }) => p.body));
+  assert.ok(P[8].challenge && P[9].chat);
   // 응답에는 본문이 실리고(결론 포함) 내부 칸(combo·map·locked)은 빠진다
   const out = sanitizePaid(P);
   assert.ok(out[4].body && /세 장을 합치면 ‘현재 회사에 남기’ 쪽/.test(String(out[4].body)));
@@ -202,10 +204,16 @@ test("결과는 10쪽(옛 8쪽 없음), 8 처방 · 9 실천 · 10 쏘웰라(v4.
   assert.ok(!paid.some((p) => p.title === "앞으로 이렇게 바뀔 거예요"));
   assert.equal(paid[7].title, "변화를 위해 지금 할 수 있는 것");
   assert.ok(!String(paid[7].body).includes("이런 변화가 보일 거예요"), "변화 문장은 없앰");
-  assert.equal(paid[8].title, "이번 주 실천 카드");
-  assert.ok(String(paid[8].body).startsWith("**이 실천은 정답이 아니라"), "마무리 첫 문장이 맨 위");
-  assert.ok(!JSON.stringify(paid[8]).includes("9쪽 처방"));
+  // 2026-11-26 owner: 9쪽 = 작심삼일 챌린지(이번 주 실천 카드를 가져감), 10쪽 = 쏘웰라 대화 화면
+  assert.equal(paid[8].title, "작심삼일 챌린지");
+  const c = paid[8].challenge as { days: { key: string }[] };
+  assert.deepEqual(c.days.map((d) => d.key), ["day1", "day2", "day3", "week", "month"]);
+  assert.ok(!String(paid[8].body).includes("• 오늘"), "옛 실천 카드 없음");
   assert.equal(paid[9].title, "쏘웰라와 이어서 이야기하기");
+  const chat = paid[9].chat as { from: string; text: string }[];
+  assert.deepEqual(chat.map((m) => m.from), ["user", "sowella", "user"]);
+  assert.ok((paid[9].lantern as { line: string }).line.includes("풍등"));
+  assert.ok(String(paid[9].body).includes("[쏘웰라 3일 무료로 시작하기]"));
   const unpaid = sanitizeUnpaid(buildUnpaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null }));
   assert.equal(unpaid.length, 10);
 });
@@ -226,14 +234,11 @@ test("7쪽 다듬기: 자리 이름 + 카드 이름 → 'N 번째 카드인 ‘�
   assert.equal(tidyDirection("가장 큰 근거는 앞으로의 열쇠입니다."), "가장 큰 근거는 앞으로의 열쇠입니다.");
 });
 
-test("7쪽 '이번 주에 이것부터' 계획은 실천 카드 쪽 맨 위로 옮기고 머리말을 바꾼다(owner 2026-10-22)", () => {
+test("7쪽 '이번 주에 이것부터' 계획은 9쪽 작심삼일 챌린지가 가져간다 — 7쪽에서도 빠지고 9쪽에도 없음(owner 2026-11-26)", () => {
   const { lean } = decide({ frame, cls: cs.ai, picks, name: cs.name });
   const P = sanitizePaid(buildPaidPages({ name: cs.name, cls: cs.ai, picks, safety, worryText: cs.worry, frame, lean, C: null, sa: null, E: readJ("E_out.json") }));
   assert.ok(!/이번 주에 이것부터/.test(String(P[6].body)), "7쪽에 계획 없음");
-  const p9 = String(P[8].body);
-  const at = p9.indexOf(PLAN_MOVED_HEAD);
-  assert.ok(at > 0 && at < p9.indexOf("• 오늘"), "실천 카드 위");
-  assert.ok(p9.includes("◦ 언제: 이번 주 금요일 퇴근 후"));
+  assert.ok(!String(P[8].body).includes(PLAN_MOVED_HEAD), "9쪽(챌린지)에도 없음");
 });
 
 test("v4.2 재회 예시(E1+E2): 7쪽 맨 위 흐름, 계획은 9쪽 맨 위로, 9쪽 '오늘'은 DB 실천", () => {

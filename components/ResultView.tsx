@@ -10,7 +10,7 @@ import { uiText } from "@/lib/i18n/ui";
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { api, claimIfGuest, loadKey, ApiError, type ResultResponse, type ResultPage, type ResultCard } from "@/lib/client/api";
+import { api, claimIfGuest, loadKey, ApiError, type ResultResponse, type ResultPage, type ResultCard, type ResultChallenge, type ResultChallengeDay } from "@/lib/client/api";
 import { getAccessToken } from "@/lib/supabase/browser";
 import { clean, fill } from "@/lib/client/text";
 import { cardImg } from "@/lib/client/cardImage";
@@ -48,7 +48,11 @@ type Ready = Extract<ResultResponse, { status: "ready" }>;
 const SOWELLA_URL = "https://app.ssolwellnesshouse.com/chat";
 // 쏘웰라로 넘어갈 때 어느 타로 결과에서 왔는지 붙인다(owner 2026-10-26) — 쏘웰라가 같은 계정의 그 결과로 맞춤 인사를 하고 대화에 참고한다.
 // 영문판(owner 2026-11-05): 영어 쏘웰라 = 쏘웰라 주소 + /en
-const sowellaUrl = (id: string, locale: Locale = "ko") => `${locale === "en" ? "https://app.ssolwellnesshouse.com/en/chat" : SOWELLA_URL}?from=tarot&result=${encodeURIComponent(id)}`;
+// to: 쏘웰라 어느 화면으로 갈지 — chat(대화) · challenge(작심삼일 챌린지, owner 2026-11-26) · lantern(풍등). 쏘웰라는 result로 report.challenge를 읽는다.
+type SowellaTo = "chat" | "challenge" | "lantern";
+const SOWELLA_PATH: Record<SowellaTo, string> = { chat: SOWELLA_URL, challenge: "https://app.ssolwellnesshouse.com/challenge", lantern: "https://app.ssolwellnesshouse.com/lantern" };
+const isSowellaTo = (x: unknown): x is SowellaTo => x === "chat" || x === "challenge" || x === "lantern";
+const sowellaUrl = (id: string, locale: Locale = "ko", to: SowellaTo = "chat") => `${locale === "en" ? "https://app.ssolwellnesshouse.com/en/chat" : SOWELLA_PATH[to]}?from=tarot&result=${encodeURIComponent(id)}`;
 
 // 카드 그림을 못 받으면 깨진 그림 아이콘 대신 빈 카드 틀만 남긴다(카드명은 옆 글자로 이미 보임).
 function hideBroken(e: React.SyntheticEvent<HTMLImageElement>) {
@@ -148,6 +152,10 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
   // 로그인 없이 본 결과(2026-10-26): 로그인한 상태로 이 화면이 열리면 이 브라우저의 결과를 자동으로 계정에 붙인다(따로 누를 버튼 없음).
   // 쏘웰라 버튼으로 로그인하러 갔다 온 경우(?go=sowella)는 붙인 뒤 바로 쏘웰라로 보낸다(쏘웰라는 계정에 붙은 결과만 읽는다).
   const [goSowella] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("go") === "sowella");
+  const [goTo] = useState<SowellaTo>(() => {
+    const t = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("to") : null;
+    return isSowellaTo(t) ? t : "chat";
+  });
   // 결제 직후 돌아온 경우(?opened=1): 4쪽 세 번째 카드를 그 자리에서 뒷면 → 앞면으로 뒤집는다(owner 2026-11-02)
   const [opened] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("opened") === "1");
   useEffect(() => {
@@ -156,7 +164,7 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
       const ok = saved || (await claimIfGuest(id));
       if (cancelled) return;
       if (ok && !saved) setSaved(true);
-      if (goSowella && ok) window.location.href = sowellaUrl(id, locale);
+      if (goSowella && ok) window.location.href = sowellaUrl(id, locale, goTo);
     })();
     return () => {
       cancelled = true;
@@ -306,10 +314,11 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
     [router, id, L, locale, r.kakaopay],
   );
   // [쏘웰라와 이어서 이야기하기]: 로그인 전이면 로그인 → 이 결과로 돌아와 자동 저장 → 쏘웰라(위 goSowella)
+  // 9쪽 챌린지·10쪽 풍등 버튼도 같은 길(쏘웰라가 계정에 붙은 결과의 report.challenge를 읽으므로 먼저 저장)
   const chat = useCallback(
-    async (page: number) => {
-      if (await getAccessToken()) window.location.href = sowellaUrl(id, locale);
-      else router.push(`${L("/login")}?next=${encodeURIComponent(`${L(`/result/${id}/${page}`)}?go=sowella`)}`);
+    async (page: number, to: SowellaTo = "chat") => {
+      if (await getAccessToken()) window.location.href = sowellaUrl(id, locale, to);
+      else router.push(`${L("/login")}?next=${encodeURIComponent(`${L(`/result/${id}/${page}`)}?go=sowella${to === "chat" ? "" : `&to=${to}`}`)}`);
     },
     [router, id, L, locale],
   );
@@ -334,7 +343,10 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
                 <h1>{p.title}</h1>
               </header>
               <div className="pbody">
-                {sceneArt && RESULT_PAGE_SCENE[p.page] && (
+                {/* 9쪽 = 작심삼일 챌린지 배너(그림 대신, owner 2026-11-26) · 결제 후 10쪽은 쏘웰라 대화 그림이 맨 위(그림 없음) */}
+                {p.page === 9 && ctx.locale !== "en" ? (
+                  <ChallengeBanner ctx={ctx} />
+                ) : sceneArt && RESULT_PAGE_SCENE[p.page] && !p.chat && (
                   <SceneArt map={sceneArt} id={RESULT_PAGE_SCENE[p.page]!} className="scene" sizes="(max-width: 400px) 92vw, 364px" reserve />
                 )}
                 <PageBody p={p} ctx={ctx} />
@@ -426,11 +438,13 @@ function Swipe({ id, r, copy, opts, initialPage, locale }: { id: string; r: Read
   );
 }
 
-type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; payBusy?: boolean; payError?: string | null; chat: (page: number) => void; opened: boolean; locale: Locale };
+type Ctx = { id: string; r: Ready; copy: ViewCopy; opts: ParseOpts; openZoom: (z: { src: string; alt: string; reversed: boolean }) => void; pay: (page: number) => void; payBusy?: boolean; payError?: string | null; chat: (page: number, to?: SowellaTo) => void; opened: boolean; locale: Locale };
 
 const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
   const { r, opts } = ctx;
   if (p.card) return <CardPage p={p} ctx={ctx} />;
+  if (p.challenge && r.paid) return <ChallengeView c={p.challenge} p={p} ctx={ctx} />;
+  if (p.chat && r.paid) return <SowellaView p={p} ctx={ctx} />;
   if (p.secret && !r.paid) return <SecretCard p={p} ctx={ctx} />;
   if (p.page === 5 && !r.paid && p.free) {
     // 5쪽: 메인 문구·첫 줄·카드별 한 줄까지 무료, 결론부터는 결제 후. 서버가 결론을 보내지 않으므로 블러 아래는
@@ -464,6 +478,110 @@ const PageBody = memo(function PageBody({ p, ctx }: { p: ResultPage; ctx: Ctx })
   }
   return <Blocks blocks={parseBlocks(p.body, p.page === 6 ? { ...opts, splitLong: true } : opts)} ctx={ctx} />;
 });
+
+// ── 9쪽 작심삼일 챌린지 · 10쪽 쏘웰라 대화 화면(owner 2026-11-26) ──
+type ChallengeUi = { challenge_alt?: string; challenge_cta?: string; chat_title?: string; lantern_alt?: string };
+const challengeUi = (ctx: Ctx): ChallengeUi => ((ctx.copy.result as unknown as { challenge_ui?: ChallengeUi }).challenge_ui ?? {});
+
+// 9쪽 맨 위 배너(쏘웰라 갓생러모임과 같은 그림) — 예전 장면 그림 자리
+function ChallengeBanner({ ctx }: { ctx: Ctx }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/images/tarot/banners/challenge.webp" alt={challengeUi(ctx).challenge_alt ?? ""} width={1200} height={400} className="cbanner" loading="lazy" decoding="async" />
+  );
+}
+
+function ChallengeView({ c, p, ctx }: { c: ResultChallenge; p: ResultPage; ctx: Ctx }) {
+  const day = (d: ResultChallengeDay, big: boolean) => (
+    <li key={d.key} className={`cday ${big ? "" : "later"}`}>
+      <span className="clabel">{d.label}</span>
+      {d.title && <b className="ctitle">{d.title}</b>}
+      <p>{d.text}</p>
+      {d.tie && <p className="ctie">{d.tie}</p>}
+      {d.how && (
+        <p className="chow">
+          <b>{d.how_label ?? ""}</b> {d.how}
+        </p>
+      )}
+      {d.home && (
+        <p className="chome">
+          {c.home_label}: {d.home}
+        </p>
+      )}
+      {big && d.proof && (
+        <p className="cproof">
+          📷 {c.proof_label} · {d.proof}
+        </p>
+      )}
+    </li>
+  );
+  return (
+    <>
+      <h3 className="storyhead">{c.heading}</h3>
+      {c.pair && (
+        <p>
+          <b>{c.pair}</b>
+        </p>
+      )}
+      <p>{c.sub}</p>
+      <ol className="cdays">{c.days.slice(0, 3).map((d) => day(d, true))}</ol>
+      <h4>{c.later_title}</h4>
+      {c.later_how && <p className="chow">{c.later_how}</p>}
+      <ol className="cdays">{c.days.slice(3).map((d) => day(d, false))}</ol>
+      <p className="cnote">{c.skip}</p>
+      <p className="cnote">{c.share}</p>
+      <a
+        className="btn fill"
+        href={sowellaUrl(ctx.id, ctx.locale, "challenge")}
+        onClick={(e) => {
+          e.preventDefault();
+          ctx.chat(p.page, "challenge");
+        }}
+      >
+        {challengeUi(ctx).challenge_cta ?? c.cta}
+      </a>
+    </>
+  );
+}
+
+function SowellaView({ p, ctx }: { p: ResultPage; ctx: Ctx }) {
+  const ui = challengeUi(ctx);
+  const blocks = parseBlocks(p.body, ctx.opts);
+  const at = blocks.findIndex((b) => b.type === "button");
+  const before = at < 0 ? blocks : blocks.slice(0, at), after = at < 0 ? [] : blocks.slice(at);
+  return (
+    <>
+      <div className="schat" aria-label={ui.chat_title ?? "쏘웰라"}>
+        {(p.chat ?? []).map((m, i) => (
+          <div key={i} className={`sbub ${m.from}`}>
+            {m.from === "sowella" && <span className="sname">{ui.chat_title ?? "쏘웰라"}</span>}
+            <p>{m.text}</p>
+          </div>
+        ))}
+      </div>
+      <Blocks blocks={before} ctx={ctx} />
+      {p.lantern && (
+        <>
+          <p>
+            <b>{p.lantern.line}</b>
+          </p>
+          <a
+            className="lbanner"
+            href={sowellaUrl(ctx.id, ctx.locale, "lantern")}
+            onClick={(e) => {
+              e.preventDefault();
+              ctx.chat(p.page, "lantern");
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/tarot/banners/lantern.webp" alt={p.lantern.alt} width={1200} height={400} loading="lazy" decoding="async" />
+          </a>
+        </>
+      )}
+      <Blocks blocks={after} ctx={ctx} />
+    </>
+  );
+}
 
 function Lock({ blur, ctx, page }: { blur: string | null; ctx: Ctx; page: number }) {
   return (

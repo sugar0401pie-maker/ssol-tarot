@@ -10,10 +10,10 @@ ROOT = Path(__file__).resolve().parent.parent
 TS = ROOT / "lib/server/prompts.ts"
 MAP = {
     "CLASSIFY_SYSTEM": ("docs/spec/ai-prompts-tarot-v2.md", 1),  # A-2
-    # A2: v2.3.9부터 판별 DB의 전문 파일(v2.3.11부터 v4.11, v2.3.14부터 v4.12 — 결과 틀 먼저, v2.3.24부터 v4.16 — 두 고민이면 더 무거운 쪽·(고른 고민: X), v3.0부터 v4.24 — sub2(2순위 세부), v3.6 묶음(2026-11-23)부터 v4.28 — branches(갈래)·초안 세부 37, v3.8 묶음(2026-11-24)부터 v4.29 — facts(글 속 사정))이 원천 — 설계 문서 A2 블록에는 세부 고민 목록 자리가 없다.
+    # A2: v2.3.9부터 판별 DB의 전문 파일(v2.3.11부터 v4.11, v2.3.14부터 v4.12 — 결과 틀 먼저, v2.3.24부터 v4.16 — 두 고민이면 더 무거운 쪽·(고른 고민: X), v3.0부터 v4.24 — sub2(2순위 세부), v3.6 묶음(2026-11-23)부터 v4.28 — branches(갈래)·초안 세부 37, v3.8 묶음(2026-11-24)부터 v4.29 — facts(글 속 사정), v3.13 묶음(2026-11-26)부터 v4.30 — 새 세부 6)이 원천 — 설계 문서 A2 블록에는 세부 고민 목록 자리가 없다.
     #     {SUB_BLOCK}(세부 고민 후보 — v2.3.11부터 144개)은 요청마다 달라서 시스템 프롬프트에 넣지 않고 사용자 입력 맨 앞에 붙인다
     #     (CLAUDE.md 5장: 시스템 프롬프트 안에서 값을 치환하지 않는다) — 그 자리에는 아래 안내 한 줄.
-    "FRAME_SYSTEM": ("judge-db/A2_고민틀_프롬프트_v4.29.txt", None),
+    "FRAME_SYSTEM": ("judge-db/A2_고민틀_프롬프트_v4.30.txt", None),
     "C_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 2),
     "D_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 3),
     "E1_SYSTEM": ("docs/spec/ai-prompts-tarot-v4.md", 4),  # v4.2 E1(7쪽)

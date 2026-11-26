@@ -101,6 +101,17 @@ export type ResultPage = {
   intro?: string;
   // 결제 전 4쪽(세 번째 카드 뒷면 + 결제 상자)
   secret?: boolean;
+  // 결제 후 9쪽 작심삼일 챌린지(owner 2026-11-26, lib/tarot-glue/challenge.ts)
+  challenge?: ResultChallenge;
+  // 결제 후 10쪽 맨 위 쏘웰라 대화 그림 + 풍등 한 줄
+  chat?: { from: "user" | "sowella"; text: string }[];
+  lantern?: { line: string; alt: string };
+};
+
+export type ResultChallengeDay = { key: string; label: string; title?: string; text: string; proof: string; story: string; tie?: string; how?: string; how_label?: string | null; home?: string };
+export type ResultChallenge = {
+  heading: string; pair: string; sub: string; days: ResultChallengeDay[]; later_title: string; later_how: string;
+  proof_label: string; home_label: string; skip: string; share: string; cta: string;
 };
 
 export type ResultResponse =

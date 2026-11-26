@@ -23,6 +23,7 @@ function resultNotice(safety: Parameters<typeof buildSafetyNotice>[0]["safety"],
 }
 import { parseClassification, classificationForReport, type Classification } from "@/lib/tarot-glue/classification";
 import { prepareFrame, cleanSub2, decide, buildCUserBlock, buildDUserBlock, buildE1UserBlock, buildE2UserBlock, buildUnpaidPages, buildPaidPages, sanitizeUnpaid, sanitizePaid } from "@/lib/tarot-glue/v4";
+import { challengeFor, mergeAiChallenge, toReportChallenge } from "@/lib/tarot-glue/challenge";
 import { parseStoryApply } from "@/lib/tarot/assembleReport.js";
 import { parseFrameV43 } from "@/lib/tarot/v43.js";
 import { composeWorry, applyFollowup, firstQuestion, nextQuestion } from "@/lib/tarot/followup.js";
@@ -86,7 +87,7 @@ export type SessionRow = {
   updated_at: string;
   // 유료 리포트(마이그레이션 20261021000000 전에는 없을 수 있음)
   paid_at?: string | null;
-  report?: { sa: unknown; E: unknown } | null;
+  report?: { sa: unknown; E: unknown; challenge?: unknown } | null;
   report_status?: "none" | "generating" | "ready" | "failed";
   report_started_at?: string | null;
   // 영문판(2026-11-05) — 마이그레이션 20261105000100 전에는 없음(= 한국어). 결과는 만든 언어로 고정.
@@ -690,8 +691,8 @@ export async function getResult(s: SessionRow) {
   // 방향은 저장하지 않고 매번 같은 재료(카드·고민 틀·분류)로 다시 계산한다(결정론적). 결제 전에는 응답에 싣지 않음.
   const { lean, decision } = decide({ frame, cls, picks, name: s.nickname, safety, vote: s.frame_vote ?? null, locale });
   if (paid) {
-    const rep = (s.report ?? null) as { sa?: unknown; E?: unknown } | null;
-    const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null, locale, now: viewedAt(s) });
+    const rep = (s.report ?? null) as { sa?: unknown; E?: unknown; challenge?: unknown } | null;
+    const pages = buildPaidPages({ name: s.nickname, cls, picks, safety, worryText: s.worry_text ?? "", frame, lean, C: s.links, sa: rep?.sa ?? null, E: rep?.E ?? null, locale, now: viewedAt(s), challenge: rep?.challenge ?? null, seed: s.id });
     return {
       status: "ready" as const,
       nickname: s.nickname,
@@ -1052,6 +1053,16 @@ export async function sendOrderEmailEn(sessionId: string, m: { orderId: string; 
 // 9쪽 '오늘' 실천과 카드별 이유는 AI가 쓰지 않는다(DB — pagesV4.todayFromDb, decision.lean().cards[].reason).
 // 검증에서 떨어지면 그 부분만 1회 다시 부르고, 그래도 안 되면 그 부분은 패키지 대체 경로(DB 문장) — README_v4.
 // AI 사용량 기록(tarot_ai_usage)에 이 결과 번호가 붙도록 맥락을 연다(owner 2026-11-23).
+// AI 없이 DB 문장만으로 만든 챌린지(고민 미작성·AI 실패) — 쏘웰라가 읽을 수 있게 저장은 늘 한다. 영문판은 없음.
+const freeLinesOf = (s: SessionRow) => ((s.links ?? null) as { free_lines?: { p1?: string; p2?: string } } | null)?.free_lines ?? null;
+function dbOnlyChallenge(s: SessionRow): ReturnType<typeof toReportChallenge> | null {
+  const locale = localeOf(s);
+  if (locale === "en") return null;
+  const cls = classificationForReport(s.classification);
+  const frame = prepareFrame(s.frame ?? null, cls, locale, { level: s.safety_level, violence: s.violence });
+  return toReportChallenge(challengeFor({ frame, picks: expandPicks(s.picks, locale), safety: { level: s.safety_level, violence: s.violence }, worryText: s.worry_text ?? "", freeLines: freeLinesOf(s) }));
+}
+
 export function generateReport(sessionId: string) {
   return withAiSession(sessionId, null, () => generateReportInner(sessionId));
 }
@@ -1061,6 +1072,9 @@ async function generateReportInner(sessionId: string) {
   if (!s || !s.paid_at) return;
   let sa: ReturnType<typeof parseStoryApply> | null = null;
   let E: unknown = null;
+  // 9쪽 작심삼일 챌린지(owner 2026-11-26) — report.challenge = 쏘웰라가 읽는 모양. AI를 못 부른 결과(고민 미작성·분류 실패)도 DB 문장으로 저장한다.
+  let baseChallenge: ReturnType<typeof challengeFor> | null = null;
+  let challenge: ReturnType<typeof toReportChallenge> | null = null;
   try {
     const cls = classificationForReport(s.classification);
     if (s.worry_text && cls && aiConfigured()) {
@@ -1076,7 +1090,9 @@ async function generateReportInner(sessionId: string) {
       const args = { name: s.nickname, worryText: s.worry_text, cls, picks, frame, lean, locale, now: viewedAt(s) };
       const dBlock = buildDUserBlock({ ...args, safety });
       const e1Block = buildE1UserBlock(args);
-      const e2Block = buildE2UserBlock(args);
+      // 2026-11-26 owner: 9쪽 작심삼일 챌린지 — 코드가 고른 기본 챌린지를 E2에 넘기고, AI가 고민에 맞게 다시 쓴다(한국어판만)
+      baseChallenge = locale === "en" ? null : challengeFor({ frame, picks, safety, worryText: s.worry_text, freeLines: freeLinesOf(s) });
+      const e2Block = buildE2UserBlock({ ...args, challenge: baseChallenge });
 
       const runD = async () => {
         let best: ReturnType<typeof parseStoryApply> | null = null;
@@ -1096,7 +1112,7 @@ async function generateReportInner(sessionId: string) {
       const runE = async (part: "E1" | "E2", system: string, block: string | null) => {
         for (let i = 0; i < 2 && block; i++) {
           try {
-            const r = pkg(locale).validate.parseE(await generateText(system, block, { timeoutMs: 50000, maxOutputTokens: 6000, label: part }), { lean, frame, violence, part, worryText: s.worry_text ?? "" });
+            const r = pkg(locale).validate.parseE(await generateText(system, block, { timeoutMs: 50000, maxOutputTokens: 6000, label: part }), { lean, frame, violence, part, worryText: s.worry_text ?? "", challenge: part === "E2" && Boolean(baseChallenge) });
             if (r.warnings.length) console.info(`${part} 경고:`, r.warnings.length, "건");
             if (r.E) return r.E;
             console.warn(`${part} 검증 탈락 칸:`, r.errors.length, "건");
@@ -1109,18 +1125,25 @@ async function generateReportInner(sessionId: string) {
       const [d, e1, e2] = await Promise.all([runD(), runE("E1", P.E1, e1Block), runE("E2", P.E2, e2Block)]);
       sa = d;
       E = mergeE(e1, e2);
+      if (baseChallenge) {
+        const m = mergeAiChallenge(baseChallenge, (e2 as { challenge?: unknown } | null)?.challenge ?? null);
+        challenge = toReportChallenge(m.ch, m.ai);
+        console.info("챌린지 AI 칸:", Object.values(m.ai).filter(Boolean).length, "/ 5");
+      }
       // 행동 겹침(7쪽 계획·8쪽 처방·9쪽 실천) 경고 — 운영에서 E2 재호출 기준을 정하려고 건수만 남긴다(README_v4 ①).
       const key = picks[2];
       const overlaps = pkg(locale).validate.overlapWarnings(pkg(locale).validate.actionsOf(E, key ? pkg(locale).pages.todayFromDb(bundleFor(locale).data, { no: key.card.no, reversed: Boolean(key.reversed) }, lean) : null));
       if (overlaps.length) console.info("행동 겹침 경고:", overlaps.map((o) => `${o.a}↔${o.b}`).join(", "));
     }
-    await update(sessionId, { report: { sa, E }, report_status: "ready" });
+    if (!challenge) challenge = dbOnlyChallenge(s);
+    await update(sessionId, { report: { sa, E, challenge }, report_status: "ready" });
     await writeChatSummary(sessionId);
     await logReportLint(sessionId);
   } catch (e) {
     console.error("유료 리포트 생성 실패:", e instanceof Error ? e.message : "unknown");
     // 실패해도 결제한 사람은 결과를 본다 — report 없이 DB 문장(대체 경로)으로 열림
-    await update(sessionId, { report: sa || E ? { sa, E } : null, report_status: "failed" }).catch(() => {});
+    if (!challenge) { try { challenge = dbOnlyChallenge(s); } catch { challenge = null; } }
+    await update(sessionId, { report: sa || E || challenge ? { sa, E, challenge } : null, report_status: "failed" }).catch(() => {});
   }
 }
 

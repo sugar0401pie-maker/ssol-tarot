@@ -1,0 +1,246 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "swh.challenge.v2",
+ "title": "작심삼일 챌린지 + 테스트 결과 넘김 (타로 → 쏘웰라) v2",
+ "type": "object",
+ "required": [
+  "schema",
+  "source",
+  "result_id",
+  "created_at",
+  "plan",
+  "rules",
+  "status"
+ ],
+ "properties": {
+  "schema": {
+   "const": "swh.challenge.v2"
+  },
+  "source": {
+   "enum": [
+    "tarot",
+    "saju",
+    "astro"
+   ]
+  },
+  "source_version": {
+   "type": "string"
+  },
+  "result_id": {
+   "type": "string"
+  },
+  "user_id": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "nickname": {
+   "type": "string"
+  },
+  "created_at": {
+   "type": "string"
+  },
+  "worry": {
+   "type": "object",
+   "properties": {
+    "domain": {
+     "type": "string"
+    },
+    "sub_id": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "branch_kind": {
+     "type": "string"
+    },
+    "branch_code": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "branch_text": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "text": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "이용자가 쓴 고민 원문(일상어). CSO 11/26"
+    }
+   }
+  },
+  "cards": {
+   "type": "object",
+   "properties": {
+    "now": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "key": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "past": {
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   }
+  },
+  "activity": {
+   "type": "object",
+   "properties": {
+    "family": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "group": {
+     "type": "string"
+    },
+    "master_family": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "picked_from": {
+     "enum": [
+      "root",
+      "pair",
+      "worry",
+      "card",
+      null
+     ]
+    }
+   }
+  },
+  "pair": {
+   "type": "string"
+  },
+  "plan": {
+   "type": "array",
+   "minItems": 5,
+   "maxItems": 5,
+   "items": {
+    "type": "object",
+    "required": [
+     "key",
+     "label",
+     "text",
+     "proof",
+     "story"
+    ],
+    "properties": {
+     "key": {
+      "enum": [
+       "day1",
+       "day2",
+       "day3",
+       "week",
+       "month"
+      ]
+     },
+     "label": {
+      "type": "string"
+     },
+     "title": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "text": {
+      "type": "string"
+     },
+     "tie": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "home": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "proof": {
+      "type": "string"
+     },
+     "story": {
+      "type": "string",
+      "maxLength": 20
+     },
+     "how": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "how_label": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "practice_id": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "쏘웰라 실천 코드(OUT-…-L2/L3/L4). 타로 전용 가족(햇볕 산책·밤하늘·처음 해 보기)은 null"
+     }
+    }
+   }
+  },
+  "rules": {
+   "type": "object",
+   "properties": {
+    "order": {
+     "type": "array"
+    },
+    "skip_ok": {
+     "type": "boolean"
+    },
+    "stamps_to_finish": {
+     "type": "integer"
+    }
+   }
+  },
+  "lantern_ticket": {
+   "type": "boolean"
+  },
+  "status": {
+   "enum": [
+    "ready",
+    "started",
+    "done"
+   ]
+  },
+  "result": {
+   "type": [
+    "array",
+    "null"
+   ],
+   "description": "결과 쪽 전체(1~10쪽, 결제 뒤)",
+   "items": {
+    "type": "object"
+   }
+  }
+ }
+}

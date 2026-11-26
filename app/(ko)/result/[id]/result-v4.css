@@ -196,3 +196,23 @@
 .tv4 .pay .payerr { margin-top: 8px; font-size: 12px; line-height: 1.5; color: #ffb4a8 !important; word-break: keep-all; }
 .tv4 .pay .btn.kakaopay:disabled { opacity: 0.8; }
 .tv4 .guestsave { margin: 6px 4px 0; font-size: 10.5px; line-height: 1.5; color: var(--ink-soft, #5b6475); text-align: center; word-break: keep-all; }
+
+/* 9쪽 작심삼일 챌린지 · 10쪽 쏘웰라 대화 화면(owner 2026-11-26) */
+.tv4 .cbanner { display: block; width: 100%; height: auto; border-radius: 16px; margin: 0 0 14px; box-shadow: 0 4px 14px #00000022; }
+.tv4 .cdays { list-style: none; padding: 0; margin: 10px 0 4px; display: flex; flex-direction: column; gap: 10px; }
+.tv4 .cday { background: #fff; border: 1px solid #20487022; border-radius: 14px; padding: 12px 14px; }
+.tv4 .cday.later { background: #fffaf0; }
+.tv4 .cday p { margin: 4px 0 0 !important; font-size: 14px; line-height: 1.6; }
+.tv4 .cday .clabel { display: inline-block; font-size: 11px; font-weight: 700; background: var(--night); color: var(--gold-soft); padding: 1px 9px; border-radius: 9px; margin-bottom: 4px; }
+.tv4 .cday .ctitle { display: block; font-family: var(--font-gowun-batang), "Gowun Batang", serif; color: var(--line); font-size: 15.5px; line-height: 1.45; word-break: keep-all; }
+.tv4 .cday .ctie, .tv4 .cday .chow, .tv4 .cday .chome { color: var(--muted); font-size: 13px !important; }
+.tv4 .cday .cproof { font-size: 12.5px !important; color: #7a5a12; background: var(--cream); border-radius: 8px; padding: 4px 8px; }
+.tv4 .cnote { font-size: 12.5px; color: var(--muted); margin: 6px 0 0 !important; }
+.tv4 .schat { background: var(--night); border-radius: 18px; padding: 14px 12px; margin: 0 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.tv4 .schat .sbub { max-width: 82%; border-radius: 16px; padding: 8px 12px; }
+.tv4 .schat .sbub p { margin: 0 !important; font-size: 13.5px; line-height: 1.55; word-break: keep-all; }
+.tv4 .schat .sbub.user { align-self: flex-end; background: var(--gold); color: var(--night); border-bottom-right-radius: 4px; }
+.tv4 .schat .sbub.sowella { align-self: flex-start; background: var(--moon); color: var(--ink); border-bottom-left-radius: 4px; }
+.tv4 .schat .sname { display: block; font-size: 11px; font-weight: 700; color: var(--line); margin-bottom: 2px; }
+.tv4 .lbanner { display: block; margin: 8px 0 6px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 14px #00000022; }
+.tv4 .lbanner img { display: block; width: 100%; height: auto; }

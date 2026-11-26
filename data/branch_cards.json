@@ -2333,6 +2333,80 @@
   "SB-GIG-3": [
    1,
    4
+  ],
+  "SF-OFFWORK-1": [
+   3,
+   13
+  ],
+  "SF-OFFWORK-2": [
+   0,
+   9
+  ],
+  "SF-OFFWORK-3": [
+   12,
+   18
+  ],
+  "ML-SHARE-1": [
+   18,
+   2
+  ],
+  "ML-SHARE-2": [
+   18,
+   2
+  ],
+  "ML-SHARE-3": [
+   17,
+   18
+  ],
+  "ML-MONEY-1": [
+   4,
+   5
+  ],
+  "ML-MONEY-2": [
+   4,
+   15
+  ],
+  "ML-MONEY-3": [
+   4,
+   2
+  ],
+  "ML-INLAW-1": [
+   15,
+   18
+  ],
+  "ML-INLAW-2": [
+   6,
+   8,
+   14
+  ],
+  "ML-INLAW-3": [
+   1,
+   5
+  ],
+  "ML-PARENTING-1": [
+   4,
+   1
+  ],
+  "ML-PARENTING-2": [
+   15,
+   2
+  ],
+  "ML-PARENTING-3": [
+   2,
+   15
+  ],
+  "PR-DRIFT-1": [
+   6,
+   4
+  ],
+  "PR-DRIFT-2": [
+   6,
+   7
+  ],
+  "PR-DRIFT-3": [
+   14,
+   1
   ]
- }
+ },
+ "note_v313": "v3.13: 새 기본 갈래 18개에 카드 후보를 같은 낱말 규칙으로 붙임(Claude 초안, 검수 전 · enabled=false 그대로)"
 }
