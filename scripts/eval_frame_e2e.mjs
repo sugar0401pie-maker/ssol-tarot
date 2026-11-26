@@ -45,9 +45,12 @@ const money = pick((r) => r.area === "LIF", PER);
 const POOL = process.env.POOL || "";
 const GROUP_OF = (a) => (a === "LOV" ? "연애" : a === "CAR" || a === "JOB" ? "직장" : a === "EDU" ? "시험" : a === "LIF" ? "돈" : "기타");
 const GROUPS = POOL ? ["연애", "직장", "시험", "돈", "기타"] : ["연애", "직장", "시험", "돈"];
-const test = POOL
+// 2026-11-26 ONLY=연애,직장: 그 영역 표본만(owner "연애·직장 위주로 일부만" — 비용 절반)
+const ONLY = (process.env.ONLY || "").split(",").map((x) => x.trim()).filter(Boolean);
+const test0 = POOL
   ? rows.map((r, i) => [r, i]).filter(([r]) => r.id.startsWith(POOL + "-")).map((x) => [rnd(), x]).sort((a, b) => a[0] - b[0]).slice(0, PER * 4).map(([, x]) => [...x, GROUP_OF(x[0].area)])
   : [...love.map((x) => [...x, "연애"]), ...work.map((x) => [...x, "직장"]), ...exam.map((x) => [...x, "시험"]), ...money.map((x) => [...x, "돈"])];
+const test = ONLY.length ? test0.filter((x) => ONLY.includes(x[x.length - 1])) : test0;
 const testIds = new Set(test.map(([r]) => r.id));
 const keep = rows.map((_, i) => i).filter((i) => !testIds.has(rows[i].id));
 const charIdx = buildIndex(keep.map((i) => rows[i]), { normalize: norm });
