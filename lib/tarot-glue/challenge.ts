@@ -67,14 +67,19 @@ const firstSentence = (t: string) => {
 };
 
 /** tarot_sessions.report.challenge(쏘웰라가 읽는 모양) — day1~month마다 title·description(+ 화면·인증에 쓰는 칸). */
+// 쏘웰라 요청(2026-11-26): 1주일·1달 title은 고정 "1주일 이어 가기"·"1달 이어 가기", 할 일은 description에(활동 제목 — 설명).
+export const LATER_TITLE: Partial<Record<DayKey, string>> = { week: "1주일 이어 가기", month: "1달 이어 가기" };
 export function toReportChallenge(ch: Challenge, ai: Partial<Record<DayKey, boolean>> = {}) {
   const out: Record<string, unknown> = {};
   for (const d of ch.days) {
-    // 1·3일차 DB 문장은 제목이 따로 없어 첫 문장을 제목으로, 나머지를 설명으로
-    const fs = d.title ? null : firstSentence(d.text);
+    // 1·3일차 DB 문장은 제목이 따로 없어 스토리 한 줄("1일차, 내 기운 체크" → "내 기운 체크")을 제목으로, 문장 전체를 설명으로
+    const fixed = LATER_TITLE[d.key as DayKey];
+    const short = String(d.story || "").replace(/^(작심삼일\s*)?(1일차|3일 완주|작심삼일 완주)\s*,\s*/, "").trim();
     out[d.key] = {
-      title: d.title ?? fs!.head,
-      description: d.title ? d.text : fs!.rest || fs!.head,
+      title: fixed ?? d.title ?? (short || firstSentence(d.text).head),
+      description: fixed ? (d.title ? `${d.title} — ${d.text}` : d.text) : d.text,
+      // 화면을 다시 만들 때 쓰는 원래 칸(활동 제목·설명)
+      activity_title: d.title ?? null, text: d.text,
       label: d.label, proof: d.proof, story: d.story, practice_id: d.practice_id ?? null, ai: !!ai[d.key as DayKey],
     };
   }
@@ -86,8 +91,10 @@ export function applyStored(ch: Challenge, stored: any): Challenge {
   if (!stored || typeof stored !== "object") return ch;
   const days = ch.days.map((d) => {
     const s = stored[d.key];
-    if (!s || !s.ai || typeof s.title !== "string" || typeof s.description !== "string") return d;
-    return { ...d, title: s.title, text: s.description, tie: undefined } as ChallengeDay;
+    if (!s || !s.ai) return d;
+    const title = typeof s.activity_title === "string" ? s.activity_title : s.title, text = typeof s.text === "string" ? s.text : s.description;
+    if (typeof title !== "string" || typeof text !== "string") return d;
+    return { ...d, title, text, tie: undefined } as ChallengeDay;
   });
   return { ...ch, days };
 }

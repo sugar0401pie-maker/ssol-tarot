@@ -42,6 +42,10 @@ test("report.challenge = 쏘웰라가 읽는 모양(day1~month: title·descripti
     assert.ok(typeof rc[k].description === "string" && rc[k].description.length > 0, k);
   }
   assert.equal(rc.source, "tarot");
+  assert.equal(rc.week.title, "1주일 이어 가기");
+  assert.equal(rc.month.title, "1달 이어 가기");
+  const b = base();
+  assert.equal(rc.week.description, `${b.days[3].title} — ${b.days[3].text}`, "1주일 할 일은 description에");
   const json = JSON.stringify(rc);
   assert.ok(!/@/.test(json), "이메일 없음");
 });
